@@ -34,37 +34,66 @@
  *
  *****************************************************************************/
 //set up the MG server session and pass it back to the javascript init
-include ("c:/Program Files/MapServerEnterprise/WebExtensions/MapViewerPhp/Constants.php");
+
+//TODO : should be settable
+$installDir = "C:/Program Files/MapGuideOpenSource/";
+$extensionDir = $installDir . "WebServerExtensions/www/";
+$viewDir = $extensionDir . "mapviewerphp/";
+
+//echo $viewDir . "constants.php";
+include $viewDir . "common.php";
+include $viewDir . "constants.php";
 
 // Initialize
-AwInitializeWebTier ("c:/Program Files/MapServerEnterprise/WebExtensions/webconfig.ini");
-$user = new AwUserInformation('Administrator', 'admin');
-$siteConnection = new AwSiteConnection();
-$siteConnection->Open($user);
+MgInitializeWebTier($extensionDir. "webconfig.ini");
 
-$site = new AwSite();
-$site->Open($user);
 
-if (!isset($_GET['session'])) {
-	$sessionID = $site->CreateSession();
+
+if (!isset($_GET['session'])) 
+{
+  $user = new MgUserInformation('Administrator', 'admin');
+  $siteConnection = new MgSiteConnection();
+  $siteConnection->Open($user);
+  //$site = new MgSite();
+  //$site->Open($user);
+  //$sessionID = $site->CreateSession();
 }
 else
 {
-	$sessionID = $_GET['session'];
+  $sessionID = $_GET['session'];
+  $user = new MgUserInformation($sessionID);
+  $siteConnection = new MgSiteConnection();
+  $siteConnection->Open($user);
+
 }
-$user->SetAwSessionId($sessionID);
+
+
+
+
+
+
+//$site = $siteConnection->GetSite();
+
+
+
+
+
+//$user->SetMgSessionId($sessionID);
 
 //resource ID for the map to be used by all scripts
 
+
+
+//common resource service to be used by all scripts
+$resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
+
+
 //$mapResourceID = new AwResourceIdentifier( 'Session:'.$sessionID.'//Map.MapDefinition');
-$mapResourceID = new AwResourceIdentifier("Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition");
+//$mapResourceID = new AwResourceIdentifier("Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition");
 
 
 //$mapResourceID = new AwResourceIdentifier( 'Session:'.$sessionID.'//Map.MapDefinition');
 //$mapName = $mapResourceID->GetName();
 //$mapStateID = new AwResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.AwResourceType::Map);
 
-
-//common resource service to be used by all scripts
-$resourceService = $siteConnection->CreateService(AwServiceType::ResourceService);
 ?>
