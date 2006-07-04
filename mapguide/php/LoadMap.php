@@ -32,9 +32,9 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-$installDir = "C:/Program Files/MapGuideOpenSource/";
-$extensionDir = $installDir . "WebServerExtensions/www/";
-$viewDir = $extensionDir . "mapviewerphp/";
+$extensionDir = getcwd() . "/../../../";
+$viewDir = $extensionDir."mapviewerphp/";
+
 
 try
 {
@@ -44,6 +44,7 @@ include $viewDir . "constants.php";
 ;
 
 MgInitializeWebTier($extensionDir. "webconfig.ini");
+//MgInitializeWebTier("c:/Program Files/MapGuideOpenSource/WebServerExtensions/www/webconfig.ini");
 
 
  $sessionId = $_GET['session'];
@@ -110,15 +111,15 @@ $map->Save($resourceService, $mapStateId);
 //$sessionId =  $map->GetSessionId();
 $mapName = $map->GetName() ;
 $extents = $map->GetMapExtent();
-$oMin = $extents->GetLowerLeftCoordinate();
-$oMax = $extents->GetUpperRightCoordinate();
+@$oMin = $extents->GetLowerLeftCoordinate();
+@$oMax = $extents->GetUpperRightCoordinate();
 
-$srs = $map->GetMapSRS();
+@$srs = $map->GetMapSRS();
 if($srs != "")
 {
-  $csFactory = new MgCoordinateSystemFactory();
-  $cs = $csFactory->Create($srs);
-  $metersPerUnit = $cs->ConvertCoordinateSystemUnitsToMeters(1.0);
+  @$csFactory = new MgCoordinateSystemFactory();
+  @$cs = $csFactory->Create($srs);
+  @$metersPerUnit = $cs->ConvertCoordinateSystemUnitsToMeters(1.0);
   //  $unitsType = $cs->GetUnits();
 }
 else
@@ -141,12 +142,11 @@ echo "<maxx>".$oMax->GetX()."</maxx>";
 echo "<maxy>".$oMax->GetY()."</maxy>";
 echo "</extent>";
 echo "</mapguidesession>";
-
 }
 catch (MgException $e)
 {
-     echo "ERROR: " . $e->GetMessage() . "\n";
-     echo $e->GetDetails() . "\n";
-     echo $e->GetStackTrace() . "\n";
+  //echo "ERROR: " . $e->GetMessage() . "\n";
+  //echo $e->GetDetails() . "\n";
+  //echo $e->GetStackTrace() . "\n";
 }
 exit;

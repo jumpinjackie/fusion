@@ -32,9 +32,11 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-$installDir = "C:/Program Files/MapGuideOpenSource/";
-$extensionDir = $installDir . "WebServerExtensions/www/";
-$viewDir = $extensionDir . "mapviewerphp/";
+/*Assuming that chameleon is installed C:\Program Files\MapGuideOpenSource\WebServerExtensions\www */
+
+$extensionDir = getcwd() . "/../../../";
+
+$viewDir = $extensionDir."mapviewerphp/";
 
 try
 {
@@ -43,6 +45,7 @@ try
   include $viewDir . "constants.php";
 
   MgInitializeWebTier($extensionDir. "webconfig.ini");
+  
 
   $user = new MgUserInformation('Administrator', 'admin');
 
