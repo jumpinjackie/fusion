@@ -26,7 +26,7 @@
  * extended description
  * **********************************************************************/
 
-//goApp.addToScriptArray(app_base_url+"widgets/GxZoomOut.js", "GxZoomOut");
+
 
 var MGZoomOut = Class.create();
 Object.extend(MGZoomOut.prototype, GxZoomOut.prototype);

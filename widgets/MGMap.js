@@ -29,7 +29,6 @@
 /**
  * MGMap : MapGuide map widget Based on generic class GxMap
 */
-//goApp.addToScriptArray(app_base_url+"widgets/GxMap.js", "GxMap");
 
 var MGMap = Class.create();
 Object.extend(MGMap.prototype, GxMap.prototype);

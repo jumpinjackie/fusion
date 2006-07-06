@@ -27,7 +27,7 @@
  * 
  * **********************************************************************/
 
-//goApp.addToScriptArray(app_base_url+"widgets/GxZoom.js", "GxZoom");
+
 
 var MGZoom = Class.create();
 Object.extend(MGZoom.prototype, GxZoom.prototype);

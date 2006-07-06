@@ -26,7 +26,6 @@
  * perform a selection using the map guide web layout conifiguration file
  * 
  * **********************************************************************/
-//goApp.addToScriptArray(app_base_url+"widgets/GxSelect.js", "GxSelect");
 
 var MGSelect = Class.create();
 Object.extend(MGSelect.prototype, GxSelect.prototype);
