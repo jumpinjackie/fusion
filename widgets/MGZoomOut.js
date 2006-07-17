@@ -25,15 +25,15 @@
  *
  * extended description
  * **********************************************************************/
-
-
+require('widgets/GxZoomOut.js');
 
 var MGZoomOut = Class.create();
-Object.extend(MGZoomOut.prototype, GxZoomOut.prototype);
-Object.extend(GxButtonBase.prototype, 
+MGZoomOut.prototype = 
 {
     initialize : function(oMap, oCommand)
     {
-        this.initializeGxZoomOut(oMap, oCommand);
+        console.log('MGZoomOut.initialize');
+        Object.inheritFrom(this, GxZoomOut.prototype, [oMap, oCommand]);
     }
-});
+};
+

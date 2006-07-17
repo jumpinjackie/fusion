@@ -26,15 +26,14 @@
  * Zoom widget using the map guide web layout configuration file
  * 
  * **********************************************************************/
-
-
+require('widgets/GxZoom.js');
 
 var MGZoom = Class.create();
-Object.extend(MGZoom.prototype, GxZoom.prototype);
-Object.extend(GxZoom.prototype, 
+MGZoom.prototype = 
 {
     initialize : function(oMap, oCommand)
     {
-        this.initializeGxZoom(oMap, oCommand);
+        console.log('MGZoom.initialize');
+        Object.inheritFrom(this, GxZoom.prototype, [oMap, oCommand]);
     }
-});
+};

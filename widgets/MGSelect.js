@@ -26,13 +26,14 @@
  * perform a selection using the map guide web layout conifiguration file
  * 
  * **********************************************************************/
+require('widgets/GxSelect.js');
 
 var MGSelect = Class.create();
-Object.extend(MGSelect.prototype, GxSelect.prototype);
-Object.extend(GxSelect.prototype, 
+MGSelect.prototype = 
 {       
     initialize : function(oMap, oCommand)
     {
-        initializeGxSelect(oMap, oCommand);
+        console.log('MGSelect.initialize');
+        Object.inheritFrom(this, GxSelect.prototype, [oMap, oCommand]);
     }
-});
+};

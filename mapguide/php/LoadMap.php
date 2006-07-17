@@ -35,7 +35,6 @@
 $extensionDir = getcwd() . "/../../../";
 $viewDir = $extensionDir."mapviewerphp/";
 
-
 try
 {
 
@@ -47,9 +46,9 @@ MgInitializeWebTier($extensionDir. "webconfig.ini");
 //MgInitializeWebTier("c:/Program Files/MapGuideOpenSource/WebServerExtensions/www/webconfig.ini");
 
 
- $sessionId = $_GET['session'];
+ $sessionId = $_REQUEST['session'];
 //$user = new MgUserInformation('Administrator', 'admin');
-$user = new MgUserInformation($_GET['session']);
+$user = new MgUserInformation($_REQUEST['session']);
 
 
 
@@ -64,9 +63,9 @@ $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService
 $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
 
 // Get a runtime map from a map definition
-if (isset($_GET['mapid']))
+if (isset($_REQUEST['mapid']))
 {
-  $mapid = $_GET['mapid'];
+  $mapid = $_REQUEST['mapid'];
   //echo $mapid;
   $resourceID = new  MgResourceIdentifier($mapid);
 }
@@ -145,8 +144,8 @@ echo "</mapguidesession>";
 }
 catch (MgException $e)
 {
-  //echo "ERROR: " . $e->GetMessage() . "\n";
-  //echo $e->GetDetails() . "\n";
-  //echo $e->GetStackTrace() . "\n";
+  echo "ERROR: " . $e->GetMessage() . "\n";
+  echo $e->GetDetails() . "\n";
+  echo $e->GetStackTrace() . "\n";
 }
 exit;
