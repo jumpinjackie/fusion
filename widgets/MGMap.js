@@ -1,9 +1,8 @@
 /********************************************************************** * 
- * @project MapGuide? Open Source Web Studio
+ * @project MapGuide Open Source : Chameleon
  * @revision $Id$
- * @purpose this file contains classes that manage the view of an object
- * @author Paul Spencer pspencer@dmsolutions.ca
- * @author Zak James zjames at dmsolutions dot ca
+ * @purpose this file contains the map widget
+ * @author yassefa@dmsolutions.ca
  * @copyright (c) 2006 DM Solutions Group Inc.
  * @license MIT
  * ********************************************************************
@@ -34,15 +33,10 @@ require('widgets/GxMap.js');
 var MGMap = Class.create();
 MGMap.prototype =
 {
-    _oConfigObj: null,
-    _fMetersperunit: null,
-    _sMapname: null,
-    _fScale: null,
-    _nDpi:null,
-    initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, oConfigObj)
+    initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, nWidth, nHeight, oConfigObj)
     {
          console.log('MGMap.initialize');
-         Object.inheritFrom(this, GxMap.prototype, [sDomObj, aExtents]);
+         Object.inheritFrom(this, GxMap.prototype, [sDomObj, aExtents, nWidth, nHeight]);
 
          this._oConfigObj = oConfigObj;
 
@@ -57,35 +51,23 @@ MGMap.prototype =
     setExtents : function(aExtents)
     {
         this.setExtentsGxMap(aExtents);
-        this._calculateScale();
         this.drawMap();
     },
 
-    _calculateScale : function()
+    getScale : function()
     {
-        var fMetersPerPixel = 0.0254 / this._nDpi;
-        var fdeltaX = this._afCurrentExtents[2] - this._afCurrentExtents[0];
-        var fdeltaY = this._afCurrentExtents[3] - this._afCurrentExtents[1];
-
-        var nWidth = getObjectWidth(this._oDomObj);
-        var nHeight = getObjectHeight(this._oDomObj);
-
-
-        if (fdeltaX *  nWidth >  fdeltaY * nHeight)
-          this._fScale =  
-             fdeltaX * this._fMetersperunit / (nWidth * fMetersPerPixel);
-        else
-          this._fScale = fdeltaY * this._fMetersperunit / (nHeight * fMetersPerPixel); 
+        return this._fScale;
     },
 
     drawMap : function()
     {
-        //alert("MGMap::drawMap");
+        console.log('MGMap::drawMap');
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
+        
+        var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
+        var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
 
-        var nWidth = getObjectWidth(this._oDomObj);
-        var nHeight = getObjectHeight(this._oDomObj);
 
         var sReqParams = "OPERATION=GETVISIBLEMAPEXTENT&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
@@ -104,41 +86,39 @@ MGMap.prototype =
 
     _requestMapImage : function(r)
     {
-        var nWidth = getObjectWidth(this._oDomObj);
-        var nHeight = getObjectHeight(this._oDomObj);
+        var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
+        var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
 
+        console.log("MGMap:: _requestMapImage");
+                    
         if (r.responseXML)
         {
               //parse the new extent
-              var newExtents = [];
+            var newExtents = [];
 
-              var xmlroot = r.responseXML.documentElement;
-              var xs = xmlroot.getElementsByTagName("X");
-              var ys = xmlroot.getElementsByTagName("Y");
-              newExtents[0] = parseFloat(xs[0].childNodes[0].nodeValue);
-              newExtents[1] = parseFloat(ys[0].childNodes[0].nodeValue);
-              newExtents[2] = parseFloat(xs[1].childNodes[0].nodeValue);
-              newExtents[3] = parseFloat(ys[1].childNodes[0].nodeValue);
+            var xmlroot = r.responseXML.documentElement;
+            var xs = xmlroot.getElementsByTagName("X");
+            var ys = xmlroot.getElementsByTagName("Y");
+            newExtents[0] = parseFloat(xs[0].childNodes[0].nodeValue);
+            newExtents[1] = parseFloat(ys[0].childNodes[0].nodeValue);
+            newExtents[2] = parseFloat(xs[1].childNodes[0].nodeValue);
+            newExtents[3] = parseFloat(ys[1].childNodes[0].nodeValue);
+            
 
+            this._afCurrentExtents = newExtents;
 
-              this._afCurrentExtents = newExtents;
-
-              this._nCellSize  = Math.max(
-                                          Math.abs((this._afCurrentExtents[2] - this._afCurrentExtents[0])/
-                                                   parseInt(nWidth)),
-                                          Math.abs((this._afCurrentExtents[3] - this._afCurrentExtents[1])/
-                                                   parseInt(nHeight))
-                                          );
-
-
+            this._nCellSize  = 
+              Math.max( Math.abs((this._afCurrentExtents[2] - this._afCurrentExtents[0])/
+                                 parseInt(nWidth)),
+                        Math.abs((this._afCurrentExtents[3] - this._afCurrentExtents[1])/
+                                 parseInt(nHeight)));
         }
         else
         {
-              //alert("non valid");
+            //alert("non valid");
         }
 
-        url = this_oConfigObj.getWebagentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this_oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
-
+        url = this._oConfigObj.getWebagentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
         if (this._oImg.width != nWidth || this._oImg.height != nWidth) {
             this._oImg.src = 'images/a_pixel.gif';
@@ -146,12 +126,13 @@ MGMap.prototype =
             this._oImg.height = nHeight;
         }
 
+         console.log('MGURL ' + url);
         this._oImg.src = url;
     },        
 
     queryRect : function(fMinX, fMinY, fMaxX, fMaxY)
     {
-        var sReqParams = "OPERATION=QUERYMAPFEATURES&VERSION=1.0.0&SESSION=" + this_oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
+        var sReqParams = "OPERATION=QUERYMAPFEATURES&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
         sReqParams += '&GEOMETRY=POLYGON(('+ fMinX + ' ' +  fMinY + ', ' +  fMaxX + ' ' +  fMinY + ', ' + fMaxX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMinY + '))';
 
         sReqParams += '&SELECTIONVARIANT=INTERSECTS';
