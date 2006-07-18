@@ -30,10 +30,10 @@ require('widgets/GxZoomOut.js');
 var MGZoomOut = Class.create();
 MGZoomOut.prototype = 
 {
-    initialize : function(oMap, oCommand)
+    initialize : function(oCommand)
     {
         console.log('MGZoomOut.initialize');
-        Object.inheritFrom(this, GxZoomOut.prototype, [oMap, oCommand]);
+        Object.inheritFrom(this, GxZoomOut.prototype, [oCommand]);
     }
 };
 

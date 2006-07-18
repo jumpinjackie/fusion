@@ -31,9 +31,9 @@ require('widgets/GxZoom.js');
 var MGZoom = Class.create();
 MGZoom.prototype = 
 {
-    initialize : function(oMap, oCommand)
+    initialize : function(oCommand)
     {
         console.log('MGZoom.initialize');
-        Object.inheritFrom(this, GxZoom.prototype, [oMap, oCommand]);
+        Object.inheritFrom(this, GxZoom.prototype, [oCommand]);
     }
 };

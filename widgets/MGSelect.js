@@ -31,9 +31,9 @@ require('widgets/GxSelect.js');
 var MGSelect = Class.create();
 MGSelect.prototype = 
 {       
-    initialize : function(oMap, oCommand)
+    initialize : function(oCommand)
     {
         console.log('MGSelect.initialize');
-        Object.inheritFrom(this, GxSelect.prototype, [oMap, oCommand]);
+        Object.inheritFrom(this, GxSelect.prototype, [oCommand]);
     }
 };
