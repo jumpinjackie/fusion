@@ -36,7 +36,7 @@ KeyMap.prototype =
         this.oCommand = oCommand;
         
         //this.oDomObj = getRawObject(oCommand.getName());
-        this.oDomObj = document.getElementById(oCommand.getName());
+        this.oDomObj = $(oCommand.getName());
 
         this.sImageURL = this.oCommand.oxmlNode.getNodeText('KeyMapImageURL');
         this.fMinX = this.oCommand.oxmlNode.getNodeText('MinX');

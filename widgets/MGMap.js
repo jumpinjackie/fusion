@@ -64,24 +64,21 @@ MGMap.prototype =
         console.log('MGMap::drawMap');
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
-        
+
         var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
         var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
-
 
         var sReqParams = "OPERATION=GETVISIBLEMAPEXTENT&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
 
         sReqParams += "&SETDISPLAYDPI=" + this._nDpi + "&SETDISPLAYWIDTH=" + nWidth + "&SETDISPLAYHEIGHT=" + nHeight;
         sReqParams += "&SETVIEWSCALE=" + this._fScale + "&SETVIEWCENTERX=" + cx + "&SETVIEWCENTERY=" + cy;
+        sReqParams += "&s="+this._oConfigObj.getWebAgentURL();
 
-        //window.open('http://localhost/MapServer/MapAgent/MapAgent.fcgi?'+reqParams);
-        //var url =  this_oConfigObj.getWebagentURL() + sReqParams;
-        //window.open(url);
         var options = {parameters: sReqParams, 
-                       onSuccess: this._requestMapImage.bind(this)};
-        new Ajax.Request(this._oConfigObj.getWebagentURL(), options);
-        //call (url, this, this._requestMapImage);
+                       onComplete: this._requestMapImage.bind(this)};
+        var url = document.__chameleon__.sRedirectScript;
+        new Ajax.Request(url, options);
     },
 
     _requestMapImage : function(r)
@@ -118,7 +115,7 @@ MGMap.prototype =
             //alert("non valid");
         }
 
-        url = this._oConfigObj.getWebagentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
+        url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
         if (this._oImg.width != nWidth || this._oImg.height != nWidth) {
             this._oImg.src = 'images/a_pixel.gif';
@@ -138,17 +135,11 @@ MGMap.prototype =
         sReqParams += '&SELECTIONVARIANT=INTERSECTS';
         sReqParams += '&MAXFEATURES=-1';
         sReqParams += '&PERSIST=1';
+        sReqParams += "&s="+this._oConfigObj.getWebAgentURL();
 
         var options = {parameters: sReqParams,
                        onSuccess: this.drawMap.bind(this)};
-        new Ajax.Request(this._oConfigObj.getWebagentURL(), options);
-        
-        //var sUrl = this_oConfigObj.getWebagentURL() + sReqParams;
-
-        //this function calls drawMap to update  the map image.
-        //TODO : use the ProcessQueryResults functions to parse the xml results
-
-        //call (sUrl, this,  this.drawMap);
-        //call (url, this,  this.ProcessQueryResults);
+        var url = document.__chameleon__.sRedirectScript;
+        new Ajax.Request(url, options);
     }
 };
