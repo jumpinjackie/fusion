@@ -36,6 +36,7 @@ FitToWindow.prototype =
 
     initialize : function(oCommand)
     {
+        console.log('FitToWindow.initialize');
         this.oMap = oCommand.getMap();
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
 
@@ -46,6 +47,7 @@ FitToWindow.prototype =
      */
     activateTool : function()
     {
+        console.log('FitToWindow.activateTool');
         this.oMap.fullExtents();
         this.activate();
     },
@@ -57,6 +59,7 @@ FitToWindow.prototype =
      */
     activate : function()
     {
+        console.log('FitToWindow.activate')
         /*icon button*/
         this._oButton.activateTool();
     },  
@@ -68,7 +71,8 @@ FitToWindow.prototype =
      **/
     deactivate : function()
     {
+        console.log('FitToWindow.deactivate');
         /*icon button*/
         this._oButton.deactivateTool();
-    },   
+    }
 };
