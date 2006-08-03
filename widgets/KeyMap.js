@@ -33,6 +33,10 @@ KeyMap.prototype =
   
     initialize : function(oCommand)
     {
+        console.log('KeyMap.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['KeyMap', false]);
+        this.setMap(oCommand.getMap());
+        
         this.oCommand = oCommand;
         
         //this.oDomObj = getRawObject(oCommand.getName());
@@ -51,20 +55,10 @@ KeyMap.prototype =
         nTmp = parseInt(this.nHeight)+2;
         this.oDomObj.style.height = nTmp + 'px';
         
-        var sMapId = this.oCommand.oxmlNode.getNodeText('MapId');
-        if (sMapId != '')
-        {
-            this.oMap = document.__chameleon__.getMapById(sMapId);
-        }
-        else
-        {
-            this.oMap = document.__chameleon__.getMapByIndice(0);
-        }
+        this.fCellWidth =  (this.fMaxX - this.fMinX)/this.nWidth;
+        this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
-         this.fCellWidth =  (this.fMaxX - this.fMinX)/this.nWidth;
-         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
-
-        this.oMap.registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
 
         this.draw();
        
@@ -105,7 +99,7 @@ KeyMap.prototype =
 
     update : function()
     {  
-        var aMapExtents = this.oMap.getCurrentExtents();
+        var aMapExtents = this.getMap().getCurrentExtents();
 
         var fDeltaX = (aMapExtents[2] - aMapExtents[0])/(this.fMaxX - this.fMinX)
         var fDeltaY = (aMapExtents[3] - aMapExtents[1])/(this.fMaxY - this.fMinY)
@@ -136,8 +130,6 @@ KeyMap.prototype =
         this.oDomExtents.style.height = parseInt(height+0.5) + "px";
 
         this.oDomExtents.style.visibility = 'visible';
-
-    
     }
 };
       

@@ -37,27 +37,21 @@ Scalebar.prototype =
 
     initialize : function(oCommand)
     {
+        console.log('Scalebar.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['Scalebar', false]);
+        this.setMap(oCommand.getMap());
+        
         this.oCommand = oCommand;
 
-        var sMapId = this.oCommand.oxmlNode.getNodeText('MapId');
-        if (sMapId != '')
-        {
-            this.oMap = document.__chameleon__.getMapById(this.sMapId);
-        }
-        else
-        {
-            this.oMap = document.__chameleon__.getMapByIndice(0);
-        }
-
-        this.oScaleBar = new ScaleBarTool(this.oMap.getScale());
+        this.oScaleBar = new ScaleBarTool(this.getMap().getScale());
         this.oScaleBar.place(oCommand.getName());
 
 
-        this.oMap.registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
     },
 
     extentsChangedCB : function()
     {
-        this.oScaleBar.update(this.oMap.getScale());
-    },
+        this.oScaleBar.update(this.getMap().getScale());
+    }
 };

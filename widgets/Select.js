@@ -27,7 +27,8 @@
  * 
  * **********************************************************************/
 
-require('widgets/GxSelect.js');
+ require('widgets/GxButtonBase.js');
+ require('widgets/GxRectTool.js');
 
 var Select = Class.create();
 Select.prototype = 
@@ -35,6 +36,63 @@ Select.prototype =
     initialize : function(oCommand)
     {
         console.log('Select.initialize');
-        Object.inheritFrom(this, GxSelect.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Select', true]);
+        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxRectTool.prototype, [this.getMap()]);
+        this.asCursor = ['auto'];
+        
+    },
+    
+    /**
+     * called when the button is clicked by the MGButtonBase widget
+     */
+    activateTool : function()
+    {
+        this.getMap().activateWidget(this);
+        this.activate();
+    },
+
+    /**
+     * activate the widget (listen to mouse events and change cursor)
+     * This function should be defined for all functions that register
+     * as a widget in the map
+     */
+    activate : function()
+    {
+        this.activateRectTool();
+        this.getMap().setCursor(this.asCursor);
+        /*icon button*/
+        this._oButton.activateTool();
+    },
+
+    /**
+     * deactivate the widget (listen to mouse events and change cursor)
+     * This function should be defined for all functions that register
+     * as a widget in the map
+     **/
+    deactivate : function()
+    {
+         this.deactivateRectTool();
+         this.getMap().setCursor('auto');
+         /*icon button*/
+         this._oButton.deactivateTool();
+    },
+
+    /**
+     *  set the extants of the map based on the pixel coordinates
+     * passed
+     * 
+     * @param nLeft integer pixel coordinates of the left (minx)
+     * @param nBottom integer pixel coordinates of the bottom (miny)
+     * @param nRight integer pixel coordinates of the right (maxx)
+     * @param nTop integer pixel coordinates of the top (maxy)
+     **/
+    execute : function(nLeft, nBottom, nRight, nTop)
+    {
+        var sMin = this.getMap().pixToGeo(nLeft,nBottom);
+        var sMax = this.getMap().pixToGeo(nRight,nTop);
+
+        this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
     }
 };

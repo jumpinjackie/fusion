@@ -26,16 +26,55 @@
  * extended description
  * **********************************************************************/
 
-
-
-require('widgets/GxZoomOut.js');
-
+require('widgets/GxButtonBase.js');
+require('widgets/GxClickTool.js');
+ 
 var ZoomOut = Class.create();
 ZoomOut.prototype = 
 {
+    nFactor: -2,
     initialize : function(oCommand)
     {
-        console.log('MGZoomOut.initialize');
-        Object.inheritFrom(this, GxZoomOut.prototype, [oCommand]);
+        console.log('ZoomOut.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['ZoomOut', true]);
+        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, GxClickTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        this.asCursor = ['-moz-zoom-out', 'auto'];
+    },
+
+    activateTool : function()
+    {
+        console.log('ZoomOut.activateTool');
+        this.getMap().activateWidget(this);
+        this.activate();
+    },
+
+    activate : function()
+    {
+        console.log('ZoomOut.activate');
+        this.activateClickTool();
+        this.getMap().setCursor(this.asCursor);
+        /*button*/
+        this._oButton.activateTool()
+    },
+
+    deactivate : function()
+    {
+        console.log('ZoomOut.deactivate');
+        
+         this.deactivateClickTool();
+         this.getMap().setCursor('auto');
+
+          /*icon button*/
+         this._oButton.deactivateTool();
+    },
+
+    execute : function(nX, nY)
+    {
+        console.log('ZoomOut.execute');
+        
+        var sGeoPoint = this.getMap().pixToGeo(nX,nY);
+        this.getMap().zoom(sGeoPoint.x, sGeoPoint.y, this.nFactor);
     }
 };

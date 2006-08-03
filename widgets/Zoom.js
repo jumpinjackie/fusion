@@ -27,14 +27,86 @@
  * 
  * **********************************************************************/
 
-
-require('widgets/GxZoom.js');
+require('widgets/GxButtonBase.js');
+require('widgets/GxRectTool.js');
 
 var Zoom = Class.create();
 Zoom.prototype = 
 {
+    nTolerance : 5,
+    nFactor : 2,    
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxZoom.prototype, [oCommand]);
+        console.log('Zoom.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
+        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxRectTool.prototype, [this.getMap()]);
+        this.asCursor = ['-moz-zoom-in', 'auto'];
+        
+    },
+
+    /**
+     * called when the button is clicked by the GxButtonBase widget
+     */
+    activateTool : function()
+    {
+        console.log('Zoom.activateTool');
+        this.getMap().activateWidget(this);
+    },
+
+    /**
+     * activate the widget (listen to mouse events and change cursor)
+     * This function should be defined for all functions that register
+     * as a widget in the map
+     */
+    activate : function()
+    {
+        console.log('Zoom.activate');
+        this.activateRectTool();
+        /*cursor*/
+        this.getMap().setCursor(this.asCursor);
+        /*icon button*/
+        this._oButton.activateTool();
+    },
+
+    /**
+     * deactivate the widget (listen to mouse events and change cursor)
+     * This function should be defined for all functions that register
+     * as a widget in the map
+     **/
+    deactivate : function()
+    {
+        console.log('Zoom.deactivate');
+        this.deactivateRectTool();
+        this.getMap().setCursor('auto');
+        /*icon button*/
+        this._oButton.deactivateTool();
+    },
+
+    /**
+     * set the extents of the map based on the pixel coordinates
+     * passed
+     * 
+     * @param nLeft integer pixel coordinates of the left (minx)
+     * @param nBottom integer pixel coordinates of the bottom (miny)
+     * @param nRight integer pixel coordinates of the right (maxx)
+     * @param nTop integer pixel coordinates of the top (maxy)
+     */
+    execute : function(nLeft, nBottom, nRight, nTop)
+    {
+        if ((nRight-nLeft) < this.nTolerance || 
+            (nBottom-nTop) < this.nTolerance) 
+        {
+		var nSize = this.getMap().getPixelSize();
+		nLeft = nLeft - nSize.width/(this.nFactor*2);
+		nRight = nLeft + nSize.width/(this.nFactor);
+		nTop = nTop - nSize.height/(this.nFactor*2);
+		nBottom = nTop + nSize.height/(this.nFactor);
+        }
+        var sMin = this.getMap().pixToGeo(nLeft,nBottom);
+	var sMax = this.getMap().pixToGeo(nRight,nTop);
+
+        this.getMap().setExtents([sMin.x,sMin.y,sMax.x,sMax.y]);
     }
 };

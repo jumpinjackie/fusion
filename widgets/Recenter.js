@@ -26,28 +26,17 @@
  * extended description
  * **********************************************************************/
 
-
-require('widgets/GxZoomOut.js');
+require('widgets/ZoomOut.js');
 
 var Recenter = Class.create();
 Recenter.prototype = 
 {
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxZoomOut.prototype, [oCommand]);
-    },
-
-    activate : function()
-    {
-        this.activateClickTool();
-        this._oMap.setCursor(['auto', 'auto']);
-        /*button*/
-        this._oButton.activateTool()
-    },
-
-    execute : function(nX, nY)
-    {
-        var sGeoPoint = this._oMap.pixToGeo(nX,nY);
-        this._oMap.zoom(sGeoPoint.x, sGeoPoint.y, 1);
-    }  
+        Object.inheritFrom(this, GxWidget.prototype, ['Recenter', true]);
+        Object.inheritFrom(this, ZoomOut.prototype, [oCommand]);
+        this.setMap(oCommand.getMap());
+        this.nFactor = 1;
+        this.asCursor = ['resize'];
+    }
 };

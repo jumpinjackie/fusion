@@ -123,10 +123,15 @@ MGMap.prototype =
             this._oImg.height = nHeight;
         }
 
-         console.log('MGURL ' + url);
+        console.log('MGURL ' + url);
+        this._oImg.onload = this.resetImage.bind(this);
         this._oImg.src = url;
     },        
-
+    resetImage: function() {
+        this._oImg.style.top = '0px';
+        this._oImg.style.left = '0px';
+    },
+    
     queryRect : function(fMinX, fMinY, fMaxX, fMaxY)
     {
         var sReqParams = "OPERATION=QUERYMAPFEATURES&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();

@@ -32,12 +32,12 @@ require('widgets/GxButtonBase.js');
 var FitToWindow = Class.create();
 FitToWindow.prototype = 
 {
-    oMap : null,
-
     initialize : function(oCommand)
     {
         console.log('FitToWindow.initialize');
-        this.oMap = oCommand.getMap();
+        Object.inheritFrom(this, GxWidget.prototype, ['FitToWindow', false]);
+        this.setMap(oCommand.getMap());
+        
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
 
     },
@@ -48,31 +48,6 @@ FitToWindow.prototype =
     activateTool : function()
     {
         console.log('FitToWindow.activateTool');
-        this.oMap.fullExtents();
-        this.activate();
-    },
-
-   /**
-     * activate the widget (listen to mouse events and change cursor)
-     * This function should be defined for all functions that register
-     * as a widget in the map
-     */
-    activate : function()
-    {
-        console.log('FitToWindow.activate')
-        /*icon button*/
-        this._oButton.activateTool();
-    },  
-
-   /**
-     * deactivate the widget (listen to mouse events and change cursor)
-     * This function should be defined for all functions that register
-     * as a widget in the map
-     **/
-    deactivate : function()
-    {
-        console.log('FitToWindow.deactivate');
-        /*icon button*/
-        this._oButton.deactivateTool();
+        this.getMap().fullExtents();
     }
 };
