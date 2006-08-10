@@ -23,7 +23,58 @@
  * DEALINGS IN THE SOFTWARE.
  ********************************************************************
  *
- * extended description
+ * Displays tooltips over the map when the mouse is hovered for some 
+ * time.  You must configure tooltips for each layer using Studio
+ * or Web Studio by editing the LayerDefinition Settings and
+ * specifying an expression for the tooltip.
+ *
+ * Place a Maptip widget in your application by first adding a
+ * Maptip widget to your WebLayout as follows:
+ *
+ * <Command xsi:type="MaptipCommandType">
+ *  <Name>MyMaptip</Name>
+ *  <Label>Map Tips</Label>
+ *  <TargetViewer>All</TargetViewer>
+ *  <Action>Maptip</Action>
+ *  <Delay>350</Delay>
+ *  <Layer>Parks</Layer>
+ * </Command>
+ *
+ * The important parts of this Command are:
+ *
+ * Name (mandatory) 
+ * 
+ * an element with an id that is the same as this name must be in
+ * the application.  For instance:
+ *
+ * <div id="MyMaptip"></div>
+ *
+ * It can appear anywhere inside the <body>.  You can style this div using
+ * css, for instance:
+ *
+ * #Maptip {
+ *    display: none;
+ *    background-color: yellow;
+ *    border: 1px solid black;
+ *    padding: 2px;
+ *    font-family: Arial;
+ *    font-size: 12px;
+ *    text-align: left;
+ * }
+ *
+ * Delay (optional)
+ *
+ * This is the delay, in milliseconds, that the user must keep the mouse
+ * in the same position in order for the maptip to appear.  The default,
+ * if not specified, is 350 milliseconds.
+ *
+ * Layer (optional, multiple)
+ *
+ * This is the name of a layer from the MapDefinition to get the tooltip
+ * from.  If no Layer elements are specified, then all layers will be
+ * queried and the top-most one will be displayed.  Multiple Layer tags
+ * can be added, allowing tooltips to come from different layers.
+ *
  * **********************************************************************/
 
 var Maptip = Class.create();
@@ -32,6 +83,7 @@ Maptip.prototype =
     oCurrentPosition: null,
     nTimer: null,
     delay: null,
+    aLayers: null,
     
     initialize : function(oCommand)
     {
@@ -39,8 +91,15 @@ Maptip.prototype =
         Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true]);
         this.setMap(oCommand.getMap());
         
-        //TODO: set this from the command if available
-        this.delay = 350;
+        this.delay = oCommand.oxmlNode.getNodeText('Delay');
+        this.delay = this.delay == '' ? 350 : parseInt(this.delay);
+        
+        this.aLayers = [];
+        var layer = oCommand.oxmlNode.findFirstNode('Layer');
+        while(layer) {
+            this.aLayers.push(layer.textContent);
+            layer = oCommand.oxmlNode.findNextNode('Layer');
+        }
         
         this._oCommand = oCommand;
         this.domObj = $(oCommand.getName());
@@ -100,7 +159,7 @@ Maptip.prototype =
          var persist = 0;
          var selection = 'INTERSECTS';
          //TODO: possibly make the layer names configurable?
-         var layerNames = '';
+         var layerNames = this.aLayers.toString();
          var r = new MGQueryMapFeatures(map._oConfigObj.getSessionId(),
                                         map._sMapname,
                                         sGeometry,

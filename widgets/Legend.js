@@ -24,13 +24,62 @@
  ********************************************************************
  *
  * Legend and layer control
+ *
+ * To put a Legend control in your application, you first need to add a
+ * widget to your WebLayout as follows:
+ *
+ * <Command xsi:type="LegendCommandType">
+ *   <Name>MyLegend</Name>
+ *   <Label>Legend</Label>
+ *   <TargetViewer>All</TargetViewer>
+ *   <Action>Legend</Action>
+ *   <ShowRootFolder>false</ShowRootFolder>
+ *   <LayerThemeIcon>images/tree_map.png</LayerThemeIcon>
+ *   <DisabledLayerIcon>images/tree_layer.png</DisabledLayerIcon>
+ *   <RootFolderIcon>images/tree_map.png</RootFolderIcon>
+ * </Command>
+ *
+ * The important parts of this Command are:
+ *
+ * Name (string, mandatory) 
  * 
+ * an element with an id that is the same as this name must be in
+ * the application.  For instance:
+ *
+ * <div id="MyLegend"></div>
+ *
+ * The legend will appear inside the element you provide.
+ *
+ * ShowRootFolder (boolean, optional)
+ *
+ * This controls whether the tree will have a single root node that
+ * contains the name of the map as its label.  By default, the root
+ * node does not appear.  Set to "true" or "1" to make the root node
+ * appear.
+ *
+ * RootFolderIcon: (string, optional)
+ *
+ * The url to an image to use for the root folder.  This only has an
+ * affect if ShowRootFolder is set to show the root folder.
+ *
+ * LayerThemeIcon: (string, optional)
+ *
+ * The url to an image to use for layers that are currently themed.
+ * 
+ * DisabledLayerIcon: (string, optional)
+ *
+ * The url to an image to use for layers that are out of scale.
+ *
  * **********************************************************************/
 require('lib/jx.js');
 
 var Legend = Class.create();
 Legend.prototype = 
 {
+    defLayerThemeIcon: 'images/tree_theme.png',
+    defDisabledLayerIcon: 'images/tree_layer.png',
+    defRootFolderIcon: 'images/tree_map.png',
+    
     initialize : function(oCommand)
     {
         console.log('Legend.initialize');
@@ -39,20 +88,34 @@ Legend.prototype =
         
         this._oDomObj = $(oCommand.getName());
         
+        var img = oCommand.oxmlNode.getNodeText('LayerThemeIcon');
+        this.imgLayerThemeIcon = (img != '') ? img : this.defLayerThemeIcon;
+
+        img = oCommand.oxmlNode.getNodeText('DisabledLayerIcon');
+        this.imgDisabledLayerIcon = (img != '') ? img : defDisabledLayerIcon;
+        
         this.selectedLayer = null;
 
         this.mapLayers = [];
         this.mapGroups = [];
+        
         this.oTree = new JxTree(this._oDomObj);
-        var opt = {};
-        opt.label = this.getMap().getMapName();
-        opt.data = null;
-        //TODO: configurable?
-        opt.imgTreeFolder = 'images/tree_map.png';
-        opt.imgTreeFolderOpen = 'images/tree_map.png';
-        opt.isOpen = true;
-        this.oRoot = new JxTreeFolder(opt);
-        this.oTree.append(this.oRoot);
+        
+        var showMapFolder = oCommand.oxmlNode.getNodeText('ShowRootFolder');
+        if (showMapFolder == 'true' || showMapFolder == '1') {
+            var opt = {};
+            opt.label = this.getMap().getMapName();
+            opt.data = null;
+            img = oCommand.oxmlNode.getNodeText('RootFolderIcon');
+            opt.imgTreeFolder = (img != '') ? img : defRootFolderIcon;
+            opt.imgTreeFolderOpen = opt.imgTreeFolder;
+            opt.isOpen = true;
+            this.oRoot = new JxTreeFolder(opt);
+            this.oTree.append(this.oRoot);
+        } else {
+            this.oRoot = this.oTree;
+        }
+        
         this.getLayers();
     },
     
@@ -115,6 +178,8 @@ Legend.prototype =
             var layerNode = root.findFirstNode('layer');
             while(layerNode) {
                 var layer = new MGLayer(layerNode, this.getMap());
+                layer.themeIcon = this.imgLayerThemeIcon;
+                layer.disabledLayerIcon = this.imgDisabledLayerIcon;
                 if (layer.parentGroup != '') {
                     layer.groupItem = this.mapGroups[layer.parentGroup].treeItem;
                 } else {
