@@ -132,19 +132,42 @@ MGMap.prototype =
         this._oImg.style.left = '0px';
     },
     
-    queryRect : function(fMinX, fMinY, fMaxX, fMaxY)
+    processQueryResults : function(r)
     {
-        var sReqParams = "OPERATION=QUERYMAPFEATURES&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
-        sReqParams += '&GEOMETRY=POLYGON(('+ fMinX + ' ' +  fMinY + ', ' +  fMaxX + ' ' +  fMinY + ', ' + fMaxX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMinY + '))';
+        if (r.responseXML)
+        {
+          //alert(r.responseXML);
+        }        
+        this.drawMap();
+    },
 
-        sReqParams += '&SELECTIONVARIANT=INTERSECTS';
-        sReqParams += '&MAXFEATURES=-1';
-        sReqParams += '&PERSIST=1';
-        sReqParams += "&s="+this._oConfigObj.getWebAgentURL();
+    
+    queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant)
+    {
+        var oBroker = this._oConfigObj.oApp.getBroker();
 
-        var options = {parameters: sReqParams,
-                       onSuccess: this.drawMap.bind(this)};
-        var url = document.__chameleon__.sRedirectScript;
-        new Ajax.Request(url, options);
+        var sGeometry = 'POLYGON(('+ fMinX + ' ' +  fMinY + ', ' +  fMaxX + ' ' +  fMinY + ', ' + fMaxX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMinY + '))';
+
+        var maxFeatures = -1;
+        if (arguments.length > 4)
+        {
+          maxFeatures = nMaxFeatures;
+        }
+        var persist = 1;
+        if (arguments.length > 5)
+        {
+          persist = bPersist;
+        }
+        var selection = 'INTERSECTS';
+        if (arguments.length > 5)
+        {
+          selection = sSelectionVariant;
+        }
+        var r = new MGQueryMapFeatures(this._oConfigObj.getSessionId(),
+                                       this._sMapname,
+                                       sGeometry,
+                                       maxFeatures, persist, selection);
+
+        oBroker.dispatchRequest(r, this.processQueryResults.bind(this));
     }
 };
