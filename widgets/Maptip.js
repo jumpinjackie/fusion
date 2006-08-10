@@ -31,13 +31,17 @@ Maptip.prototype =
 {
     oCurrentPosition: null,
     nTimer: null,
+    delay: null,
     
     initialize : function(oCommand)
     {
         console.log('Maptip.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true]);
         this.setMap(oCommand.getMap());
-
+        
+        //TODO: set this from the command if available
+        this.delay = 350;
+        
         this._oCommand = oCommand;
         this.domObj = $(oCommand.getName());
         this.domObj.parentNode.removeChild(this.domObj);
@@ -51,6 +55,15 @@ Maptip.prototype =
         oDomElem.appendChild(this.domObj);
         
         this.getMap().observeEvent('mousemove', this.mouseMove.bind(this));
+        this.getMap().observeEvent('mouseout', this.mouseOut.bind(this));
+        
+    },
+    
+    mouseOut: function(e) {
+        if (this.nTimer) {
+            window.clearTimeout(this.nTimer);
+            this.hideMaptip();
+        }
     },
     
     mouseMove: function(e) {
@@ -59,20 +72,19 @@ Maptip.prototype =
             this.oCurrentPosition = p;
         } else {
             window.clearTimeout(this.nTimer);
+            this.nTimer = null;
             if (this.bIsVisible) {
                 this.hideMaptip();
             }
             this.oCurrentPosition = p;
         }
-        this.nTimer = window.setTimeout(this.showMaptip.bind(this), 250);
+        this.nTimer = window.setTimeout(this.showMaptip.bind(this), this.delay);
         Event.stop(e);
     },
     
     showMaptip: function(r) {
-        console.log('showMapTip');
         var map = this.getMap();
         var cellSize = map._nCellSize;
-        console.log('cell size: ' + cellSize);
         var oBroker = map._oConfigObj.oApp.getBroker();
         var x = this.oCurrentPosition.x;
         var y = this.oCurrentPosition.y;

@@ -197,6 +197,8 @@ MGLayer.prototype = {
     
     oMap: null,
     
+    currentRange: -1,
+    
     initialize: function(layerNode, oMap) {
         this.oMap = oMap;
         this.layerName = layerNode.getNodeText('layername');
@@ -209,6 +211,10 @@ MGLayer.prototype = {
         this.expandInLegend = layerNode.getNodeText('expandinlegend');
         this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
         this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+        //TODO: make this configurable
+        this.themeIcon = 'images/tree_theme.png';
+        this.disabledLayerIcon = 'images/tree_layer.png';
+        
         this.parentGroup = layerNode.getNodeText('parentgroup');
         this.scaleRanges = [];
         var scaleRangeNode = layerNode.findFirstNode('scalerange');
@@ -237,6 +243,7 @@ MGLayer.prototype = {
         }
         this.currentRange = range;
         if (range != null) {
+            this.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
                 if (!this.treeItem) {
@@ -271,7 +278,10 @@ MGLayer.prototype = {
                 }
             }
         } else {
+            this.checkBox.disabled = true;
             this.clearTreeItem();
+            this.treeItem = this.createTreeItem(this.legendLabel, null, null, true);
+            this.groupItem.append(this.treeItem);
         }
     },
     createFolderItem: function() {
@@ -279,8 +289,8 @@ MGLayer.prototype = {
         opt.label = this.legendLabel == '' ? '&nbsp;' : this.legendLabel;
         opt.data = this;
         opt.isOpen = this.expandInLegend;
-        opt.imgTreeFolderOpen = 'images/tree_theme.png';
-        opt.imgTreeFolder = 'images/tree_theme.png';
+        opt.imgTreeFolderOpen = this.themeIcon;
+        opt.imgTreeFolder = this.themeIcon;
         var folder = new JxTreeFolder(opt);
         folder.domObj.insertBefore(this.checkBox, folder.domObj.childNodes[1]);
         return folder;
@@ -289,7 +299,11 @@ MGLayer.prototype = {
         var opt = {}
         opt.label = label == '' ? '&nbsp;' : label;
         opt.data = this;
-        opt.imgIcon = style.getLegendImageURL(scale, this.resourceId);
+        if (!style) {
+            opt.imgIcon = this.disabledLayerIcon;
+        } else {
+            opt.imgIcon = style.getLegendImageURL(scale, this.resourceId);
+        }
         var item = new JxTreeItem(opt);
         if (bCheckBox) {
             item.domObj.insertBefore(this.checkBox, item.domObj.childNodes[1]);
