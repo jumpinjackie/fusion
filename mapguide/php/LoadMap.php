@@ -73,7 +73,8 @@ if (isset($_REQUEST['mapid']))
 
 //make a copy of the map in the session so we can make temporary changes to it
 $contentReader = $resourceService->GetResourceContent($resourceID);
-$resourceService->SetResource($resourceID, $contentReader, null);
+
+//$resourceService->SetResource($resourceID, $contentReader, null);
 
 
 
@@ -86,12 +87,6 @@ $mapName = $resourceID->GetName();
 $map->Create($resourceService, $resourceID, $mapName);
 
 
-//echo "Name of map:               " . $map->GetName() . "\n";
-//echo "   Session ID of map:      " . $sessionId . "\n";
-// echo "   Object ID:              " . $map->GetObjectId() . "\n";
-
-//echo "<br> mapstate $mapStateId <br>";
-
 $mapStateId = new MgResourceIdentifier("Session:" . $sessionId . "//" . $map->GetName() . "." . MgResourceType::Map);
 
 
@@ -99,13 +94,9 @@ $mapStateId = new MgResourceIdentifier("Session:" . $sessionId . "//" . $map->Ge
 $sel = new MgSelection($map);
 $sel->Save($resourceService, $mapName);
 
-//$map->Save($resourceService, $resourceID); //problem
 
 $map->Save($resourceService, $mapStateId);
 
-//echo "Name of map1:  $mapName <br>\n";
-
- 
 
 //$sessionId =  $map->GetSessionId();
 $mapName = $map->GetName() ;
