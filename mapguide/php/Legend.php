@@ -66,6 +66,7 @@ for($i=0;$i<$layers->GetCount();$i++)
     $layer=$layers->GetItem($i);
    $layerDefinition = $layer->GetLayerDefinition();
     echo '<layer>';
+    echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
     echo '<layername>'.$layer->GetName().'</layername>';
     echo '<layertype>'.$layer->GetLayerType().'</layertype>';
     echo '<displayinlegend>'.$layer->GetDisplayInLegend().'</displayinlegend>';

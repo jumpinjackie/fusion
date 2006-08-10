@@ -183,9 +183,9 @@ MGGroup.prototype = {
     },
     stateChanged: function() {
         if (this.checkBox.checked) {
-            this.oMap.showGroup(this.name);
+            this.oMap.showGroup(this.uniqueId);
         } else {
-            this.oMap.hideGroup(this.name);
+            this.oMap.hideGroup(this.uniqueId);
         }
     }
 };
@@ -200,6 +200,7 @@ MGLayer.prototype = {
     initialize: function(layerNode, oMap) {
         this.oMap = oMap;
         this.layerName = layerNode.getNodeText('layername');
+        this.uniqueId = layerNode.getNodeText('uniqueid');
         this.resourceId = layerNode.getNodeText('rid');
         this.legendLabel = layerNode.getNodeText('legendlabel');
         this.selectable = layerNode.getNodeText('selectable');
@@ -304,9 +305,9 @@ MGLayer.prototype = {
     },
     stateChanged: function() {
         if (this.checkBox.checked) {
-            this.oMap.showLayer(this.layerName);
+            this.oMap.showLayer(this.uniqueId);
         } else {
-            this.oMap.hideLayer(this.layerName);
+            this.oMap.hideLayer(this.uniqueId);
         }
 
         

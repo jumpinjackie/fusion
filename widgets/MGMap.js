@@ -33,10 +33,22 @@ require('widgets/GxMap.js');
 var MGMap = Class.create();
 MGMap.prototype =
 {
+    aShowLayers: null,
+    aHideLayers: null,
+    aShowGroups: null,
+    aHideGroups: null,
+    aRefreshLayers: null,
+    
     initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, nWidth, nHeight, oConfigObj)
     {
          console.log('MGMap.initialize');
          Object.inheritFrom(this, GxMap.prototype, [sDomObj, aExtents, nWidth, nHeight]);
+
+         this.aShowLayers = [];
+         this.aHideLayers = [];
+         this.aShowGroups = [];
+         this.aHideGroups = [];
+         this.aRefreshLayers = [];
 
          this._oConfigObj = oConfigObj;
 
@@ -58,28 +70,37 @@ MGMap.prototype =
     {
         return this._fScale;
     },
-
-    drawMap : function()
-    {
-        console.log('MGMap::drawMap');
+    
+    drawMap: function() {
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
 
         var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
         var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
+        
+        var showLayers = this.aShowLayers.length > 0 ? 
+                              this.aShowLayers.toString() : null;
+        var hideLayers = this.aHideLayers.length > 0 ? 
+                              this.aHideLayers.toString() : null;
+        var showGroups = this.aShowGroups.length > 0 ? 
+                              this.aShowGroups.toString() : null;
+        var hideGroups = this.aHideGroups.length > 0 ? 
+                              this.aHideGroups.toString() : null;
+        var refreshLayers = this.aRefreshLayers.length > 0 ? 
+                              this.aRefreshLayers.toString() : null;
+        this.aShowLayers = [];
+        this.aHideLayers = [];
+        this.aShowGroups = [];
+        this.aHideGroups = [];
+        this.aRefreshLayers = [];
 
-        var sReqParams = "OPERATION=GETVISIBLEMAPEXTENT&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
-
-
-        sReqParams += "&SETDISPLAYDPI=" + this._nDpi + "&SETDISPLAYWIDTH=" + nWidth + "&SETDISPLAYHEIGHT=" + nHeight;
-        sReqParams += "&SETVIEWSCALE=" + this._fScale + "&SETVIEWCENTERX=" + cx + "&SETVIEWCENTERY=" + cy;
-        sReqParams += "&s="+this._oConfigObj.getWebAgentURL();
-        var options = {parameters: sReqParams, 
-                       onComplete: this._requestMapImage.bind(this)};
-        var url = document.__chameleon__.sRedirectScript;
-        console.log(url);
-        console.log(sReqParams);
-        new Ajax.Request(url, options);
+        var r = new MGGetVisibleMapExtent(this._oConfigObj.getSessionId(),
+                               this._sMapname, cx, cy,
+                               this._fScale, null, this._nDpi, nWidth, 
+                               nHeight, showLayers, hideLayers, 
+                               showGroups, hideGroups, refreshLayers);
+        var oBroker = this._oConfigObj.oApp.getBroker();
+        oBroker.dispatchRequest(r, this._requestMapImage.bind(this));
     },
 
     _requestMapImage : function(r)
@@ -168,20 +189,33 @@ MGMap.prototype =
                                        this._sMapname,
                                        sGeometry,
                                        maxFeatures, persist, selection);
-                                       oBroker.dispatchRequest(r, 
-                                           this.processQueryResults.bind(this));
+       oBroker.dispatchRequest(r, 
+           this.processQueryResults.bind(this));
 
     },
     showLayer: function( sLayer ) {
         console.log('MGMap.showLayer('+sLayer+')');
+        this.aShowLayers.push(sLayer);
+        this.drawMap();
     },
     hideLayer: function( sLayer ) {
         console.log('MGMap.hideLayer('+sLayer+')');
+        this.aHideLayers.push(sLayer);
+        this.drawMap();
     },
     showGroup: function( sGroup ) {
         console.log('MGMap.showGroup('+sGroup+')');
+        this.aShowGroups.push(sGroup);
+        this.drawMap();
     },
     hideGroup: function( sGroup ) {
         console.log('MGMap.hideGroup('+sGroup+')');
+        this.aHideGroups.push(sGroup);
+        this.drawMap();
+    },
+    refreshLayer: function( sLayer ) {
+        console.log('MGMap.refreshLayer('+sLayer+')');
+        this.aRefreshLayers.push(sLayer);        
+        this.drawMap();
     }
 };
