@@ -74,10 +74,11 @@ MGMap.prototype =
         sReqParams += "&SETDISPLAYDPI=" + this._nDpi + "&SETDISPLAYWIDTH=" + nWidth + "&SETDISPLAYHEIGHT=" + nHeight;
         sReqParams += "&SETVIEWSCALE=" + this._fScale + "&SETVIEWCENTERX=" + cx + "&SETVIEWCENTERY=" + cy;
         sReqParams += "&s="+this._oConfigObj.getWebAgentURL();
-
         var options = {parameters: sReqParams, 
                        onComplete: this._requestMapImage.bind(this)};
         var url = document.__chameleon__.sRedirectScript;
+        console.log(url);
+        console.log(sReqParams);
         new Ajax.Request(url, options);
     },
 
@@ -167,7 +168,20 @@ MGMap.prototype =
                                        this._sMapname,
                                        sGeometry,
                                        maxFeatures, persist, selection);
+                                       oBroker.dispatchRequest(r, 
+                                           this.processQueryResults.bind(this));
 
-        oBroker.dispatchRequest(r, this.processQueryResults.bind(this));
+    },
+    showLayer: function( sLayer ) {
+        console.log('MGMap.showLayer('+sLayer+')');
+    },
+    hideLayer: function( sLayer ) {
+        console.log('MGMap.hideLayer('+sLayer+')');
+    },
+    showGroup: function( sGroup ) {
+        console.log('MGMap.showGroup('+sGroup+')');
+    },
+    hideGroup: function( sGroup ) {
+        console.log('MGMap.hideGroup('+sGroup+')');
     }
 };

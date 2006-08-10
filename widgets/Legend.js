@@ -1,0 +1,355 @@
+/********************************************************************** * 
+ * @project MapGuide Open Source : Chameleon
+ * @revision $Id$
+ * @purpose Legend widget
+ * @author pspencer@dmsolutions.ca
+ * @copyright (c) 2006 DM Solutions Group Inc.
+ * @license MIT
+ * ********************************************************************
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ * * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ ********************************************************************
+ *
+ * Legend and layer control
+ * 
+ * **********************************************************************/
+require('lib/jx.js');
+
+var Legend = Class.create();
+Legend.prototype = 
+{
+    initialize : function(oCommand)
+    {
+        console.log('Legend.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
+        this.setMap(oCommand.getMap());
+        
+        this._oDomObj = $(oCommand.getName());
+        
+        this.selectedLayer = null;
+
+        this.mapLayers = [];
+        this.mapGroups = [];
+        this.oTree = new JxTree(this._oDomObj);
+        var opt = {};
+        opt.label = this.getMap().getMapName();
+        opt.data = null;
+        //TODO: configurable?
+        opt.imgTreeFolder = 'images/tree_map.png';
+        opt.imgTreeFolderOpen = 'images/tree_map.png';
+        opt.isOpen = true;
+        this.oRoot = new JxTreeFolder(opt);
+        this.oTree.append(this.oRoot);
+        this.getLayers();
+    },
+    
+    /**
+     * Calls the server-side script which provides XML for legend content.
+     */
+    getLayers: function()
+    {
+        var c = document.__chameleon__;
+        var s = 'server/php/MGLegend.php';
+        console.log(c.getSessionID());
+        var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
+        c.ajaxRequest(s, params);
+    },
+    
+    /**
+     * the map state has become invalid in some way (layer added, removed,
+     * ect).  For now, we just re-request the map state from the server
+     * which calls draw which recreates the entire legend from scratch
+     *
+     * TODO: more fine grained updating of the legend would be nice
+     */
+    invalidate: function() {
+        this.getLayers();
+    },
+    
+    /**
+     * Callback for legend XML response. Creates a list of layers and sets up event
+     * handling. Create groups if applicable.
+     * TODO: error handling 
+     *
+     * @param r Object the reponse xhr object
+     */
+    draw: function(r)
+    {
+        this.clear();
+        if (r.responseXML)
+        {
+            var root = new DomNode(r.responseXML.childNodes[0]);
+            var groupNode = root.findFirstNode('group');
+            while(groupNode) {
+                //TODO: group object?
+                var group = new MGGroup(groupNode, this.getMap());
+                if (group.parentUniqueId != '') {
+                    group.parent = this.mapGroups[group.parentUniqueId];
+                } else {
+                    group.parent = null;
+                }
+
+                this.mapGroups[group.uniqueId] = group;
+                
+                if (group.parent) {
+                    group.parent.treeItem.append(group.treeItem)
+                } else {
+                    this.oRoot.append(group.treeItem);
+                }
+                
+                groupNode = root.findNextNode('group');
+            }
+            var layerNode = root.findFirstNode('layer');
+            while(layerNode) {
+                var layer = new MGLayer(layerNode, this.getMap());
+                if (layer.parentGroup != '') {
+                    layer.groupItem = this.mapGroups[layer.parentGroup].treeItem;
+                } else {
+                    layer.groupItem = this.oRoot;
+                }
+                
+                this.mapLayers.push(layer);
+                layerNode = root.findNextNode('layer');
+            }
+        }
+        this.update();
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.update);
+    },
+    
+    /**
+     * update the tree when the map scale changes
+     */
+    update: function() {
+        var currentScale = this.getMap().getScale();
+        for (var i=0; i<this.mapLayers.length; i++) {
+            this.mapLayers[i].updateTreeItemForScale(currentScale);
+        }
+    },
+    
+    /**
+     * remove the dom objects representing the legend layers and groups
+     */
+    clear: function() {
+        while (this.oRoot.nodes.length > 0) {
+            this.oRoot.remove(this.oRoot.nodes[0]);
+        }
+        this.mapGroups = [];
+        this.mapLayers = [];
+    }
+};
+
+var MGGroup = Class.create();
+MGGroup.prototype = {
+    oMap: null,
+    initialize: function(groupNode, oMap) {
+        this.oMap = oMap;
+        this.name = groupNode.getNodeText('groupname');
+        this.legendLabel = groupNode.getNodeText('legendlabel');
+        this.uniqueId = groupNode.getNodeText('uniqueid');
+        this.parentUniqueId = groupNode.getNodeText('parentuniqueid');
+        this.groupType = groupNode.getNodeText('layergrouptype');
+        this.displayInLegend = groupNode.getNodeText('displayinlegend');
+        this.expandInLegend = groupNode.getNodeText('expandinlegend');
+        this.visible = groupNode.getNodeText('visible');
+        this.actuallyVisible = groupNode.getNodeText('actuallyvisible');
+        if (this.displayInLegend) {
+            var opt = {};
+            opt.label = this.legendLabel;
+            opt.data = this;
+            opt.isOpen = this.expandInLegend;
+            this.treeItem = new JxTreeFolder(opt);
+            this.checkBox = document.createElement('input');
+            this.checkBox.type = 'checkbox';
+            this.checkBox.checked = this.visible?true:false;
+            Event.observe(this.checkBox, 'change', this.stateChanged.bind(this));
+            this.treeItem.domObj.insertBefore(this.checkBox, this.treeItem.domObj.childNodes[1]);
+            
+        } else {
+            this.treeItem = null;
+        }
+    },
+    stateChanged: function() {
+        if (this.checkBox.checked) {
+            this.oMap.showGroup(this.name);
+        } else {
+            this.oMap.hideGroup(this.name);
+        }
+    }
+};
+
+var MGLayer = Class.create();
+MGLayer.prototype = {
+    
+    scaleRanges: null,
+    
+    oMap: null,
+    
+    initialize: function(layerNode, oMap) {
+        this.oMap = oMap;
+        this.layerName = layerNode.getNodeText('layername');
+        this.resourceId = layerNode.getNodeText('rid');
+        this.legendLabel = layerNode.getNodeText('legendlabel');
+        this.selectable = layerNode.getNodeText('selectable');
+        this.layerType = layerNode.getNodeText('layertype');
+        this.displayInLegend = layerNode.getNodeText('displayinlegend');
+        this.expandInLegend = layerNode.getNodeText('expandinlegend');
+        this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
+        this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+        this.parentGroup = layerNode.getNodeText('parentgroup');
+        this.scaleRanges = [];
+        var scaleRangeNode = layerNode.findFirstNode('scalerange');
+        while(scaleRangeNode) {
+            var scaleRange = new MGScaleRange(scaleRangeNode);
+            this.scaleRanges.push(scaleRange);
+            scaleRangeNode = layerNode.findNextNode('scalerange');
+        }
+        this.checkBox = document.createElement('input');
+        this.checkBox.type = 'checkbox';
+        this.checkBox.checked = this.visible?true:false;
+        Event.observe(this.checkBox, 'change', this.stateChanged.bind(this));
+    },
+    getScaleRange: function(fScale) {
+        for (var i=0; i<this.scaleRanges.length; i++) {
+            if (this.scaleRanges[i].contains(fScale)) {
+                return this.scaleRanges[i];
+            }
+        }
+        return null;
+    },
+    updateTreeItemForScale: function(fScale) {
+        var range = this.getScaleRange(fScale);
+        if (range == this.currentRange) {
+            return;
+        }
+        this.currentRange = range;
+        if (range != null) {
+            if (range.styles.length > 1) {
+                //tree item needs to be a folder
+                if (!this.treeItem) {
+                    this.treeItem = this.createFolderItem();
+                    this.groupItem.append(this.treeItem);
+                } else if (this.treeItem instanceof JxTreeItem) {
+                    this.clearTreeItem();
+                    this.treeItem = this.createFolderItem();
+                    this.groupItem.append(this.treeItem);
+                } else {
+                    while(this.treeItem.nodes.length > 0) {
+                        this.treeItem.remove(this.treeItem.nodes[0]);
+                    }
+                }
+                for (var i=0; i<range.styles.length; i++) {
+                    item = this.createTreeItem(range.styles[i].label, 
+                                               range.styles[i], fScale, false);
+                    this.treeItem.append(item);
+                }
+            } else {
+                //tree item is really a tree item
+                if (!this.treeItem) {
+                    this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
+
+                    this.groupItem.append(this.treeItem);                    
+                } else if (this.treeItem instanceof JxTreeFolder) {
+                    this.clearTreeItem();
+                    this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
+                    this.groupItem.append(this.treeItem);
+                } else {
+                    this.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, this.resourceId);
+                }
+            }
+        } else {
+            this.clearTreeItem();
+        }
+    },
+    createFolderItem: function() {
+        var opt = {};
+        opt.label = this.legendLabel == '' ? '&nbsp;' : this.legendLabel;
+        opt.data = this;
+        opt.isOpen = this.expandInLegend;
+        opt.imgTreeFolderOpen = 'images/tree_theme.png';
+        opt.imgTreeFolder = 'images/tree_theme.png';
+        var folder = new JxTreeFolder(opt);
+        folder.domObj.insertBefore(this.checkBox, folder.domObj.childNodes[1]);
+        return folder;
+    },
+    createTreeItem: function(label, style, scale, bCheckBox) {
+        var opt = {}
+        opt.label = label == '' ? '&nbsp;' : label;
+        opt.data = this;
+        opt.imgIcon = style.getLegendImageURL(scale, this.resourceId);
+        var item = new JxTreeItem(opt);
+        if (bCheckBox) {
+            item.domObj.insertBefore(this.checkBox, item.domObj.childNodes[1]);
+        }
+        return item;
+    },
+    clearTreeItem: function() {
+        if (this.treeItem) {
+            this.treeItem.parent.remove(this.treeItem);
+            this.treeItem.finalize();
+            this.treeItem = null;
+        }
+    },
+    stateChanged: function() {
+        if (this.checkBox.checked) {
+            this.oMap.showLayer(this.layerName);
+        } else {
+            this.oMap.hideLayer(this.layerName);
+        }
+
+        
+    }
+}
+
+var MGScaleRange = Class.create();
+MGScaleRange.prototype = {
+    styles: null,
+    initialize: function(scaleRangeNode) {
+        this.minScale = scaleRangeNode.getNodeText('minscale');
+        this.maxScale = scaleRangeNode.getNodeText('maxscale');
+        this.styles = [];
+        styleItemNode = scaleRangeNode.findFirstNode('styleitem');
+        while(styleItemNode) {
+            var styleItem = new MGStyleItem(styleItemNode);
+            this.styles.push(styleItem);
+            styleItemNode = scaleRangeNode.findNextNode('styleitem');
+        }
+    },
+    contains: function(fScale) {
+        return fScale >= this.minScale && fScale <= this.maxScale;
+    }
+};
+
+var MGStyleItem = Class.create();
+MGStyleItem.prototype = {
+    initialize: function(styleItemNode) {
+        this.label = styleItemNode.getNodeText('label');
+        this.filter = styleItemNode.getNodeText('filter');
+        this.geometryType = styleItemNode.getNodeText('geomtype');
+        if (this.geometryType == '') {
+            this.geometryType = -1;
+        }
+        this.categoryIndex = styleItemNode.getNodeText('categoryindex');
+        if (this.categoryindex == '') {
+            this.categoryindex = -1;
+        }
+    },
+    getLegendImageURL: function(fScale, resourceID) {
+        var c = document.__chameleon__;
+        var url = c.getWebAgentURL();
+        var session = c.getSessionID();
+        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+    }
+};
