@@ -33,6 +33,7 @@
 var Select = Class.create();
 Select.prototype = 
 {       
+    nTolerance : 3, //default pixel tolernace for a point click
     initialize : function(oCommand)
     {
         console.log('Select.initialize');
@@ -41,6 +42,11 @@ Select.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, [this.getMap()]);
         this.asCursor = ['auto'];
+
+        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)
+        {
+            nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
+        }
         
     },
     
@@ -92,7 +98,22 @@ Select.prototype =
     {
         var sMin = this.getMap().pixToGeo(nLeft,nBottom);
         var sMax = this.getMap().pixToGeo(nRight,nTop);
-
-        this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
+        var nXDelta = Math.abs(nLeft-nRight);
+        var nYDelta = Math.abs(nBottom- nTop);
+        
+        if (nXDelta <=this.nTolerance && nYDelta <=this.nTolerance)
+        {
+            var dfGeoTolerance = this.getMap().pixToGeoMeasure(this.nTolerance);
+            sMin.x = sMin.x-dfGeoTolerance;
+            sMin.y = sMin.y-dfGeoTolerance;
+            sMax.x = sMax.x+dfGeoTolerance;
+            sMax.y = sMax.y+dfGeoTolerance;
+            
+            this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
+        }
+        else
+        {
+          this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
+        }
     }
 };
