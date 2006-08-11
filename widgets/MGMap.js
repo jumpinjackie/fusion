@@ -30,7 +30,13 @@
 */
 require('widgets/GxMap.js');
 
+var MGMAP_SELECTION_ON = 1;
+var MGMAP_SELECTION_OFF = 2;
+
+
 var MGMap = Class.create();
+Object.extend(MGWebLayout.prototype, EventMgr.prototype);
+
 MGMap.prototype =
 {
     aShowLayers: null,
@@ -58,6 +64,9 @@ MGMap.prototype =
          this._nDpi = 96;
 
          this._calculateScale();
+
+         this.registerEventID(MGMAP_SELECTION_ON);
+         this.registerEventID(MGMAP_SELECTION_OFF);
     },
 
     setExtents : function(aExtents)
@@ -154,13 +163,38 @@ MGMap.prototype =
         this._oImg.style.left = '0px';
     },
     
+    selectionCleared : function()
+    {
+        this.triggerEvent(MGMAP_SELECTION_OFF);
+        this.drawMap();
+    },
+
+    clearSelection : function()
+    {
+        var c = document.__chameleon__;
+        var s = 'server/' + c.getScriptLanguage() + "/MGClearSelection." + c.getScriptLanguage() ;
+        console.log(c.getSessionID());
+        var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
+        c.ajaxRequest(s, params);
+    },
+
+
     processQueryResults : function(r)
     {
         if (r.responseXML)
         {
-          //alert(r.responseXML);
+            var oNode = new DomNode(r.responseXML);
+            if (oNode.findFirstNode('Layer') == false)
+            {
+              return;
+            }
+            else
+            {
+                this.triggerEvent(MGMAP_SELECTION_ON);
+                this.drawMap();
+            }
         }        
-        this.drawMap();
+       
     },
 
     
