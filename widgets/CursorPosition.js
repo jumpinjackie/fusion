@@ -28,11 +28,13 @@
  * Place a CursorPosition widget in your application by first adding a
  * CursorPosition widget to your WebLayout as follows:
  *
- * <Command xsi:type="ChameleonCommandType">
+ * <Command xsi:type="CursorPositionCommandType">
  *  <Name>MyCursorPosition</Name>
  *  <Label>Cursor Position</Label>
  *  <TargetViewer>All</TargetViewer>
  *  <Action>CursorPosition</Action>
+ *  <Precision>4</Precision>
+ *  <Template>x: {x}&lt;br/&gt;y: {y}</Template>
  * </Command>
  *
  * The important parts of this Command are:
@@ -55,6 +57,31 @@
  *    font-size: 12px;
  *    text-align: left;
  * }
+ *
+ * Precision (integer, optional)
+ *
+ * The number of digits to round the output to.  The geographic location
+ * is calculated with arbitrary precision and is often not necessary. A
+ * value of less than 0 means no rounding (the default if parameter is
+ * missing).
+ *
+ * Template (string, optional) 
+ *
+ * The format of the output string.  Use {x} and {y} as placeholders for
+ * the x and y location.  The default template is:
+ *
+ * x: {x}, y: {y}
+ *
+ * You can embed HTML in the template, but you must escape any characters
+ * that result in illegal HTML.  This would include:
+ *
+ * < is &lt;
+ * > is &gt;
+ * & is &amp;
+ *
+ * So a two-line display would be:
+ *
+ * x: {x}&lt;br/&gt;y: {y}
  * **********************************************************************/
 
 var CursorPosition = Class.create();
