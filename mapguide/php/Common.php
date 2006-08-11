@@ -35,12 +35,9 @@
  *****************************************************************************/
 //set up the MG server session and pass it back to the javascript init
 
-//TODO : should be settable
-$installDir = "C:/Program Files/MapGuideOpenSource/";
-$extensionDir = $installDir . "WebServerExtensions/www/";
-$viewDir = $extensionDir . "mapviewerphp/";
+$extensionDir = getcwd() . "/../../../";
+$viewDir = $extensionDir."mapviewerphp/";
 
-//echo $viewDir . "constants.php";
 include $viewDir . "common.php";
 include $viewDir . "constants.php";
 
