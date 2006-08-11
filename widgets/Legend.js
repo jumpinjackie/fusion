@@ -92,7 +92,7 @@ Legend.prototype =
         this.imgLayerThemeIcon = (img != '') ? img : this.defLayerThemeIcon;
 
         img = oCommand.oxmlNode.getNodeText('DisabledLayerIcon');
-        this.imgDisabledLayerIcon = (img != '') ? img : defDisabledLayerIcon;
+        this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;
         
         this.selectedLayer = null;
 
@@ -125,7 +125,7 @@ Legend.prototype =
     getLayers: function()
     {
         var c = document.__chameleon__;
-        var s = 'server/php/MGLegend.php';
+        var s = 'server/' + c.getScriptLanguage() + '/MGLegend.' + c.getScriptLanguage();
         console.log(c.getSessionID());
         var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
         c.ajaxRequest(s, params);
