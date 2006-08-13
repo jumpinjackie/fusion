@@ -120,6 +120,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
     return $val;
  }
 
+header('content-type: text/xml');
 try
 {
 
@@ -169,25 +170,40 @@ try
     $iValidLayer = 0;
     if ($layers)
     {
+        echo '<Selection>';
         $nLayers = $layers->GetCount();
+        echo '<NumberOfLayers>' . $nLayers . '</NumberOfLayers>'; 
         $aSelection = array($nLayers);
+        
+        $oExtents = $selection->GetExtents($featureService);
+        $oMin = $oExtents->GetLowerLeftCoordinate();
+        $oMax = $oExtents->GetUpperRightCoordinate();
+        echo "<minx>".$oMin->GetX()."</minx>";
+        echo "<miny>".$oMin->GetY()."</miny>";
+        echo "<maxx>".$oMax->GetX()."</maxx>";
+        echo "<maxy>".$oMax->GetY()."</maxy>";
+
         for ($i = 0; $i < $layers->GetCount(); $i++)
         {
+            $nTotalElements = 0;
             $layer = $layers->GetItem($i);
             if ($layer)
             {
+                echo '<Layer>';
+                echo '<Name>' . $layer->GetName() . '</Name>';
+                
                 $aSelection[$iValidLayer] = array();
                 $aSelection[$iValidLayer]["name"] = $layer->GetName();
 
                 //gives the feature class name
                 $layerClassName = $layer->GetFeatureClassName();
-                //echo "GetFeatureClassName : $layerClassName <br>\n";
+                //echo "GetFeatureClassName : $layerClassName <br>";
 
                 // Create a filter containing the IDs of the selected
                 // features on this layer
                 //gives something like this : (FeatId=21) OR (FeatId=50) ...
                 $selectionString = $selection->GenerateFilter($layer, $layerClassName);
-                //echo "selection->GenerateFilter : $selectionString <br>\n";
+                //echo "selection->GenerateFilter : $selectionString <br>";
           
                 // Get the feature resource for the selected layer
                 $layerFeatureId = $layer->GetFeatureSourceId();
@@ -204,6 +220,7 @@ try
                 //$classdefinition = $featureReader->GetClassDefinition();
           
                 
+                //TODO : use layer definition to only get properties defined.
                 $propCount = $featureReader->GetPropertyCount();
                 
                 $aSelection[$iValidLayer]["nproperties"] = $propCount;
@@ -211,6 +228,8 @@ try
                 $aSelection[$iValidLayer]["properties_type"] = array($propCount);
                 $aSelection[$iValidLayer]["elements"] = array();
 
+                echo '<PropertiesNumber>' . $propCount . '</PropertiesNumber>';
+                
                 for($i=0; $i<$propCount; $i++) 
                 {
                      $aSelection[$iValidLayer]["properties_name"][$i] = 
@@ -219,30 +238,44 @@ try
                        $featureReader->GetPropertyType($featureReader->GetPropertyName($i));
                      
                 } 
+                echo '<PropertiesNames>' . implode(",", $aSelection[$iValidLayer]["properties_name"]) . '</PropertiesNames>';
+                echo '<PropertiesTypes>' . implode(",", $aSelection[$iValidLayer]["properties_type"]) . '</PropertiesTypes>';
+                
                 $nElements = 0;
                 while ($featureReader->ReadNext())
                 {
+                    echo '<ValueCollection>';
                     for($i=0; $i<$propCount; $i++) 
                     {
                         $aSelection[$iValidLayer]["elements"][$nElements][$i] = 
                           GetPropertyValueFromFeatReader($featureReader, 
                                                          $aSelection[$iValidLayer]["properties_type"][$i],
                                                          $aSelection[$iValidLayer]["properties_name"][$i]);
+                        echo '<v>' . $aSelection[$iValidLayer]["elements"][$nElements][$i] . '</v>';
                     }
+                     echo '</ValueCollection>';
                     $nElements++;
-
+                    
                 }
+                echo '<ElementsSelected>' . $nElements . '</ElementsSelected>';
                 $aSelection[$iValidLayer]["nelements"] = $nElements;
           
+                $nTotalElements += $nElements; 
                 $iValidLayer++;
+                echo '</Layer>';
+
             }
         }
+        echo '<TotalElementsSelected>' . $nTotalElements . '</TotalElementsSelected>';
+        echo '</Selection>';
 
-        print_r($aSelection);
+        
     }
     else
     {
-      echo 'No selected layers';
+      echo '<Selection>';
+      echo '<TotalElementsSelected>0</TotalElementsSelected>';
+      echo '</Selection>';
     }
 }
 catch (MgException $e)
