@@ -65,6 +65,8 @@ MGMap.prototype =
 
          this._calculateScale();
 
+         this.oSelection = null;
+
          this.registerEventID(MGMAP_SELECTION_ON);
          this.registerEventID(MGMAP_SELECTION_OFF);
     },
@@ -157,28 +159,75 @@ MGMap.prototype =
         console.log('MGURL ' + url);
         this._oImg.onload = this.resetImage.bind(this);
         this._oImg.src = url;
-    },        
+    },  
+
+      
     resetImage: function() {
         this._oImg.style.top = '0px';
         this._oImg.style.left = '0px';
     },
     
+    getSelectionCB : function(r)
+    {
+        if (r.responseXML)
+        {
+            this.oSelection = new MGSelectionObject(r.responseXML);
+            /* test functions 
+            if (this.oSelection.getNumElements() > 0)
+            {
+                var nLayers = this.oSelection.getNumLayers();
+                if (nLayers > 0)
+                {
+                    var oLayer = this.oSelection.getLayer(0);
+                    var nElements = oLayer.getNumElements();
+                    var nProperties = oLayer.getNumProperties();
+                    for (i=0; i<nElements; i++)
+                    {
+                        alert(oLayer.getElementValue(i, 1));
+                    }
+                }
+            }
+            */
+        }       
+    },
+
+    getSelection : function()
+    {
+        if (this.oSelection == null)
+        {
+            var c = document.__chameleon__;
+            var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
+            var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, 
+                          onComplete: this.getSelectionCB.bind(this)};
+            c.ajaxRequest(s, params);
+        }
+    },
+
+    /**
+       Call back function when selection is cleared
+    */
     selectionCleared : function()
     {
         this.triggerEvent(MGMAP_SELECTION_OFF);
         this.drawMap();
+        this.oSelection = null;
     },
 
+    /**
+       Utility function to clear current selection
+    */
     clearSelection : function()
     {
         var c = document.__chameleon__;
         var s = 'server/' + c.getScriptLanguage() + "/MGClearSelection." + c.getScriptLanguage() ;
-        console.log(c.getSessionID());
         var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
         c.ajaxRequest(s, params);
     },
 
 
+    /**
+       Call back function when slect functions are called (eg queryRect)
+    */
     processQueryResults : function(r)
     {
         if (r.responseXML)
@@ -192,12 +241,16 @@ MGMap.prototype =
             {
                 this.triggerEvent(MGMAP_SELECTION_ON);
                 this.drawMap();
+
+                this.getSelection();
             }
         }        
        
     },
 
-    
+    /**
+       Do a rectangular query on the map
+    */
     queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant)
     {
         var oBroker = this._oConfigObj.oApp.getBroker();
@@ -253,3 +306,171 @@ MGMap.prototype =
         this.drawMap();
     }
 };
+
+
+/**
+ * SelectionObject
+ *
+ * Utility class to hold slection information
+ *
+ */
+var MGSelectionObject = Class.create();
+MGSelectionObject.prototype = 
+{
+    aLayers : null,
+
+    initialize: function(oXML) 
+    {
+        this.aLayers = [];
+        this.nTotalElements =0;
+
+        var root = new DomNode(oXML.childNodes[0]);
+        
+        var oTmpNode = root.findFirstNode('TotalElementsSelected');
+        this.nTotalElements = parseInt(oTmpNode.textContent);
+        if (this.nTotalElements > 0)
+        {
+            this.nLayers =  root.getNodeText('NumberOfLayers');
+            this.fMinX =  root.getNodeText('minx');
+            this.fMinY =  root.getNodeText('miny');
+            this.fMaxX =  root.getNodeText('maxx');
+            this.fMaxY =  root.getNodeText('maxy');
+
+            var layerNode = root.findFirstNode('Layer');
+            var iLayer=0;             
+            while(layerNode) 
+            {
+                this.aLayers[iLayer++] = new MGSelectionObjectLayer(layerNode);
+                
+                layerNode =  root.findNextNode('Layer');
+            }
+            
+        }
+    },
+
+    getNumElements : function()
+    {
+        return this.nTotalElements;
+    },
+
+    getLowerLeftCoord : function()
+    {
+        return {x:this.fMinX, y:this.fMiny};
+    },
+
+    getUpperRightCoord : function()
+    {
+        return {x:this.fMaxX, y:this.fMaxy};
+    },
+
+    getNumLayers : function()
+    {
+        return this.nLayers;
+    },
+    
+    getLayerByName : function(name)
+    {
+        var oLayer = null;
+        for (var i=0; i<this.nLayers; i++)
+        {
+            if (this.aLayers[i].getName() == name)
+            {
+                oLayer = this.aLayers[i];
+                break;
+            }
+        }
+        return oLayer;
+    },
+
+    getLayer : function(iIndice)
+    {
+        if (iIndice >=0 && iIndice < this.nLayers)
+        {
+            return this.aLayers[iIndice];
+        }
+        else
+        {
+            return null;
+        }
+            
+    }
+};
+
+
+var MGSelectionObjectLayer = Class.create();
+MGSelectionObjectLayer.prototype = {
+
+    initialize: function(oNode) 
+    {
+        this.sName =  oNode.getNodeText('Name');
+        this.nElements =  oNode.getNodeText('ElementsSelected');
+
+        this.aElements = [];
+
+        this.nProperties = oNode.getNodeText('PropertiesNumber');
+
+        this.aPropertiesName = [];
+        var oTmp = oNode.getNodeText('PropertiesNames');
+        this.aPropertiesName = oTmp.split(",");
+
+        this.aPropertiesTypes = [];
+        oTmp = oNode.getNodeText('PropertiesTypes');
+        this.aPropertiesTypes = oTmp.split(",");
+        
+        var oValueCollection = oNode.findNextNode('ValueCollection');
+        var iElement=0;
+        while(oValueCollection) 
+        {
+            this.aElements[iElement] = [];
+            for (i=0; i<oValueCollection.childNodes.length; i++)
+            {
+                oTmp = oValueCollection.childNodes[i].findFirstNode('v');
+                this.aElements[iElement][i] = oTmp.textContent;
+
+            }
+            oValueCollection = oNode.findNextNode('ValueCollection');
+            iElement++;
+        }
+        
+    },
+
+    getName : function()
+    {
+        return this.sName;
+    },
+
+    getNumElements : function()
+    {
+        return this.nElements;
+    },
+
+    getNumProperties : function()
+    {
+        return this.nProperties;
+    },
+
+    getPropertyNames : function()
+    {
+        return this.aPropertiesName;
+    },
+
+    getPropertyTypes : function()
+    {
+        return this.aPropertiesTypes;
+    },
+
+    getElementValue : function(iElement, iProperty)
+    {
+        if (iElement >=0 && iElement < this.nElements &&
+            iProperty >=0 && iProperty < this.nProperties)
+        {
+            return this.aElements[iElement][iProperty];
+        }
+        else
+        {
+            return null;
+        }
+    }
+};
+    
+
