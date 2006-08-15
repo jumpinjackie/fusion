@@ -41,10 +41,10 @@ try {
     $layer = $_REQUEST['layer'];
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
-    $filter = isset($_REQUEST['filter']) ? $_REQUEST['filter'] : false;
+    $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
 
     /* a spatial filter in the form on a WKT geometry */
-    $spatialFilter = isset($_REQUEST['spatialfilter']) ? $_REQUEST['spatialfilter'] : false;
+    $spatialFilter = isset($_REQUEST['spatialfilter']) ? urldecode($_REQUEST['spatialfilter']) : false;
 
     /* we need a feature service to query the features */
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
