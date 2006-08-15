@@ -190,6 +190,14 @@ MGMap.prototype =
             */
         }       
     },
+    
+    newSelection: function() {
+        if (this.oSelection) {
+            this.oSelection = null;
+        }
+        this.drawMap();
+        //this.triggerEvent(MAP_SELECTION_CHANGED);
+    },
 
     getSelection : function()
     {
