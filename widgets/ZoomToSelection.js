@@ -24,61 +24,73 @@
  ********************************************************************
  *
  * Zoom to the current selection, if any
+ *
+ * To put a ZoomToSelection control in your application, you first need to add
+ * a widget to your WebLayout as follows:
+ *
+ * <Command xsi:type="ChameleonCommandType">
+ *   <Name>MyZoomToSelection</Name>
+ *   <Label>Zoom to Selection</Label>
+ *   <TargetViewer>All</TargetViewer>
+ *   <Action>ZoomToSelection</Action>
+ *   <ImageURL>images/icon_zoom_selected.png</ImageURL>
+ *   <DisabledImageURL>images/icon_zoom_selected_x.png</DisabledImageURL>
+ *   <Width>24</Width>
+ *   <Height>24</Height>
+ * </Command>
+ *
+ * The important parts of this Command are:
+ *
+ * Name (string, mandatory) 
  * 
+ * an element with an id that is the same as this name must be in
+ * the application.  For instance:
+ *
+ * <div id="MyZoomToSelection"></div>
+ *
+ * A button that activates this widget will appear inside the
+ * element you provide.
  * **********************************************************************/
 
 require('widgets/GxButtonBase.js');
-require('widgets/GxRectTool.js');
 
 var ZoomToSelection = Class.create();
-ZoomToSelection.prototype = 
-{
-    initialize : function(oCommand)
-    {
+ZoomToSelection.prototype = {
+    initialize : function(oCommand) {
         console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomToSelection', false]);
         this.setMap(oCommand.getMap());
-
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
 
         this.getMap().registerForEvent(MGMAP_SELECTION_ON, this, this.selectionOn.bind(this));
         this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this, this.selectionOff.bind(this));
-
     },
 
-    selectionOn : function()
-    {
-        this.nCurrentState = 1;
+    selectionOn : function() {
         this._oButton.activateTool();
      },
 
-    selectionOff : function()
-    {
-        this.nCurrentState = 0;
+    selectionOff : function() {
         this._oButton.deactivateTool();
      },
 
 
     /**
-     * clears slection on map.
+     * get the selection from the map (which may not be loaded yet).
+     * zoomToSelection is called when the selection is ready.
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         this.getMap().getSelection(this.zoomToSelection.bind(this));
-
     },
 
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
 
-    clickCB : function()
-    {
-        if (this.nCurrentState == 1)
+    clickCB : function() {
+        if (this._oButton.isEnabled())
         {
-            this._oButton.deactivateTool();
             this.activateTool();
-            this.nCurrentState = 0;
         }
     },
 
@@ -88,8 +100,7 @@ ZoomToSelection.prototype =
      * 
      * @param selection the active selection, or null if there is none
      */
-    zoomToSelection : function(selection)
-    {
+    zoomToSelection : function(selection) {
         var llc = selection.getLowerLeftCoord();
         var urc = selection.getUpperRightCoord();
         this.getMap().setExtents([llc.x,llc.y,urc.x,urc.y]);
