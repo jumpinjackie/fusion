@@ -66,6 +66,8 @@ MGMap.prototype =
          this._calculateScale();
 
          this.oSelection = null;
+         this.aSelectionCallbacks = [];
+         this._bSelectionIsLoading = false;
 
          this.registerEventID(MGMAP_SELECTION_ON);
          this.registerEventID(MGMAP_SELECTION_OFF);
@@ -169,31 +171,20 @@ MGMap.prototype =
     
     getSelectionCB : function(userFunc, r)
     {
+        this._bSelectionIsLoading = false;
         if (r.responseXML)
         {
             this.oSelection = new MGSelectionObject(r.responseXML);
-            if (userFunc) {
-                userFunc(this.oSelection);
+            for (var i=0; i<this.aSelectionCallbacks.length; i++) {
+                this.aSelectionCallbacks[i](this.oSelection);
             }
-            /* test functions 
-            if (this.oSelection.getNumElements() > 0)
-            {
-                var nLayers = this.oSelection.getNumLayers();
-                if (nLayers > 0)
-                {
-                    var oLayer = this.oSelection.getLayer(0);
-                    var nElements = oLayer.getNumElements();
-                    var nProperties = oLayer.getNumProperties();
-                    for (i=0; i<nElements; i++)
-                    {
-                        alert(oLayer.getElementValue(i, 1));
-                    }
-                }
-            }
-            */
+            this.aSelectionCallbacks = [];
         }       
     },
     
+    /**
+     * advertise a new selection is available and redraw the map
+     */
     newSelection: function() {
         if (this.oSelection) {
             this.oSelection = null;
@@ -202,15 +193,33 @@ MGMap.prototype =
         this.triggerEvent(MGMAP_SELECTION_ON);
     },
 
+    /**
+     * asynchronously load the current selection.  When the current
+     * selection changes, the selection is not loaded because it
+     * could be a lengthy process.  The user-supplied function will
+     * be called when the selection is available.
+     *
+     * @param userFunc {Function} a function to call when the
+     *        selection has loaded
+     */
     getSelection : function(userFunc)
     {
         if (this.oSelection == null)
         {
-            var c = document.__chameleon__;
-            var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
-            var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, 
-                          onComplete: this.getSelectionCB.bind(this, userFunc)};
-            c.ajaxRequest(s, params);
+            /* if the user wants a callback, register it
+             * for when the selection becomes available
+             */
+            if (userFunc) {
+                this.aSelectionCallbacks.push(userFunc);
+            }
+            if (!this._bSelectionIsLoading) {
+                this._bSelectionIsLoading = true;
+                var c = document.__chameleon__;
+                var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
+                var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, 
+                              onComplete: this.getSelectionCB.bind(this, userFunc)};
+                c.ajaxRequest(s, params);
+            }
         } else if (userFunc){
             userFunc(this.oSelection);
         }
@@ -252,13 +261,9 @@ MGMap.prototype =
             }
             else
             {
-                this.triggerEvent(MGMAP_SELECTION_ON);
-                this.drawMap();
-
-                this.getSelection();
+                this.newSelection();
             }
         }        
-       
     },
 
     /**

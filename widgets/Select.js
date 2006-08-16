@@ -56,7 +56,7 @@ Select.prototype =
     activateTool : function()
     {
         this.getMap().activateWidget(this);
-        this.activate();
+        //this.activate();
     },
 
     /**
