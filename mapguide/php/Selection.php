@@ -164,7 +164,6 @@ try
 
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapname);
-
     $layers = $selection->GetLayers();
     $nLayers = 0;
     $iValidLayer = 0;
@@ -176,12 +175,14 @@ try
         $aSelection = array($nLayers);
         
         $oExtents = $selection->GetExtents($featureService);
-        $oMin = $oExtents->GetLowerLeftCoordinate();
-        $oMax = $oExtents->GetUpperRightCoordinate();
-        echo "<minx>".$oMin->GetX()."</minx>";
-        echo "<miny>".$oMin->GetY()."</miny>";
-        echo "<maxx>".$oMax->GetX()."</maxx>";
-        echo "<maxy>".$oMax->GetY()."</maxy>";
+        if ($oExtents) {
+            $oMin = $oExtents->GetLowerLeftCoordinate();
+            $oMax = $oExtents->GetUpperRightCoordinate();
+            echo "<minx>".$oMin->GetX()."</minx>";
+            echo "<miny>".$oMin->GetY()."</miny>";
+            echo "<maxx>".$oMax->GetX()."</maxx>";
+            echo "<maxy>".$oMax->GetY()."</maxy>";
+        }
 
         for ($i = 0; $i < $layers->GetCount(); $i++)
         {
