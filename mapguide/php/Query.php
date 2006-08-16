@@ -42,10 +42,10 @@ try {
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
     $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
-
+    //echo "filter: $filter<BR>";
     /* a spatial filter in the form on a WKT geometry */
-    $spatialFilter = isset($_REQUEST['spatialfilter']) ? urldecode($_REQUEST['spatialfilter']) : false;
-
+    $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
+    //echo "spatial filter is $spatialFilter<BR>";
     /* we need a feature service to query the features */
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
     
@@ -60,20 +60,23 @@ try {
     /* get the feature source from the layer */
     $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
     $featureGeometryName = $layerObj->GetFeatureGeometryName();
-    
+    //echo "feature geometry name is $featureGeometryName<BR>";
     /* the class that is used for this layer will be used to select
        features */
     $class = $layerObj->GetFeatureClassName();
+    //echo "feature class is $class<BR>";
     
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
+        //echo 'setting filter<BR>';
         $queryOptions->SetFilter($filter);
     }
 
     /* add the spatial filter if provided.  It is expected to come as a
        WKT string, so we need to convert it to an MgGeometry */
     if ($spatialFilter !== false ) {
+        //echo 'setting spatial filter<br>';
         $wktRW = new MgWktReaderWriter();
         $geom = $wktRW->Read($spatialFilter);
         $queryOptions->SetSpatialFilter($featureGeometryName, $geom, MgFeatureSpatialOperations::Inside);
@@ -88,7 +91,13 @@ try {
     $selection->Save($resourceService, $mapName);
     
     header( 'Content-type: text/xml');
-    echo '<success/>';
+    $layers = $selection->GetLayers();
+    
+    if ($layers && $layers->GetCount() >= 0) {
+        echo '<Selection>true</Selection>';
+    } else {
+        echo '<Selection>false</Selection>';
+    }
 } 
 catch (MgException $e)
 {
