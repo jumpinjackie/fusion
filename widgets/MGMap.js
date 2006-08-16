@@ -167,11 +167,14 @@ MGMap.prototype =
         this._oImg.style.left = '0px';
     },
     
-    getSelectionCB : function(r)
+    getSelectionCB : function(userFunc, r)
     {
         if (r.responseXML)
         {
             this.oSelection = new MGSelectionObject(r.responseXML);
+            if (userFunc) {
+                userFunc(this.oSelection);
+            }
             /* test functions 
             if (this.oSelection.getNumElements() > 0)
             {
@@ -196,18 +199,20 @@ MGMap.prototype =
             this.oSelection = null;
         }
         this.drawMap();
-        //this.triggerEvent(MAP_SELECTION_CHANGED);
+        this.triggerEvent(MGMAP_SELECTION_ON);
     },
 
-    getSelection : function()
+    getSelection : function(userFunc)
     {
         if (this.oSelection == null)
         {
             var c = document.__chameleon__;
             var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
             var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, 
-                          onComplete: this.getSelectionCB.bind(this)};
+                          onComplete: this.getSelectionCB.bind(this, userFunc)};
             c.ajaxRequest(s, params);
+        } else if (userFunc){
+            userFunc(this.oSelection);
         }
     },
 
@@ -332,17 +337,17 @@ MGSelectionObject.prototype =
         this.aLayers = [];
         this.nTotalElements =0;
 
-        var root = new DomNode(oXML.childNodes[0]);
+        var root = new DomNode(oXML);
         
         var oTmpNode = root.findFirstNode('TotalElementsSelected');
         this.nTotalElements = parseInt(oTmpNode.textContent);
         if (this.nTotalElements > 0)
         {
             this.nLayers =  root.getNodeText('NumberOfLayers');
-            this.fMinX =  root.getNodeText('minx');
-            this.fMinY =  root.getNodeText('miny');
-            this.fMaxX =  root.getNodeText('maxx');
-            this.fMaxY =  root.getNodeText('maxy');
+            this.fMinX =  parseFloat(root.getNodeText('minx'));
+            this.fMinY =  parseFloat(root.getNodeText('miny'));
+            this.fMaxX =  parseFloat(root.getNodeText('maxx'));
+            this.fMaxY =  parseFloat(root.getNodeText('maxy'));
 
             var layerNode = root.findFirstNode('Layer');
             var iLayer=0;             
@@ -363,12 +368,12 @@ MGSelectionObject.prototype =
 
     getLowerLeftCoord : function()
     {
-        return {x:this.fMinX, y:this.fMiny};
+        return {x:this.fMinX, y:this.fMinY};
     },
 
     getUpperRightCoord : function()
     {
-        return {x:this.fMaxX, y:this.fMaxy};
+        return {x:this.fMaxX, y:this.fMaxY};
     },
 
     getNumLayers : function()
@@ -408,6 +413,13 @@ MGSelectionObject.prototype =
 var MGSelectionObjectLayer = Class.create();
 MGSelectionObjectLayer.prototype = {
 
+    sName: null,
+    nElements: null,
+    aElements: null,
+    nProperties: null,
+    aPropertiesName: null,
+    aPropertiesTypes: null,
+    
     initialize: function(oNode) 
     {
         this.sName =  oNode.getNodeText('Name');
