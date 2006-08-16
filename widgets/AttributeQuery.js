@@ -133,7 +133,13 @@ AttributeQuery.prototype = {
     },
     
     queryComplete: function(r) {
-        this.getMap().newSelection();
+        var node = new DomNode(r.responseXML);
+        var success = node.getNodeText('Selection');
+        if (success == 'true') {
+            this.getMap().newSelection();
+        } else {
+            this.getMap().clearSelection();
+        }
     }
     
 };
@@ -164,9 +170,9 @@ MGFilterBase.prototype = {
         var obj = $(idOrObj);
         
         if (obj) {
-            if (obj instanceof HTMLInputElement) {
+            if (obj.tagName == 'INPUT') {
                 result = obj.value;
-            } else if (obj instanceof HTMLSelectElement) {
+            } else if (obj.tagName == 'SELECT') {
                 result = obj.options[obj.selectedIndex].value;
             }
         }
@@ -175,9 +181,9 @@ MGFilterBase.prototype = {
     setValue: function( idOrObj, value) {
         var obj = $(idOrObj);
         if (obj) {
-            if (typeof obj == 'HTMLInputElement') {
+            if (obj.tagName == 'INPUT') {
                 obj.value = value;
-            } else if (typeof obj == 'HTMLSelectElement') {
+            } else if (obj.tagName = 'SELECT') {
                 for (var i=0; i<obj.options.length; i++) {
                     if (obj.options[i].value == value) {
                         obj.options[i].selected = true;
@@ -216,7 +222,7 @@ MGFilter.prototype = {
             result = sNot + ' ' + this.fieldName + ' ' + this.operator + ' ' + sep + value + sep;
         }
         return result;
-    },
+    }
 
 };
 
