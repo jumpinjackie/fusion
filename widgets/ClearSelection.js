@@ -31,8 +31,6 @@ require('widgets/GxButtonBase.js');
 var ClearSelection = Class.create();
 ClearSelection.prototype = 
 {
-    nCurrentState: 0,
-
     initialize : function(oCommand)
     {
         console.log('ClearSelection.initialize');
@@ -43,21 +41,19 @@ ClearSelection.prototype =
 
         this.getMap().registerForEvent(MGMAP_SELECTION_ON, this, this.selectionOn.bind(this));
         this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this, this.selectionOff.bind(this));
+        this.selectionOff();
 
     },
 
     selectionOn : function()
     {
-        this.nCurrentState = 1;
-        this._oButton.activateTool();
+        this._oButton.enableTool();
      },
 
     selectionOff : function()
     {
-        this.nCurrentState = 0;
-        this._oButton.deactivateTool();
-     },
-
+        this._oButton.disableTool();
+    },
     
     /**
      * clears slection on map.
@@ -66,19 +62,5 @@ ClearSelection.prototype =
     {
         this.getMap().clearSelection();
         
-    },
-
-    /**
-     * called when the button is clicked by the GxButtonBase widget
-     */
-    
-    clickCB : function()
-    {
-        if (this.nCurrentState == 1)
-        {
-            this._oButton.deactivateTool();
-            this.activateTool();
-            this.nCurrentState = 0;
-        }
     }
 };

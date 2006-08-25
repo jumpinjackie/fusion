@@ -64,14 +64,15 @@ ZoomToSelection.prototype = {
 
         this.getMap().registerForEvent(MGMAP_SELECTION_ON, this, this.selectionOn.bind(this));
         this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this, this.selectionOff.bind(this));
+        this.selectionOff();
     },
 
     selectionOn : function() {
-        this._oButton.activateTool();
+        this._oButton.enableTool();
      },
 
     selectionOff : function() {
-        this._oButton.deactivateTool();
+        this._oButton.disableTool();
      },
 
 
@@ -81,17 +82,6 @@ ZoomToSelection.prototype = {
      */
     activateTool : function() {
         this.getMap().getSelection(this.zoomToSelection.bind(this));
-    },
-
-    /**
-     * called when the button is clicked by the GxButtonBase widget
-     */
-
-    clickCB : function() {
-        if (this._oButton.isEnabled())
-        {
-            this.activateTool();
-        }
     },
 
     /**
