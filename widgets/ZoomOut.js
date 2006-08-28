@@ -47,7 +47,6 @@ ZoomOut.prototype =
     {
         console.log('ZoomOut.activateTool');
         this.getMap().activateWidget(this);
-        this.activate();
     },
 
     activate : function()
