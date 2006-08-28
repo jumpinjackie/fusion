@@ -97,25 +97,27 @@ Pan.prototype =
      * @param e Event the event that happened on the mapObj
      */
     mouseUp: function(e) {
-        this.getMap().setCursor(this.cursorNormal);
+        if (this.startPos) {
+            this.getMap().setCursor(this.cursorNormal);
 
-        var p = this.getMap().getEventPosition(e);
+            var p = this.getMap().getEventPosition(e);
 
-        var dx = p.x - this.startPos.x;
-        var dy = p.y - this.startPos.y;
+            var dx = p.x - this.startPos.x;
+            var dy = p.y - this.startPos.y;
 
-        var size = this.getMap().getPixelSize();
+            var size = this.getMap().getPixelSize();
 
-        var t = -dy;
-        var l = -dx;
-        var r = l + size.width;
-        var b = t + size.height; 
+            var t = -dy;
+            var l = -dx;
+            var r = l + size.width;
+            var b = t + size.height; 
 
-        var min = this.getMap().pixToGeo(l,b);
-        var max = this.getMap().pixToGeo(r,t);
-        this.startPos = null;
-        this.getMap().setExtents([min.x,min.y,max.x,max.y]);
-        Event.stop(e);
+            var min = this.getMap().pixToGeo(l,b);
+            var max = this.getMap().pixToGeo(r,t);
+            this.startPos = null;
+            this.getMap().setExtents([min.x,min.y,max.x,max.y]);
+            Event.stop(e);
+        }
     },
 
     /**
