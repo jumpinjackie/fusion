@@ -152,21 +152,8 @@ MGMap.prototype =
 
         url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
-        if (this._oImg.width != nWidth || this._oImg.height != nWidth) {
-            this._oImg.src = 'images/a_pixel.gif';
-            this._oImg.width = nWidth;
-            this._oImg.height = nHeight;
-        }
-
         console.log('MGURL ' + url);
-        this._oImg.onload = this.resetImage.bind(this);
-        this._oImg.src = url;
-    },  
-
-      
-    resetImage: function() {
-        this._oImg.style.top = '0px';
-        this._oImg.style.left = '0px';
+        this.setMapImageURL(url);
     },
     
     getSelectionCB : function(userFunc, r)
@@ -322,6 +309,10 @@ MGMap.prototype =
         console.log('MGMap.refreshLayer('+sLayer+')');
         this.aRefreshLayers.push(sLayer);        
         this.drawMap();
+    },
+
+    getSessionId: function() {
+        return this._oConfigObj.getSessionId()
     }
 };
 
