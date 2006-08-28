@@ -91,8 +91,15 @@ ZoomToSelection.prototype = {
      * @param selection the active selection, or null if there is none
      */
     zoomToSelection : function(selection) {
-        var llc = selection.getLowerLeftCoord();
-        var urc = selection.getUpperRightCoord();
-        this.getMap().setExtents([llc.x,llc.y,urc.x,urc.y]);
+        var ll = selection.getLowerLeftCoord();
+        var ur = selection.getUpperRightCoord();
+        //buffer extents (zoom out by factor of two)
+        var dX = ur.x - ll.x;
+        var dY = ur.y - ll.y;
+        ll.x = ll.x - dX;
+        ur.x = ur.x + dX;
+        ll.y = ll.y - dY;
+        ur.y = ur.y + dY;
+        this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
     }
 };
