@@ -78,7 +78,7 @@ AttributeQuery.prototype = {
     filters: null,
     layerName: null,
     initialize: function(oCommand) {
-        console.log('AttributeQuery.initialize');
+        //console.log('AttributeQuery.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['AttributeQuery', true]);
         this.setMap(oCommand.getMap());
 
@@ -206,7 +206,7 @@ MGFilter.prototype = {
                                 oNode.getNodeText('AllowEmptyValue') == 'true') ? 
                                    true : false ;
         this.fieldName = oNode.getNodeText('Field');
-        console.log('filter for field ' + this.fieldName);
+        //console.log('filter for field ' + this.fieldName);
         this.unaryNot = (oNode.getNodeText('Not') == '1' || 
                          oNode.getNodeText('Not') == 'true') ? true : false;
                          

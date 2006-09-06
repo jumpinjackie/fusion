@@ -33,7 +33,7 @@ MGZoom.prototype =
 {
     initialize : function(oCommand)
     {
-        console.log('MGZoom.initialize');
+        //console.log('MGZoom.initialize');
         Object.inheritFrom(this, GxZoom.prototype, [oCommand]);
     }
 };

@@ -82,7 +82,7 @@ Legend.prototype =
     
     initialize : function(oCommand)
     {
-        console.log('Legend.initialize');
+        //console.log('Legend.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
         this.setMap(oCommand.getMap());
         
@@ -126,7 +126,6 @@ Legend.prototype =
     {
         var c = document.__chameleon__;
         var s = 'server/' + c.getScriptLanguage() + '/MGLegend.' + c.getScriptLanguage();
-        console.log(c.getSessionID());
         var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
         c.ajaxRequest(s, params);
     },
@@ -151,6 +150,7 @@ Legend.prototype =
      */
     draw: function(r)
     {
+        //console.log('Legend.draw');
         this.clear();
         if (r.responseXML)
         {
@@ -173,6 +173,8 @@ Legend.prototype =
                     this.oRoot.append(group.treeItem);
                 }
                 
+                group.checkBox.checked = group.visible?true:false;
+                
                 groupNode = root.findNextNode('group');
             }
             var layerNode = root.findFirstNode('layer');
@@ -194,10 +196,15 @@ Legend.prototype =
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.update);
     },
     
+    update: function() {
+        window.setTimeout(this._update.bind(this), 1);
+    },
+    
     /**
      * update the tree when the map scale changes
      */
-    update: function() {
+    _update: function() {
+        //console.log('Legend.update');
         var currentScale = this.getMap().getScale();
         for (var i=0; i<this.mapLayers.length; i++) {
             this.mapLayers[i].updateTreeItemForScale(currentScale);
@@ -239,7 +246,7 @@ MGGroup.prototype = {
             this.checkBox = document.createElement('input');
             this.checkBox.type = 'checkbox';
             this.checkBox.checked = this.visible?true:false;
-            Event.observe(this.checkBox, 'change', this.stateChanged.bind(this));
+            Event.observe(this.checkBox, 'click', this.stateChanged.bind(this));
             this.treeItem.domObj.insertBefore(this.checkBox, this.treeItem.domObj.childNodes[1]);
             
         } else {
@@ -263,6 +270,8 @@ MGLayer.prototype = {
     oMap: null,
     
     currentRange: -1,
+    
+    bFirstDisplay: null,
     
     initialize: function(layerNode, oMap) {
         this.oMap = oMap;
@@ -291,7 +300,9 @@ MGLayer.prototype = {
         this.checkBox = document.createElement('input');
         this.checkBox.type = 'checkbox';
         this.checkBox.checked = this.visible?true:false;
-        Event.observe(this.checkBox, 'change', this.stateChanged.bind(this));
+        
+        this.bFirstDisplay = true;
+        Event.observe(this.checkBox, 'click', this.stateChanged.bind(this));
     },
     getScaleRange: function(fScale) {
         for (var i=0; i<this.scaleRanges.length; i++) {
@@ -303,11 +314,13 @@ MGLayer.prototype = {
     },
     updateTreeItemForScale: function(fScale) {
         var range = this.getScaleRange(fScale);
-        if (range == this.currentRange) {
+        if (range == this.currentRange && !this.bFirstDisplay) {
             return;
         }
+        
         this.currentRange = range;
         if (range != null) {
+            
             this.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
@@ -324,29 +337,34 @@ MGLayer.prototype = {
                     }
                 }
                 for (var i=0; i<range.styles.length; i++) {
-                    item = this.createTreeItem(range.styles[i].label, 
+                    var item = this.createTreeItem(range.styles[i].label, 
                                                range.styles[i], fScale, false);
                     this.treeItem.append(item);
                 }
             } else {
+                
                 //tree item is really a tree item
                 if (!this.treeItem) {
                     this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
-
                     this.groupItem.append(this.treeItem);                    
                 } else if (this.treeItem instanceof JxTreeFolder) {
                     this.clearTreeItem();
                     this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
                     this.groupItem.append(this.treeItem);
-                } else {
+                } else {                    
                     this.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, this.resourceId);
                 }
             }
+            
         } else {
             this.checkBox.disabled = true;
             this.clearTreeItem();
             this.treeItem = this.createTreeItem(this.legendLabel, null, null, true);
             this.groupItem.append(this.treeItem);
+        }
+        if (this.bFirstDisplay) {
+            this.bFirstDisplay = false;
+            this.checkBox.checked = this.visible?true:false;
         }
     },
     createFolderItem: function() {
@@ -369,10 +387,13 @@ MGLayer.prototype = {
         } else {
             opt.imgIcon = style.getLegendImageURL(scale, this.resourceId);
         }
+        
         var item = new JxTreeItem(opt);
+        
         if (bCheckBox) {
             item.domObj.insertBefore(this.checkBox, item.domObj.childNodes[1]);
         }
+        
         return item;
     },
     clearTreeItem: function() {
@@ -388,8 +409,6 @@ MGLayer.prototype = {
         } else {
             this.oMap.hideLayer(this.uniqueId);
         }
-
-        
     }
 }
 

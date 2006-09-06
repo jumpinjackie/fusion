@@ -35,7 +35,7 @@ ZoomOut.prototype =
     nFactor: -2,
     initialize : function(oCommand)
     {
-        console.log('ZoomOut.initialize');
+        //console.log('ZoomOut.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomOut', true]);
         this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxClickTool.prototype, [this.getMap()]);
@@ -45,13 +45,13 @@ ZoomOut.prototype =
 
     activateTool : function()
     {
-        console.log('ZoomOut.activateTool');
+        //console.log('ZoomOut.activateTool');
         this.getMap().activateWidget(this);
     },
 
     activate : function()
     {
-        console.log('ZoomOut.activate');
+        //console.log('ZoomOut.activate');
         this.activateClickTool();
         this.getMap().setCursor(this.asCursor);
         /*button*/
@@ -60,7 +60,7 @@ ZoomOut.prototype =
 
     deactivate : function()
     {
-        console.log('ZoomOut.deactivate');
+        //console.log('ZoomOut.deactivate');
         
          this.deactivateClickTool();
          this.getMap().setCursor('auto');
@@ -71,7 +71,7 @@ ZoomOut.prototype =
 
     execute : function(nX, nY)
     {
-        console.log('ZoomOut.execute');
+        //console.log('ZoomOut.execute');
         
         var sGeoPoint = this.getMap().pixToGeo(nX,nY);
         this.getMap().zoom(sGeoPoint.x, sGeoPoint.y, this.nFactor);

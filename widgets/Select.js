@@ -36,7 +36,7 @@ Select.prototype =
     nTolerance : 3, //default pixel tolernace for a point click
     initialize : function(oCommand)
     {
-        console.log('Select.initialize');
+        //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Select', true]);
         this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);

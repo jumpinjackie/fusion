@@ -33,7 +33,7 @@ ClearSelection.prototype =
 {
     initialize : function(oCommand)
     {
-        console.log('ClearSelection.initialize');
+        //console.log('ClearSelection.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ClearSelection', false]);
         this.setMap(oCommand.getMap());
         

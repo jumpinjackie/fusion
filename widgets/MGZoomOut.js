@@ -32,7 +32,7 @@ MGZoomOut.prototype =
 {
     initialize : function(oCommand)
     {
-        console.log('MGZoomOut.initialize');
+        //console.log('MGZoomOut.initialize');
         Object.inheritFrom(this, GxZoomOut.prototype, [oCommand]);
     }
 };

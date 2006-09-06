@@ -81,13 +81,14 @@ var Maptip = Class.create();
 Maptip.prototype = 
 {
     oCurrentPosition: null,
+    oMapTipPosition: null,
     nTimer: null,
     delay: null,
     aLayers: null,
     
     initialize : function(oCommand)
     {
-        console.log('Maptip.initialize');
+        //console.log('Maptip.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true]);
         this.setMap(oCommand.getMap());
         
@@ -132,7 +133,9 @@ Maptip.prototype =
         } else {
             window.clearTimeout(this.nTimer);
             this.nTimer = null;
-            if (this.bIsVisible) {
+            if (this.oMapTipPosition && this.bIsVisible &&
+                Math.abs(this.oMapTipPosition.x -this.oCurrentPosition.x) > 3 &&
+                Math.abs(this.oMapTipPosition.y - this.oCurrentPosition.y) > 3) {
                 this.hideMaptip();
             }
             this.oCurrentPosition = p;
@@ -166,26 +169,41 @@ Maptip.prototype =
                                         maxFeatures, persist, selection, layerNames);
         oBroker.dispatchRequest(r, 
         this._display.bind(this));
-        this.bIsVisible = true;         
-        this.domObj.style.top = this.oCurrentPosition.y + 'px';
-        this.domObj.style.left = this.oCurrentPosition.x + 'px';
+
     },
     _display: function(r) {
         if (r.responseXML) {
+            this.bIsVisible = true;
+            this.oMapTipPosition = {x:this.oCurrentPosition.x, y: this.oCurrentPosition.y};
             var d = new DomNode(r.responseXML);
             var t = d.getNodeText('Tooltip');
             if (t != '') {
+                t = t.replace('\\n', '<br>');
                 this.domObj.innerHTML = t;
+                this.domObj.style.visibility = 'hidden';
                 this.domObj.style.display = 'block';
+                var size = Element.getDimensions(this.domObj);
+                this.domObj.style.top = (this.oCurrentPosition.y - size.height) + 'px';
+                this.domObj.style.left = this.oCurrentPosition.x + 'px';
+                this.domObj.style.visibility = 'visible';
             }
+        } else {
+            this.bIsVisible = false;
         }
     },
     
     hideMaptip: function() {
-        console.log('hideMapTip');
+        //console.log('hideMapTip');
         this.bIsVisible = false;
+        this.hideTimer = window.setTimeout(this._hide.bind(this),250);
+    },
+    
+    _hide: function() {
+        this.hideTimer = null;
+        //console.log('_hide');
         this.domObj.style.display = 'none';
         this.domObj.innerHTML = '&nbsp;';
+        this.oMapTipPosition = null;
     }
     
 };

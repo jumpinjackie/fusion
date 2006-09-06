@@ -34,7 +34,7 @@ FitToWindow.prototype =
 {
     initialize : function(oCommand)
     {
-        console.log('FitToWindow.initialize');
+        //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['FitToWindow', false]);
         this.setMap(oCommand.getMap());
         
@@ -47,7 +47,7 @@ FitToWindow.prototype =
      */
     activateTool : function()
     {
-        console.log('FitToWindow.activateTool');
+        //console.log('FitToWindow.activateTool');
         this.getMap().fullExtents();
     }
 };

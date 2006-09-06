@@ -91,8 +91,8 @@ CursorPosition.prototype =
 
     initialize : function(oCommand)
     {
-        console.log('Maptip.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true]);
+        //console.log('CursorPosition.initialize');
+        Object.inheritFrom(this, GxWidget.prototype, ['CursorPosition', true]);
         this.setMap(oCommand.getMap());
         
         this._oCommand = oCommand;

@@ -34,7 +34,7 @@ Pan.prototype =
 {
     initialize : function(oCommand)
     {
-        console.log('Pan.initialize');
+        //console.log('Pan.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Pan', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, [oCommand.getMap()]);
@@ -49,7 +49,7 @@ Pan.prototype =
      */
     activateTool : function()
     {
-        console.log('Pan.activateTool');
+        //console.log('Pan.activateTool');
         this.getMap().activateWidget(this);
     },
     
@@ -62,7 +62,7 @@ Pan.prototype =
     },
     
     deactivate: function() {
-        console.log('Pan.deactivate');
+        //console.log('Pan.deactivate');
         this.deactivateRectTool();
         this.getMap().setCursor('auto');
         /*icon button*/

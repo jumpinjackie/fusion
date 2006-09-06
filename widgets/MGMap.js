@@ -33,7 +33,6 @@ require('widgets/GxMap.js');
 var MGMAP_SELECTION_ON = 1;
 var MGMAP_SELECTION_OFF = 2;
 
-
 var MGMap = Class.create();
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
 
@@ -47,7 +46,7 @@ MGMap.prototype =
     
     initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, nWidth, nHeight, oConfigObj)
     {
-         console.log('MGMap.initialize');
+         //console.log('MGMap.initialize');
          Object.inheritFrom(this, GxMap.prototype, [sDomObj, aExtents, nWidth, nHeight]);
 
          this.aShowLayers = [];
@@ -62,7 +61,8 @@ MGMap.prototype =
          this._sMapname = sMapname;
          this._fScale = -1;
          this._nDpi = 96;
-
+         
+         this.setExtentsGxMap(aExtents);
          this._calculateScale();
 
          this.oSelection = null;
@@ -121,7 +121,7 @@ MGMap.prototype =
         var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
         var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
 
-        console.log("MGMap:: _requestMapImage");
+        //console.log("MGMap:: _requestMapImage");
                     
         if (r.responseXML)
         {
@@ -152,7 +152,7 @@ MGMap.prototype =
 
         url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
-        console.log('MGURL ' + url);
+        //console.log('MGURL ' + url);
         this.setMapImageURL(url);
     },
     
@@ -286,27 +286,27 @@ MGMap.prototype =
 
     },
     showLayer: function( sLayer ) {
-        console.log('MGMap.showLayer('+sLayer+')');
+        //console.log('MGMap.showLayer('+sLayer+')');
         this.aShowLayers.push(sLayer);
         this.drawMap();
     },
     hideLayer: function( sLayer ) {
-        console.log('MGMap.hideLayer('+sLayer+')');
+        //console.log('MGMap.hideLayer('+sLayer+')');
         this.aHideLayers.push(sLayer);
         this.drawMap();
     },
     showGroup: function( sGroup ) {
-        console.log('MGMap.showGroup('+sGroup+')');
+        //console.log('MGMap.showGroup('+sGroup+')');
         this.aShowGroups.push(sGroup);
         this.drawMap();
     },
     hideGroup: function( sGroup ) {
-        console.log('MGMap.hideGroup('+sGroup+')');
+        //console.log('MGMap.hideGroup('+sGroup+')');
         this.aHideGroups.push(sGroup);
         this.drawMap();
     },
     refreshLayer: function( sLayer ) {
-        console.log('MGMap.refreshLayer('+sLayer+')');
+        //console.log('MGMap.refreshLayer('+sLayer+')');
         this.aRefreshLayers.push(sLayer);        
         this.drawMap();
     },

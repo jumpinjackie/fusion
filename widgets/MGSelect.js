@@ -33,7 +33,7 @@ MGSelect.prototype =
 {       
     initialize : function(oCommand)
     {
-        console.log('MGSelect.initialize');
+        //console.log('MGSelect.initialize');
         Object.inheritFrom(this, GxSelect.prototype, [oCommand]);
     }
 };

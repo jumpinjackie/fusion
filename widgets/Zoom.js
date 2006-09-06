@@ -37,7 +37,7 @@ Zoom.prototype =
     nFactor : 2,    
     initialize : function(oCommand)
     {
-        console.log('Zoom.initialize');
+        //console.log('Zoom.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
         this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
@@ -51,7 +51,7 @@ Zoom.prototype =
      */
     activateTool : function()
     {
-        console.log('Zoom.activateTool');
+        //console.log('Zoom.activateTool');
         this.getMap().activateWidget(this);
     },
 
@@ -62,7 +62,7 @@ Zoom.prototype =
      */
     activate : function()
     {
-        console.log('Zoom.activate');
+        //console.log('Zoom.activate');
         this.activateRectTool();
         /*cursor*/
         this.getMap().setCursor(this.asCursor);
@@ -77,7 +77,7 @@ Zoom.prototype =
      **/
     deactivate : function()
     {
-        console.log('Zoom.deactivate');
+        //console.log('Zoom.deactivate');
         this.deactivateRectTool();
         this.getMap().setCursor('auto');
         /*icon button*/
