@@ -54,5 +54,17 @@ KeepSessionAlive.prototype = {
         //console.log('KeepSessionAlive.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['KeepSessionAlive', false]);
         this.setMap(oCommand.getMap());
+        
+        this.delay = oCommand.oxmlNode.getNodeText('RefreshInterval');
+        
+        window.setInterval(this.pingServer.bind(this), this.delay * 1000);
+    },
+    
+    pingServer: function() {
+        var c = document.__chameleon__;
+        var s = 'server/' + c.getScriptLanguage() + "/MGCommon." + c.getScriptLanguage() ;
+        var params = {};
+        params.parameters = 'session='+c.getSessionID();
+        c.ajaxRequest(s, params);
     }
 };
