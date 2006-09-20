@@ -71,17 +71,20 @@
  * The url to an image to use for layers that are out of scale.
  *
  * **********************************************************************/
-require('lib/jx.js');
+//require('jx/tree/jxtree.js');
 
 var Legend = Class.create();
 Legend.prototype = 
 {
-    defLayerThemeIcon: 'images/tree_theme.png',
-    defDisabledLayerIcon: 'images/tree_layer.png',
-    defRootFolderIcon: 'images/tree_map.png',
     
     initialize : function(oCommand)
     {
+        var c = document.__chameleon__;
+        
+        this.defLayerThemeIcon = c.getChameleonURL() + 'images/tree_theme.png';
+        this.defDisabledLayerIcon = c.getChameleonURL() + 'images/tree_layer.png';
+        this.defRootFolderIcon = c.getChameleonURL() + 'images/tree_map.png';
+
         //console.log('Legend.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
         this.setMap(oCommand.getMap());
