@@ -54,7 +54,7 @@ ZoomSlider.prototype =
         options.range = $R(this.fMinScale, this.fMaxScale);
         options.sliderValue = this.clipScale(this.getMap().getScale());
         options.onChange = this.scaleChanged.bind(this);
-        //this._oSlider = new Control.Slider(this._oHandle, this._oTrack, options);
+        this._oSlider = new Control.Slider(this._oHandle, this._oTrack, options);
         
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.mapExtentsChanged.bind(this));
         
