@@ -141,7 +141,7 @@ Maptip.prototype =
             this.oCurrentPosition = p;
         }
         this.nTimer = window.setTimeout(this.showMaptip.bind(this), this.delay);
-        Event.stop(e);
+        //Event.stop(e);
     },
     
     showMaptip: function(r) {
