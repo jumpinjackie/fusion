@@ -1,8 +1,8 @@
 /********************************************************************** * 
  * @project MapGuide Open Source : Chameleon
  * @revision $Id$
- * @purpose Zoom widget
- * @author yassefa@dmsolutions.ca
+ * @purpose Toolbar widget
+ * @author pspencer@dmsolutions.ca
  * @copyright (c) 2006 DM Solutions Group Inc.
  * @license MIT
  * ********************************************************************
@@ -23,7 +23,7 @@
  * DEALINGS IN THE SOFTWARE.
  ********************************************************************
  *
- * Zoom widget using the map guide web layout configuration file
+ * Toolbar widget
  * 
  * **********************************************************************/
 
