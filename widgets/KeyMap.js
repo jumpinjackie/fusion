@@ -50,11 +50,6 @@ KeyMap.prototype =
         this.nWidth = this.oCommand.oxmlNode.getNodeText('KeyMapWidth');
         this.nHeight = this.oCommand.oxmlNode.getNodeText('KeyMapHeight');
 
-        var nTmp = parseInt(this.nWidth)+2;
-        this.oDomObj.style.width = nTmp + 'px';
-        nTmp = parseInt(this.nHeight)+2;
-        this.oDomObj.style.height = nTmp + 'px';
-        
         this.fCellWidth =  (this.fMaxX - this.fMinX)/this.nWidth;
         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
