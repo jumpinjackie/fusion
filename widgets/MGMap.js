@@ -32,6 +32,7 @@ require('widgets/GxMap.js');
 
 var MGMAP_SELECTION_ON = 1;
 var MGMAP_SELECTION_OFF = 2;
+var MGMAP_ACTIVE_LAYER_CHANGED = 3;
 
 var MGMap = Class.create();
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
@@ -43,6 +44,7 @@ MGMap.prototype =
     aShowGroups: null,
     aHideGroups: null,
     aRefreshLayers: null,
+    sActiveLayer: null,
     
     initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, nWidth, nHeight, oConfigObj)
     {
@@ -71,6 +73,7 @@ MGMap.prototype =
 
          this.registerEventID(MGMAP_SELECTION_ON);
          this.registerEventID(MGMAP_SELECTION_OFF);
+         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
     },
 
     setExtents : function(aExtents)
@@ -309,6 +312,14 @@ MGMap.prototype =
         //console.log('MGMap.refreshLayer('+sLayer+')');
         this.aRefreshLayers.push(sLayer);        
         this.drawMap();
+    },
+    setActiveLayer: function( sLayer ) {
+        console.log('active layer changed: ' + sLayer);
+        this.sActiveLayer = sLayer;
+        this.triggerEvent(MGMAP_ACTIVE_LAYER_CHANGED, sLayer);
+    },
+    getActiveLayer: function() {
+        return this.sActiveLayer;
     },
 
     getSessionId: function() {
