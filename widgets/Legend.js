@@ -76,7 +76,7 @@
 var Legend = Class.create();
 Legend.prototype = 
 {
-    
+    currentNode: null,
     initialize : function(oCommand)
     {
         var c = document.__chameleon__;
@@ -161,7 +161,7 @@ Legend.prototype =
             var groupNode = root.findFirstNode('group');
             while(groupNode) {
                 //TODO: group object?
-                var group = new MGGroup(groupNode, this.getMap());
+                var group = new MGGroup(groupNode, this.getMap(), this);
                 if (group.parentUniqueId != '') {
                     group.parent = this.mapGroups[group.parentUniqueId];
                 } else {
@@ -182,7 +182,7 @@ Legend.prototype =
             }
             var layerNode = root.findFirstNode('layer');
             while(layerNode) {
-                var layer = new MGLayer(layerNode, this.getMap());
+                var layer = new MGLayer(layerNode, this.getMap(), this);
                 layer.themeIcon = this.imgLayerThemeIcon;
                 layer.disabledLayerIcon = this.imgDisabledLayerIcon;
                 if (layer.parentGroup != '') {
@@ -223,13 +223,28 @@ Legend.prototype =
         }
         this.mapGroups = [];
         this.mapLayers = [];
+    },
+    selectionChanged: function(o) {
+        if (this.currentNode) {
+            Element.removeClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+        }
+        this.currentNode = o;
+        Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+        
+        if (o.data instanceof MGGroup) {
+            this.getMap().setActiveLayer(null);
+        } else {
+            this.getMap().setActiveLayer(o.data.layerName);
+        }
     }
 };
 
 var MGGroup = Class.create();
 MGGroup.prototype = {
     oMap: null,
-    initialize: function(groupNode, oMap) {
+    oSelectionListener: null,
+    initialize: function(groupNode, oMap, selectionListener) {
+        this.oSelectionListener = selectionListener;
         this.oMap = oMap;
         this.name = groupNode.getNodeText('groupname');
         this.legendLabel = groupNode.getNodeText('legendlabel');
@@ -251,7 +266,9 @@ MGGroup.prototype = {
             this.checkBox.checked = this.visible?true:false;
             Event.observe(this.checkBox, 'click', this.stateChanged.bind(this));
             this.treeItem.domObj.insertBefore(this.checkBox, this.treeItem.domObj.childNodes[1]);
-            
+            if (this.oSelectionListener) {
+                this.treeItem.addSelectionListener(this.oSelectionListener);
+            }
         } else {
             this.treeItem = null;
         }
@@ -276,7 +293,10 @@ MGLayer.prototype = {
     
     bFirstDisplay: null,
     
-    initialize: function(layerNode, oMap) {
+    oSelectionListener: null,
+    
+    initialize: function(layerNode, oMap, selectionListener) {
+        this.oSelectionListener = selectionListener;
         this.oMap = oMap;
         this.layerName = layerNode.getNodeText('layername');
         this.uniqueId = layerNode.getNodeText('uniqueid');
@@ -379,6 +399,11 @@ MGLayer.prototype = {
         opt.imgTreeFolder = this.themeIcon;
         var folder = new JxTreeFolder(opt);
         folder.domObj.insertBefore(this.checkBox, folder.domObj.childNodes[1]);
+        
+        if (this.oSelectionListener) {
+            folder.addSelectionListener(this.oSelectionListener);
+        }
+        
         return folder;
     },
     createTreeItem: function(label, style, scale, bCheckBox) {
@@ -395,6 +420,10 @@ MGLayer.prototype = {
         
         if (bCheckBox) {
             item.domObj.insertBefore(this.checkBox, item.domObj.childNodes[1]);
+        }
+
+        if (this.oSelectionListener) {
+            item.addSelectionListener(this.oSelectionListener);
         }
         
         return item;
