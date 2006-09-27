@@ -54,7 +54,7 @@ KeyMap.prototype =
         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
-        this.getMap().registerForEvent(MGMAP_MAP_LOADED, this, this.draw);
+        this.getMap().registerForEvent(MAP_LOADED, this, this.draw);
     },
 
     extentsChangedCB : function()

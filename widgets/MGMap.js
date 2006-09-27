@@ -33,7 +33,7 @@ require('widgets/GxMap.js');
 var MGMAP_SELECTION_ON = 1;
 var MGMAP_SELECTION_OFF = 2;
 var MGMAP_ACTIVE_LAYER_CHANGED = 3;
-var MGMAP_MAP_LOADED = 4;
+var MAP_LOADED = 4;
 
 var MGMap = Class.create();
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
@@ -54,7 +54,7 @@ MGMap.prototype =
         this.registerEventID(MGMAP_SELECTION_ON);
         this.registerEventID(MGMAP_SELECTION_OFF);
         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
-        this.registerEventID(MGMAP_MAP_LOADED);
+        this.registerEventID(MAP_LOADED);
         
         this._fScale = -1;
         this._nDpi = 96;
@@ -111,7 +111,7 @@ MGMap.prototype =
 
             this.setExtents(aExtents);
             this._calculateScale();
-            this.triggerEvent(MGMAP_MAP_LOADED);
+            this.triggerEvent(MAP_LOADED);
         } else {
             //TODO: how do we handle this error?
             console.log('LoadMap failed!');
