@@ -82,13 +82,16 @@ MapChooser.prototype =
     processGroupNode: function(oGroupNode, oParent) {
         opt = {};
         opt.label = oGroupNode.getNodeText('Name');
+        opt.isOpen = true;
         var folder = new JxTreeFolder(opt)
         oParent.append(folder);
     
-        var groupNode = oGroupNode.findFirstNode('Group');
-        while(groupNode) {
-            this.processGroupNode(groupNode, folder);
-            groupNode = oGroupNode.findNextNode('Group');
+        //there is a bug in DomNode that is not easily fixed
+        //that has to do with searching for nested nodes
+        for (var i=0; i<oGroupNode.childNodes.length; i++) {
+            if (oGroupNode.childNodes[i].nodeName == 'Group') {
+                this.processGroupNode(oGroupNode.childNodes[i], folder);
+            }
         }
         
         var mapNode = oGroupNode.findFirstNode('Map');
@@ -98,6 +101,7 @@ MapChooser.prototype =
             opt.data = mapNode.getNodeText('ResourceId');
             opt.imgIcon = this.defIcon;
             var item = new JxTreeItem(opt);
+            item.addSelectionListener(this);
             folder.append(item);
             mapNode = oGroupNode.findNextNode('Map');
         }
@@ -118,10 +122,10 @@ MapChooser.prototype =
     },
     selectionChanged: function(o) {
         if (this.currentNode) {
-            Element.removeClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+            Element.removeClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode')
         }
         this.currentNode = o;
-        Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+        Element.addClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode')
         
         
     }

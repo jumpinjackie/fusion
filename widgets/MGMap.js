@@ -33,6 +33,7 @@ require('widgets/GxMap.js');
 var MGMAP_SELECTION_ON = 1;
 var MGMAP_SELECTION_OFF = 2;
 var MGMAP_ACTIVE_LAYER_CHANGED = 3;
+var MGMAP_MAP_LOADED = 4;
 
 var MGMap = Class.create();
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
@@ -46,34 +47,75 @@ MGMap.prototype =
     aRefreshLayers: null,
     sActiveLayer: null,
     
-    initialize : function(sDomObj, sMapname, fMetersperunit, aExtents, nWidth, nHeight, oConfigObj)
+    initialize : function(oCommand)
     {
-         //console.log('MGMap.initialize');
-         Object.inheritFrom(this, GxMap.prototype, [sDomObj, aExtents, nWidth, nHeight]);
+        Object.inheritFrom(this, GxMap.prototype, [oCommand]);
+        
+        this.registerEventID(MGMAP_SELECTION_ON);
+        this.registerEventID(MGMAP_SELECTION_OFF);
+        this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
+        this.registerEventID(MGMAP_MAP_LOADED);
+        
+        this._fScale = -1;
+        this._nDpi = 96;
+        
+        var c = document.__chameleon__;
+        this._oConfigObj = c.oConfigMgr;
+        
+        this.loadMap(oCommand.oxmlNode.getNodeText('ResourceId'));
+        
+    },
+    
+    loadMap: function(resourceId) {
+        /* clean up after existing map (if necessary) */
+        if (true) {
+            this.aShowLayers = [];
+            this.aHideLayers = [];
+            this.aShowGroups = [];
+            this.aHideGroups = [];
+            this.aRefreshLayers = [];
 
-         this.aShowLayers = [];
-         this.aHideLayers = [];
-         this.aShowGroups = [];
-         this.aHideGroups = [];
-         this.aRefreshLayers = [];
+            this.oSelection = null;
+            this.aSelectionCallbacks = [];
+            this._bSelectionIsLoading = false;
+        }
 
-         this._oConfigObj = oConfigObj;
+        var c = document.__chameleon__;
+        
+        var sl = c.getScriptLanguage();
+        var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
+        
+        
+        var sessionid = c.getSessionID();
+        
+        var params = 'mapid='+resourceId+"&session="+sessionid;
+        var options = {onSuccess: this.mapLoaded.bind(this), 
+                                     parameters: params};
+        c.ajaxRequest(loadmapScript, options);
+    },
+    
+    mapLoaded: function(r) {
+        console.log('MGMap.loadmapScript');
+            
+        if (r.responseXML)
+        {
+            var oNode = new DomNode(r.responseXML);
+            //var mapid = oNode.findFirstNode('mapid').textContent;
+            this._sMapname = oNode.findFirstNode('mapname').textContent;
+            this._fMetersperunit = oNode.findFirstNode('metersperunit').textContent;
 
-         this._fMetersperunit = fMetersperunit;
-         this._sMapname = sMapname;
-         this._fScale = -1;
-         this._nDpi = 96;
-         
-         this.setExtentsGxMap(aExtents);
-         this._calculateScale();
+            var aExtents = [parseFloat(oNode.getNodeText('minx')),
+                            parseFloat(oNode.getNodeText('miny')),
+                            parseFloat(oNode.getNodeText('maxx')),
+                            parseFloat(oNode.getNodeText('maxy'))];
 
-         this.oSelection = null;
-         this.aSelectionCallbacks = [];
-         this._bSelectionIsLoading = false;
-
-         this.registerEventID(MGMAP_SELECTION_ON);
-         this.registerEventID(MGMAP_SELECTION_OFF);
-         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
+            this.setExtents(aExtents);
+            this._calculateScale();
+            this.triggerEvent(MGMAP_MAP_LOADED);
+        } else {
+            //TODO: how do we handle this error?
+            console.log('LoadMap failed!');
+        }
     },
 
     setExtents : function(aExtents)
@@ -91,8 +133,8 @@ MGMap.prototype =
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
 
-        var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
-        var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
+        var nWidth = this._nWidth;
+        var nHeight = this._nHeight;
         
         var showLayers = this.aShowLayers.length > 0 ? 
                               this.aShowLayers.toString() : null;

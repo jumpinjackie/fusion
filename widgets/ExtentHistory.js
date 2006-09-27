@@ -55,8 +55,8 @@ ExtentHistory.prototype =
         }
         
         if (!this.aHistory['history']) {
-            this.aHistory['history'] = [this.getMap().getCurrentExtents()];
-            this.aHistory['index'] = 0;
+            this.aHistory['history'] = [];
+            this.aHistory['index'] = -1;
             this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.extentsChanged.bind(this));
         }
         
@@ -74,7 +74,6 @@ ExtentHistory.prototype =
         if (this.aHistory['history'].length == 0) {
             this.aHistory['history'].push(extents);
             this.aHistory['index'] = 0;
-            
         } else {
             var aExtents = this.aHistory['history'][this.aHistory['index']];
             if (aExtents[0] == extents[0] &&

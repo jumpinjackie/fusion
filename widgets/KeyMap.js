@@ -54,40 +54,39 @@ KeyMap.prototype =
         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
-
-        this.draw();
-       
+        this.getMap().registerForEvent(MGMAP_MAP_LOADED, this, this.draw);
     },
 
     extentsChangedCB : function()
     {
-        this.update();
+        this.draw();
     },
 
 
     draw : function()
     {
-  
-        //create an image to hold the keymap
-        this.oDomImgObj = document.createElement( 'img' );
-        this.oDomImgObj.src = this.sImageURL;
-        this.oDomImgObj.width = this.nWidth;
-        this.oDomImgObj.height = this.nHeight;
-        this.oDomObj.appendChild(this.oDomImgObj );
+        if (!this.oDomImgObj) {
+            //create an image to hold the keymap
+            this.oDomImgObj = document.createElement( 'img' );
+            this.oDomImgObj.src = this.sImageURL;
+            this.oDomImgObj.width = this.nWidth;
+            this.oDomImgObj.height = this.nHeight;
+            this.oDomObj.appendChild(this.oDomImgObj );
 
 
-        //create a div to track the current extents
-        this.oDomExtents = document.createElement( 'div' );
-        this.oDomExtents.id="keymapDomExtents";
-        this.oDomExtents.style.position = 'absolute';
-        this.oDomExtents.style.border = '1px solid red';
-        this.oDomExtents.style.top = "1px";
-        this.oDomExtents.style.left = "1px";
-        this.oDomExtents.style.width = "1px";
-        this.oDomExtents.style.height = "1px";
-        this.oDomExtents.style.backgroundColor = 'transparent';
-        this.oDomExtents.style.visibility = 'visible';
-        this.oDomObj.appendChild(this.oDomExtents);
+            //create a div to track the current extents
+            this.oDomExtents = document.createElement( 'div' );
+            this.oDomExtents.id="keymapDomExtents";
+            this.oDomExtents.style.position = 'absolute';
+            this.oDomExtents.style.border = '1px solid red';
+            this.oDomExtents.style.top = "1px";
+            this.oDomExtents.style.left = "1px";
+            this.oDomExtents.style.width = "1px";
+            this.oDomExtents.style.height = "1px";
+            this.oDomExtents.style.backgroundColor = 'transparent';
+            this.oDomExtents.style.visibility = 'visible';
+            this.oDomObj.appendChild(this.oDomExtents);
+        }
 
         this.update();
     },
