@@ -58,6 +58,8 @@ ExtentHistory.prototype =
             this.aHistory['history'] = [];
             this.aHistory['index'] = -1;
             this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.extentsChanged.bind(this));
+            this.getMap().registerForEvent(MAP_LOADED, null, this.reset.bind(this));
+            
         }
         
         this.registerEventID(HISTORY_CHANGED);
@@ -67,9 +69,13 @@ ExtentHistory.prototype =
         this._oButton.disableTool()
     },
     
+    reset: function() {
+        this.aHistory['history'] = [];
+        this.aHistory['index'] = -1;
+        this.historyChanged();
+    },
+    
     extentsChanged: function() {
-        console.log('extentsChanged ' + this.sDirection);
-        
         var extents = this.getMap().getCurrentExtents();
         if (this.aHistory['history'].length == 0) {
             this.aHistory['history'].push(extents);
@@ -94,8 +100,6 @@ ExtentHistory.prototype =
     },
     
     historyChanged: function() {
-        console.log('historyChanged ' + this.sDirection);
-        console.log('history has ' + this.aHistory['history'].length + ' extents, current index is ' + this.aHistory['index']);
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
                 this._oButton.enableTool();

@@ -156,7 +156,6 @@ Legend.prototype =
      */
     draw: function(r)
     {
-        //console.log('Legend.draw');
         this.clear();
         if (r.responseXML)
         {
