@@ -67,7 +67,7 @@ for($i=0;$i<$layers->GetCount();$i++)
    $layerDefinition = $layer->GetLayerDefinition();
     echo '<layer>';
     echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
-    echo '<layername>'.$layer->GetName().'</layername>';
+    echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
     echo '<layertype>'.$layer->GetLayerType().'</layertype>';
     echo '<displayinlegend>'.$layer->GetDisplayInLegend().'</displayinlegend>';
     echo '<expandinlegend>'.$layer->GetExpandInLegend().'</expandinlegend>';
@@ -75,7 +75,7 @@ for($i=0;$i<$layers->GetCount();$i++)
     if ($layer->GetGroup()) {
         echo '<parentgroup>'.$layer->GetGroup()->GetObjectId().'</parentgroup>';
     }
-    echo '<legendlabel>'.$layer->GetLegendLabel().'</legendlabel>';
+    echo '<legendlabel>'.htmlentities($layer->GetLegendLabel()).'</legendlabel>';
     echo '<selectable>'.$layer->GetSelectable().'</selectable>';
     echo '<visible>'.BooleanToString($layer->GetVisible()).'</visible>';
     echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
@@ -92,8 +92,8 @@ for($i=0;$i<$groups->GetCount();$i++)
     $group=$groups->GetItem($i);
     $layerDefinition = $layer->GetLayerDefinition();
     echo '<group>';
-    echo '<groupname>'.$group->GetName().'</groupname>';
-    echo '<legendlabel>'.$group->GetLegendLabel().'</legendlabel>';
+    echo '<groupname>'.htmlentities($group->GetName()).'</groupname>';
+    echo '<legendlabel>'.htmlentities($group->GetLegendLabel()).'</legendlabel>';
     echo '<uniqueid>'.$group->GetObjectId().'</uniqueid>';
     echo '<displayinlegend>'.$group->GetDisplayInLegend().'</displayinlegend>';
     echo '<expandinlegend>'.$group->GetExpandInLegend().'</expandinlegend>';
@@ -167,8 +167,8 @@ function buildScaleRanges($layer) {
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
                     $output .= '<styleitem>';
-                    $output .= '<label>'.trim($labelText).'</label>';
-                    $output .= '<filter>'.trim($filterText).'</filter>';
+                    $output .= '<label>'.htmlentities(trim($labelText)).'</label>';
+                    $output .= '<filter>'.htmlentities(trim($filterText)).'</filter>';
                     $output .= '<geomtype>'.($ts+1).'</geomtype>';
                     $output .= '<categoryindex>'.($catIndex++).'</categoryindex>';
                     $output .= '</styleitem>';
