@@ -127,6 +127,6 @@ MapChooser.prototype =
         this.currentNode = o;
         Element.addClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode')
         
-        
+        this.getMap().loadMap(this.currentNode.data);
     }
 };
