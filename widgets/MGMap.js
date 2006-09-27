@@ -30,10 +30,11 @@
 */
 require('widgets/GxMap.js');
 
-var MGMAP_SELECTION_ON = 1;
-var MGMAP_SELECTION_OFF = 2;
-var MGMAP_ACTIVE_LAYER_CHANGED = 3;
-var MAP_LOADED = 4;
+var gnLastEventId = 10;
+var MGMAP_SELECTION_ON = gnLastEventId++;
+var MGMAP_SELECTION_OFF = gnLastEventId++;
+var MGMAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
+var MAP_LOADED = gnLastEventId++;
 
 var MGMap = Class.create();
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
@@ -47,6 +48,9 @@ MGMap.prototype =
     aRefreshLayers: null,
     sActiveLayer: null,
     
+    //the resource id of the current MapDefinition
+    _sResourceId: null,
+    
     initialize : function(oCommand)
     {
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
@@ -56,8 +60,7 @@ MGMap.prototype =
         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
         this.registerEventID(MAP_LOADED);
         
-        this._fScale = -1;
-        this._nDpi = 96;
+
         
         var c = document.__chameleon__;
         this._oConfigObj = c.oConfigMgr;
@@ -67,24 +70,32 @@ MGMap.prototype =
     },
     
     loadMap: function(resourceId) {
-        /* clean up after existing map (if necessary) */
-        if (true) {
-            this.aShowLayers = [];
-            this.aHideLayers = [];
-            this.aShowGroups = [];
-            this.aHideGroups = [];
-            this.aRefreshLayers = [];
-
-            this.oSelection = null;
-            this.aSelectionCallbacks = [];
-            this._bSelectionIsLoading = false;
+        this._addWorker();
+        console.log('loadMap: ' + resourceId);
+        /* don't do anything if the map is already loaded? */
+        if (this._sResourceId == resourceId) {
+            return;
         }
+        
+        this._fScale = -1;
+        this._nDpi = 96;
+        
+        this._afInitialExtents = null;
+        this._afCurrentExtents = null;
+        this.aShowLayers = [];
+        this.aHideLayers = [];
+        this.aShowGroups = [];
+        this.aHideGroups = [];
+        this.aRefreshLayers = [];
+
+        this.oSelection = null;
+        this.aSelectionCallbacks = [];
+        this._bSelectionIsLoading = false;
 
         var c = document.__chameleon__;
         
         var sl = c.getScriptLanguage();
         var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
-        
         
         var sessionid = c.getSessionID();
         
@@ -95,12 +106,12 @@ MGMap.prototype =
     },
     
     mapLoaded: function(r) {
-        console.log('MGMap.loadmapScript');
+        console.log('MGMap.loadmapScript ' + r.responseText);
             
         if (r.responseXML)
         {
             var oNode = new DomNode(r.responseXML);
-            //var mapid = oNode.findFirstNode('mapid').textContent;
+            this._sResourceId = mapid = oNode.findFirstNode('mapid').textContent;
             this._sMapname = oNode.findFirstNode('mapname').textContent;
             this._fMetersperunit = oNode.findFirstNode('metersperunit').textContent;
 
@@ -110,17 +121,20 @@ MGMap.prototype =
                             parseFloat(oNode.getNodeText('maxy'))];
 
             this.setExtents(aExtents);
-            this._calculateScale();
+            //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
         } else {
             //TODO: how do we handle this error?
             console.log('LoadMap failed!');
         }
+        this._removeWorker();
     },
 
     setExtents : function(aExtents)
     {
+        console.log('setExtents: ' + aExtents);
         this.setExtentsGxMap(aExtents);
+        console.log('about to draw');
         this.drawMap();
     },
 
@@ -130,6 +144,8 @@ MGMap.prototype =
     },
     
     drawMap: function() {
+        console.log('drawMap');
+        this._addWorker();
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
 
@@ -197,7 +213,7 @@ MGMap.prototype =
 
         url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
-        //console.log('MGURL ' + url);
+        console.log('MGURL ' + url);
         this.setMapImageURL(url);
     },
     
@@ -212,6 +228,7 @@ MGMap.prototype =
             }
             this.aSelectionCallbacks = [];
         }       
+        this._removeWorker();
     },
     
     /**
@@ -245,6 +262,7 @@ MGMap.prototype =
                 this.aSelectionCallbacks.push(userFunc);
             }
             if (!this._bSelectionIsLoading) {
+                this._addWorker();
                 this._bSelectionIsLoading = true;
                 var c = document.__chameleon__;
                 var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
@@ -295,7 +313,8 @@ MGMap.prototype =
             {
                 this.newSelection();
             }
-        }        
+        }
+        this._removeWorker();
     },
 
     /**
@@ -303,6 +322,7 @@ MGMap.prototype =
     */
     queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant)
     {
+        this._addWorker();
         var oBroker = this._oConfigObj.oApp.getBroker();
 
         var sGeometry = 'POLYGON(('+ fMinX + ' ' +  fMinY + ', ' +  fMaxX + ' ' +  fMinY + ', ' + fMaxX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMinY + '))';
