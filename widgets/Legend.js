@@ -119,7 +119,10 @@ Legend.prototype =
             this.oRoot = this.oTree;
         }
         
-        this.getLayers();
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.update);
+        this.getMap().registerForEvent(MAP_LOADED, this, this.getLayers);
+        
+        //this.getLayers();
     },
     
     /**
@@ -196,7 +199,6 @@ Legend.prototype =
             }
         }
         this.update();
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.update);
     },
     
     update: function() {
