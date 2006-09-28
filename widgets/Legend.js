@@ -235,7 +235,7 @@ Legend.prototype =
         if (o.data instanceof MGGroup) {
             this.getMap().setActiveLayer(null);
         } else {
-            this.getMap().setActiveLayer(o.data.layerName);
+            this.getMap().setActiveLayer(o.data);
         }
     }
 };
