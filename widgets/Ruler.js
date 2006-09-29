@@ -92,6 +92,10 @@ Ruler.prototype =
     
     activate: function() {
         this.activateCanvas();
+        this.aDistances = [];
+        this.cumulativeDistance = 0;
+        this.lastDistance = 0;
+        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
     },
     
     /**
@@ -105,6 +109,11 @@ Ruler.prototype =
         this.clearContext();
         this._oButton.deactivateTool();
         this.deactivateCanvas();
+        
+        this.aDistances = [];
+        this.cumulativeDistance = 0;
+        this.lastDistance = 0;
+        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
     },
     
     /**
