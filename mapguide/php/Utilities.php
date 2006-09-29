@@ -62,7 +62,9 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
     //N.B. For a featureList array with a single 'magic' value of -1, all features are copied but
     //this uses a direct file copy so only works with identical flat file formats such as
     //SDF<->SDF
+    echo "almost here";
     if (isset($featureList)) {
+        echo "here";
         //copy data from the original featureSource into the new one
         //1. get data name
         //2. copy contents
@@ -124,10 +126,10 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
     
 	//add the edit layer to the session map and set it to redraw but not be visible in the legend
 	$layerCollection=$map->GetLayers();
-	$originalLayer = $layerCollection->GetItem($libraryLayer);
+	$originalLayer = FindLayer($layerCollection,$libraryLayer->GetLayerDefinition()->ToString());
     $nPosition = $layerCollection->IndexOf($originalLayer);
     $layerCollection->Insert($nPosition,$layer);
-	$layer->SetVisibleInLegend(false);
+	$layer->SetDisplayInLegend(false);
     $layer->ForceRefresh();
     
 	//OR
@@ -410,6 +412,52 @@ function add_layer_resource_to_map($layerResourceID,
         $layerCollection->Insert(0,$newLayer); 
     } 
     return $newLayer; 
+}
+
+function CreateDataPropertyForType($property) {
+    switch ($property->GetDataType()) 
+    {
+       case MgPropertyType::Null :
+         return null;
+         break;
+       case MgPropertyType::Boolean :
+         return new MgBooleanProperty($property->GetName(), false);
+         break;
+       case MgPropertyType::Byte :
+         return new MgByteProperty($property->GetName(), 0);
+         break;
+       case MgPropertyType::DateTime :
+         return new MgDateTimeProperty($property->GetName(), new MgDateTime());
+         break;
+       case MgPropertyType::Single :
+         return new MgSingleProperty($property->GetName(), 0);
+         break;
+       case MgPropertyType::Double :
+         return new MgDoubleProperty($property->GetName(), 0);
+         break;
+       case MgPropertyType::Int16 :
+         return new MgInt16Property($property->GetName(), 0);
+         break;
+       case MgPropertyType::Int32 :
+         return new MgInt32Property($property->GetName(), 0);
+         break;
+       case MgPropertyType::Int64 :
+         return new MgInt64Property($property->GetName(), 0);
+         break;
+       case MgPropertyType::String :
+         return new MgStringProperty($property->GetName(), '');
+         break;
+       case MgPropertyType::Blob :
+         $byteSource = new MgByteSource("",0);
+         return new MgBlobProperty($property->GetName(), $byteSource->GetReader());
+         break;
+       case MgPropertyType::Clob :
+         $byteSource = new MgByteSource("",0);
+         return new MgClobProperty($property->GetName(), $byteSource->GetReader());
+         break;
+       default : 
+         return null;
+    }
 }
 
 ?>
