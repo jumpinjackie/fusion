@@ -37,17 +37,10 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
     //create the session MgResourceIdentifier
     $destinationFeatureId = ToggleRepository($sourceFeatureId);
     
-    //copy content
-    //$contentReader = $resourceService->GetResourceContent($sourceFeatureId);
-    //$featureSourceContent = $contentReader->ToString();
-    //$byteSource = new MgByteSource($featureSourceContent,
-    //                               strlen($featureSourceContent));
-    //$resourceService->SetResource( $destinationFeatureId,
-    //                               $byteSource->GetReader(), null);
-    
     //get feature source parameters from original
     $schemaCollection = $featureService->DescribeSchema($sourceFeatureId, '');
     $schema = $schemaCollection->GetItem(0);
+    
     $activeOnly = true;
     $activeSpatialContextReader = $featureService->GetSpatialContexts($sourceFeatureId, $activeOnly);
     $activeSpatialContextReader->ReadNext();
@@ -62,7 +55,6 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
     //N.B. For a featureList array with a single 'magic' value of -1, all features are copied but
     //this uses a direct file copy so only works with identical flat file formats such as
     //SDF<->SDF
-    echo "almost here";
     if (isset($featureList)) {
         echo "here";
         //copy data from the original featureSource into the new one
@@ -130,6 +122,7 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
     $nPosition = $layerCollection->IndexOf($originalLayer);
     $layerCollection->Insert($nPosition,$layer);
 	$layer->SetDisplayInLegend(false);
+	$layer->SetSelectable(true);
     $layer->ForceRefresh();
     
 	//OR
@@ -454,6 +447,83 @@ function CreateDataPropertyForType($property) {
        case MgPropertyType::Clob :
          $byteSource = new MgByteSource("",0);
          return new MgClobProperty($property->GetName(), $byteSource->GetReader());
+         break;
+
+       default : 
+         return null;
+    }
+}
+
+function BatchPropertyCollectionFromFeatureReader($reader) {
+    $batch = new MgBatchPropertyCollection();
+    while($reader->ReadNext()) {
+        $batch->Add(PropertyCollectionFromFeatureReader($reader));
+    }
+    return $batch;
+}
+
+function PropertyCollectionFromFeatureReader($reader) {
+    $propCollection = new MgPropertyCollection();
+    $propCount = $reader->GetPropertyCount();
+    for($j=0; $j<$propCount; $j++) {
+        $property = CreatePropertyFromFeatureReader($reader, $j);
+        if ($property != null) {
+            //add to collection
+            $propCollection->Add($property);
+        }
+    }
+    return $propCollection;
+}
+
+function CreatePropertyFromFeatureReader($reader, $idx) {
+    $name = $reader->GetPropertyName($idx);
+    $boolVal = $reader->IsNull($name);
+    if ($boolVal) {
+        return null;
+    }
+    switch ($reader->GetPropertyType($name)) 
+    {
+       case MgPropertyType::Null :
+         return null;
+         break;
+       case MgPropertyType::Boolean :
+         return new MgBooleanProperty($name, $reader->GetBoolean($name));
+         break;
+       case MgPropertyType::Byte :
+         return new MgByteProperty($name, $reader->GetByte($name));
+         break;
+       case MgPropertyType::DateTime :
+         return new MgDateTimeProperty($name, $reader->GetDateTime($name));
+         break;
+       case MgPropertyType::Single :
+         return new MgSingleProperty($name, $reader->GetSingle($name));
+         break;
+       case MgPropertyType::Double :
+         return new MgDoubleProperty($name, $reader->GetDouble($name));
+         break;
+       case MgPropertyType::Int16 :
+         return new MgInt16Property($name, $reader->GetInt16($name));
+         break;
+       case MgPropertyType::Int32 :
+         return new MgInt32Property($name, $reader->GetInt32($name));
+         break;
+       case MgPropertyType::Int64 :
+         return new MgInt64Property($name, $reader->GetInt64($name));
+         break;
+       case MgPropertyType::String :
+         return new MgStringProperty($name, $reader->GetString($name));
+         break;
+       case MgPropertyType::Blob :
+         return new MgBlobProperty($name, $reader->GetBLOB($name));
+         break;
+       case MgPropertyType::Clob :
+         return new MgClobProperty($name, $reader->GetCLOB($name));
+         break;
+       case MgPropertyType::Geometry:
+         return new MgGeometryProperty($name, $reader->GetGeometry($name));
+         break;
+       case MgPropertyType::Raster:
+         return new MgRasterProperty($name, $reader->GetRaster($name));
          break;
        default : 
          return null;
