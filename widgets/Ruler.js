@@ -208,6 +208,14 @@ Ruler.prototype =
         this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
     },
     
+    getLastDistance: function() {
+        var d = this.lastDistance;
+        if (this.units != this.METERS) {
+            d = d * this.unitPerMeter[this.units];
+        }
+        return d;
+    },
+    
     getDistance: function() {
         var totalDistance = this.cumulativeDistance + this.lastDistance;
         if (this.units != this.METERS) {
