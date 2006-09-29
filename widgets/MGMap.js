@@ -71,7 +71,7 @@ MGMap.prototype =
     
     loadMap: function(resourceId) {
         this._addWorker();
-        console.log('loadMap: ' + resourceId);
+        //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
             return;
@@ -106,7 +106,7 @@ MGMap.prototype =
     },
     
     mapLoaded: function(r) {
-        console.log('MGMap.loadmapScript ' + r.responseText);
+        //console.log('MGMap.loadmapScript ' + r.responseText);
             
         if (r.responseXML)
         {
@@ -132,9 +132,7 @@ MGMap.prototype =
 
     setExtents : function(aExtents)
     {
-        console.log('setExtents: ' + aExtents);
         this.setExtentsGxMap(aExtents);
-        console.log('about to draw');
         this.drawMap();
     },
 
@@ -144,7 +142,6 @@ MGMap.prototype =
     },
     
     drawMap: function() {
-        console.log('drawMap');
         this._addWorker();
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
@@ -213,7 +210,7 @@ MGMap.prototype =
 
         url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
-        console.log('MGURL ' + url);
+        //console.log('MGURL ' + url);
         this.setMapImageURL(url);
     },
     
@@ -376,7 +373,6 @@ MGMap.prototype =
         this.drawMap();
     },
     setActiveLayer: function( sLayer ) {
-        console.log('active layer changed: ' + sLayer);
         this.sActiveLayer = sLayer;
         this.triggerEvent(MGMAP_ACTIVE_LAYER_CHANGED, sLayer);
     },
