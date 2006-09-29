@@ -23,7 +23,7 @@
  * DEALINGS IN THE SOFTWARE.
  ********************************************************************
  *
- * Toolbar widget
+ * Toolbar widget - this only exists to include jxtoolbar.js
  * 
  * **********************************************************************/
 
@@ -32,7 +32,5 @@ require('jx/toolbar/jxtoolbar.js');
 var Toolbar = Class.create();
 Toolbar.prototype = 
 {
-    initialize : function(oCommand)
-    {
-    }
+    initialize : function(oCommand){}
 };
