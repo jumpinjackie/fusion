@@ -35,7 +35,10 @@
  *****************************************************************************/
 //set up the MG server session and pass it back to the javascript init
 
-$extensionDir = getcwd() . "/../../../";
+//widgets outside chameleon can set the $extensionDir before includeing MGCommon.php
+if (!isset($extensionDir)) 
+    $extensionDir = getcwd() . "/../../../";
+
 $viewDir = $extensionDir."mapviewerphp/";
 
 include $viewDir . "common.php";
@@ -67,9 +70,12 @@ else
 //common resource service to be used by all scripts
 $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
 
-$mapName = $_REQUEST['mapname'];
+if (isset($_REQUEST['mapname']))
+{ 
+    $mapName = $_REQUEST['mapname'];
 
-$mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
+    $mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
 
-$mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
+    $mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
+}
 ?>
