@@ -119,11 +119,13 @@ CursorPosition.prototype =
         var p = this.getMap().getEventPosition(e);
         var map = this.getMap();
         var loc = map.pixToGeo(p.x, p.y);
-        if (this.precision >= 0) {
-            var factor = Math.pow(10,this.precision);
-            loc.x = Math.round(loc.x * factor)/factor;
-            loc.y = Math.round(loc.y * factor)/factor;
+        if (loc) {
+            if (this.precision >= 0) {
+                var factor = Math.pow(10,this.precision);
+                loc.x = Math.round(loc.x * factor)/factor;
+                loc.y = Math.round(loc.y * factor)/factor;
+            }
+            this.domObj.innerHTML = this.template.replace('{x}',loc.x).replace('{y}',loc.y);
         }
-        this.domObj.innerHTML = this.template.replace('{x}',loc.x).replace('{y}',loc.y);
     }
 };
