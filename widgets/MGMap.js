@@ -65,7 +65,10 @@ MGMap.prototype =
         var c = document.__chameleon__;
         this._oConfigObj = c.oConfigMgr;
         
-        this.loadMap(oCommand.oxmlNode.getNodeText('ResourceId'));
+        this.sMapResourceId = oCommand.oxmlNode.getNodeText('ResourceId');
+        if (this.sMapResourceId != '') {
+            this.loadMap();
+        }
         
     },
     
