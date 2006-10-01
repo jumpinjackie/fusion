@@ -67,7 +67,7 @@ MGMap.prototype =
         
         this.sMapResourceId = oCommand.oxmlNode.getNodeText('ResourceId');
         if (this.sMapResourceId != '') {
-            this.loadMap();
+            this.loadMap(this.sMapResourceId);
         }
         
     },
