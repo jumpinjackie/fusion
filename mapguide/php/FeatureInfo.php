@@ -152,8 +152,7 @@ for ($i=0; $i<$layers->GetCount();$i++) {
         $propTypes = array();
 
         /* select the features */
-        try
-        {
+        try {
             $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
             while($featureReader->ReadNext()) {
                 //do this only once
@@ -182,11 +181,7 @@ for ($i=0; $i<$layers->GetCount();$i++) {
                 }
                 $nElements++;
             }
-        }
-        catch (MgException $e)
-        {
-
-        }
+        } catch (MgException $e) { /* do nothing if this fails */ }
         
         if ($bLayerAdded) {
             echo '</ValueCollection>';
