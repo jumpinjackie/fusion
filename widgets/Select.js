@@ -34,6 +34,7 @@ var Select = Class.create();
 Select.prototype = 
 {       
     nTolerance : 3, //default pixel tolernace for a point click
+    bActiveOnly: false, //only select feature(s) on the active layer?
     initialize : function(oCommand)
     {
         //console.log('Select.initialize');
@@ -47,6 +48,9 @@ Select.prototype =
         {
             nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
         }
+        
+        var activeOnly = oCommand.oxmlNode.getNodeText('QueryActiveLayer');
+        this.bActiveOnly = (activeOnly == 'true' || activeOnly == '1') ? true : false;
         
     },
     
@@ -101,6 +105,16 @@ Select.prototype =
         var nXDelta = Math.abs(nLeft-nRight);
         var nYDelta = Math.abs(nBottom- nTop);
         
+        var sLayer = null;
+        if (this.bActiveOnly) {
+            var layer = this.getMap().getActiveLayer();
+            if (layer) {
+                sLayer = layer.layerName;
+            } else {
+                return;
+            }
+        }
+        
         if (nXDelta <=this.nTolerance && nYDelta <=this.nTolerance)
         {
             var dfGeoTolerance = this.getMap().pixToGeoMeasure(this.nTolerance);
@@ -108,12 +122,7 @@ Select.prototype =
             sMin.y = sMin.y-dfGeoTolerance;
             sMax.x = sMax.x+dfGeoTolerance;
             sMax.y = sMax.y+dfGeoTolerance;
-            
-            this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
         }
-        else
-        {
-          this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y);
-        }
+        this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y, -1, 1, 'INTERSECTS', sLayer );
     }
 };
