@@ -70,8 +70,13 @@ ExtentHistory.prototype =
     },
     
     reset: function() {
-        this.aHistory['history'] = [];
-        this.aHistory['index'] = -1;
+        if (this.getMap().isMapLoaded()) {
+            this.aHistory['history'] = [this.getMap().getCurrentExtents()];
+            this.aHistory['index'] = 0;
+        } else {
+            this.aHistory['history'] = [];
+            this.aHistory['index'] = -1;
+        }
         this.historyChanged();
     },
     
