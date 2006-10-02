@@ -151,6 +151,10 @@ Maptip.prototype =
         var x = this.oCurrentPosition.x;
         var y = this.oCurrentPosition.y;
         var min = map.pixToGeo(x, y);
+        //this can fail if no map is loaded
+        if (!min) {
+            return;
+        }
         min.x -= cellSize;
         min.y -= cellSize;
     	var max = map.pixToGeo(x, y);
