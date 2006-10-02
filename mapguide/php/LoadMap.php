@@ -94,7 +94,7 @@ try
 
     header('content-type: text/xml');
     echo "<mapguidesession>";
-    echo "<sessionid>$sessionId</sessionid>";
+    echo "<sessionid>$sessionID</sessionid>";
     echo "<mapid>$mapid</mapid>";
     echo "<metersperunit>$metersPerUnit</metersperunit>";
     echo "<mapname>$mapName</mapname>";
