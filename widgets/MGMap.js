@@ -132,6 +132,10 @@ MGMap.prototype =
         }
         this._removeWorker();
     },
+    
+    isMapLoaded: function() {
+        return (this._afCurrentExtents) ? true : false;
+    },
 
     setExtents : function(aExtents)
     {
