@@ -37,7 +37,10 @@
 
 //widgets outside chameleon can set the $extensionDir before includeing MGCommon.php
 if (!isset($extensionDir)) 
-    $extensionDir = getcwd() . "/../../../";
+{
+    $installDir = "C:/Program Files/MapGuideOpenSource/";
+    $extensionDir = $installDir . "WebServerExtensions/www/";
+}
 
 $viewDir = $extensionDir."mapviewerphp/";
 
