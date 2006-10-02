@@ -100,60 +100,61 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
  }
 
 header('content-type: text/xml');
-try
+$featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
+
+$selLayers = "";
+$aSelLayers = array();
+$bAllLayers = true;
+if (isset($_REQUEST['layerNames']))
 {
-    $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
-    
-    $selLayers = "";
-    $aSelLayers = array();
-    $bAllLayers = true;
-    if (isset($_REQUEST['layerNames']))
-    {
-        $selLayers = $_REQUEST['layerNames'];
-        $aSelLayers = split(",", $selLayers);
-        $bAllLayers = false;
-    }
+    $selLayers = $_REQUEST['layerNames'];
+    $aSelLayers = split(",", $selLayers);
+    $bAllLayers = false;
+}
 
 
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
-    
-    $spatialFilter = (isset($_REQUEST['geometry']) && $_REQUEST['geometry'] != '') ? urldecode($_REQUEST['geometry']) : false;
+$map = new MgMap();
+$map->Open($resourceService, $mapName);
 
-    /* open the map from the session using the provided map name.  The map was
-       previously created by calling MGLoadMap. */
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+$spatialFilter = (isset($_REQUEST['geometry']) && $_REQUEST['geometry'] != '') ? urldecode($_REQUEST['geometry']) : false;
 
-    echo '<Selection>';
-    
-    $layers = $map->GetLayers();
-    
-    for ($i=0; $i<$layers->GetCount();$i++) {
-        $layer = $map->GetLayers()->GetItem($i);
-        if ($bAllLayers || in_array($layer->GetName(), $aSelLayers)) {
-            /* get the feature source from the layer */
-            $featureResId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-            $featureGeometryName = $layer->GetFeatureGeometryName();
-            /* the class that is used for this layer will be used to select
-               features */
-            $class = $layer->GetFeatureClassName();
-            $queryOptions = new MgFeatureQueryOptions();
-            /* add the spatial filter if provided.  It is expected to come as a
-               WKT string, so we need to convert it to an MgGeometry */
-            if ($spatialFilter !== false ) {
-                //echo 'setting spatial filter<br>';
-                $wktRW = new MgWktReaderWriter();
-                $geom = $wktRW->Read($spatialFilter);
-                $queryOptions->SetSpatialFilter($featureGeometryName, $geom, MgFeatureSpatialOperations::Intersects);
-            }
-            /* select the features */
+/* open the map from the session using the provided map name.  The map was
+   previously created by calling MGLoadMap. */
+$map = new MgMap();
+$map->Open($resourceService, $mapName);
+
+echo '<Selection>';
+
+$layers = $map->GetLayers();
+
+for ($i=0; $i<$layers->GetCount();$i++) {
+    $layer = $map->GetLayers()->GetItem($i);
+    if ($bAllLayers || in_array($layer->GetName(), $aSelLayers)) {
+        /* get the feature source from the layer */
+        $featureResId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+        $featureGeometryName = $layer->GetFeatureGeometryName();
+        /* the class that is used for this layer will be used to select
+           features */
+        $class = $layer->GetFeatureClassName();
+        $queryOptions = new MgFeatureQueryOptions();
+        /* add the spatial filter if provided.  It is expected to come as a
+           WKT string, so we need to convert it to an MgGeometry */
+        if ($spatialFilter !== false ) {
+            //echo 'setting spatial filter<br>';
+            $wktRW = new MgWktReaderWriter();
+            $geom = $wktRW->Read($spatialFilter);
+            $queryOptions->SetSpatialFilter($featureGeometryName, $geom, MgFeatureSpatialOperations::Intersects);
+        }
+
+        $bLayerAdded = false;
+        $nElements = 0;
+        $propNames = array();
+        $propTypes = array();
+
+        /* select the features */
+        try
+        {
             $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-            
-            $bLayerAdded = false;
-            $nElements = 0;
-            $propNames = array();
-            $propTypes = array();
             while($featureReader->ReadNext()) {
                 //do this only once
                 if (!$bLayerAdded) {
@@ -181,22 +182,22 @@ try
                 }
                 $nElements++;
             }
-            if ($bLayerAdded) {
-                echo '</ValueCollection>';
-                echo '<ElementsSelected>' . $nElements . '</ElementsSelected>';
-                echo '</Layer>';
-            }
+        }
+        catch (MgException $e)
+        {
+
+        }
+        
+        if ($bLayerAdded) {
+            echo '</ValueCollection>';
+            echo '<ElementsSelected>' . $nElements . '</ElementsSelected>';
+            echo '</Layer>';
         }
     }
+}
 
-    echo '</Selection>';
-}
-catch (MgException $e)
-{
-  echo "ERROR: " . $e->GetMessage() . "\n";
-  echo $e->GetDetails() . "\n";
-  echo $e->GetStackTrace() . "\n";
-}
+echo '</Selection>';
+
 exit;
 
 ?>
