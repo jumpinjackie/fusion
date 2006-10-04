@@ -1,4 +1,4 @@
-<?php 
+<?php
 //------------------------------------------------------------------------------
 //deprecated
 function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService, $geomType) {
@@ -32,22 +32,22 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
 
 //------------------------------------------------------------------------------
 //copy a featuresource to the session for editing. The data file on the server
-//is also duplicated when copying in either direction unless a feature list is provided  
+//may also be duplicated when copying in either direction unless a feature list is provided
 function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatureId, $featureList = NULL) {
     //create the session MgResourceIdentifier
     $destinationFeatureId = ToggleRepository($sourceFeatureId);
-    
+
     //get feature source parameters from original
     $schemaCollection = $featureService->DescribeSchema($sourceFeatureId, '');
     $schema = $schemaCollection->GetItem(0);
-    
+
     $activeOnly = true;
     $activeSpatialContextReader = $featureService->GetSpatialContexts($sourceFeatureId, $activeOnly);
     $activeSpatialContextReader->ReadNext();
     $spatialContextName = $activeSpatialContextReader->GetName();
     $coordSysWkt = $activeSpatialContextReader->GetCoordinateSystemWkt();
     $createSdfParams = new MgCreateSdfParams($spatialContextName, $coordSysWkt, $schema);
-        
+
     //instantiate the new featureSource from its MgResourceIdentifier
     $featureService->CreateFeatureSource($destinationFeatureId, $createSdfParams);
 
@@ -69,7 +69,7 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
             echo '<result>Target Layer has no data file.</result>';
             exit;
         }
-    
+
 
         if ($featureList[0] == -1) {
             //copy file directly
@@ -81,9 +81,73 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
                                               $featureSourceData);
         } else {
             //copy features individually
-            
+
         }
     }
+}
+
+//---------------------------------------------------------------------------------
+//function CreateShadowFeatureSource
+//
+//@param MgResourceService resourceService
+//@param MgFeatureService featureService
+//@param MgResourceIdentifier sourceFeatureId - the features source to shadow
+//
+//@return MgResourceIdentifier created or checked
+//
+//duplicates a feature source in the repository to store edited and deleted features
+//before changes are committed. The source is designed to allow undo or data restore
+//operations in the event of a server disconnection. This function checks if the
+//feature source already exists before creating it.
+//---------------------------------------------------------------------------------
+function CreateShadowFeatureSource($resourceService, $featureService, $sourceFeatureId) {
+    $shadowResourceId = new MgResourceIdentifier($sourceFeatureId->GetRepositoryType()."://".
+                                           $sourceFeatureId->GetPath().'/'.
+                                           $sourceFeatureId->GetName().'-shadow.'.
+                                           $sourceFeatureId->GetResourceType());
+
+    if (!DataSourceExists($resourceService, $shadowResourceId)) {
+        //get feature source parameters from original
+        $schemaCollection = $featureService->DescribeSchema($sourceFeatureId, '');
+        $schema = $schemaCollection->GetItem(0);
+
+        $activeOnly = true;
+        $activeSpatialContextReader = $featureService->GetSpatialContexts($sourceFeatureId, $activeOnly);
+        $activeSpatialContextReader->ReadNext();
+        $spatialContextName = $activeSpatialContextReader->GetName();
+        $coordSysWkt = $activeSpatialContextReader->GetCoordinateSystemWkt();
+        $createSdfParams = new MgCreateSdfParams($spatialContextName, $coordSysWkt, $schema);
+
+        //instantiate the new featureSource from its MgResourceIdentifier
+        $featureService->CreateFeatureSource($shadowResourceId, $createSdfParams);
+    }
+
+    return $shadowResourceId;
+}
+
+//---------------------------------------------------------------------------------
+//function DeleteShadowFeatureSource
+//
+//@param MgResourceService resourceService
+//@param MgFeatureService featureService
+//@param MgResourceIdentifier sourceFeatureId - the original feature source
+//
+//@return nothing
+//
+//removes the shadow feature source and it's associated data. Useful after user
+//has committed the changes to the original feature source.
+//---------------------------------------------------------------------------------
+function DeleteShadowFeatureSource($resourceService, $featureService, $sourceFeatureId) {
+    $shadowResourceId = new MgResourceIdentifier($sourceFeatureId->GetRepositoryType().
+                                           $sourceFeatureId->GetPath().
+                                           $sourceFeatureId->GetName().'-shadow.'.
+                                           $sourceFeatureId->GetResourceType);
+
+    if (DataSourceExists($resourceService, $shadowResourceId)) {
+        $resourceService->DeleteResource($shadowResourceId);
+    }
+
+    return;
 }
 
 //------------------------------------------------------------------------------
@@ -112,10 +176,10 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
                                 $layerContent);
     $byteSource = new MgByteSource($layerContent, strlen($layerContent));
     $resourceService->SetResource($destinationLayerId, $byteSource->GetReader(), null);
-	
+
     //instantiate the new layer from its MgResourceIdentifier
     $layer = new MgLayer($destinationLayerId, $resourceService);
-    
+
 	//add the edit layer to the session map and set it to redraw but not be visible in the legend
 	$layerCollection=$map->GetLayers();
 	$originalLayer = FindLayer($layerCollection,$libraryLayer->GetLayerDefinition()->ToString());
@@ -124,12 +188,12 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
 	$layer->SetDisplayInLegend(false);
 	$layer->SetSelectable(true);
     $layer->ForceRefresh();
-    
+
 	//OR
 	//remove the library layer from the session map and replace it with the
     //session copy
     //ReplaceLayer($map, $libraryLayer, $layer);
-	
+
     //save the session map
     try{
 	    $map->Save($resourceService);
@@ -166,11 +230,11 @@ function CopyLayerFromSession($map, $resourceService, $sessionLayerId) {
     $layer->SetFeatureSourceId($destinationFeatureSourceId);
 
     $layer->ForceRefresh();
-    
+
     //remove the session layer from the session map and replace it with the
     //library copy
-    ReplaceLayer($map,  $sessionLayer, $layer);    
-    
+    ReplaceLayer($map,  $sessionLayer, $layer);
+
     //save the session map
     $map->Save($resourceService);
 
@@ -182,18 +246,18 @@ function CopyLayerFromSession($map, $resourceService, $sessionLayerId) {
 //original layer. Useful for discarding edit changes.
 function DiscardSessionLayer($map, $resourceService, $sessionLayerId) {
     $originalLayerId = ToggleRepository($sessionLayerId);
-    
+
     //instantiate the original and session layers from their MgResourceIdentifier
     //and swap them
     $layer = new MgLayer($originalLayerId, $resourceService);
     $sessionLayer = new MgLayer($sessionLayerId, $resourceService);
-    ReplaceLayer($map, $layer, $sessionLayer);    
-    
+    ReplaceLayer($map, $layer, $sessionLayer);
+
     $layer->ForceRefresh();
-    
+
     //save the session map
     $map->Save($resourceService);
-    
+
 }
 
 //------------------------------------------------------------------------------
@@ -214,7 +278,7 @@ function GetMapSrs($map)
     $srs = $map->GetMapSRS();
     if($srs != "")
        return $srs;
-       
+
     //SRS is currently optional. Waiting for this to change, set the default SRS to ArbitrayXY meters
     //
     return "LOCALCS[\"*XY-MT*\",LOCAL_DATUM[\"*X-Y*\",10000],UNIT[\"Meter\", 1],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH]]";
@@ -260,12 +324,12 @@ function BuildLayerDefinitionContent($dataSource, $featureName, $tip)
     ';
 
     $layerTempl = $xmlLineTemplate;
-    $xmlStr = sprintf($layerTempl, 
-                      $dataSource, 
-                      $featureName, 
-                      "GEOM", 
-                      $tip, 
-                      1, 
+    $xmlStr = sprintf($layerTempl,
+                      $dataSource,
+                      $featureName,
+                      "GEOM",
+                      $tip,
+                      1,
                       "ff0000");
     $src = new MgByteSource($xmlStr, strlen($xmlStr));
     return $src->GetReader();
@@ -293,14 +357,14 @@ function ToggleRepository($originalResourceId)
     if ($originalResourceId->GetRepositoryType() == "Library") {
         $newResourceID->SetRepositoryType("Session");
         //$newResourceID->SetRepositoryName($_GET['session']);
-        $newResourceID->SetRepositoryName($GLOBALS['sessionID']);        
+        $newResourceID->SetRepositoryName($GLOBALS['sessionID']);
     } else {
         $newResourceID->SetRepositoryType("Library");
     }
     $newResourceID->SetPath($originalResourceId->GetPath());
     $newResourceID->SetName($originalResourceId->GetName());
     $newResourceID->SetResourceType($originalResourceId->GetResourceType());
-    
+
     //TODO: trap errors
     $newResourceID->Validate();
     return $newResourceID;
@@ -378,7 +442,7 @@ function GetFeatureSourceAttributes($map, $layerResourceId, $featureService) {
             echo '<BR>';
         }
     }
-    
+
     return $aAttributes;
 }
 //------------------------------------------------------------------------------
@@ -386,29 +450,29 @@ function add_layer_resource_to_map($layerResourceID,
      $resourceService,
      $layerDef,
      $layerLegendLabel,
-     &$map) 
-     //Addsalayerdefition(whichcanbestoredeitherinthe 
-         //Libraryorasessionrepository)tothemap. 
-         //Returnsthelayer. 
-{ 
-    $newLayer = new MgLayer($layerResourceID, $resourceService); 
-    //Add the new layer to the map's layer collection 
-    $newLayer->SetName($layerLegendLabel); 
-    $newLayer->SetVisible(true); 
-    $newLayer->SetLegendLabel($layerLegendLabel); 
-    $newLayer->SetDisplayInLegend(true); 
+     &$map)
+     //Addsalayerdefition(whichcanbestoredeitherinthe
+         //Libraryorasessionrepository)tothemap.
+         //Returnsthelayer.
+{
+    $newLayer = new MgLayer($layerResourceID, $resourceService);
+    //Add the new layer to the map's layer collection
+    $newLayer->SetName($layerLegendLabel);
+    $newLayer->SetVisible(true);
+    $newLayer->SetLegendLabel($layerLegendLabel);
+    $newLayer->SetDisplayInLegend(true);
     $layerCollection=$map->GetLayers();
-    if(!FindLayer($layerCollection,$layerDef)) 
-    { 
-        //Insertthenewlayeratposition0soitisat 
-        //thetopofthedrawingorder 
-        $layerCollection->Insert(0,$newLayer); 
-    } 
-    return $newLayer; 
+    if(!FindLayer($layerCollection,$layerDef))
+    {
+        //Insertthenewlayeratposition0soitisat
+        //thetopofthedrawingorder
+        $layerCollection->Insert(0,$newLayer);
+    }
+    return $newLayer;
 }
 
 function CreateDataPropertyForType($property) {
-    switch ($property->GetDataType()) 
+    switch ($property->GetDataType())
     {
        case MgPropertyType::Null :
          return null;
@@ -449,7 +513,7 @@ function CreateDataPropertyForType($property) {
          return new MgClobProperty($property->GetName(), $byteSource->GetReader());
          break;
 
-       default : 
+       default :
          return null;
     }
 }
@@ -481,7 +545,7 @@ function CreatePropertyFromFeatureReader($reader, $idx) {
     if ($boolVal) {
         return null;
     }
-    switch ($reader->GetPropertyType($name)) 
+    switch ($reader->GetPropertyType($name))
     {
        case MgPropertyType::Null :
          return null;
@@ -525,7 +589,7 @@ function CreatePropertyFromFeatureReader($reader, $idx) {
        case MgPropertyType::Raster:
          return new MgRasterProperty($name, $reader->GetRaster($name));
          break;
-       default : 
+       default :
          return null;
     }
 }
