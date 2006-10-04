@@ -324,7 +324,7 @@ MGMap.prototype =
     /**
        Do a rectangular query on the map
     */
-    queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant)
+    queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant, sLayers)
     {
         this._addWorker();
         var oBroker = this._oConfigObj.oApp.getBroker();
@@ -346,10 +346,11 @@ MGMap.prototype =
         {
           selection = sSelectionVariant;
         }
+        
         var r = new MGQueryMapFeatures(this._oConfigObj.getSessionId(),
                                        this._sMapname,
                                        sGeometry,
-                                       maxFeatures, persist, selection);
+                                       maxFeatures, persist, selection, sLayers);
        oBroker.dispatchRequest(r, 
            this.processQueryResults.bind(this));
 
