@@ -23,7 +23,6 @@
 
 // only add this code if we do not already have a canvas implementation
 if (!window.CanvasRenderingContext2D) {
-
 (function () {
 
   var G_vmlCanvasManager_ = {
