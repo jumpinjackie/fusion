@@ -65,22 +65,32 @@ ScaleEntry.prototype =
         
         this.history = [];
         
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.scaleChanged.bind(this));
+        
     },
     
-    selectionChanged: function(value) {
+    scaleChanged: function() {
+        var scale = this.getMap().getCurrentScale();
+        scale = parseInt(scale * Math.pow(10,this.precision))/Math.pow(10,this.precision);
+        this.picker.setValue(""+scale);
+    },
+    
+    selectionChanged: function(obj) {
+        var v = obj.getValue();
         bInHistory = false;
         for (var i=0; i<this.history.length; i++) {
-            if (this.history[i] == value) {
+            if (this.history[i] == v) {
                 bInHistory = true;
+                break;
             }
         }
         var rx = /[0-9]+(\.[0-9]*)?/;
-        if (rx.test(value)) {
-            value = parseFloat(value);
-            if (this.getMap().getScale() != value) {
-                this.getMap().zoomScale(value);
+        if (rx.test(v)) {
+            v = parseFloat(v);
+            if (this.getMap().getScale() != v) {
+                this.getMap().zoomScale(v);
                 if (!bInHistory) {
-                    this.addToHistory(value);
+                    this.addToHistory(v);
                 }
             }
         }
@@ -88,7 +98,7 @@ ScaleEntry.prototype =
     
     addToHistory: function(scale) {
         this.history.unshift(scale);
-        this.picker.add(value, 0);
+        this.picker.add(""+scale, 0);
         if (this.history.length > this.historyLength) {
             this.history.pop();
             this.picker.remove(this.historyLength-1);
