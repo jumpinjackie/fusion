@@ -85,6 +85,56 @@ function CopyFeatureSource($map, $resourceService, $featureService, $sourceFeatu
         }
     }
 }
+//---------------------------------------------------------------------------------
+//function ShadowSelection
+//
+//@param MgResourceService resourceService
+//@param MgFeatureService featureService
+//@param MgResourceIdentifier sourceFeatureId - the features source to shadow
+//@param String selectionString - the filter text
+//@param String layerClassName - the feature class from the original layer
+//@return the shadow FeatureSource Id.
+//
+//Creates a backup of selected features in the shadow feature store for a layer
+//within the repository library.
+//---------------------------------------------------------------------------------
+function ShadowSelection($resourceService, $featureService,
+                         $sourceFeatureId, $selectionString, $layerClassName) {
+    //Find or create shadow resource
+    $shadowResourceId = CreateShadowFeatureSource($resourceService, $featureService, $sourceFeatureId);
+    
+    //create command to copy selected features to the shadow
+    $queryOptions = new MgFeatureQueryOptions();
+    $queryOptions->SetFilter($selectionString);
+    try{
+        $featureReader = $featureService->SelectFeatures($sourceFeatureId,
+                                                         $layerClassName,
+                                                         $queryOptions);
+    }catch (MgException $e)
+    {
+        echo "ERROR: " . $e->GetMessage() . "\n";
+        echo $e->GetStackTrace() . "\n";
+    }
+    
+    //clone the selected feature properties in a batch property collection and add
+    //it to the command collection
+    $batchPropCollection = BatchPropertyCollectionFromFeatureReader($featureReader);
+    $featureReader->Close();
+    $shadowCommands = new MgFeatureCommandCollection();
+    $shadowCommands->Add(new MgInsertFeatures($layerClassName, $batchPropCollection));
+
+    //store the features to be deleted in the shadow feature source
+    try{
+        $featureService->UpdateFeatures($shadowResourceId, $shadowCommands, false);
+    }catch (MgException $e)
+    {
+        echo "ERROR: " . $e->GetMessage() . "\n";
+        echo $e->GetStackTrace() . "\n";
+    }
+    
+    return $shadowResourceId;
+}
+
 
 //---------------------------------------------------------------------------------
 //function CreateShadowFeatureSource
@@ -593,5 +643,86 @@ function CreatePropertyFromFeatureReader($reader, $idx) {
          return null;
     }
 }
+
+function GetPropertyValueFromFeatReader($featureReader, $propertyName) 
+{
+    $val = "";
+    $propertyType = $featureReader->GetPropertyType($propertyName);
+    switch ($propertyType) 
+    {
+       case MgPropertyType::Null :
+         //fwrite($logFileHandle, "$propertyName is a null propertyn");
+         $val= "";
+         break;
+       case MgPropertyType::Boolean :
+         $val = $featureReader->GetBoolean($propertyName);
+         //$valStr = printBoolean($val);
+         break;
+       case MgPropertyType::Byte :
+         $val = $featureReader->GetByte($propertyName);
+         break;
+       case MgPropertyType::DateTime :
+         $val = $featureReader->GetDateTime($propertyName);
+         //$valStr = printDateTime($val);
+         break;
+       case MgPropertyType::Single :
+         $val = $featureReader->GetSingle($propertyName);
+         break;
+       case MgPropertyType::Double :
+         $val = $featureReader->GetDouble($propertyName);
+         break;
+       case MgPropertyType::Int16 :
+         $val = $featureReader->GetInt16($propertyName);
+         break;
+       case MgPropertyType::Int32 :
+         $val = $featureReader->GetInt32($propertyName);
+         break;
+       case MgPropertyType::Int64 :
+         $val = $featureReader->GetInt64($propertyName);
+         break;
+       case MgPropertyType::String :
+         $val = $featureReader->GetString($propertyName);
+         break;
+       case MgPropertyType::Blob :
+         //fwrite($logFileHandle, "$propertyName is blobn");
+         break;
+       case MgPropertyType::Clob :
+         //fwrite($logFileHandle, "$propertyName is clobn");
+              break;
+       case MgPropertyType::Feature :
+         /*
+              $val = $featureReader->GetFeatureObject($propertyName);
+             if ($val != NULL) {
+                  fwrite($logFileHandle, "$propertyName is a featuren");
+                  printFeatureReader($val);
+             }
+         */
+         break;
+       case MgPropertyType::Geometry :  
+         /*
+              fwrite($logFileHandle, "$propertyName is a geometryn");
+              $val = $featureReader->GetGeometry($propertyName);
+              if ($val != NULL) {
+                 $aGeometry = $agfReaderWriter->Read($val);
+                 //$aGeometry->Envelope();
+                 $wktRepresentation = $wktReaderWriter->Write($aGeometry);
+                 fwrite($logFileHandle, "WKT Representation: "$wktRepresentation"n");
+              } else {
+                 fwrite($logFileHandle, "This geometry property is nulln");
+              }
+         */
+         break;
+       case MgPropertyType::Raster :
+         /*
+              $val = $featureReader->GetRaster($propertyName);
+             fwrite($logFileHandle, "$propertyName is a rastern");
+         */
+         break;
+       default : 
+         $val = "";
+    }
+    
+    return $val;
+ }
 
 ?>
