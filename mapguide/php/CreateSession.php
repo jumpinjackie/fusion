@@ -32,40 +32,24 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-/*Assuming that chameleon is installed C:\Program Files\MapGuideOpenSource\WebServerExtensions\www */
+include('MGCommon.php');
 
-$extensionDir = getcwd() . "/../../../";
+try {
+    $site = $siteConnection->GetSite();
+    $sessionId =  $site->CreateSession();
+    $user->SetMgSessionId($sessionId);
 
-$viewDir = $extensionDir."mapviewerphp/";
+    header('content-type: text/xml');
+    echo "<mapguidesession>";
+    echo "<sessionid>$sessionId</sessionid>";
+    echo "<username>".$username."</username>";
+    echo "</mapguidesession>";
+    
+    /* start a php session in the web tier as well, using same session id */
+    session_start($sessionId);
+    $_SESSION['username'] = $username;
 
-try
-{
-
-  include $viewDir . "common.php";
-  include $viewDir . "constants.php";
-
-  MgInitializeWebTier($extensionDir. "webconfig.ini");
-  
-
-  $user = new MgUserInformation('Administrator', 'admin');
-
-  $siteConnection = new MgSiteConnection();
-  $siteConnection->Open($user);
-
-
-  $site = $siteConnection->GetSite();
-  $sessionId =  $site->CreateSession();
-
-  $user->SetMgSessionId($sessionId);
-
-  header('content-type: text/xml');
-  echo "<mapguidesession>";
-  echo "<sessionid>$sessionId</sessionid>";
-  echo "</mapguidesession>";
-
-}
-catch (MgException $e)
-{
+} catch (MgException $e) {
      echo "ERROR: " . $e->GetMessage() . "n";
      echo $e->GetDetails() . "n";
      echo $e->GetStackTrace() . "n";

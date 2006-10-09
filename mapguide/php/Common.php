@@ -33,11 +33,23 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-//set up the MG server session and pass it back to the javascript init
 
-//widgets outside chameleon can set the $extensionDir before includeing MGCommon.php
-if (!isset($extensionDir)) 
-{
+/**
+ * This file should be included by all server-side scripts.  It includes some
+ * default paths to install locations and manages all session-related and 
+ * user-related stuff except for actually creating a session.
+ *
+ * It also creates a MgResourceService instance for use by other scripts
+ * and recreates an MgMap instance from the session if a mapname is passed.
+ *
+ * For widgets that are installed outside of the chameleon directory structure,
+ * the value of $extensionDir can be set before including this script to avoid
+ * some problems.
+ */
+
+//widgets outside chameleon can set the $extensionDir before including MGCommon.php
+
+if (!isset($extensionDir)){
     $installDir = "C:/Program Files/MapGuideOpenSource/";
     $extensionDir = $installDir . "WebServerExtensions/www/";
 }
@@ -50,35 +62,89 @@ include $viewDir . "constants.php";
 // Initialize
 MgInitializeWebTier($extensionDir. "webconfig.ini");
 
-if (!isset($_REQUEST['session'])) 
-{
-  $user = new MgUserInformation('Administrator', 'admin');
-  $siteConnection = new MgSiteConnection();
-  $siteConnection->Open($user);
-  //$site = new MgSite();
-  //$site->Open($user);
-  //$sessionID = $site->CreateSession();
-  
+try {
+    /* If no session has been established yet, then we use the credentials passed
+     * to this script to connect to the site server.  By default, we use the
+     * Anonymous user.
+     */
+    if (!isset($_REQUEST['session'])) {
+        $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : 'Anonymous';
+        $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : '';
+        $user = new MgUserInformation($username, $password);
+        $siteConnection = new MgSiteConnection();
+        $siteConnection->Open($user);
+    } else {
+        /* If a session has previously been established, we can connect using the
+         * credentials that the user logged in with previously ... these are stored
+         * in the MapGuide session.
+         * It is possible for the user to re-authenticate using a different set of
+         * credentials.  Handle this here, but keep the session the same.
+         */
+        $sessionID = $_REQUEST['session'];
+        session_start($sessionID);
+        
+        /* current user is re-authenticating or not? */
+        if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
+            $user = new MgUserInformation($_REQUEST['username'], $_REQUEST['password']);
+            $user->SetMgSessionId($sessionID);
+        } else {
+            $user = new MgUserInformation($sessionID);
+        }
+        
+        /* open a connection to the site.  This will generate exceptions if the user
+         * is set up properly - not found, invalid password etc
+         */
+        $siteConnection = new MgSiteConnection();
+        $siteConnection->Open($user);
+        
+        /* MgUserInformation doesn't tell us who is logged in so we store it
+         * in the php session for convenience
+         */
+        if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
+            $_SESSION['username'] = $_REQUEST['username'];
+        }
+        //echo "current user: ".$_SESSION['username'];
+    }
+} catch (MgAuthenticationFailedException $afe) {
+    header('Content-type: text/xml');
+    echo "<Exception>";
+    echo "<Type>Authentication Failed</Type>";
+    echo "<Message>" . $afe->GetMessage() . "</Message>";
+    echo "<Details>" . $afe->GetDetails() . "</Details>";
+    echo "</Exception>";
+    exit;
+} catch (MgUserNotFoundException $unfe) {
+    header('Content-type: text/xml');
+    echo "<Exception>";
+    echo "<Type>User Not Found</Type>";
+    echo "<Message>" . $unfe->GetMessage() . "</Message>";
+    echo "<Details>" . $unfe->GetDetails() . "</Details>";
+    echo "</Exception>";
+    exit;
+} catch (MgSessionExpiredException $see) {
+    header('Content-type: text/xml');
+    echo "<Exception>";
+    echo "<Type>Session Expired</Type>";
+    echo "<Message>" . $see->GetMessage() . "</Message>";
+    echo "<Details>" . $see->GetDetails() . "</Details>";
+    echo "</Exception>";
+    exit;
+} catch (MgException $e) {
+    header('Content-type: text/xml');
+    echo "<Exception>";
+    echo "<Type>Exception</Type>";
+    echo "<Message>" . $e->GetMessage() . "</Message>";
+    echo "<Details>" . $e->GetDetails() . "</Details>";
+    echo "</Exception>";
+    exit;
 }
-else
-{
-  $sessionID = $_REQUEST['session'];
-  $user = new MgUserInformation($sessionID);
-  $siteConnection = new MgSiteConnection();
-  $siteConnection->Open($user);
-
-}
-
 
 //common resource service to be used by all scripts
 $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
 
-if (isset($_REQUEST['mapname']))
-{ 
+if (isset($_REQUEST['mapname'])) { 
     $mapName = $_REQUEST['mapname'];
-
     $mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
-
     $mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
 }
 ?>
