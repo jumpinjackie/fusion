@@ -50,6 +50,7 @@ try {
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
     $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
+    $filter = str_replace('*', '%', $filter);
     //echo "filter: $filter<BR>";
     
     /* we need a feature service to query the features */
@@ -81,13 +82,12 @@ try {
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
-        //echo 'setting filter<BR>';
         $queryOptions->SetFilter($filter);
     }
 
     /* select the features */
     $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-
+    
     //TODO : use layer definition to only get properties defined.
     $propCount = $featureReader->GetPropertyCount();
     
@@ -108,43 +108,61 @@ try {
         $valSep = ',';
     }
     echo $valSep."'has_geometry'],\n";
-    echo "values:[";
     $nElements = 0;
     $recSep = '';
+    $filterExpr = array();
+    $allValues = array();
+    $linkValues = array();
     while ($featureReader->ReadNext())
     {
-        $linkExpression = '';
-        echo $recSep . "[";
-        $recSep = ',';
-        $valSep = '';
+        $featureValues = array();
+        $linkValue = false;
         for($i=0; $i<$propCount; $i++) 
         {
             $value = GetPropertyValueFromFeatReader($featureReader, 
-                                             $types[$i],
                                              $props[$i]);
-
-            echo $valSep . "'" . addslashes(htmlentities($value)) . "'";
-            $valSep = ',';
-                
+            //clean up the values to make them safe for transmitting to the client
+            $value = htmlentities($value);
+            $value = addslashes($value);
+            $value = preg_replace( "/\r?\n/", "<br>", $value );
+            array_push($featureValues, $value);
+            
             if ($useParentGeom && strcasecmp(trim($props[$i]),trim($childField)) == 0) {
-                $linkExpression = $childField ."=".$value;
+                
+                $linkValue = $value;
             }
         }
-        if ($linkExpression != '') {
-            $parentOptions = new MgFeatureQueryOptions();
-            $parentOptions->SetFilter($linkExpression);
-            $geomReader = $featureService->SelectFeatures($featureResId, $parent, $parentOptions);
+        array_push($featureValues, 0); //assume all features have no geometry first
 
-            if ($geomReader->ReadNext()) {
-                echo $valSep . "1";
-            } else {
-                echo $valSep . "0";
-            }
+        $len = array_push($allValues, $featureValues);
+        if ($linkValue !== false) {
+            array_push($filterExpr, $childField ."=".$linkValue);
+            $linkValues[$linkValue] = $len - 1;
         }
-        echo "]\n";
         $nElements ++;
     }
-    echo "]}";
+    $featureReader->Close();
+    echo 'values:[';
+    if (count($filterExpr) > 0) {
+        $filter = '(' . implode(') OR (', $filterExpr).')';
+        $parentOptions = new MgFeatureQueryOptions();
+        $parentOptions->SetFilter($filter);
+        $geomReader = $featureService->SelectFeatures($featureResId, $parent, $parentOptions);
+        while($geomReader->ReadNext()) {
+            $linkValue = GetPropertyValueFromFeatReader($geomReader, $parentField);
+            if (isset($linkValues[$linkValue])) {
+                array_pop($allValues[$linkValues[$linkValue]]);
+                array_push($allValues[$linkValues[$linkValue]], 1);
+            }
+        }
+    }
+    $sep = '';
+    foreach($allValues as $values) {
+        echo $sep.'["'.implode('","', $values).'"]';
+        $sep = ',';
+    }
+    echo "]};";
+    
 } 
 catch (MgException $e)
 {
@@ -153,10 +171,10 @@ catch (MgException $e)
   echo $e->GetStackTrace() . "\n";
 }
 
-function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName) 
+function GetPropertyValueFromFeatReader($featureReader, $propertyName) 
 {
     $val = "";
-
+    $propertyType = $featureReader->GetPropertyType($propertyName);
     switch ($propertyType) 
     {
        case MgPropertyType::Null :
@@ -171,7 +189,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
          $val = $featureReader->GetByte($propertyName);
          break;
        case MgPropertyType::DateTime :
-         $val = dateTimeToString($featureReader->GetDateTime($propertyName));
+         //$val = dateTimeToString($featureReader->GetDateTime($propertyName));
          //$valStr = printDateTime($val);
          break;
        case MgPropertyType::Single :
