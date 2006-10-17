@@ -125,15 +125,17 @@ Ruler.prototype =
      */
     mouseDown: function(e) {
         //console.log('Ruler.mouseDown');
-        var p = this.getMap().getEventPosition(e);
+        var map = this.getMap();
+        var p = map.getEventPosition(e);
+        
 
         if (!this.isDigitizing) {
             this.currentFeature = new FeatureLine();
             this.lastDistance = 0;
             this.cumulativeDistance = 0;
             this.aDistances = [];
-            var from = new Node(p.x,p.y);
-            var to = new Node(p.x,p.y);
+            var from = new Node(p.x,p.y, map);
+            var to = new Node(p.x,p.y, map);
             var seg = new Segment(from,to);
             seg.setEditing(true);
             this.currentFeature.addSegment(seg);
