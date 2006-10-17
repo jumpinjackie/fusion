@@ -120,10 +120,9 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
     return $val;
  }
 
-header('content-type: text/xml');
 try
 {
-
+    header('Content-type: text/xml');
     include $viewDir . "common.php";
     include $viewDir . "constants.php";
 
