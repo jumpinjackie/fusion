@@ -48,7 +48,7 @@ try
 
 
     //make a copy of the map in the session so we can make temporary changes to it
-    $contentReader = $resourceService->GetResourceContent($resourceID);
+    //$contentReader = $resourceService->GetResourceContent($resourceID);
 
     //$resourceService->SetResource($resourceID, $contentReader, null);
 
