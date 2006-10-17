@@ -127,6 +127,10 @@ FDOAttributeQuery.prototype = {
         var nFilters = 0;
         var sep = '';
         for (var i=0; i<this.filters.length; i++) {
+            if (!this.filters[i].validate()) {
+                console.log('validation failed');
+                return;
+            }
             var filterText = this.filters[i].getFilterText();
             if (filterText != '') {
                 filter = filter + sep + '(' + filterText + ')'
@@ -134,6 +138,7 @@ FDOAttributeQuery.prototype = {
                 nFilters ++;
             }
         }
+        
         if (nFilters > 0) {
             filter = encodeURI(filter);
         } else {
@@ -297,6 +302,7 @@ MGFilterBase.prototype = {
     operator: null,
     operatorId: null,
     operatorInput: null,
+    validators: null,
     initialize: function(oNode) {
         this.valueId = oNode.getNodeText('ValueId');
         this.valueInput = $(this.valueId);
@@ -307,6 +313,12 @@ MGFilterBase.prototype = {
             if (this.operator != '' && this.operatorInput) {
                 this.setValue(this.operatorInput, this.operator);
             }
+        }
+        this.validators = [];
+        var v = oNode.findFirstNode('Validator');
+        while(v) {
+            this.validators.push(new MGValidator(v));
+            v = oNode.findNextNode('Validator');
         }
         this.valueType = oNode.getNodeText('ValueType');
     },
@@ -336,6 +348,81 @@ MGFilterBase.prototype = {
                 }
             }
         }
+    },
+    validate: function() {
+        for (var i=0; i<this.validators.length; i++) {
+            if (!(this.validators[i].validate(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+var MGValidator = Class.create();
+MGValidator.prototype = {
+    domNode: null,
+    message: 'validation failed',
+    type: '',
+    initialize: function(domNode) {
+        this.domNode = domNode;
+        this.message = domNode.getNodeText('Message');
+        this.type = domNode.getNodeText('Type');
+        this.className = domNode.getNodeText('Class');
+        this.messageId = domNode.getNodeText('MessageId');
+    },
+    validate: function(filter) {
+        if ($(this.messageId)) {
+            $(this.messageId).innerHTML = '';
+        }var value = filter.getValue(filter.valueInput);
+        if (value != '' || filter.allowEmptyValue) {
+            switch(this.type) {
+                case 'regex':
+                    var r = this.domNode.getNodeText('Regex');
+                    var regex = new RegExp(r);
+                    if (!regex.test(value)) {
+                        return this.fail(filter);
+                    }
+                    break;
+                case 'range':
+                    var min = this.domNode.getNodeText('Min');
+                    if (min != '') {
+                        if (min == '[YEAR]') {
+                            var d = new Date();
+                            min = d.getFullYear();
+                        }
+                        min = parseFloat(min);
+                        if (value < min) {
+                            return this.fail(filter);
+                        }
+                    }
+                    
+                    var max = this.domNode.getNodeText('Max');
+                    if (max != '') {
+                        if (max == '[YEAR]') {
+                            var d = new Date();
+                            max = d.getFullYear();
+                        }
+                        max = parseFloat(max);
+                        if (value > max) {
+                            return this.fail(filter);
+                        }
+                    }
+                    break;
+                    
+                default:
+                    return true;
+            }
+        }
+        Element.removeClassName($(filter.valueInput), this.className);
+        return true;
+    },
+    fail: function(filter) {
+        Element.addClassName($(filter.valueInput), this.className);
+        if ($(this.messageId)) {
+            $(this.messageId).innerHTML = this.message;
+        }
+        return false;
     }
 };
 
@@ -364,7 +451,7 @@ MGFilter.prototype = {
         if ((value != '' || this.allowEmptyValue) && this.operator != '') {
             var sep = (this.valueType == 'String' || this.valueType == 'DateTime') ? "'" : "";
             if (this.valueType == 'String') {
-                value = '%' + value + '%';
+                value = '*' + value + '*';
             }
             var sNot = this.unaryNot ? 'NOT ' : '';
             result = sNot + ' ' + this.fieldName + ' ' + this.operator + ' ' + sep + value + sep;
