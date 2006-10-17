@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose ClearSelection widget
  * @author pspencer@dmsolutions.ca
@@ -29,7 +29,7 @@
  * To put a ClearSelection control in your application, you first need to add
  * a widget to your WebLayout as follows:
  *
- * <Command xsi:type="ChameleonCommandType">
+ * <Command xsi:type="FusionCommandType">
  *   <Name>MyCenterSelection</Name>
  *   <Label>Center Selection</Label>
  *   <TargetViewer>All</TargetViewer>

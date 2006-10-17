@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Maptip presents floating info on layers when the mouse hovers
  * @author pspencer@dmsolutions.ca

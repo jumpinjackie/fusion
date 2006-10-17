@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose KeepSessionAlive widget
  * @author pspencer@dmsolutions.ca
@@ -61,10 +61,9 @@ KeepSessionAlive.prototype = {
     },
     
     pingServer: function() {
-        var c = document.__chameleon__;
-        var s = 'server/' + c.getScriptLanguage() + "/MGCommon." + c.getScriptLanguage() ;
+        var s = 'server/' + Fusion.getScriptLanguage() + "/MGCommon." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+c.getSessionID();
-        c.ajaxRequest(s, params);
+        params.parameters = 'session='+Fusion.getSessionID();
+        Fusion.ajaxRequest(s, params);
     }
 };

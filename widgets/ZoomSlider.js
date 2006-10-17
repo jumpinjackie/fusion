@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Continuous zoom between two scales using a graphical interface
  * @author pspencer@dmsolutions.ca

@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Select widget
  * @author yassefa@dmsolutions.ca

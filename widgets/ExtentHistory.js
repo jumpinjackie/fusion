@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Maintain and navigate through a history of extents
  * @author pspencer@dmsolutions.ca

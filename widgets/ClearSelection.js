@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Fit to window (full extents)Clear current selection
  * @author yassefa@dmsolutions.ca

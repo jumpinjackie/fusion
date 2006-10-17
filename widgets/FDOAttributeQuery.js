@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Legend widget
  * @author pspencer@dmsolutions.ca
@@ -150,13 +150,12 @@ FDOAttributeQuery.prototype = {
             override = this.override.getFilterText();
         }
         
-        var c = document.__chameleon__;
-        var s = 'server/' + c.getScriptLanguage() + "/MGAttributeQuery." + c.getScriptLanguage() ;
+        var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+c.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+override, 
         params.onComplete = this.queryComplete.bind(this);
-        c.ajaxRequest(s, params);
+        Fusion.ajaxRequest(s, params);
         this.triggerEvent(SELECTION_STARTED);
     },
     

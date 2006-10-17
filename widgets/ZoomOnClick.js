@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Zoom the map by a fixed amount when a button is clicked
  * @author pspencer@dmsolutions.ca

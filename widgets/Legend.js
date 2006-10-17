@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Legend widget
  * @author pspencer@dmsolutions.ca
@@ -79,11 +79,10 @@ Legend.prototype =
     currentNode: null,
     initialize : function(oCommand)
     {
-        var c = document.__chameleon__;
         
-        this.defLayerThemeIcon = c.getChameleonURL() + 'images/tree_theme.png';
-        this.defDisabledLayerIcon = c.getChameleonURL() + 'images/tree_layer.png';
-        this.defRootFolderIcon = c.getChameleonURL() + 'images/tree_map.png';
+        this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/tree_theme.png';
+        this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/tree_layer.png';
+        this.defRootFolderIcon = Fusion.getFusionURL() + 'images/tree_map.png';
 
         //console.log('Legend.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
@@ -130,10 +129,9 @@ Legend.prototype =
      */
     getLayers: function()
     {
-        var c = document.__chameleon__;
-        var s = 'server/' + c.getScriptLanguage() + '/MGLegend.' + c.getScriptLanguage();
-        var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
-        c.ajaxRequest(s, params);
+        var s = 'server/' + Fusion.getScriptLanguage() + '/MGLegend.' + Fusion.getScriptLanguage();
+        var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
+        Fusion.ajaxRequest(s, params);
     },
     
     /**
@@ -479,9 +477,8 @@ MGStyleItem.prototype = {
         }
     },
     getLegendImageURL: function(fScale, resourceID) {
-        var c = document.__chameleon__;
-        var url = c.getWebAgentURL();
-        var session = c.getSessionID();
+        var url = Fusion.getWebAgentURL();
+        var session = Fusion.getSessionID();
         return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };

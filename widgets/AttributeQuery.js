@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Legend widget
  * @author pspencer@dmsolutions.ca
@@ -123,13 +123,12 @@ AttributeQuery.prototype = {
             spatialFilter = '&spatialfilter='+this.spatialFilter.getFilterText();
         }
         
-        var c = document.__chameleon__;
-        var s = 'server/' + c.getScriptLanguage() + "/MGQuery." + c.getScriptLanguage() ;
+        var s = 'server/' + Fusion.getScriptLanguage() + "/MGQuery." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+c.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+spatialFilter, 
         params.onComplete = this.queryComplete.bind(this);
-        c.ajaxRequest(s, params);
+        Fusion.ajaxRequest(s, params);
     },
     
     queryComplete: function(r) {

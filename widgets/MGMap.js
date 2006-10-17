@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose this file contains the map widget
  * @author yassefa@dmsolutions.ca
@@ -62,8 +62,7 @@ MGMap.prototype =
         
 
         
-        var c = document.__chameleon__;
-        this._oConfigObj = c.oConfigMgr;
+        this._oConfigObj = Fusion.oConfigMgr;
         
         this.sMapResourceId = oCommand.oxmlNode.getNodeText('ResourceId');
         if (this.sMapResourceId != '') {
@@ -95,17 +94,15 @@ MGMap.prototype =
         this.aSelectionCallbacks = [];
         this._bSelectionIsLoading = false;
 
-        var c = document.__chameleon__;
-        
-        var sl = c.getScriptLanguage();
+        var sl = Fusion.getScriptLanguage();
         var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
         
-        var sessionid = c.getSessionID();
+        var sessionid = Fusion.getSessionID();
         
         var params = 'mapid='+resourceId+"&session="+sessionid;
         var options = {onSuccess: this.mapLoaded.bind(this), 
                                      parameters: params};
-        c.ajaxRequest(loadmapScript, options);
+        Fusion.ajaxRequest(loadmapScript, options);
     },
     
     mapLoaded: function(r) {
@@ -268,11 +265,10 @@ MGMap.prototype =
             if (!this._bSelectionIsLoading) {
                 this._addWorker();
                 this._bSelectionIsLoading = true;
-                var c = document.__chameleon__;
-                var s = 'server/' + c.getScriptLanguage() + "/MGSelection." + c.getScriptLanguage() ;
-                var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, 
+                var s = 'server/' + Fusion.getScriptLanguage() + "/MGSelection." + Fusion.getScriptLanguage() ;
+                var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, 
                               onComplete: this.getSelectionCB.bind(this, userFunc)};
-                c.ajaxRequest(s, params);
+                Fusion.ajaxRequest(s, params);
             }
         } else if (userFunc){
             userFunc(this.oSelection);
@@ -294,10 +290,9 @@ MGMap.prototype =
     */
     clearSelection : function()
     {
-        var c = document.__chameleon__;
-        var s = 'server/' + c.getScriptLanguage() + "/MGClearSelection." + c.getScriptLanguage() ;
-        var params = {parameters:'session='+c.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
-        c.ajaxRequest(s, params);
+        var s = 'server/' + Fusion.getScriptLanguage() + "/MGClearSelection." + Fusion.getScriptLanguage() ;
+        var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
+        Fusion.ajaxRequest(s, params);
     },
 
 

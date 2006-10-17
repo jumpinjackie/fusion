@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose MapChooser widget
  * @author pspencer@dmsolutions.ca
@@ -55,14 +55,12 @@ MapChooser.prototype =
     oRoot: null,
     initialize : function(oCommand)
     {
-        var c = document.__chameleon__;
-        
         //console.log('MapChooser.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['MapChooser', true]);
         this.setMap(oCommand.getMap());
         
         this._oDomObj = $(oCommand.getName());
-        this.defIcon = c.getChameleonURL() + 'images/tree_map.png';
+        this.defIcon = Fusion.getFusionURL() + 'images/tree_map.png';
         
         this.oTree = new JxTree(this._oDomObj);
         

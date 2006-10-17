@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose Manually enter a scale or choose from some previous scales
  * @author pspencer@dmsolutions.ca

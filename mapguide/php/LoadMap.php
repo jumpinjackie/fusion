@@ -5,7 +5,7 @@
  *
  * Purpose: get map initial information
  *
- * Project: MapGuide Open Source : Chameleon
+ * Project: Fusion
  *
  * Author: DM Solutions Group Inc
  *

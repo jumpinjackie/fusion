@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose ZoomToSelection widget
  * @author pspencer@dmsolutions.ca
@@ -28,7 +28,7 @@
  * To put a ZoomToSelection control in your application, you first need to add
  * a widget to your WebLayout as follows:
  *
- * <Command xsi:type="ChameleonCommandType">
+ * <Command xsi:type="FusionCommandType">
  *   <Name>MyZoomToSelection</Name>
  *   <Label>Zoom to Selection</Label>
  *   <TargetViewer>All</TargetViewer>

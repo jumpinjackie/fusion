@@ -1,6 +1,6 @@
 <?php
 /*****************************************************************************
- * @project         MapGuide Open Source Chameleon
+ * @project         Fusion
  * @revision        $Id$
  * @fileoverview    this file redirects requests from the client to another 
  *                  server

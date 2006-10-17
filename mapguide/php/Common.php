@@ -42,12 +42,12 @@
  * It also creates a MgResourceService instance for use by other scripts
  * and recreates an MgMap instance from the session if a mapname is passed.
  *
- * For widgets that are installed outside of the chameleon directory structure,
+ * For widgets that are installed outside of the Fusion directory structure,
  * the value of $extensionDir can be set before including this script to avoid
  * some problems.
  */
 
-//widgets outside chameleon can set the $extensionDir before including MGCommon.php
+//widgets outside Fusion can set the $extensionDir before including MGCommon.php
 
 if (!isset($extensionDir)){
     $installDir = "C:/Program Files/MapGuideOpenSource/";

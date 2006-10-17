@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose pan the map a fixed amount in a particular direction
  * @author pspencer@dmsolutions.ca

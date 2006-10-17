@@ -1,5 +1,5 @@
 /********************************************************************** * 
- * @project MapGuide Open Source : Chameleon
+ * @project Fusion
  * @revision $Id$
  * @purpose ZoomToSelection widget
  * @author pspencer@dmsolutions.ca
@@ -28,7 +28,7 @@
  * To put a Print control in your application, you first need to add
  * a widget to your WebLayout as follows:
  *
- * <Command xsi:type="ChameleonCommandType">
+ * <Command xsi:type="FusionCommandType">
  *   <Name>MyPrint</Name>
  *   <Label>Print/Label>
  *   <TargetViewer>All</TargetViewer>
@@ -91,7 +91,7 @@ Print.prototype = {
     },
     
     openPrintUI: function() {
-        var url = document.__chameleon__.getWebTierURL() + 'mapviewerphp/printablepageui.php?';
+        var url = Fusion.getWebTierURL() + 'mapviewerphp/printablepageui.php?';
         var extents = this.getMap().getCurrentExtents();
         var centerX = (extents[0] + extents[2])/ 2;
         var centerY = (extents[1] + extents[3])/ 2;
@@ -109,7 +109,7 @@ Print.prototype = {
     },
     
     openPrintable: function() {
-        var url = document.__chameleon__.getWebTierURL() + 'mapviewerphp/printablepage.php?';
+        var url = Fusion.getWebTierURL() + 'mapviewerphp/printablepage.php?';
         var extents = this.getMap().getCurrentExtents();
         var centerX = (extents[0] + extents[2])/ 2;
         var centerY = (extents[1] + extents[3])/ 2;
