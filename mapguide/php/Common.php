@@ -1,15 +1,10 @@
 <?php
 /*****************************************************************************
- *
  * $Id$
- *
  * Purpose: common include file for all server side scripts, responsible for
  *          setting up the user and site connection.
- *
  * Project: MapGuide Open Source GMap demo application
- *
- * Author: DM Solutions Group Inc
- *
+ * Author:  DM Solutions Group Inc
  *****************************************************************************
  *
  * Copyright (c) 2005, DM Solutions Group Inc.
@@ -34,7 +29,18 @@
  *
  *****************************************************************************/
 
+/* 
+ * If MapGuide Web Server Extensions are not installed in the default
+ * location, you must edit these values to reflect the actual installation
+ * path.  You do not need to modify any other values to configure Fusion.
+ */
+ 
+$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
+$defaultExtensionDir = $installDir . "WebServerExtensions/www/";
+
 /**
+ * Developer's notes:
+ *
  * This file should be included by all server-side scripts.  It includes some
  * default paths to install locations and manages all session-related and 
  * user-related stuff except for actually creating a session.
@@ -50,8 +56,8 @@
 //widgets outside Fusion can set the $extensionDir before including MGCommon.php
 
 if (!isset($extensionDir)){
-    $installDir = "C:/Program Files/MapGuideOpenSource/";
-    $extensionDir = $installDir . "WebServerExtensions/www/";
+    $installDir = $defaultInstallDir;
+    $extensionDir = $defaultExtensionDir;
 }
 
 $viewDir = $extensionDir."mapviewerphp/";
