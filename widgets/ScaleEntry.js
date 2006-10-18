@@ -27,7 +27,7 @@
  * scale from a drop-down list.
  *
  * **********************************************************************/
-//require('jx/picker/jxpicker.js');
+//Fusion.require('jx/picker/jxpicker.js');
 
 var ScaleEntry = Class.create();
 ScaleEntry.prototype = 
@@ -65,7 +65,7 @@ ScaleEntry.prototype =
         
         this.history = [];
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.scaleChanged.bind(this));
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.scaleChanged.bind(this));
         
     },
     

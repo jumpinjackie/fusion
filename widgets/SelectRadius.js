@@ -27,8 +27,8 @@
  * 
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
-require('widgets/GxCanvasTool.js');
+Fusion.require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxCanvasTool.js');
 
 var SelectRadius = Class.create();
 SelectRadius.prototype = 

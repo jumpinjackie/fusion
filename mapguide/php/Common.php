@@ -36,7 +36,7 @@
  */
  
 $defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
-$defaultExtensionDir = $installDir . "WebServerExtensions/www/";
+$defaultExtensionDir = $defaultInstallDir . "WebServerExtensions/www/";
 
 /**
  * Developer's notes:

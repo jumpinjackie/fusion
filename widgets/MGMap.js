@@ -28,7 +28,7 @@
 /**
  * MGMap : MapGuide map widget Based on generic class GxMap
 */
-require('widgets/GxMap.js');
+Fusion.require('widgets/GxMap.js');
 
 var gnLastEventId = 10;
 var MGMAP_SELECTION_ON = gnLastEventId++;

@@ -27,7 +27,7 @@
  * 
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxButtonBase.js');
 
 var FitToWindow = Class.create();
 FitToWindow.prototype = 

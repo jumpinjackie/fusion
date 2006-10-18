@@ -26,8 +26,8 @@
  * extended description
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
-require('widgets/GxClickTool.js');
+Fusion.require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxClickTool.js');
  
 var ZoomOut = Class.create();
 ZoomOut.prototype = 

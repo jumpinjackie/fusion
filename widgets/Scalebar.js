@@ -28,7 +28,7 @@
  * **********************************************************************/
 
 
-require('widgets/scalebartool.js');
+Fusion.require('widgets/scalebartool.js');
 
 var Scalebar = Class.create();
 Scalebar.prototype = 
@@ -47,7 +47,7 @@ Scalebar.prototype =
         this.oScaleBar.place(oCommand.getName());
 
 
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.extentsChangedCB);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
     },
 
     extentsChangedCB : function()

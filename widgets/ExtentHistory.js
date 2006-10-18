@@ -27,7 +27,7 @@
  * 
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxButtonBase.js');
 
 var gnLastEventId = 0;
 HISTORY_CHANGED = gnLastEventId ++;
@@ -57,14 +57,14 @@ ExtentHistory.prototype =
         if (!this.aHistory['history']) {
             this.aHistory['history'] = [];
             this.aHistory['index'] = -1;
-            this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.extentsChanged.bind(this));
-            this.getMap().registerForEvent(MAP_LOADED, null, this.reset.bind(this));
+            this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
+            this.getMap().registerForEvent(MAP_LOADED, this.reset.bind(this));
             
         }
         
         this.registerEventID(HISTORY_CHANGED);
         
-        this.registerForEvent(HISTORY_CHANGED, null, this.historyChanged.bind(this));
+        this.registerForEvent(HISTORY_CHANGED, this.historyChanged.bind(this));
         
         this._oButton.disableTool()
     },

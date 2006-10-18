@@ -26,7 +26,7 @@
  * extended description
  * **********************************************************************/
 
-require('widgets/ZoomOut.js');
+Fusion.require('widgets/ZoomOut.js');
 
 var Recenter = Class.create();
 Recenter.prototype = 

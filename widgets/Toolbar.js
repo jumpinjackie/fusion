@@ -27,7 +27,7 @@
  * 
  * **********************************************************************/
 
-require('jx/toolbar/jxtoolbar.js');
+Fusion.require('jx/toolbar/jxtoolbar.js');
 
 var Toolbar = Class.create();
 Toolbar.prototype = 

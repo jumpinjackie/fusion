@@ -26,8 +26,8 @@
  * extended description
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
-require('widgets/GxRectTool.js');
+Fusion.require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxRectTool.js');
 
 var Pan = Class.create();
 Pan.prototype = 

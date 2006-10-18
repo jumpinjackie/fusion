@@ -56,7 +56,7 @@
  * element you provide.
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxButtonBase.js');
 
 var Print = Class.create();
 Print.prototype = {

@@ -71,7 +71,7 @@
  * The url to an image to use for layers that are out of scale.
  *
  * **********************************************************************/
-//require('jx/tree/jxtree.js');
+//Fusion.require('jx/tree/jxtree.js');
 
 var Legend = Class.create();
 Legend.prototype = 
@@ -118,8 +118,8 @@ Legend.prototype =
             this.oRoot = this.oTree;
         }
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this, this.update);
-        this.getMap().registerForEvent(MAP_LOADED, this, this.getLayers);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.update.bind(this));
+        this.getMap().registerForEvent(MAP_LOADED, this.getLayers.bind(this));
         
         //this.getLayers();
     },

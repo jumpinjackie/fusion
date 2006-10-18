@@ -56,7 +56,7 @@ ZoomSlider.prototype =
         options.onChange = this.scaleChanged.bind(this);
         this._oSlider = new Control.Slider(this._oHandle, this._oTrack, options);
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, null, this.mapExtentsChanged.bind(this));
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
         
     },
     

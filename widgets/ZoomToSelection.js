@@ -52,7 +52,7 @@
  * element you provide.
  * **********************************************************************/
 
-require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxButtonBase.js');
 
 var ZoomToSelection = Class.create();
 ZoomToSelection.prototype = {
@@ -62,8 +62,8 @@ ZoomToSelection.prototype = {
         this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
 
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this, this.selectionOn.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this, this.selectionOff.bind(this));
+        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.selectionOn.bind(this));
+        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.selectionOff.bind(this));
         this.selectionOff();
     },
 

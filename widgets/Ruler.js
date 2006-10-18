@@ -10,9 +10,9 @@
  *
  * 
  * **********************************************************************/
-require('widgets/GxButtonBase.js');
-require('widgets/GxCanvasTool.js');
-//require('widgets/excanvas.js');
+Fusion.require('widgets/GxButtonBase.js');
+Fusion.require('widgets/GxCanvasTool.js');
+//Fusion.require('widgets/excanvas.js');
 
 var RULER_DISTANCE_CHANGED;
 

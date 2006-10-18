@@ -119,7 +119,7 @@ FDOAttributeQuery.prototype = {
                 
         this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
         
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, null, this.fpMapSelectionChanged);
+        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
     },
     
     submitQuery: function() {
@@ -221,10 +221,10 @@ FDOAttributeQuery.prototype = {
         var node = new DomNode(r.responseXML);
         var success = node.getNodeText('Selection');
         if (success == 'true') {
-            this.getMap().deregisterForEvent(MGMAP_SELECTION_ON, null, this.fpMapSelectionChanged);
+            this.getMap().deregisterForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
             this.getMap().newSelection();
             this.getMap().getSelection(this.zoomToSelection.bind(this));
-            this.getMap().registerForEvent(MGMAP_SELECTION_ON, null, this.fpMapSelectionChanged);
+            this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
         } else {
             this.getMap().clearSelection();
         }    
