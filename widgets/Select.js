@@ -23,7 +23,7 @@
  * DEALINGS IN THE SOFTWARE.
  ********************************************************************
  *
- * perform a selection using the map guide web layout conifiguration file
+ * perform a selection using the map guide web layout configuration file
  * 
  * **********************************************************************/
 
@@ -43,6 +43,8 @@ Select.prototype =
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
+        
+        this.enable = Select.prototype.enable;
 
         if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)
         {
@@ -52,6 +54,23 @@ Select.prototype =
         var activeOnly = oCommand.oxmlNode.getNodeText('QueryActiveLayer');
         this.bActiveOnly = (activeOnly == 'true' || activeOnly == '1') ? true : false;
         
+        if (this.bActiveOnly) {
+            this.getMap().registerForEvent(MGMAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
+        }
+        
+    },
+    
+    enable: function() {
+        if (this.bActiveOnly) {
+            var layer = this.getMap().getActiveLayer();
+            if (layer) { 
+                GxButtonBase.prototype.enable.apply(this, []);
+            } else {
+                this.disable();
+            }
+        } else {
+            GxButtonBase.prototype.enable.apply(this,[]);
+        }
     },
     
     /**
