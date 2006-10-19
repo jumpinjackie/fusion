@@ -37,9 +37,9 @@ ZoomOut.prototype =
     {
         //console.log('ZoomOut.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomOut', true]);
-        this.setMap(oCommand.getMap());
-        Object.inheritFrom(this, GxClickTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, GxClickTool.prototype, []);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        this.setMap(oCommand.getMap());
         this.asCursor = ['-moz-zoom-out', 'auto'];
     },
 

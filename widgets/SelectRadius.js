@@ -38,9 +38,9 @@ SelectRadius.prototype =
     {
         //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['SelectRadius', true]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
+        this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
         if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)

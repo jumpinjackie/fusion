@@ -35,24 +35,13 @@ ClearSelection.prototype =
     {
         //console.log('ClearSelection.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ClearSelection', false]);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.selectionOn.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.selectionOff.bind(this));
-        this.selectionOff();
-
-    },
-
-    selectionOn : function()
-    {
-        this._oButton.enableTool();
-     },
-
-    selectionOff : function()
-    {
-        this._oButton.disableTool();
+        this.enable = ClearSelection.prototype.enable;
+        
+        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.disable.bind(this));
     },
     
     /**
@@ -62,5 +51,13 @@ ClearSelection.prototype =
     {
         this.getMap().clearSelection();
         
+    },
+    
+    enable: function() {
+        if (this.oMap && this.oMap.hasSelection()) {
+            GxButtonBase.prototype.enable.apply(this, []);
+        } else {
+            this.disable();
+        }
     }
 };

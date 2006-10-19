@@ -47,6 +47,7 @@ MGMap.prototype =
     aHideGroups: null,
     aRefreshLayers: null,
     sActiveLayer: null,
+    bSelectionOn: false,
     
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -218,6 +219,8 @@ MGMap.prototype =
         this.setMapImageURL(url);
     },
     
+    hasSelection: function() { return this.bSelectionOn; },
+    
     getSelectionCB : function(userFunc, r)
     {
         this._bSelectionIsLoading = false;
@@ -239,6 +242,7 @@ MGMap.prototype =
         if (this.oSelection) {
             this.oSelection = null;
         }
+        this.bSelectionOn = true;
         this.drawMap();
         this.triggerEvent(MGMAP_SELECTION_ON);
     },
@@ -280,6 +284,7 @@ MGMap.prototype =
     */
     selectionCleared : function()
     {
+        this.bSelectionOn = true;
         this.triggerEvent(MGMAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;

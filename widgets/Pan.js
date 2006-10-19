@@ -37,7 +37,7 @@ Pan.prototype =
         //console.log('Pan.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Pan', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxRectTool.prototype, [oCommand.getMap()]);
+        Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];

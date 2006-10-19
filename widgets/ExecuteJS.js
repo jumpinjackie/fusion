@@ -37,9 +37,9 @@ ExecuteJS.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ExecuteJS', false]);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.sScript = oCommand.oxmlNode.getNodeText('Script');
     },
 

@@ -39,11 +39,10 @@ Zoom.prototype =
     {
         //console.log('Zoom.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxRectTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, GxRectTool.prototype, []);
+        this.setMap(oCommand.getMap());
         this.asCursor = ['-moz-zoom-in', 'auto'];
-        
     },
 
     /**

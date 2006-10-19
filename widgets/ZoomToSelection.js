@@ -59,22 +59,14 @@ ZoomToSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomToSelection', false]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        this.setMap(oCommand.getMap());
 
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.selectionOn.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.selectionOff.bind(this));
-        this.selectionOff();
+        this.enable = ZoomToSelection.prototype.enable;
+        
+        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.disable.bind(this));
     },
-
-    selectionOn : function() {
-        this._oButton.enableTool();
-     },
-
-    selectionOff : function() {
-        this._oButton.disableTool();
-     },
-
 
     /**
      * get the selection from the map (which may not be loaded yet).
@@ -101,5 +93,14 @@ ZoomToSelection.prototype = {
         ll.y = ll.y - dY;
         ur.y = ur.y + dY;
         this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
+    },
+    
+    enable: function() {
+        if (this.oMap && this.oMap.hasSelection()) {
+            GxButtonBase.prototype.enable.apply(this, []);
+        } else {
+            this.disable();
+        }
     }
+
 };

@@ -39,9 +39,9 @@ Select.prototype =
     {
         //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Select', true]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxRectTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, GxRectTool.prototype, []);
+        this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
         if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)

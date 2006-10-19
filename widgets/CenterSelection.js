@@ -57,22 +57,14 @@ CenterSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomToSelection', false]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        this.setMap(oCommand.getMap());
 
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.selectionOn.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.selectionOff.bind(this));
-        this.selectionOff();
+        this.enable = CenterSelection.prototype.enable;
+        
+        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.disable.bind(this));
     },
-
-    selectionOn : function() {
-        this._oButton.enableTool();
-     },
-
-    selectionOff : function() {
-        this._oButton.disableTool();
-     },
-
 
     /**
      * get the selection from the map (which may not be loaded yet).
@@ -110,6 +102,14 @@ CenterSelection.prototype = {
             var maxx = ur.x+newWidth*buffer;
             var maxy = ur.y+newHeight*buffer;
             this.getMap().setExtents([minx,miny,maxx,maxy]);
+        }
+    },
+
+    enable: function() {
+        if (this.oMap && this.oMap.hasSelection()) {
+            GxButtonBase.prototype.enable.apply(this, []);
+        } else {
+            this.disable();
         }
     }
 };

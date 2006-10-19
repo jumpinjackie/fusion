@@ -46,10 +46,10 @@ Ruler.prototype =
     {
         console.log('Ruler.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Ruler', true]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [oCommand]);
         Object.inheritFrom(this, EventMgr.prototype, []);
+        this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];
         

@@ -39,9 +39,9 @@ PanOnClick.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['PanOnClick', false]);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         var percent = oCommand.oxmlNode.getNodeText('Percentage');
         if (percent == '') {
             percent = 75;

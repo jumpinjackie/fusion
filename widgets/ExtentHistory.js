@@ -43,10 +43,10 @@ ExtentHistory.prototype =
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ExtentHistory', false]);
         Object.inheritFrom(this, EventMgr.prototype, []);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         
         this.setMap(oCommand.getMap());
         
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         var sDirection = oCommand.oxmlNode.getNodeText('Direction').toLowerCase();
         if (sDirection != 'previous' && sDirection != 'next') {
             this.sDirection = 'previous';

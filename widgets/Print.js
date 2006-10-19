@@ -63,8 +63,8 @@ Print.prototype = {
     initialize : function(oCommand) {
         //console.log('Print.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Print', false]);
-        this.setMap(oCommand.getMap());
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        this.setMap(oCommand.getMap());
         
         this.pageTitle = oCommand.oxmlNode.getNodeText('PageTitle');
         

@@ -37,9 +37,9 @@ ZoomOnClick.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomOnClick', false]);
+        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         var factor = oCommand.oxmlNode.getNodeText('Factor');
         if (factor == '') {
             factor = 2;
