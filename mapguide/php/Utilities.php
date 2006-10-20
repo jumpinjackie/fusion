@@ -280,9 +280,7 @@ function GetFeatureSourceAttributes($map, $layerResourceId, $featureService) {
     $agf = new MgAgfReaderWriter();
 
     //get class definition from the featureSource
-    $class = $layer->GetFeatureClassName();
-    $schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
-    $classDefinition = $featureService->GetClassDefinition($dataSourceId, $schema, $class);
+    $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
     //MgPropertyDefinition classProps
     $classProps = $classDefinition->GetProperties();
     $featureGeometryName = $layer->GetFeatureGeometryName();
@@ -396,6 +394,29 @@ function CreateDataPropertyForType($property) {
        default :
          return null;
     }
+}
+//-----------------------------------------------------------------
+//function GetFeatureClassAndSchema
+//@param MgFeatureService featureService
+//@param MgResourceIdentifier dataSourceId
+//@param MgLayer layer
+//@return the classdefinition reference.
+//
+//@desc Get class definition and schema from the layer.
+//@desc This works around changes between MG 1.0.1 and 1.0.2
+//@desc described in MG341 (see mapguide.osego.org)
+//@desc This function can be removed when all servers are updated.
+//------------------------------------------------------------------
+function GetFeatureClassDefinition($featureService, $layer, $dataSourceId){
+
+    $qualifiedClass = $layer->GetFeatureClassName();
+    if (strpos($qualifiedClass, ':') === false ) {
+        $class = $qualifiedCLass;
+        $schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
+    } else {
+        list($schema, $class) = explode(':', $qualifiedClass);
+    }
+    return $featureService->GetClassDefinition($dataSourceId, $schema, $class);
 }
 
 ?>

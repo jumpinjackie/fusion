@@ -60,7 +60,7 @@ if ($layer == null) {
     exit;
 }
 $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-
+//echo $dataSourceId->ToString();exit;
 $agf = new MgAgfReaderWriter();
 
 /*****************************************************************************
@@ -81,9 +81,8 @@ $agf = new MgAgfReaderWriter();
  *****************************************************************************/
 
 //get class definition from the featureSource
-$class = $layer->GetFeatureClassName();
-$schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
-$classDefinition = $featureService->GetClassDefinition($dataSourceId, $schema, $class);
+$classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
+
 //MgPropertyDefinition classProps
 $classProps = $classDefinition->GetProperties();
 $featureGeometryName = $layer->GetFeatureGeometryName();
