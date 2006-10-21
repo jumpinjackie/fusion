@@ -64,19 +64,20 @@ $tempImgPath = "c:/Program Files/Apache Group/Apache2/htdocs/ms_tmp/";
 for($i=0;$i<$layers->GetCount();$i++) 
 { 
     $layer=$layers->GetItem($i);
-   $layerDefinition = $layer->GetLayerDefinition();
+    $layerDefinition = $layer->GetLayerDefinition();
+    
     echo '<layer>';
     echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
     echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
     echo '<layertype>'.$layer->GetLayerType().'</layertype>';
-    echo '<displayinlegend>'.$layer->GetDisplayInLegend().'</displayinlegend>';
-    echo '<expandinlegend>'.$layer->GetExpandInLegend().'</expandinlegend>';
+    echo '<displayinlegend>'.BooleanToString($layer->GetDisplayInLegend()).'</displayinlegend>';
+    echo '<expandinlegend>'.BooleanToString($layer->GetExpandInLegend()).'</expandinlegend>';
     echo '<rid>'.$layerDefinition->ToString().'</rid>';
     if ($layer->GetGroup()) {
         echo '<parentgroup>'.$layer->GetGroup()->GetObjectId().'</parentgroup>';
     }
     echo '<legendlabel>'.htmlentities($layer->GetLegendLabel()).'</legendlabel>';
-    echo '<selectable>'.$layer->GetSelectable().'</selectable>';
+    echo '<selectable>'.BooleanToString($layer->GetSelectable()).'</selectable>';
     echo '<visible>'.BooleanToString($layer->GetVisible()).'</visible>';
     echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
     buildScaleRanges($layer);
