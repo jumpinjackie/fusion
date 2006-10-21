@@ -160,7 +160,6 @@ Legend.prototype =
             var root = new DomNode(r.responseXML.childNodes[0]);
             var groupNode = root.findFirstNode('group');
             while(groupNode) {
-                //TODO: group object?
                 var group = new MGGroup(groupNode, this.getMap(), this);
                 if (group.parentUniqueId != '') {
                     group.parent = this.mapGroups[group.parentUniqueId];
@@ -170,13 +169,15 @@ Legend.prototype =
 
                 this.mapGroups[group.uniqueId] = group;
                 
-                if (group.parent) {
-                    group.parent.treeItem.append(group.treeItem)
-                } else {
-                    this.oRoot.append(group.treeItem);
-                }
+                if (group.visible) {
+                    if (group.parent) {
+                        group.parent.treeItem.append(group.treeItem)
+                    } else {
+                        this.oRoot.append(group.treeItem);
+                    }
                 
-                group.checkBox.checked = group.visible?true:false;
+                    group.checkBox.checked = group.visible?true:false;
+                }
                 
                 groupNode = root.findNextNode('group');
             }
@@ -335,6 +336,9 @@ MGLayer.prototype = {
         return null;
     },
     updateTreeItemForScale: function(fScale) {
+        if (!this.displayInLegend) {
+            return;
+        }
         var range = this.getScaleRange(fScale);
         if (range == this.currentRange && !this.bFirstDisplay) {
             return;
