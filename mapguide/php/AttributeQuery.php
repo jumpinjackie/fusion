@@ -137,7 +137,10 @@ try {
         $len = array_push($allValues, $featureValues);
         if ($linkValue !== false) {
             array_push($filterExpr, $childField ."=".$linkValue);
-            $linkValues[$linkValue] = $len - 1;
+            if (!is_array($linkValues[$linkValue])) {
+                $linkValues[$linkValue] = array();
+            }
+            array_push($linkValues[$linkValue], $len - 1);
         }
         $nElements ++;
     }
@@ -151,8 +154,10 @@ try {
         while($geomReader->ReadNext()) {
             $linkValue = GetPropertyValueFromFeatReader($geomReader, $parentField);
             if (isset($linkValues[$linkValue])) {
-                array_pop($allValues[$linkValues[$linkValue]]);
-                array_push($allValues[$linkValues[$linkValue]], 1);
+                foreach($linkValues[$linkValue] as $val) {
+                    array_pop($allValues[$val]);
+                    array_push($allValues[$val], 1);
+                }
             }
         }
     }
