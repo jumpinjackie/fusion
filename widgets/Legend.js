@@ -169,7 +169,7 @@ Legend.prototype =
 
                 this.mapGroups[group.uniqueId] = group;
                 
-                if (group.visible) {
+                if (group.displayInLegend && group.visible) {
                     if (group.parent) {
                         group.parent.treeItem.append(group.treeItem)
                     } else {
@@ -251,10 +251,10 @@ MGGroup.prototype = {
         this.uniqueId = groupNode.getNodeText('uniqueid');
         this.parentUniqueId = groupNode.getNodeText('parentuniqueid');
         this.groupType = groupNode.getNodeText('layergrouptype');
-        this.displayInLegend = groupNode.getNodeText('displayinlegend');
-        this.expandInLegend = groupNode.getNodeText('expandinlegend');
-        this.visible = groupNode.getNodeText('visible');
-        this.actuallyVisible = groupNode.getNodeText('actuallyvisible');
+        this.displayInLegend = groupNode.getNodeText('displayinlegend') == 'true' ? true : false;
+        this.expandInLegend = groupNode.getNodeText('expandinlegend') == 'true' ? true : false;
+        this.visible = groupNode.getNodeText('visible') == 'true' ? true : false;
+        this.actuallyVisible = groupNode.getNodeText('actuallyvisible') == 'true' ? true : false;
         if (this.displayInLegend) {
             var opt = {};
             opt.label = this.legendLabel;
@@ -302,10 +302,10 @@ MGLayer.prototype = {
         this.uniqueId = layerNode.getNodeText('uniqueid');
         this.resourceId = layerNode.getNodeText('rid');
         this.legendLabel = layerNode.getNodeText('legendlabel');
-        this.selectable = layerNode.getNodeText('selectable');
+        this.selectable = layerNode.getNodeText('selectable') == 'true' ? true : false;
         this.layerType = layerNode.getNodeText('layertype');
-        this.displayInLegend = layerNode.getNodeText('displayinlegend');
-        this.expandInLegend = layerNode.getNodeText('expandinlegend');
+        this.displayInLegend = layerNode.getNodeText('displayinlegend') == 'true' ? true : false;
+        this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
         this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
         this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
         //TODO: make this configurable

@@ -96,8 +96,8 @@ for($i=0;$i<$groups->GetCount();$i++)
     echo '<groupname>'.htmlentities($group->GetName()).'</groupname>';
     echo '<legendlabel>'.htmlentities($group->GetLegendLabel()).'</legendlabel>';
     echo '<uniqueid>'.$group->GetObjectId().'</uniqueid>';
-    echo '<displayinlegend>'.$group->GetDisplayInLegend().'</displayinlegend>';
-    echo '<expandinlegend>'.$group->GetExpandInLegend().'</expandinlegend>';
+    echo '<displayinlegend>'.BooleanToString($group->GetDisplayInLegend()).'</displayinlegend>';
+    echo '<expandinlegend>'.BooleanToString($group->GetExpandInLegend()).'</expandinlegend>';
     echo '<layergrouptype>'.$group->GetLayerGroupType().'</layergrouptype>';
     $parent = $group->GetGroup();
     if ($parent){
