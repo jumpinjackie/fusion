@@ -120,11 +120,7 @@ ExtentHistory.prototype =
         }
     },
 
-    /**
-     * called when the button is clicked by the GxButtonBase widget
-     */
-    activateTool : function()
-    {
+    execute: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
                 console.log('ExtentHistory: moving to previous extents');

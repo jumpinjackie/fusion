@@ -94,6 +94,10 @@ Zoom.prototype =
      */
     execute : function(nLeft, nBottom, nRight, nTop)
     {
+        if (arguments.length == 2) {
+            nRight = nLeft;
+            nTop = nBottom;
+        }
         if ((nRight-nLeft) < this.nTolerance || 
             (nBottom-nTop) < this.nTolerance) 
         {

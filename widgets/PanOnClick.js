@@ -76,7 +76,7 @@ PanOnClick.prototype =
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
-    activateTool : function()
+    execute : function()
     {
         var extents = this.getMap().getCurrentExtents();
         var center = this.getMap().getCurrentCenter();

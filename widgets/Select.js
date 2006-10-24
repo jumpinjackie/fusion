@@ -119,6 +119,10 @@ Select.prototype =
      **/
     execute : function(nLeft, nBottom, nRight, nTop)
     {
+        if (arguments.length == 2) {
+            nRight = nLeft;
+            nTop = nBottom;
+        }
         var sMin = this.getMap().pixToGeo(nLeft,nBottom);
         var sMax = this.getMap().pixToGeo(nRight,nTop);
         var nXDelta = Math.abs(nLeft-nRight);

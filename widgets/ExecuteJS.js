@@ -46,7 +46,7 @@ ExecuteJS.prototype =
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
-    activateTool : function()
+    execute : function()
     {
         eval(this.sScript);
     }

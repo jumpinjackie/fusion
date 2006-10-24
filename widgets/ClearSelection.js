@@ -47,7 +47,7 @@ ClearSelection.prototype =
     /**
      * clears slection on map.
      */
-    activateTool : function()
+    execute : function()
     {
         this.getMap().clearSelection();
         

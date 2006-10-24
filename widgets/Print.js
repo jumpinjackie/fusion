@@ -82,7 +82,7 @@ Print.prototype = {
      * load an interface that builds a printable version of
      * the current map view
      */
-    activateTool : function() {
+    execute : function() {
         if (this.showPrintUI) {
             this.openPrintUI();
         } else {

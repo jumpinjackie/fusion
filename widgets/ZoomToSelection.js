@@ -72,7 +72,7 @@ ZoomToSelection.prototype = {
      * get the selection from the map (which may not be loaded yet).
      * zoomToSelection is called when the selection is ready.
      */
-    activateTool : function() {
+    execute : function() {
         this.getMap().getSelection(this.zoomToSelection.bind(this));
     },
 

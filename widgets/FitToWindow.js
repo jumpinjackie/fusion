@@ -42,11 +42,7 @@ FitToWindow.prototype =
 
     },
 
-    /**
-     * called when the button is clicked by the GxButtonBase widget
-     */
-    activateTool : function()
-    {
+    execute: function() {
         //console.log('FitToWindow.activateTool');
         this.getMap().fullExtents();
     }

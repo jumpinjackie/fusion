@@ -50,7 +50,7 @@ ZoomOnClick.prototype =
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
-    activateTool : function()
+    execute : function()
     {
         //console.log('ZoomOnClick.activateTool');
         var center = this.getMap().getCurrentCenter();
