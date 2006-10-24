@@ -83,9 +83,11 @@ Pan.prototype =
      * @param e Event the event that happened on the mapObj
      */
     mouseDown: function(e) {
-        this.getMap().setCursor(this.cursorDrag);
-        var p = this.getMap().getEventPosition(e);    
-        this.startPos = p;
+        if (Event.isLeftClick(e)) {
+            this.getMap().setCursor(this.cursorDrag);
+            var p = this.getMap().getEventPosition(e);    
+            this.startPos = p;
+        }
         Event.stop(e);
     },
 

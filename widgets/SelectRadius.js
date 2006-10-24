@@ -96,14 +96,16 @@ SelectRadius.prototype =
      */
     mouseDown: function(e) {
         //console.log('SelectRadius.mouseDown');
-        var p = this.getMap().getEventPosition(e);
+        if (Event.isLeftClick(e)) {
+            var p = this.getMap().getEventPosition(e);
 
-        if (!this.isDigitizing) {
-            this.circle.setCenter(p.x, p.y);
-            this.circle.setRadius(1);
-            this.clearContext();
-            this.circle.draw(this.context);     
-            this.isDigitizing = true;
+            if (!this.isDigitizing) {
+                this.circle.setCenter(p.x, p.y);
+                this.circle.setRadius(1);
+                this.clearContext();
+                this.circle.draw(this.context);     
+                this.isDigitizing = true;
+            }
         }
     },
 
@@ -128,11 +130,13 @@ SelectRadius.prototype =
     },
     
     mouseUp: function(e) {
-        this.clearContext();
-        this.isDigitizing = false;
-        var center = this.getMap().pixToGeo(this.circle.center.x, this.circle.center.y);
-        var radius = this.getMap().pixToGeoMeasure(this.circle.radius);
-        this.execute(center, radius);
+        if (this.isDigitizing) {
+            this.clearContext();
+            this.isDigitizing = false;
+            var center = this.getMap().pixToGeo(this.circle.center.x, this.circle.center.y);
+            var radius = this.getMap().pixToGeoMeasure(this.circle.radius);
+            this.execute(center, radius);
+        }
     },
 
     /**
