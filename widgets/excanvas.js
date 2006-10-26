@@ -22,7 +22,7 @@
 // TODO: Painting outside the canvas should not be allowed
 
 // only add this code if we do not already have a canvas implementation
-if (!window.CanvasRenderingContext2D) {
+if (!window.CanvasRenderingContext2D && !/WebKit/.test(navigator.userAgent)) {
 (function () {
 
   var G_vmlCanvasManager_ = {
