@@ -37,6 +37,8 @@ var MGMAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
 var MAP_LOADED = gnLastEventId++;
 
 var MGMap = Class.create();
+
+//TODO: what is this doing here???
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
 
 MGMap.prototype =
