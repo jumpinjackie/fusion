@@ -40,7 +40,7 @@ ZoomOut.prototype =
         Object.inheritFrom(this, GxClickTool.prototype, []);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
-        this.asCursor = ['-moz-zoom-out', 'auto'];
+        this.asCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
     },
 
     activateTool : function()

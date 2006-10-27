@@ -42,7 +42,7 @@ Zoom.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
-        this.asCursor = ['-moz-zoom-in', 'auto'];
+        this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
     },
 
     /**
