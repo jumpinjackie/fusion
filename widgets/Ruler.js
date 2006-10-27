@@ -48,7 +48,6 @@ Ruler.prototype =
         Object.inheritFrom(this, GxWidget.prototype, ['Ruler', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [oCommand]);
-        Object.inheritFrom(this, EventMgr.prototype, []);
         this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];
@@ -125,35 +124,37 @@ Ruler.prototype =
      */
     mouseDown: function(e) {
         //console.log('Ruler.mouseDown');
-        var map = this.getMap();
-        var p = map.getEventPosition(e);
-        
+        if (Event.isLeftClick(e)) {
+            var map = this.getMap();
+            var p = map.getEventPosition(e);
+            var gp = map.pixToGeo(p.x, p.y)
 
-        if (!this.isDigitizing) {
-            this.currentFeature = new FeatureLine();
-            this.lastDistance = 0;
-            this.cumulativeDistance = 0;
-            this.aDistances = [];
-            var from = new Node(p.x,p.y, map);
-            var to = new Node(p.x,p.y, map);
-            var seg = new Segment(from,to);
-            seg.setEditing(true);
-            this.currentFeature.addSegment(seg);
-            this.clearContext();
-            this.currentFeature.draw(this.context);     
-            this.isDigitizing = true;
-        } else {
-            var seg = this.currentFeature.lastSegment();
-            var d = this.measureSegment(seg);
-            this.aDistances.push(d);
-            this.cumulativeDistance += d;
-            this.lastDistance = 0;
-            this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
-            seg.setEditing(false);
-            seg = this.currentFeature.extendLine();
-            seg.setEditing(true);
-            this.clearContext();
-            this.currentFeature.draw(this.context);
+            if (!this.isDigitizing) {
+                this.currentFeature = new FeatureLine(map);
+                this.lastDistance = 0;
+                this.cumulativeDistance = 0;
+                this.aDistances = [];
+                var from = new Node(gp.x,gp.y, map);
+                var to = new Node(gp.x,gp.y, map);
+                var seg = new Segment(from,to);
+                seg.setEditing(true);
+                this.currentFeature.addSegment(seg);
+                this.clearContext();
+                this.currentFeature.draw(this.context);     
+                this.isDigitizing = true;
+            } else {
+                var seg = this.currentFeature.lastSegment();
+                var d = this.measureSegment(seg);
+                this.aDistances.push(d);
+                this.cumulativeDistance += d;
+                this.lastDistance = 0;
+                this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
+                seg.setEditing(false);
+                seg = this.currentFeature.extendLine();
+                seg.setEditing(true);
+                this.clearContext();
+                this.currentFeature.draw(this.context);
+            }
         }
     },
 
@@ -169,8 +170,9 @@ Ruler.prototype =
         if (!this.isDigitizing) return;
     
         var p = this.getMap().getEventPosition(e);
+        var gp = this.getMap().pixToGeo(p.x, p.y);
         var seg = this.currentFeature.lastSegment();
-        seg.to.set(p.x,p.y);
+        seg.to.set(gp.x,gp.y);
         this.clearContext();
         this.currentFeature.draw(this.context);
         this.updateDistance(seg);
