@@ -80,6 +80,21 @@ $agf = new MgAgfReaderWriter();
  get the layer's attributes and types
  *****************************************************************************/
 
+ 
+/*****************************************************************************
+ determine whether a shadow feature source has been created for the layer
+ *****************************************************************************/
+ // convert the feature resource for the selected layer to the shadow version
+ $shadowResourceId = new MgResourceIdentifier($dataSourceId->GetRepositoryType().'://'.
+                                        $dataSourceId->GetPath().'/'.
+                                        $dataSourceId->GetName().'-shadow.'.
+                                        $dataSourceId->GetResourceType());
+
+$hasShadow = 'false';
+ if (DataSourceExists($resourceService, $shadowResourceId)) {
+     $hasShadow = 'true';
+} 
+ 
 //get class definition from the featureSource
 $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
 
@@ -113,6 +128,7 @@ for ( $i=0; $i < count($aLayerTypes); $i++ )
     echo "<LayerType>".$aLayerTypes[$i]."</LayerType>";
 }
 echo "<Editable>true</Editable>";
+echo "<Shadowed>$hasShadow</Shadowed>";
 echo "</LayerInfo>";
 exit;
 ?>
