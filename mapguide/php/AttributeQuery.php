@@ -137,7 +137,7 @@ try {
         $len = array_push($allValues, $featureValues);
         if ($linkValue !== false) {
             array_push($filterExpr, $childField ."=".$linkValue);
-            if (!is_array($linkValues[$linkValue])) {
+            if (!array_key_exists($linkValue,$linkValues)) {
                 $linkValues[$linkValue] = array();
             }
             array_push($linkValues[$linkValue], $len - 1);
