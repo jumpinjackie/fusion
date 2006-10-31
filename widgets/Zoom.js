@@ -94,6 +94,7 @@ Zoom.prototype =
      */
     execute : function(nLeft, nBottom, nRight, nTop)
     {
+        console.log("Zoom execute");
         if (arguments.length == 2) {
             nRight = nLeft;
             nTop = nBottom;
@@ -111,5 +112,13 @@ Zoom.prototype =
 	var sMax = this.getMap().pixToGeo(nRight,nTop);
 
         this.getMap().setExtents([sMin.x,sMin.y,sMax.x,sMax.y]);
+    },
+
+    setParameter : function(param, value)
+    {
+        if (param == "Factor" && value > 0)
+        {
+            this.nFactor = value;
+        }
     }
 };

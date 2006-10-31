@@ -55,5 +55,13 @@ ZoomOnClick.prototype =
         //console.log('ZoomOnClick.activateTool');
         var center = this.getMap().getCurrentCenter();
         this.getMap().zoom(center.x, center.y, this.nFactor);
+    },
+
+    setParameter : function(param, value)
+    {
+        if (param == "Factor" && value > 0)
+        {
+            this.nFactor = value;
+        }
     }
 };

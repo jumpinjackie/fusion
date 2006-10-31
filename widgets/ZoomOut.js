@@ -71,9 +71,15 @@ ZoomOut.prototype =
 
     execute : function(nX, nY)
     {
-        //console.log('ZoomOut.execute');
-        
         var sGeoPoint = this.getMap().pixToGeo(nX,nY);
         this.getMap().zoom(sGeoPoint.x, sGeoPoint.y, this.nFactor);
+    },
+
+    setParameter : function(param, value)
+    {
+        if (param == "Factor" && value < 0)
+        {
+            this.nFactor = value;
+        }
     }
 };
