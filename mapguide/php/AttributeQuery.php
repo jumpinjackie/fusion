@@ -20,23 +20,23 @@
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *****************************************************************************/
 
 try {
     /* set up the session */
     include ("MGCommon.php");
-    
+
     /* override join properties */
     $parent = isset($_REQUEST['parent']) ? $_REQUEST['parent'] : false;
     $parentField = isset($_REQUEST['parentfield']) ? $_REQUEST['parentfield'] : false;
@@ -52,10 +52,10 @@ try {
     $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
     $filter = str_replace('*', '%', $filter);
     //echo "filter: $filter<BR>";
-    
+
     /* we need a feature service to query the features */
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
-    
+
     /* open the map from the session using the provided map name.  The map was
        previously created by calling MGLoadMap. */
     $map = new MgMap();
@@ -63,7 +63,7 @@ try {
 
     /* get the named layer from the map */
     $layerObj = $map->GetLayers()->GetItem($layer);
-    
+
     /* get the feature source from the layer */
     $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
     $featureGeometryName = $layerObj->GetFeatureGeometryName();
@@ -76,9 +76,9 @@ try {
         $class = $child;
     } else {
         $class = $layerObj->GetFeatureClassName();
-    }    
+    }
     //echo "feature class is $class<BR>";
-    
+
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
@@ -87,21 +87,21 @@ try {
 
     /* select the features */
     $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-    
+
     //TODO : use layer definition to only get properties defined.
     $propCount = $featureReader->GetPropertyCount();
-    
+
     $props = array();
     $types = array();
-    
-    for($i=0; $i<$propCount; $i++) 
+
+    for($i=0; $i<$propCount; $i++)
     {
          $props[$i] = $featureReader->GetPropertyName($i);
          $types[$i] = $featureReader->GetPropertyType($props[$i]);
     }
     header('Content-type: text/plain');
     echo "result={properties:[";
-    
+
     $valSep = '';
     for($i=0; $i<$propCount; $i++) {
         echo $valSep."'".$props[$i]."'";
@@ -117,18 +117,18 @@ try {
     {
         $featureValues = array();
         $linkValue = false;
-        for($i=0; $i<$propCount; $i++) 
+        for($i=0; $i<$propCount; $i++)
         {
-            $value = GetPropertyValueFromFeatReader($featureReader, 
+            $value = GetPropertyValueFromFeatReader($featureReader,
                                              $props[$i]);
             //clean up the values to make them safe for transmitting to the client
             $value = htmlentities($value);
             $value = addslashes($value);
             $value = preg_replace( "/\r?\n/", "<br>", $value );
             array_push($featureValues, $value);
-            
+
             if ($useParentGeom && strcasecmp(trim($props[$i]),trim($childField)) == 0) {
-                
+
                 $linkValue = $value;
             }
         }
@@ -167,8 +167,8 @@ try {
         $sep = ',';
     }
     echo "]};";
-    
-} 
+
+}
 catch (MgException $e)
 {
   echo "ERROR: " . $e->GetMessage() . "\n";
@@ -176,11 +176,11 @@ catch (MgException $e)
   echo $e->GetStackTrace() . "\n";
 }
 
-function GetPropertyValueFromFeatReader($featureReader, $propertyName) 
+function GetPropertyValueFromFeatReader($featureReader, $propertyName)
 {
     $val = "";
     $propertyType = $featureReader->GetPropertyType($propertyName);
-    switch ($propertyType) 
+    switch ($propertyType)
     {
        case MgPropertyType::Null :
          //fwrite($logFileHandle, "$propertyName is a null propertyn");
@@ -230,7 +230,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyName)
              }
          */
          break;
-       case MgPropertyType::Geometry :  
+       case MgPropertyType::Geometry :
          /*
               fwrite($logFileHandle, "$propertyName is a geometryn");
               $val = $featureReader->GetGeometry($propertyName);
@@ -250,13 +250,13 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyName)
              fwrite($logFileHandle, "$propertyName is a rastern");
          */
          break;
-       default : 
+       default :
          $val = "";
     }
-    
+
     return $val;
  }
- 
+
  function booleanToString($b) {
      $result = '';
      if (is_object($b)) {
@@ -264,7 +264,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyName)
      }
      return result;
  }
- 
+
  function dateTimeToString($dt) {
      $result = '';
      if (is_object($dt)) {
@@ -278,7 +278,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyName)
      }
      return $result;
  }
- 
+
 function dateTimeToTimeString($dt) {
     $result = '';
     if ($dt->isTime() || $dt->isDateTime()) {
