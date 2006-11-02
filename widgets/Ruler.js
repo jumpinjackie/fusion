@@ -26,19 +26,6 @@ Ruler.prototype =
     cumulativeDistance: 0,
     lastDistance: 0,
     
-    INCHES: 0,
-    FEET: 1,
-    MILES: 2,
-    METERS: 3,
-    KILOMETERS: 4,
-    DEGREES: 5,
-    PIXELS: 6,
-    
-    unitPerMeter: [39.37,3.2808,0.00062137,1.0,0.001,0.000009044],
-    meterPerUnit: [0.0254,0.3048,1609.3445,1.0,1000.0,110570],
-    unitNames: ['Inches', 'Feet', 'Miles', 'Meters', 'Kilometers', 'Degrees'],
-    unitAbbr: ['in', 'ft', 'mi', 'm', 'km', '&deg;'],
-    
     /* the units to display distances in */
     units: null,
     
@@ -55,27 +42,30 @@ Ruler.prototype =
         var u = oCommand.oxmlNode.getNodeText('Units');
         switch(u.toLowerCase()) {
             case 'inches':
-                this.units = this.INCHES;
+                this.units = Fusion.INCHES;
                 break;
             case 'feet':
-                this.units = this.FEET;
+                this.units = Fusion.FEET;
                 break;
             case 'miles':
-                this.units = this.MILES;
+                this.units = Fusion.MILES;
                 break;
             case 'meters':
-                this.units = this.METERS;
+                this.units = Fusion.METERS;
+                break;
             case 'kilometers':
-                this.units = this.KILOMETERS;
+                this.units = Fusion.KILOMETERS;
                 break;
             case 'degrees':
-                this.units = this.DEGREES;
+                this.units = Fusion.DEGREES;
                 break;
             default:
-                this.units = this.METERS;
+                this.units = Fusion.METERS;
         }
-        
+        console.log( 'Ruler default units are ' + Fusion.unitName(this.units));
         this.registerEventID(RULER_DISTANCE_CHANGED);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
+        
     },
     
     /**
@@ -104,15 +94,20 @@ Ruler.prototype =
      */
     deactivate: function() {
         //console.log('Ruler.deactivate');
-        this.isDigitizing = false;
-        this.clearContext();
         this._oButton.deactivateTool();
         this.deactivateCanvas();
-        
-        this.aDistances = [];
-        this.cumulativeDistance = 0;
-        this.lastDistance = 0;
-        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        this.resetCanvas();
+    },
+    
+    resetCanvas: function() {
+        if (this.isDigitizing) {
+            this.isDigitizing = false;
+            this.clearContext();
+            this.aDistances = [];
+            this.cumulativeDistance = 0;
+            this.lastDistance = 0;
+            this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        }
     },
     
     /**
@@ -200,11 +195,8 @@ Ruler.prototype =
     
     measureSegment: function(seg) {
         var map = this.getMap();
-        var s = map.pixToGeo(seg.from.x, seg.from.y);
-        var e = map.pixToGeo(seg.to.x, seg.to.y);
-        var geoDist = Math.sqrt(Math.pow(e.x-s.x,2) + Math.pow(e.y-s.y,2));
-        var meters = geoDist * map._fMetersperunit;
-        return meters;
+        return Math.sqrt(Math.pow(seg.to.x-seg.from.x,2) +
+                         Math.pow(seg.to.y-seg.from.y,2)) * map._fMetersperunit;
     },
     
     updateDistance: function(seg) {
@@ -214,17 +206,23 @@ Ruler.prototype =
     
     getLastDistance: function() {
         var d = this.lastDistance;
-        if (this.units != this.METERS) {
-            d = d * this.unitPerMeter[this.units];
+        if (this.units != Fusion.METERS) {
+            d = Fusion.toMeter(this.units,d);
         }
         return d;
     },
     
     getDistance: function() {
         var totalDistance = this.cumulativeDistance + this.lastDistance;
-        if (this.units != this.METERS) {
-            totalDistance = totalDistance * this.unitPerMeter[this.units];
+        if (this.units != Fusion.METERS) {
+            totalDistance = Fusion.toMeter(this.units,totalDistance);
         }
         return totalDistance;
+    },
+    
+    setParameter: function(param, value) {
+        if (param == 'Units') {
+            this.units = value;
+        }
     }
 };
