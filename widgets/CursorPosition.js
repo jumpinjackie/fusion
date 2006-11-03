@@ -159,5 +159,11 @@ CursorPosition.prototype =
         
             this.domObj.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
         }
+    },
+
+    setParameter: function(param, value) {
+        if (param == 'Units') {
+            this.units = value;
+        }
     }
 };
