@@ -44,7 +44,7 @@ Ruler.prototype =
         this.asCursor = ['crosshair'];
         var unit = oCommand.oxmlNode.getNodeText('Units');
         if (unit != '') {
-            this.units = Fusion.unitFromName();
+            this.units = Fusion.unitFromName(unit);
         }
         this.registerEventID(RULER_DISTANCE_CHANGED);
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
