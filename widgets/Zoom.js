@@ -34,7 +34,8 @@ var Zoom = Class.create();
 Zoom.prototype = 
 {
     nTolerance : 5,
-    nFactor : 2,    
+    nFactor : 2,
+    zoomIn: true,
     initialize : function(oCommand)
     {
         //console.log('Zoom.initialize');
@@ -43,6 +44,9 @@ Zoom.prototype =
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
+        if (this._oCommand.oxmlNode.getNodeText('Direction') == 'out') {
+            this.zoomIn = false;
+        }
     },
 
     /**
@@ -94,24 +98,32 @@ Zoom.prototype =
      */
     execute : function(nLeft, nBottom, nRight, nTop)
     {
-        console.log("Zoom execute");
+        /* if the last event had a shift modifier, swap the sense of this
+           tool - zoom in becomes out and zoom out becomes in */
+        var map = this.getMap();
+        var zoomIn = this.zoomIn;
+        if (this.event.shiftKey) {
+            zoomIn = !zoomIn;
+        }
         if (arguments.length == 2) {
             nRight = nLeft;
             nTop = nBottom;
         }
-        if ((nRight-nLeft) < this.nTolerance || 
-            (nBottom-nTop) < this.nTolerance) 
-        {
-		var nSize = this.getMap().getPixelSize();
-		nLeft = nLeft - nSize.width/(this.nFactor*2);
-		nRight = nLeft + nSize.width/(this.nFactor);
-		nTop = nTop - nSize.height/(this.nFactor*2);
-		nBottom = nTop + nSize.height/(this.nFactor);
+        var gMin = map.pixToGeo(nLeft,nBottom);
+        var gMax = map.pixToGeo(nRight,nTop);
+        var gCenter = {x:(gMin.x+gMax.x)/2,y:(gMin.y+gMax.y)/2};
+        var ratio = this.nFactor;
+        var pWidth = Math.abs(nRight-nLeft);
+        var pHeight = Math.abs(nBottom-nTop);
+        console.log('pWidth: ' + pWidth + ', pHeight: ' + pHeight);
+        if (pWidth > this.nTolerance ||
+            pHeight > this.nTolerance) {
+            ratio = Math.min(map._nWidth/pWidth,map._nHeight/pHeight);
         }
-        var sMin = this.getMap().pixToGeo(nLeft,nBottom);
-	var sMax = this.getMap().pixToGeo(nRight,nTop);
-
-        this.getMap().setExtents([sMin.x,sMin.y,sMax.x,sMax.y]);
+        if (!zoomIn) {
+            ratio = ratio * -1;
+        }
+        map.zoom(gCenter.x,gCenter.y,ratio);
     },
 
     setParameter : function(param, value)
