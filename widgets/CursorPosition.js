@@ -114,9 +114,23 @@ CursorPosition.prototype =
             this.units = Fusion.unitFromName(unit);
         }
         
-        this.getMap().observeEvent('mousemove', this.mouseMove.bind(this));
-        this.getMap().observeEvent('mouseout', this.mouseOut.bind(this));
+        this.enable = CursorPosition.prototype.enable;
+        this.disable = CursorPosition.prototype.enable;
         
+        this.mouseMoveWatcher = this.mouseMove.bind(this);
+        this.mouseOutWatcher = this.mouseOut.bind(this);
+        
+        
+    },
+    
+    enable: function() {
+        this.getMap().observeEvent('mousemove', this.mouseMoveWatcher);
+        this.getMap().observeEvent('mouseout', this.mouseOutWatcher);
+    },
+    
+    disable: function() {
+        this.getMap().stopObserveEvent('mousemove', this.mouseMoveWatcher);
+        this.getMap().stopObserveEvent('mouseout', this.mouseOutWatcher);
     },
     
     mouseOut: function(e) {
@@ -140,8 +154,10 @@ CursorPosition.prototype =
                 }
             }
         }
-        var unitAbbr = Fusion.unitAbbr(this.units);
+        if (p) {
+            var unitAbbr = Fusion.unitAbbr(this.units);
         
-        this.domObj.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
+            this.domObj.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
+        }
     }
 };
