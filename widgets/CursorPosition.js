@@ -88,6 +88,9 @@ var CursorPosition = Class.create();
 CursorPosition.prototype = 
 {
     defaultTemplate: 'x: {x}, y: {y}',
+    
+    /* the units to display distances in */
+    units: Fusion.UNKNOWN,
 
     initialize : function(oCommand)
     {
@@ -106,6 +109,11 @@ CursorPosition.prototype =
         this.precision = oCommand.oxmlNode.getNodeText('Precision');
         this.precision = this.precision == '' ? -1 : this.precision;
         
+        var unit = oCommand.oxmlNode.getNodeText('Units');
+        if (unit != '') {
+            this.units = Fusion.unitFromName(unit);
+        }
+        
         this.getMap().observeEvent('mousemove', this.mouseMove.bind(this));
         this.getMap().observeEvent('mouseout', this.mouseOut.bind(this));
         
@@ -116,16 +124,24 @@ CursorPosition.prototype =
     },
     
     mouseMove: function(e) {
-        var p = this.getMap().getEventPosition(e);
         var map = this.getMap();
-        var loc = map.pixToGeo(p.x, p.y);
-        if (loc) {
-            if (this.precision >= 0) {
-                var factor = Math.pow(10,this.precision);
-                loc.x = Math.round(loc.x * factor)/factor;
-                loc.y = Math.round(loc.y * factor)/factor;
+        var p = map.getEventPosition(e);
+        if (this.units != Fusion.PIXELS) {
+            p = map.pixToGeo(p.x, p.y);
+            if (p) {
+                if (this.units != Fusion.UNKNOWN) {
+                    p.x = Fusion.fromMeter(this.units, p.x * map._fMetersperunit);
+                    p.y = Fusion.fromMeter(this.units, p.y * map._fMetersperunit);
+                }
+                if (this.precision >= 0) {
+                    var factor = Math.pow(10,this.precision);
+                    p.x = Math.round(p.x * factor)/factor;
+                    p.y = Math.round(p.y * factor)/factor;
+                }
             }
-            this.domObj.innerHTML = this.template.replace('{x}',loc.x).replace('{y}',loc.y);
         }
+        var unitAbbr = Fusion.unitAbbr(this.units);
+        
+        this.domObj.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
     }
 };

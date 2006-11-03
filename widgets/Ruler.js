@@ -8,11 +8,15 @@
  * ********************************************************************
  * ********************************************************************
  *
+ * The Ruler widget allows the user to measure distances on the map in
+ * one or more segments.
+ *
+ * Distances for the current segment and the total distance are advertised
+ * through the RULER_DISTANCE_CHANGED event.
  * 
  * **********************************************************************/
 Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxCanvasTool.js');
-//Fusion.require('widgets/excanvas.js');
 
 var RULER_DISTANCE_CHANGED;
 
@@ -27,7 +31,7 @@ Ruler.prototype =
     lastDistance: 0,
     
     /* the units to display distances in */
-    units: null,
+    units: Fusion.UNKNOWN,
     
     initialize : function(oCommand)
     {
@@ -38,31 +42,10 @@ Ruler.prototype =
         this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];
-        
-        var u = oCommand.oxmlNode.getNodeText('Units');
-        switch(u.toLowerCase()) {
-            case 'inches':
-                this.units = Fusion.INCHES;
-                break;
-            case 'feet':
-                this.units = Fusion.FEET;
-                break;
-            case 'miles':
-                this.units = Fusion.MILES;
-                break;
-            case 'meters':
-                this.units = Fusion.METERS;
-                break;
-            case 'kilometers':
-                this.units = Fusion.KILOMETERS;
-                break;
-            case 'degrees':
-                this.units = Fusion.DEGREES;
-                break;
-            default:
-                this.units = Fusion.METERS;
+        var unit = oCommand.oxmlNode.getNodeText('Units');
+        if (unit != '') {
+            this.units = Fusion.unitFromName();
         }
-        console.log( 'Ruler default units are ' + Fusion.unitName(this.units));
         this.registerEventID(RULER_DISTANCE_CHANGED);
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         
@@ -195,8 +178,12 @@ Ruler.prototype =
     
     measureSegment: function(seg) {
         var map = this.getMap();
-        return Math.sqrt(Math.pow(seg.to.x-seg.from.x,2) +
-                         Math.pow(seg.to.y-seg.from.y,2)) * map._fMetersperunit;
+        var dist = Math.sqrt(Math.pow(seg.to.x-seg.from.x,2) +
+                         Math.pow(seg.to.y-seg.from.y,2));
+        if (this.units != Fusion.PIXELS) {
+            dist = dist * map._fMetersperunit;
+        }
+        return dist;
     },
     
     updateDistance: function(seg) {
@@ -206,7 +193,7 @@ Ruler.prototype =
     
     getLastDistance: function() {
         var d = this.lastDistance;
-        if (this.units != Fusion.METERS) {
+        if (this.units != Fusion.PIXELS && this.units != Fusion.METERS) {
             d = Fusion.toMeter(this.units,d);
         }
         return d;
@@ -214,7 +201,7 @@ Ruler.prototype =
     
     getDistance: function() {
         var totalDistance = this.cumulativeDistance + this.lastDistance;
-        if (this.units != Fusion.METERS) {
+        if (this.units != Fusion.PIXELS && this.units != Fusion.METERS) {
             totalDistance = Fusion.toMeter(this.units,totalDistance);
         }
         return totalDistance;
