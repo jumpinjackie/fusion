@@ -77,6 +77,7 @@ var Legend = Class.create();
 Legend.prototype = 
 {
     currentNode: null,
+    bIsDrawn: false,
     initialize : function(oCommand)
     {
         
@@ -97,9 +98,6 @@ Legend.prototype =
         this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;
         
         this.selectedLayer = null;
-
-        this.mapLayers = [];
-        this.mapGroups = [];
         
         this.oTree = new JxTree(this._oDomObj);
         
@@ -119,21 +117,10 @@ Legend.prototype =
         }
         
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.update.bind(this));
-        this.getMap().registerForEvent(MAP_LOADED, this.getLayers.bind(this));
+        this.getMap().registerForEvent(MAP_LOADED, this.draw.bind(this));
         
         //this.getLayers();
     },
-    
-    /**
-     * Calls the server-side script which provides XML for legend content.
-     */
-    getLayers: function()
-    {
-        var s = 'server/' + Fusion.getScriptLanguage() + '/MGLegend.' + Fusion.getScriptLanguage();
-        var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this.getMap()._sMapname, onComplete: this.draw.bind(this)};
-        Fusion.ajaxRequest(s, params);
-    },
-    
     /**
      * the map state has become invalid in some way (layer added, removed,
      * ect).  For now, we just re-request the map state from the server
@@ -142,7 +129,7 @@ Legend.prototype =
      * TODO: more fine grained updating of the legend would be nice
      */
     invalidate: function() {
-        this.getLayers();
+        this.draw();
     },
     
     /**
@@ -154,53 +141,67 @@ Legend.prototype =
      */
     draw: function(r)
     {
+        console.log('draw');
+        this.bIsDrawn = false;
         this.clear();
-        if (r.responseXML)
-        {
-            var root = new DomNode(r.responseXML.childNodes[0]);
-            var groupNode = root.findFirstNode('group');
-            while(groupNode) {
-                var group = new MGGroup(groupNode, this.getMap(), this);
-                if (group.parentUniqueId != '') {
-                    group.parent = this.mapGroups[group.parentUniqueId];
-                } else {
-                    group.parent = null;
-                }
-
-                this.mapGroups[group.uniqueId] = group;
-                
-                if (group.displayInLegend && group.visible) {
-                    if (group.parent) {
-                        group.parent.treeItem.append(group.treeItem)
-                    } else {
-                        this.oRoot.append(group.treeItem);
-                    }
-                
-                    group.checkBox.checked = group.visible?true:false;
-                }
-                
-                groupNode = root.findNextNode('group');
-            }
-            var layerNode = root.findFirstNode('layer');
-            while(layerNode) {
-                var layer = new MGLayer(layerNode, this.getMap(), this);
-                layer.themeIcon = this.imgLayerThemeIcon;
-                layer.disabledLayerIcon = this.imgDisabledLayerIcon;
-                if (layer.parentGroup != '') {
-                    layer.groupItem = this.mapGroups[layer.parentGroup].treeItem;
-                } else {
-                    layer.groupItem = this.oRoot;
-                }
-                
-                this.mapLayers.push(layer);
-                layerNode = root.findNextNode('layer');
-            }
+        var map = this.getMap();
+        for (var i=0; i<map.layerRoot.groups.length; i++) {
+            console.log('draw group ' + map.layerRoot.groups[i].groupName);
+            this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
         }
+        for (var i=0; i<map.layerRoot.layers.length; i++) {
+            console.log('draw layer ' + map.layerRoot.layers[i].layerName);
+            this.processMapLayer(map.layerRoot.layers[i], this.oRoot);
+        }
+        this.bIsDrawn = true;
         this.update();
     },
     
+    processMapGroup: function(group, folder) {
+        console.log('processing map group ' + group.groupName);
+        if (group.displayInLegend) {
+            console.log('group in legend');
+            /* make a 'namespace' on the group object to store legend-related info */
+            group.legend = {};
+            var opt = {};
+            opt.label = group.legendLabel;
+            opt.data = group;
+            opt.isOpen = group.expandInLegend;
+            group.legend.treeItem = new JxTreeFolder(opt);
+            folder.append(group);
+            var checkBox = document.createElement('input');
+            checkBox.type = 'checkbox';
+            checkBox.checked = group.visible?true:false;
+            Event.observe(checkBox, 'click', this.stateChanged.bind(this));
+            group.legend.treeItem.domObj.insertBefore(checkBox, group.legend.treeItem.domObj.childNodes[1]);
+            if (this.oSelectionListener) {
+                group.legend.treeItem.addSelectionListener(this);
+            }
+            for (var i=0; i<group.groups.length; i++) {
+                console.log('draw group ' + group.groups[i].groupName);
+                this.processMapGroup(group.groups[i], group.legend.treeItem);
+            }
+            for (var i=0; i<group.layers.length; i++) {
+                console.log('draw layer ' + group.layers[i].layerName);
+                this.processMapLayer(group.layers[i], group.legend.treeItem);
+            }
+        }
+    },
+    
+    processMapLayer: function(layer, folder) {
+        /* make a 'namespace' on the layer object to store legend-related info */
+        console.log('processing map layer ' + layer.layerName);
+        layer.legend = {};
+        layer.legend.parentItem = folder;
+        layer.legend.checkBox = document.createElement('input');
+        layer.legend.checkBox.type = 'checkbox';
+        layer.legend.currentRange = null;
+    },
+
     update: function() {
-        window.setTimeout(this._update.bind(this), 1);
+        if (this.bIsDrawn) {
+            window.setTimeout(this._update.bind(this), 1);
+        }
     },
     
     /**
@@ -209,8 +210,12 @@ Legend.prototype =
     _update: function() {
         //console.log('Legend.update');
         var currentScale = this.getMap().getScale();
-        for (var i=0; i<this.mapLayers.length; i++) {
-            this.mapLayers[i].updateTreeItemForScale(currentScale);
+        var map = this.getMap();
+        for (var i=0; i<map.layerRoot.groups.length; i++) {
+            this.updateGroupLayers(map.layerRoot.groups[i], currentScale);
+        }
+        for (var i=0; i<map.layerRoot.layers.length; i++) {
+            this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
     },
     
@@ -221,8 +226,6 @@ Legend.prototype =
         while (this.oRoot.nodes.length > 0) {
             this.oRoot.remove(this.oRoot.nodes[0]);
         }
-        this.mapGroups = [];
-        this.mapLayers = [];
     },
     selectionChanged: function(o) {
         if (this.currentNode) {
@@ -236,253 +239,117 @@ Legend.prototype =
         } else {
             this.getMap().setActiveLayer(o.data);
         }
-    }
-};
-
-var MGGroup = Class.create();
-MGGroup.prototype = {
-    oMap: null,
-    oSelectionListener: null,
-    initialize: function(groupNode, oMap, selectionListener) {
-        this.oSelectionListener = selectionListener;
-        this.oMap = oMap;
-        this.name = groupNode.getNodeText('groupname');
-        this.legendLabel = groupNode.getNodeText('legendlabel');
-        this.uniqueId = groupNode.getNodeText('uniqueid');
-        this.parentUniqueId = groupNode.getNodeText('parentuniqueid');
-        this.groupType = groupNode.getNodeText('layergrouptype');
-        this.displayInLegend = groupNode.getNodeText('displayinlegend') == 'true' ? true : false;
-        this.expandInLegend = groupNode.getNodeText('expandinlegend') == 'true' ? true : false;
-        this.visible = groupNode.getNodeText('visible') == 'true' ? true : false;
-        this.actuallyVisible = groupNode.getNodeText('actuallyvisible') == 'true' ? true : false;
-        if (this.displayInLegend) {
-            var opt = {};
-            opt.label = this.legendLabel;
-            opt.data = this;
-            opt.isOpen = this.expandInLegend;
-            this.treeItem = new JxTreeFolder(opt);
-            this.checkBox = document.createElement('input');
-            this.checkBox.type = 'checkbox';
-            this.checkBox.checked = this.visible?true:false;
-            Event.observe(this.checkBox, 'click', this.stateChanged.bind(this));
-            this.treeItem.domObj.insertBefore(this.checkBox, this.treeItem.domObj.childNodes[1]);
-            if (this.oSelectionListener) {
-                this.treeItem.addSelectionListener(this.oSelectionListener);
-            }
-        } else {
-            this.treeItem = null;
-        }
     },
-    stateChanged: function() {
-        if (this.checkBox.checked) {
-            this.oMap.showGroup(this.uniqueId);
-        } else {
-            this.oMap.hideGroup(this.uniqueId);
+    updateGroupLayers: function(group, fScale) {
+        for (var i=0; i<group.groups.length; i++) {
+            this.updateGroupLayers(group.groups[i], fScale);
         }
-    }
-};
-
-var MGLayer = Class.create();
-MGLayer.prototype = {
-    
-    scaleRanges: null,
-    
-    oMap: null,
-    
-    currentRange: -1,
-    
-    bFirstDisplay: null,
-    
-    oSelectionListener: null,
-    
-    initialize: function(layerNode, oMap, selectionListener) {
-        this.oSelectionListener = selectionListener;
-        this.oMap = oMap;
-        this.layerName = layerNode.getNodeText('layername');
-        this.uniqueId = layerNode.getNodeText('uniqueid');
-        this.resourceId = layerNode.getNodeText('rid');
-        this.legendLabel = layerNode.getNodeText('legendlabel');
-        this.selectable = layerNode.getNodeText('selectable') == 'true' ? true : false;
-        this.layerType = layerNode.getNodeText('layertype');
-        this.displayInLegend = layerNode.getNodeText('displayinlegend') == 'true' ? true : false;
-        this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
-        this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
-        this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
-        //TODO: make this configurable
-        this.themeIcon = 'images/tree_theme.png';
-        this.disabledLayerIcon = 'images/tree_layer.png';
-        
-        this.parentGroup = layerNode.getNodeText('parentgroup');
-        this.scaleRanges = [];
-        var scaleRangeNode = layerNode.findFirstNode('scalerange');
-        while(scaleRangeNode) {
-            var scaleRange = new MGScaleRange(scaleRangeNode);
-            this.scaleRanges.push(scaleRange);
-            scaleRangeNode = layerNode.findNextNode('scalerange');
-        }
-        this.checkBox = document.createElement('input');
-        this.checkBox.type = 'checkbox';
-        this.checkBox.checked = this.visible?true:false;
-        
-        this.bFirstDisplay = true;
-        Event.observe(this.checkBox, 'click', this.stateChanged.bind(this));
+        for (var i=0; i<group.layers.length; i++) {
+            this.updateLayer(group.layers[i], fScale);
+        }    
     },
-    getScaleRange: function(fScale) {
-        for (var i=0; i<this.scaleRanges.length; i++) {
-            if (this.scaleRanges[i].contains(fScale)) {
-                return this.scaleRanges[i];
-            }
-        }
-        return null;
-    },
-    updateTreeItemForScale: function(fScale) {
-        if (!this.displayInLegend) {
+    updateLayer: function(layer, fScale) {
+        var bFirstDisplay = false;
+        if (!layer.displayInLegend) {
             return;
         }
-        var range = this.getScaleRange(fScale);
-        if (range == this.currentRange && !this.bFirstDisplay) {
+        var range = layer.getScaleRange(fScale);
+        if (range == layer.legend.currentRange && layer.legend.treeItem) {
             return;
         }
         
-        this.currentRange = range;
+        layer.currentRange = range;
         if (range != null) {
             
-            this.checkBox.disabled = false;
+            layer.legend.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
-                if (!this.treeItem) {
-                    this.treeItem = this.createFolderItem();
-                    this.groupItem.append(this.treeItem);
-                } else if (this.treeItem instanceof JxTreeItem) {
-                    this.clearTreeItem();
-                    this.treeItem = this.createFolderItem();
-                    this.groupItem.append(this.treeItem);
+                if (!layer.legend.treeItem) {
+                    bFirstDisplay = true;
+                    layer.legend.treeItem = this.createFolderItem(layer);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
+                } else if (layer.legend.treeItem instanceof JxTreeItem) {
+                    this.clearTreeItem(layer);
+                    layer.legend.treeItem = this.createFolderItem(layer);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {
-                    while(this.treeItem.nodes.length > 0) {
-                        this.treeItem.remove(this.treeItem.nodes[0]);
+                    while(layer.legend.treeItem.nodes.length > 0) {
+                        layer.legend.treeItem.remove(layer.legend.treeItem.nodes[0]);
                     }
                 }
                 for (var i=0; i<range.styles.length; i++) {
-                    var item = this.createTreeItem(range.styles[i].label, 
+                    var item = this.createTreeItem(range.styles[i], 
                                                range.styles[i], fScale, false);
-                    this.treeItem.append(item);
+                    layer.legend.treeItem.append(item);
                 }
             } else {
                 
                 //tree item is really a tree item
-                if (!this.treeItem) {
-                    this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
-                    this.groupItem.append(this.treeItem);                    
-                } else if (this.treeItem instanceof JxTreeFolder) {
-                    this.clearTreeItem();
-                    this.treeItem = this.createTreeItem(this.legendLabel, range.styles[0], fScale, true);
-                    this.groupItem.append(this.treeItem);
+                if (!layer.legend.treeItem) {
+                    bFirstDisplay = true;
+                    layer.legend.treeItem = this.createTreeItem(layer, range.styles[0], fScale, true);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                    
+                } else if (layer.legend.treeItem instanceof JxTreeFolder) {
+                    this.clearTreeItem(layer);
+                    layer.legend.treeItem = this.createTreeItem(layer, range.styles[0], fScale, true);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {                    
-                    this.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, this.resourceId);
+                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer.resourceId);
                 }
             }
             
         } else {
-            this.checkBox.disabled = true;
-            this.clearTreeItem();
-            this.treeItem = this.createTreeItem(this.legendLabel, null, null, true);
-            this.groupItem.append(this.treeItem);
+            layer.legend.checkBox.disabled = true;
+            layer.legend.clearTreeItem();
+            layer.legend.treeItem = this.createTreeItem(layer.legendLabel, null, null, true);
+            layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
         }
-        if (this.bFirstDisplay) {
-            this.bFirstDisplay = false;
-            this.checkBox.checked = this.visible?true:false;
+        if (bFirstDisplay) {
+            layer.legend.checkBox.checked = layer.visible?true:false;
         }
     },
-    createFolderItem: function() {
+    createFolderItem: function(layer) {
         var opt = {};
-        opt.label = this.legendLabel == '' ? '&nbsp;' : this.legendLabel;
-        opt.data = this;
-        opt.isOpen = this.expandInLegend;
-        opt.imgTreeFolderOpen = this.themeIcon;
-        opt.imgTreeFolder = this.themeIcon;
+        opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        opt.data = layer;
+        opt.isOpen = layer.expandInLegend;
+        opt.imgTreeFolderOpen = layer.themeIcon;
+        opt.imgTreeFolder = layer.themeIcon;
         var folder = new JxTreeFolder(opt);
-        folder.domObj.insertBefore(this.checkBox, folder.domObj.childNodes[1]);
+        folder.domObj.insertBefore(layer.legend.checkBox, folder.domObj.childNodes[1]);
         
-        if (this.oSelectionListener) {
-            folder.addSelectionListener(this.oSelectionListener);
-        }
+        folder.addSelectionListener(this);
         
         return folder;
     },
-    createTreeItem: function(label, style, scale, bCheckBox) {
+    createTreeItem: function(layer, style, scale, bCheckBox) {
         var opt = {}
-        opt.label = label == '' ? '&nbsp;' : label;
-        opt.data = this;
+        opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        opt.data = layer;
         if (!style) {
-            opt.imgIcon = this.disabledLayerIcon;
+            opt.imgIcon = layer.disabledLayerIcon;
         } else {
-            opt.imgIcon = style.getLegendImageURL(scale, this.resourceId);
+            opt.imgIcon = style.getLegendImageURL(scale, layer.resourceId);
         }
         
         var item = new JxTreeItem(opt);
         
         if (bCheckBox) {
-            item.domObj.insertBefore(this.checkBox, item.domObj.childNodes[1]);
+            item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
         }
 
-        if (this.oSelectionListener) {
-            item.addSelectionListener(this.oSelectionListener);
-        }
+        item.addSelectionListener(this);
         
         return item;
     },
-    clearTreeItem: function() {
-        if (this.treeItem) {
-            this.treeItem.parent.remove(this.treeItem);
-            this.treeItem.finalize();
-            this.treeItem = null;
+    clearTreeItem: function(layer) {
+        if (layer.legend.treeItem) {
+            layer.legend.treeItem.parent.remove(layer.legend.treeItem);
+            layer.legend.treeItem.finalize();
+            layer.legend.treeItem = null;
         }
     },
     stateChanged: function() {
-        if (this.checkBox.checked) {
-            this.oMap.showLayer(this.uniqueId);
-        } else {
-            this.oMap.hideLayer(this.uniqueId);
-        }
-    }
-}
-
-var MGScaleRange = Class.create();
-MGScaleRange.prototype = {
-    styles: null,
-    initialize: function(scaleRangeNode) {
-        this.minScale = scaleRangeNode.getNodeText('minscale');
-        this.maxScale = scaleRangeNode.getNodeText('maxscale');
-        this.styles = [];
-        styleItemNode = scaleRangeNode.findFirstNode('styleitem');
-        while(styleItemNode) {
-            var styleItem = new MGStyleItem(styleItemNode);
-            this.styles.push(styleItem);
-            styleItemNode = scaleRangeNode.findNextNode('styleitem');
-        }
-    },
-    contains: function(fScale) {
-        return fScale >= this.minScale && fScale <= this.maxScale;
-    }
-};
-
-var MGStyleItem = Class.create();
-MGStyleItem.prototype = {
-    initialize: function(styleItemNode) {
-        this.label = styleItemNode.getNodeText('label');
-        this.filter = styleItemNode.getNodeText('filter');
-        this.geometryType = styleItemNode.getNodeText('geomtype');
-        if (this.geometryType == '') {
-            this.geometryType = -1;
-        }
-        this.categoryIndex = styleItemNode.getNodeText('categoryindex');
-        if (this.categoryindex == '') {
-            this.categoryindex = -1;
-        }
-    },
-    getLegendImageURL: function(fScale, resourceID) {
-        var url = Fusion.getWebAgentURL();
-        var session = Fusion.getSessionID();
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+        console.log('stateChanged');
     }
 };

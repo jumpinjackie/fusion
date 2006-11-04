@@ -124,6 +124,32 @@ MGMap.prototype =
                             parseFloat(oNode.getNodeText('maxy'))];
 
             this.setExtents(aExtents);
+            
+            var groupNode = oNode.findFirstNode('group');
+            while(groupNode) {
+                var group = new MGGroup(groupNode, this);
+                var parent
+                if (group.parentUniqueId != '') {
+                    parent = this.layerRoot.findGroup(group.parentUniqueId);
+                } else {
+                    parent = this.layerRoot;
+                }
+                parent.addGroup(group);
+
+                groupNode = oNode.findNextNode('group');
+            }
+            var layerNode = oNode.findFirstNode('layer');
+            while(layerNode) {
+                var layer = new MGLayer(layerNode, this);
+                var parent;
+                if (layer.parentGroup != '') {
+                    parent = this.layerRoot.findGroup(layer.parentGroup);
+                } else {
+                    parent = this.layerRoot;
+                }
+                parent.addLayer(layer);
+                layerNode = oNode.findNextNode('layer');
+            }
             //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
         } else {
@@ -568,4 +594,105 @@ MGSelectionObjectLayer.prototype = {
     }
 };
     
+var MGGroup = Class.create();
+MGGroup.prototype = {
+    oMap: null,
+    initialize: function(groupNode, oMap) {
+        this.uniqueId = groupNode.getNodeText('uniqueid');
+        Object.inheritFrom(this, GxGroup.prototype, [this.uniqueId]);
+        this.oMap = oMap;
+        this.groupName = groupNode.getNodeText('groupname');
+        this.legendLabel = groupNode.getNodeText('legendlabel');
+        this.parentUniqueId = groupNode.getNodeText('parentuniqueid');
+        this.groupType = groupNode.getNodeText('layergrouptype');
+        this.displayInLegend = groupNode.getNodeText('displayinlegend') == 'true' ? true : false;
+        this.expandInLegend = groupNode.getNodeText('expandinlegend') == 'true' ? true : false;
+        this.visible = groupNode.getNodeText('visible') == 'true' ? true : false;
+        this.actuallyVisible = groupNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+    }
+};
+
+var MGLayer = Class.create();
+MGLayer.prototype = {
+    
+    scaleRanges: null,
+    
+    oMap: null,
+    
+    initialize: function(layerNode, oMap) {
+        this.uniqueId = layerNode.getNodeText('uniqueid');
+        Object.inheritFrom(this, GxLayer.prototype, [this.uniqueId]);
+        this.oMap = oMap;
+        this.layerName = layerNode.getNodeText('layername');
+        this.uniqueId = layerNode.getNodeText('uniqueid');
+        this.resourceId = layerNode.getNodeText('rid');
+        this.legendLabel = layerNode.getNodeText('legendlabel');
+        this.selectable = layerNode.getNodeText('selectable') == 'true' ? true : false;
+        this.layerType = layerNode.getNodeText('layertype');
+        this.displayInLegend = layerNode.getNodeText('displayinlegend') == 'true' ? true : false;
+        this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
+        this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
+        this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+        //TODO: make this configurable
+        this.themeIcon = 'images/tree_theme.png';
+        this.disabledLayerIcon = 'images/tree_layer.png';
+        
+        this.parentGroup = layerNode.getNodeText('parentgroup');
+        this.scaleRanges = [];
+        var scaleRangeNode = layerNode.findFirstNode('scalerange');
+        while(scaleRangeNode) {
+            var scaleRange = new MGScaleRange(scaleRangeNode);
+            this.scaleRanges.push(scaleRange);
+            scaleRangeNode = layerNode.findNextNode('scalerange');
+        }
+    },
+    getScaleRange: function(fScale) {
+        for (var i=0; i<this.scaleRanges.length; i++) {
+            if (this.scaleRanges[i].contains(fScale)) {
+                return this.scaleRanges[i];
+            }
+        }
+        return null;
+    }
+};
+
+var MGScaleRange = Class.create();
+MGScaleRange.prototype = {
+    styles: null,
+    initialize: function(scaleRangeNode) {
+        this.minScale = scaleRangeNode.getNodeText('minscale');
+        this.maxScale = scaleRangeNode.getNodeText('maxscale');
+        this.styles = [];
+        styleItemNode = scaleRangeNode.findFirstNode('styleitem');
+        while(styleItemNode) {
+            var styleItem = new MGStyleItem(styleItemNode);
+            this.styles.push(styleItem);
+            styleItemNode = scaleRangeNode.findNextNode('styleitem');
+        }
+    },
+    contains: function(fScale) {
+        return fScale >= this.minScale && fScale <= this.maxScale;
+    }
+};
+
+var MGStyleItem = Class.create();
+MGStyleItem.prototype = {
+    initialize: function(styleItemNode) {
+        this.legendLabel = styleItemNode.getNodeText('label');
+        this.filter = styleItemNode.getNodeText('filter');
+        this.geometryType = styleItemNode.getNodeText('geomtype');
+        if (this.geometryType == '') {
+            this.geometryType = -1;
+        }
+        this.categoryIndex = styleItemNode.getNodeText('categoryindex');
+        if (this.categoryindex == '') {
+            this.categoryindex = -1;
+        }
+    },
+    getLegendImageURL: function(fScale, resourceID) {
+        var url = Fusion.getWebAgentURL();
+        var session = Fusion.getSessionID();
+        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+    }
+};
 
