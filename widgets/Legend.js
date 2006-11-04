@@ -168,11 +168,11 @@ Legend.prototype =
             opt.isOpen = group.expandInLegend;
             group.legend.treeItem = new JxTreeFolder(opt);
             folder.append(group.legend.treeItem);
-            var checkBox = document.createElement('input');
-            checkBox.type = 'checkbox';
-            checkBox.checked = group.visible?true:false;
-            Event.observe(checkBox, 'click', this.stateChanged.bind(this));
-            group.legend.treeItem.domObj.insertBefore(checkBox, group.legend.treeItem.domObj.childNodes[1]);
+            group.legend.checkBox = document.createElement('input');
+            group.legend.checkBox.type = 'checkbox';
+            group.legend.checkBox.checked = group.visible?true:false;
+            Event.observe(group.legend.checkBox, 'click', this.stateChanged.bind(this, group));
+            group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
             if (this.oSelectionListener) {
                 group.legend.treeItem.addSelectionListener(this);
             }
@@ -191,6 +191,7 @@ Legend.prototype =
         layer.legend.parentItem = folder;
         layer.legend.checkBox = document.createElement('input');
         layer.legend.checkBox.type = 'checkbox';
+        Event.observe(layer.legend.checkBox, 'click', this.stateChanged.bind(this, layer));
         layer.legend.currentRange = null;
     },
 
@@ -233,6 +234,7 @@ Legend.prototype =
         if (o.data instanceof MGGroup) {
             this.getMap().setActiveLayer(null);
         } else {
+            console.log('setting active layer: ' + o.data);
             this.getMap().setActiveLayer(o.data);
         }
     },
@@ -349,7 +351,14 @@ Legend.prototype =
             layer.legend.treeItem = null;
         }
     },
-    stateChanged: function() {
+    stateChanged: function(obj) {
         console.log('stateChanged');
+        if (obj.legend && obj.legend.checkBox) {
+            if (obj.legend.checkBox.checked) {
+                obj.show();
+            } else {
+                obj.hide();
+            }
+        }
     }
 };

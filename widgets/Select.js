@@ -63,6 +63,7 @@ Select.prototype =
     enable: function() {
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
+            console.log(layer);
             if (layer) { 
                 GxButtonBase.prototype.enable.apply(this, []);
             } else {

@@ -384,36 +384,36 @@ MGMap.prototype =
 
     },
     showLayer: function( sLayer ) {
-        //console.log('MGMap.showLayer('+sLayer+')');
+        console.log('MGMap.showLayer('+sLayer+')');
         this.aShowLayers.push(sLayer);
         this.drawMap();
     },
     hideLayer: function( sLayer ) {
-        //console.log('MGMap.hideLayer('+sLayer+')');
+        console.log('MGMap.hideLayer('+sLayer+')');
         this.aHideLayers.push(sLayer);
         this.drawMap();
     },
     showGroup: function( sGroup ) {
-        //console.log('MGMap.showGroup('+sGroup+')');
+        console.log('MGMap.showGroup('+sGroup+')');
         this.aShowGroups.push(sGroup);
         this.drawMap();
     },
     hideGroup: function( sGroup ) {
-        //console.log('MGMap.hideGroup('+sGroup+')');
+        console.log('MGMap.hideGroup('+sGroup+')');
         this.aHideGroups.push(sGroup);
         this.drawMap();
     },
     refreshLayer: function( sLayer ) {
-        //console.log('MGMap.refreshLayer('+sLayer+')');
+        console.log('MGMap.refreshLayer('+sLayer+')');
         this.aRefreshLayers.push(sLayer);        
         this.drawMap();
     },
-    setActiveLayer: function( sLayer ) {
-        this.sActiveLayer = sLayer;
-        this.triggerEvent(MGMAP_ACTIVE_LAYER_CHANGED, sLayer);
+    setActiveLayer: function( oLayer ) {
+        this.oActiveLayer = oLayer;
+        this.triggerEvent(MGMAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
     getActiveLayer: function() {
-        return this.sActiveLayer;
+        return this.oActiveLayer;
     },
 
     getSessionId: function() {
@@ -609,6 +609,20 @@ MGGroup.prototype = {
         this.expandInLegend = groupNode.getNodeText('expandinlegend') == 'true' ? true : false;
         this.visible = groupNode.getNodeText('visible') == 'true' ? true : false;
         this.actuallyVisible = groupNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+    },
+    
+    show: function() {
+        this.oMap.showGroup(this.groupName);
+        this.visible = true;
+    },
+    
+    hide: function() {
+        this.oMap.hideGroup(this.groupName);
+        this.visible = false;
+    },
+    
+    isVisible: function() {
+        return this.visible;
     }
 };
 
@@ -653,6 +667,20 @@ MGLayer.prototype = {
             }
         }
         return null;
+    },
+
+    show: function() {
+        this.oMap.showLayer(this.layerName);
+        this.visible = true;
+    },
+
+    hide: function() {
+        this.oMap.hideLayer(this.layerName);
+        this.visible = false;
+    },
+
+    isVisible: function() {
+        return this.visible;
     }
 };
 
