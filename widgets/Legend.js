@@ -141,7 +141,6 @@ Legend.prototype =
      */
     draw: function(r)
     {
-        console.log('draw');
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();
@@ -150,11 +149,9 @@ Legend.prototype =
             map.layerRoot.legend.treeItem = this.oRoot;
         }
         for (var i=0; i<map.layerRoot.groups.length; i++) {
-            console.log('draw group ' + map.layerRoot.groups[i].groupName);
             this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
         }
         for (var i=0; i<map.layerRoot.layers.length; i++) {
-            console.log('draw layer ' + map.layerRoot.layers[i].layerName);
             this.processMapLayer(map.layerRoot.layers[i], this.oRoot);
         }
         this.bIsDrawn = true;
@@ -162,9 +159,7 @@ Legend.prototype =
     },
     
     processMapGroup: function(group, folder) {
-        console.log('processing map group ' + group.groupName);
         if (group.displayInLegend) {
-            console.log('group in legend');
             /* make a 'namespace' on the group object to store legend-related info */
             group.legend = {};
             var opt = {};
@@ -172,7 +167,7 @@ Legend.prototype =
             opt.data = group;
             opt.isOpen = group.expandInLegend;
             group.legend.treeItem = new JxTreeFolder(opt);
-            folder.append(group);
+            folder.append(group.legend.treeItem);
             var checkBox = document.createElement('input');
             checkBox.type = 'checkbox';
             checkBox.checked = group.visible?true:false;
@@ -182,11 +177,9 @@ Legend.prototype =
                 group.legend.treeItem.addSelectionListener(this);
             }
             for (var i=0; i<group.groups.length; i++) {
-                console.log('draw group ' + group.groups[i].groupName);
                 this.processMapGroup(group.groups[i], group.legend.treeItem);
             }
             for (var i=0; i<group.layers.length; i++) {
-                console.log('draw layer ' + group.layers[i].layerName);
                 this.processMapLayer(group.layers[i], group.legend.treeItem);
             }
         }
@@ -194,7 +187,6 @@ Legend.prototype =
     
     processMapLayer: function(layer, folder) {
         /* make a 'namespace' on the layer object to store legend-related info */
-        console.log('processing map layer ' + layer.layerName);
         layer.legend = {};
         layer.legend.parentItem = folder;
         layer.legend.checkBox = document.createElement('input');
