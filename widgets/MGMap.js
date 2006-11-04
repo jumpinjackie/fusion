@@ -612,12 +612,12 @@ MGGroup.prototype = {
     },
     
     show: function() {
-        this.oMap.showGroup(this.groupName);
+        this.oMap.showGroup(this.uniqueId);
         this.visible = true;
     },
     
     hide: function() {
-        this.oMap.hideGroup(this.groupName);
+        this.oMap.hideGroup(this.uniqueId);
         this.visible = false;
     },
     
@@ -670,12 +670,12 @@ MGLayer.prototype = {
     },
 
     show: function() {
-        this.oMap.showLayer(this.layerName);
+        this.oMap.showLayer(this.uniqueId);
         this.visible = true;
     },
 
     hide: function() {
-        this.oMap.hideLayer(this.layerName);
+        this.oMap.hideLayer(this.uniqueId);
         this.visible = false;
     },
 
