@@ -145,6 +145,10 @@ Legend.prototype =
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();
+        if (!map.layerRoot.legend) {
+            map.layerRoot.legend = {};
+            map.layerRoot.legend.treeItem = this.oRoot;
+        }
         for (var i=0; i<map.layerRoot.groups.length; i++) {
             console.log('draw group ' + map.layerRoot.groups[i].groupName);
             this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
@@ -278,7 +282,7 @@ Legend.prototype =
                     }
                 }
                 for (var i=0; i<range.styles.length; i++) {
-                    var item = this.createTreeItem(range.styles[i], 
+                    var item = this.createTreeItem(layer, 
                                                range.styles[i], fScale, false);
                     layer.legend.treeItem.append(item);
                 }
@@ -323,8 +327,12 @@ Legend.prototype =
         return folder;
     },
     createTreeItem: function(layer, style, scale, bCheckBox) {
-        var opt = {}
-        opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        var opt = {};
+        if (bCheckBox) {
+            opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        } else {
+            opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        }
         opt.data = layer;
         if (!style) {
             opt.imgIcon = layer.disabledLayerIcon;
