@@ -1,6 +1,6 @@
 <?php
 //------------------------------------------------------------------------------
-function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService, $geomType) {
+function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService, $geomType, $schema="") {
     //create feature source
     $classDef = new MgClassDefinition();
 
@@ -21,6 +21,8 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
     $classDef->GetProperties()->Add($prop);
 
     //Create the schema
+    if ($schema == "")
+      $schema = "DrawToolSchema";
     $schema = new MgFeatureSchema("DrawToolSchema", "Temporary draw layer schema");
     $schema->GetClasses()->Add($classDef);
 
