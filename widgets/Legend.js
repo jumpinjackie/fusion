@@ -193,6 +193,11 @@ Legend.prototype =
         layer.legend.checkBox.type = 'checkbox';
         Event.observe(layer.legend.checkBox, 'click', this.stateChanged.bind(this, layer));
         layer.legend.currentRange = null;
+        layer.registerForEvent(LAYER_PROPERTY_CHANGED, this.layerPropertyChanged.bind(this));
+    },
+    
+    layerPropertyChanged: function(eventID, layer) {
+        layer.legend.checkBox.checked = layer.isVisible();
     },
 
     update: function() {

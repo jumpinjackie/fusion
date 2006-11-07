@@ -671,12 +671,12 @@ MGLayer.prototype = {
 
     show: function() {
         this.oMap.showLayer(this.uniqueId);
-        this.visible = true;
+        this.set('visible', true);
     },
 
     hide: function() {
         this.oMap.hideLayer(this.uniqueId);
-        this.visible = false;
+        this.set('visible',false);
     },
 
     isVisible: function() {
@@ -723,4 +723,3 @@ MGStyleItem.prototype = {
         return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };
-
