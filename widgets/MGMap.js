@@ -647,6 +647,7 @@ MGLayer.prototype = {
         this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
         this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
         this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+        this.editable = layerNode.getNodeText('editable') == 'true' ? true : false;
         //TODO: make this configurable
         this.themeIcon = 'images/tree_theme.png';
         this.disabledLayerIcon = 'images/tree_layer.png';

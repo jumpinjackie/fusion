@@ -127,6 +127,7 @@ try
         echo '<selectable>'.BooleanToString($layer->GetSelectable()).'</selectable>';
         echo '<visible>'.BooleanToString($layer->GetVisible()).'</visible>';
         echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
+        echo '<editable>false</editable>';
         buildScaleRanges($layer);
         echo '</layer>';
     } 
