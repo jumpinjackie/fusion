@@ -92,7 +92,9 @@ MGMap.prototype =
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
-
+        this.aLayers = [];
+        this.layerRoot = new GxGroup();
+        
         this.oSelection = null;
         this.aSelectionCallbacks = [];
         this._bSelectionIsLoading = false;
@@ -144,6 +146,7 @@ MGMap.prototype =
         this.aHideGroups = [];
         this.aRefreshLayers = [];
         this.layerRoot = new GxGroup();
+        this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
@@ -192,6 +195,7 @@ MGMap.prototype =
                 parent = this.layerRoot;
             }
             parent.addLayer(layer);
+            this.aLayers.push(layer);
             layerNode = oNode.findNextNode('layer');
         }
     },
