@@ -76,9 +76,14 @@ try {
     }
     /* add the features to the map selection and save it*/
     $selection = new MgSelection($map);
+    /*
+    */
     /* if extending the current selection */
-    if (isset($_REQUEST['extendselection']) && strcasecmp($_REQUEST['extendselection'], 'true') == 0) {
+    $bExtendSelection = isset($_REQUEST['extendselection']) && strcasecmp($_REQUEST['extendselection'], 'true') == 0;
+    if ($bExtendSelection) {
+        $aLayerSelections = array();
         $selection->Open($resourceService, $mapName);
+        $aLayers = selectionToArray($selection, array());
     }
     
     $mapLayers = $map->GetLayers();
@@ -100,8 +105,15 @@ try {
 
             /* select the features */
             $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-            /* add the features to the map */
-            $selection->AddFeatures($layerObj, $featureReader, 0);
+            if ($bExtendSelection) {
+                /* possibly toggle features in the map */
+                $newSelection = new MgSelection($map);
+                $newSelection->AddFeatures($layerObj, $featureReader, 0);
+                $aLayers = selectionToArray($newSelection, $aLayers);
+            } else {
+                /* add the features to the map */
+                $selection->AddFeatures($layerObj, $featureReader, 0);
+            }
             
             /* close the feature reader - not doing this could cause problems */
             $featureReader->Close();
@@ -112,6 +124,28 @@ try {
         } catch (MgException $e) {
             //what should we do with general exceptions?
             echo "general exception";
+        }
+    }
+    if ($bExtendSelection) {
+        $selection = new MgSelection($map);
+        $queryOptions = new MgFeatureQueryOptions();
+        $layers = $map->GetLayers();
+        foreach($aLayers as $szLayer => $aLayer) {
+            $oLayer = $layers->GetItem($szLayer);
+            foreach($aLayer as $szClass => $aFilter) {
+                /* get the feature source from the layer */
+                $featureResId = new MgResourceIdentifier($oLayer->GetFeatureSourceId());
+                $featureGeometryName = $oLayer->GetFeatureGeometryName();
+                $szFilter = implode(' OR ', $aFilter);
+                $queryOptions->setFilter($szFilter);
+                /* the class that is used for this layer will be used to select
+                   features */
+                $class = $oLayer->GetFeatureClassName();
+
+                /* select the features */
+                $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
+                $selection->AddFeatures($oLayer, $featureReader,0);
+            }
         }
     }
     $selection->Save($resourceService, $mapName);
@@ -130,5 +164,39 @@ catch (MgException $e)
   echo "ERROR: " . $e->GetMessage() . "\n";
   echo $e->GetDetails() . "\n";
   echo $e->GetStackTrace() . "\n";
+}
+
+function selectionToArray($selection, $aLayers, $bToggle = true) {
+    $layers = $selection->GetLayers();
+    if ($layers)
+    {
+        for ($i = 0; $i < $layers->GetCount(); $i++)
+        {
+            $layer = $layers->GetItem($i);
+            if ($layer)
+            {
+                $objId = $layer->GetName();
+                if (!array_key_exists($objId,$aLayers)) {
+                    $aLayers[$objId] = array();
+                }
+                $layerClassName = $layer->GetFeatureClassName();
+                if (!array_key_exists($layerClassName, $aLayers[$objId])) {
+                    $aLayers[$objId][$layerClassName] = array();
+                }
+                $selectionString = $selection->GenerateFilter($layer, $layerClassName);
+                $aFilters = explode('OR', $selectionString);
+                foreach($aFilters as $filter) {
+                    $filter = trim($filter);
+                    $key = array_search($filter, $aLayers[$objId][$layerClassName]);
+                    if ($key !== false) {
+                        unset($aLayers[$objId][$layerClassName][$key]);
+                    } else {
+                        array_push($aLayers[$objId][$layerClassName], $filter);
+                    }
+                }
+            }
+        }
+    }
+    return $aLayers;
 }
 ?>
