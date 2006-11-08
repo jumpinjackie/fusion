@@ -34,9 +34,11 @@
  *****************************************************************************/
 include('MGCommon.php');
 
+
 try
 {
     $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
+    $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
 
     // Get a runtime map from a map definition
     if (isset($_REQUEST['mapid']))
@@ -112,11 +114,17 @@ try
     { 
         $layer=$layers->GetItem($i);
         $layerDefinition = $layer->GetLayerDefinition();
-
+        $aLayerTypes = GetLayerTypes($featureService, $layer);
+        //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
+        
         echo '<layer>';
         echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
         echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
-        echo '<layertype>'.$layer->GetLayerType().'</layertype>';
+        for ( $j=0; $j < count($aLayerTypes); $j++ )
+        { 
+            echo "<layertype>".$aLayerTypes[$j]."</layertype>";
+        }
+        //echo '<layertype>'.$layer->GetLayerType().'</layertype>';
         echo '<displayinlegend>'.BooleanToString($layer->GetDisplayInLegend()).'</displayinlegend>';
         echo '<expandinlegend>'.BooleanToString($layer->GetExpandInLegend()).'</expandinlegend>';
         echo '<rid>'.$layerDefinition->ToString().'</rid>';
@@ -261,3 +269,70 @@ function BooleanToString($boolean)
     else
         return "ERROR in BooleanToString.";
 }
+
+//-----------------------------------------------------------------
+//function GetFeatureClassAndSchema
+//@param MgFeatureService featureService
+//@param MgResourceIdentifier dataSourceId
+//@param MgLayer layer
+//@return the classdefinition reference.
+//
+//@desc Get class definition and schema from the layer.
+//@desc This works around changes between MG 1.0.1 and 1.0.2
+//@desc described in MG341 (see mapguide.osego.org)
+//@desc This function can be removed when all servers are updated.
+//------------------------------------------------------------------
+function GetFeatureClassDefinition($featureService, $layer, $dataSourceId){
+
+    $qualifiedClass = $layer->GetFeatureClassName();
+    if (strpos($qualifiedClass, ':') === false ) {
+        $class = $qualifiedCLass;
+        $schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
+    } else {
+        list($schema, $class) = explode(':', $qualifiedClass);
+    }
+    return $featureService->GetClassDefinition($dataSourceId, $schema, $class);
+}
+
+//-----------------------------------------------------------------
+//function GetLayerTypes
+//@param MgFeatureService featureService
+//@param MgLayer layer
+//@return the layer types as an array.
+//
+//@desc utility function to determine the set of allowed feature types for a layer's
+//@desc feature source.
+//@desc N.B. this is a workaround because the MgLayer::GetLayerType function seems to
+//@desc produce the same answer (1) for all layer types.
+//------------------------------------------------------------------
+function GetLayerTypes($featureService, $layer) {
+
+    $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+    
+    //get class definition from the featureSource
+    $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
+
+    //MgPropertyDefinition classProps
+    $classProps = $classDefinition->GetProperties();
+    $aLayerTypes = array();
+    for ($i=0; $i< $classProps->GetCount(); $i++)
+    {
+        $prop = $classProps->GetItem($i);
+        if ($prop->GetPropertyType() == MgFeaturePropertyType::GeometricProperty) {
+            $featureClass = $prop->GetGeometryTypes();
+            if ($featureClass & MgFeatureGeometricType::Surface) {
+                array_push($aLayerTypes, '2'/*'surface'*/);
+            } else if ($featureClass & MgFeatureGeometricType::Curve) {
+                array_push($aLayerTypes, '1'/*'curve'*/);
+            } else if ($featureClass & MgFeatureGeometricType::Solid) {
+                array_push($aLayerTypes, '3'/*'solid'*/); //could use surface here for editing purposes?
+            } else if ($featureClass & MgFeatureGeometricType::Point){
+                array_push($aLayerTypes, '0'/*'point'*/);
+            }
+            break;
+        }
+    }
+    return $aLayerTypes;
+}
+
+?>
