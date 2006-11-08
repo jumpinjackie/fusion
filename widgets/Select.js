@@ -153,5 +153,13 @@ Select.prototype =
         }
         
         this.getMap().query(options);
+    },
+
+    setParameter : function(param, value)
+    {
+        if (param == "Tolerance" && value > 0)
+        {
+            this.nTolerance = value;
+        }
     }
 };
