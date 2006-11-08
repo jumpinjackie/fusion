@@ -23,7 +23,7 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
     //Create the schema
     if ($schema == "")
       $schema = "DrawToolSchema";
-    $schema = new MgFeatureSchema("DrawToolSchema", "Temporary draw layer schema");
+    $schema = new MgFeatureSchema($schema, "Temporary draw layer schema");
     $schema->GetClasses()->Add($classDef);
 
     //finally, creation of the feature source
