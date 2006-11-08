@@ -125,38 +125,75 @@ MGMap.prototype =
 
             this.setExtents(aExtents);
             
-            var groupNode = oNode.findFirstNode('group');
-            while(groupNode) {
-                var group = new MGGroup(groupNode, this);
-                var parent
-                if (group.parentUniqueId != '') {
-                    parent = this.layerRoot.findGroup(group.parentUniqueId);
-                } else {
-                    parent = this.layerRoot;
-                }
-                parent.addGroup(group);
-
-                groupNode = oNode.findNextNode('group');
-            }
-            var layerNode = oNode.findFirstNode('layer');
-            while(layerNode) {
-                var layer = new MGLayer(layerNode, this);
-                var parent;
-                if (layer.parentGroup != '') {
-                    parent = this.layerRoot.findGroup(layer.parentGroup);
-                } else {
-                    parent = this.layerRoot;
-                }
-                parent.addLayer(layer);
-                layerNode = oNode.findNextNode('layer');
-            }
+            this.parseMapLayersAndGroups(oNode);
+            
             //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
         } else {
-            //TODO: how do we handle this error?
-            console.log('LoadMap failed!');
+            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
         this._removeWorker();
+    },
+    
+    reloadMap: function() {
+        this._addWorker();
+        //console.log('loadMap: ' + resourceId);
+        this.aShowLayers = [];
+        this.aHideLayers = [];
+        this.aShowGroups = [];
+        this.aHideGroups = [];
+        this.aRefreshLayers = [];
+        this.layerRoot = new GxGroup();
+        
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
+        
+        var sessionid = Fusion.getSessionID();
+        
+        var params = 'mapname='+this._sMapname+"&session="+sessionid;
+        var options = {onSuccess: this.mapReloaded.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+    mapReloaded: function(r) {
+        if (r.responseXML)
+        {
+            var oNode = new DomNode(r.responseXML);
+            this.parseMapLayersAndGroups(oNode);
+            this.triggerEvent(MAP_LOADED);
+        } else {
+            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+        }
+        this._removeWorker();
+    },
+    
+    parseMapLayersAndGroups: function(oNode) {
+        var groupNode = oNode.findFirstNode('group');
+        while(groupNode) {
+            var group = new MGGroup(groupNode, this);
+            var parent;
+            if (group.parentUniqueId != '') {
+                parent = this.layerRoot.findGroup(group.parentUniqueId);
+            } else {
+                parent = this.layerRoot;
+            }
+            parent.addGroup(group);
+
+            groupNode = oNode.findNextNode('group');
+        }
+        var layerNode = oNode.findFirstNode('layer');
+        while(layerNode) {
+            var layer = new MGLayer(layerNode, this);
+            var parent;
+            if (layer.parentGroup != '') {
+                parent = this.layerRoot.findGroup(layer.parentGroup);
+            } else {
+                parent = this.layerRoot;
+            }
+            parent.addLayer(layer);
+            layerNode = oNode.findNextNode('layer');
+        }
     },
     
     isMapLoaded: function() {

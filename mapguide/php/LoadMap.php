@@ -43,35 +43,30 @@ try
     // Get a runtime map from a map definition
     if (isset($_REQUEST['mapid']))
     {
-      $mapid = $_REQUEST['mapid'];
-      //echo $mapid;
-      $resourceID = new  MgResourceIdentifier($mapid);
+        $mapid = $_REQUEST['mapid'];
+        //echo $mapid;
+        $resourceID = new  MgResourceIdentifier($mapid);
+        $map = new MgMap();
+        $mapName = $resourceID->GetName();
+
+        //echo "<br> maname $mapName <br>";
+
+        $map->Create($resourceService, $resourceID, $mapName);
+
+
+        $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $map->GetName() . "." . MgResourceType::Map);
+
+
+        //create an empty selection object and store it in the session repository
+        $sel = new MgSelection($map);
+        $sel->Save($resourceService, $mapName);
+
+
+        $map->Save($resourceService, $mapStateId);
+    } else {
+        $map = new MgMap();
+        $map->Open($resourceService, $mapName);
     }
-
-
-    //make a copy of the map in the session so we can make temporary changes to it
-    //$contentReader = $resourceService->GetResourceContent($resourceID);
-
-    //$resourceService->SetResource($resourceID, $contentReader, null);
-
-    $map = new MgMap();
-    $mapName = $resourceID->GetName();
-
-    //echo "<br> maname $mapName <br>";
-
-    $map->Create($resourceService, $resourceID, $mapName);
-
-
-    $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $map->GetName() . "." . MgResourceType::Map);
-
-
-    //create an empty selection object and store it in the session repository
-    $sel = new MgSelection($map);
-    $sel->Save($resourceService, $mapName);
-
-
-    $map->Save($resourceService, $mapStateId);
-
 
     //$sessionId =  $map->GetSessionId();
     $mapName = $map->GetName() ;
