@@ -4,7 +4,7 @@
  * $Id$
  *
  * Purpose: create a new selection based on one or more attribute filters and
- *          optionally a spatial filter
+ *          a spatial filter
  *
  * Project: MapGuide Open Source GMap demo application
  *
@@ -38,7 +38,13 @@ try {
     include ("MGCommon.php");
 
     /* the name of the layer in the map to query */
-    $layer = $_REQUEST['layer'];
+    $layers = explode(',',$_REQUEST['layers']);
+    
+    /* selection variant if set */
+    $variant = MgFeatureSpatialOperations::Intersects;
+    if (isset($_REQUEST['variant']) && strcasecmp($_REQUEST['variant'],'contains') == 0) {
+        $variant = MgFeatureSpatialOperations::Contains;
+    }
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
     $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
@@ -54,18 +60,6 @@ try {
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 
-    /* get the named layer from the map */
-    $layerObj = $map->GetLayers()->GetItem($layer);
-
-    /* get the feature source from the layer */
-    $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
-    $featureGeometryName = $layerObj->GetFeatureGeometryName();
-    //echo "feature geometry name is $featureGeometryName<BR>";
-    /* the class that is used for this layer will be used to select
-       features */
-    $class = $layerObj->GetFeatureClassName();
-    //echo "feature class is $class<BR>";
-    
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
@@ -79,15 +73,47 @@ try {
         //echo 'setting spatial filter<br>';
         $wktRW = new MgWktReaderWriter();
         $geom = $wktRW->Read($spatialFilter);
-        $queryOptions->SetSpatialFilter($featureGeometryName, $geom, MgFeatureSpatialOperations::Inside);
     }
-
-    /* select the features */
-    $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-
     /* add the features to the map selection and save it*/
     $selection = new MgSelection($map);
-    $selection->AddFeatures($layerObj, $featureReader, 0);
+    /* if extending the current selection */
+    if (isset($_REQUEST['extendselection']) && strcasecmp($_REQUEST['extendselection'], 'true') == 0) {
+        $selection->Open($resourceService, $mapName);
+    }
+    
+    $mapLayers = $map->GetLayers();
+    for ($i=0; $i<count($layers); $i++) {
+        try {
+            $layerObj = $mapLayers->GetItem($layers[$i]);
+
+            /* get the feature source from the layer */
+            $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
+            $featureGeometryName = $layerObj->GetFeatureGeometryName();
+
+            if ($spatialFilter !== false ) {
+                $queryOptions->SetSpatialFilter($featureGeometryName, $geom, $variant);
+            }
+            
+            /* the class that is used for this layer will be used to select
+               features */
+            $class = $layerObj->GetFeatureClassName();
+
+            /* select the features */
+            $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
+            /* add the features to the map */
+            $selection->AddFeatures($layerObj, $featureReader, 0);
+            
+            /* close the feature reader - not doing this could cause problems */
+            $featureReader->Close();
+            
+        } catch (MgObjectNotFoundException $onfe) {
+            //skip layers not in the map?
+            echo "Object not found";
+        } catch (MgException $e) {
+            //what should we do with general exceptions?
+            echo "general exception";
+        }
+    }
     $selection->Save($resourceService, $mapName);
     
     header( 'Content-type: text/xml');
