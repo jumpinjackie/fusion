@@ -117,8 +117,7 @@ Select.prototype =
      * @param nRight integer pixel coordinates of the right (maxx)
      * @param nTop integer pixel coordinates of the top (maxy)
      **/
-    execute : function(nLeft, nBottom, nRight, nTop)
-    {
+    execute : function(nLeft, nBottom, nRight, nTop) {
         if (arguments.length == 2) {
             nRight = nLeft;
             nTop = nBottom;
@@ -128,24 +127,31 @@ Select.prototype =
         var nXDelta = Math.abs(nLeft-nRight);
         var nYDelta = Math.abs(nBottom- nTop);
         
-        var sLayer = null;
-        if (this.bActiveOnly) {
-            var layer = this.getMap().getActiveLayer();
-            if (layer) {
-                sLayer = layer.layerName;
-            } else {
-                return;
-            }
-        }
-        
-        if (nXDelta <=this.nTolerance && nYDelta <=this.nTolerance)
-        {
+        var options = {};
+        if (nXDelta <=this.nTolerance && nYDelta <=this.nTolerance) {
             var dfGeoTolerance = this.getMap().pixToGeoMeasure(this.nTolerance);
             sMin.x = sMin.x-dfGeoTolerance;
             sMin.y = sMin.y-dfGeoTolerance;
             sMax.x = sMax.x+dfGeoTolerance;
             sMax.y = sMax.y+dfGeoTolerance;
         }
-        this.getMap().queryRect(sMin.x,sMin.y,sMax.x,sMax.y, -1, 1, 'INTERSECTS', sLayer );
+        
+        options.geometry = 'POLYGON(('+ sMin.x + ' ' +  sMin.y + ', ' +  sMax.x + ' ' +  sMin.y + ', ' + sMax.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMin.y + '))';
+        options.selectionType = "INTERSECTS";
+
+        if (this.bActiveOnly) {
+            var layer = this.getMap().getActiveLayer();
+            if (layer) {
+                options.layers = layer.layerName;
+            } else {
+                return;
+            }
+        }
+        
+        if (this.event.shiftKey) {
+            options.extendSelection = true;
+        }
+        
+        this.getMap().query(options);
     }
 };

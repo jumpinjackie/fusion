@@ -337,9 +337,10 @@ MGMap.prototype =
         if (r.responseXML)
         {
             var oNode = new DomNode(r.responseXML);
-            if (oNode.findFirstNode('Layer') == false)
+            if (oNode.getNodeText('Selection') == 'false')
             {
-              return;
+                this.drawMap();
+                return;
             }
             else
             {
@@ -350,38 +351,28 @@ MGMap.prototype =
     },
 
     /**
-       Do a rectangular query on the map
+       Do a query on the map
     */
-    queryRect : function(fMinX, fMinY, fMaxX, fMaxY, nMaxFeatures, bPersist, sSelectionVariant, sLayers)
+    query : function(options)
     {
         this._addWorker();
-        var oBroker = this._oConfigObj.oApp.getBroker();
-
-        var sGeometry = 'POLYGON(('+ fMinX + ' ' +  fMinY + ', ' +  fMaxX + ' ' +  fMinY + ', ' + fMaxX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMaxY + ', ' + fMinX + ' ' +  fMinY + '))';
-
-        var maxFeatures = -1;
-        if (arguments.length > 4)
-        {
-          maxFeatures = nMaxFeatures;
-        }
-        var persist = 1;
-        if (arguments.length > 5)
-        {
-          persist = bPersist;
-        }
-        var selection = 'INTERSECTS';
-        if (arguments.length > 5)
-        {
-          selection = sSelectionVariant;
-        }
         
-        var r = new MGQueryMapFeatures(this._oConfigObj.getSessionId(),
-                                       this._sMapname,
-                                       sGeometry,
-                                       maxFeatures, persist, selection, sLayers);
-       oBroker.dispatchRequest(r, 
-           this.processQueryResults.bind(this));
+        var geometry = options.geometry
+        var maxFeatures = options.maxFeatures || -1;
+        var bPersistant = options.persistent || true;
+        var selectionType = options.selectionType || 'INTERSECTS';
+        var layers = options.layers || '';
+        var extend = options.extendSelection ? '&extendselection=true' : '';
 
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = 'server/' + sl  + '/MGQuery.' + sl;
+
+        var sessionid = Fusion.getSessionID();
+
+        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+'&layers='+layers+'&variant='+selectionType+extend;
+        var options = {onSuccess: this.processQueryResults.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
     },
     showLayer: function( sLayer ) {
         console.log('MGMap.showLayer('+sLayer+')');
