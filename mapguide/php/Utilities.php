@@ -31,6 +31,64 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
     $featureService->CreateFeatureSource($dataSourceId, $params);
 }
 
+//------------------------------------------------------------------------------
+//duplicate a layer in the session so that it can refer to a different session
+//feature source.
+//the session id and the feature source are assumed to have the same path as their
+//repository counterparts but $suffix is appended to the names.
+function DuplicateSessionLayer($map, $resourceService, $sourceLayerId, $suffix) {
+    //create the new session MgResourceIdentifier
+    $destinationLayerId = CreateSessionResourceId($sourceLayerId, $suffix);
+
+    //copy content from source layer
+    $contentReader = $resourceService->GetResourceContent($sourceLayerId);
+    $layerContent = $contentReader->ToString();
+
+    //set the feature source this layer references -- must be in the session
+    //the feature source need not exist before calling this function
+    $sourceLayer = new MgLayer($sourceLayerId, $resourceService);
+    $sourceFeatureSourceId = new MgResourceIdentifier($sourceLayer->GetFeatureSourceId());
+    $destinationFeatureSourceId = CreateSessionResourceId($sourceFeatureSourceId, $suffix);
+
+
+    //replace the featuresourceid and write xml to the session copy
+    $layerContent = str_replace($sourceFeatureSourceId->ToString(),
+                                $destinationFeatureSourceId->ToString(),
+                                $layerContent);
+    $byteSource = new MgByteSource($layerContent, strlen($layerContent));
+    $resourceService->SetResource($destinationLayerId, $byteSource->GetReader(), null);
+
+    //instantiate the new layer from its MgResourceIdentifier
+    $layer = new MgLayer($destinationLayerId, $resourceService);
+
+	//add the edit layer to the session map and set it to redraw but not be visible in the legend
+	$layerCollection=$map->GetLayers();
+	$originalLayer = FindLayer($layerCollection,$sourceLayer->GetLayerDefinition()->ToString());
+    $nPosition = $layerCollection->IndexOf($originalLayer);
+    $layerCollection->Insert($nPosition,$layer);
+	$layer->SetDisplayInLegend(false);
+	$layer->SetSelectable(true);
+    $layer->ForceRefresh();
+
+	//OR
+	//remove the source layer from the session map and replace it with the
+    //session copy
+    //ReplaceLayer($map, $sourceLayer, $layer);
+
+    //save the session map
+    try{
+	    $map->Save($resourceService);
+    }
+     catch (MgException $e)
+    {
+        echo "ERROR: " . $e->GetMessage() . "n";
+        echo $e->GetDetails() . "n";
+        echo $e->GetStackTrace() . "n";
+    }
+
+
+    return $layer;
+}
 
 //------------------------------------------------------------------------------
 //duplicate a layer in the session so that it can refer to a session feature source
@@ -217,6 +275,10 @@ function BuildLayerDefinitionContent($dataSource, $featureName, $tip)
     return $src->GetReader();
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+//Repository Manipulation Utilities
+/////////////////////////////////////////////////////////////////////////////////
+
 //------------------------------------------------------------------------------
 function DataSourceExists($resourceSrvc, $dataSourceId)
 {
@@ -249,6 +311,29 @@ function ToggleRepository($originalResourceId)
 
     //TODO: trap errors
     $newResourceID->Validate();
+    return $newResourceID;
+}
+
+//------------------------------------------------------------------------------
+//create a new MgResourceIdentifier for the session with a given suffix
+function CreateSessionResourceId($originalResourceId, $suffix)
+{
+    $newResourceID = new MgResourceIdentifier('Library://');
+    $newResourceID->SetRepositoryType("Session");
+    $newResourceID->SetRepositoryName($GLOBALS['sessionID']);
+    $newResourceID->SetPath($originalResourceId->GetPath());
+    $newResourceID->SetName($originalResourceId->GetName() . $suffix);
+    $newResourceID->SetResourceType($originalResourceId->GetResourceType());
+
+    //TODO: trap errors
+    try {
+        $newResourceID->Validate();
+    }
+     catch (MgException $e) {
+        echo "ERROR: " . $e->GetMessage() . "n";
+        echo $e->GetDetails() . "n";
+        echo $e->GetStackTrace() . "n";
+    }
     return $newResourceID;
 }
 
