@@ -96,6 +96,7 @@ function DuplicateSessionLayer($map, $resourceService, $sourceLayerId, $suffix) 
 //repository counterparts
 function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
     //create the session MgResourceIdentifier
+    try{
     $destinationLayerId = ToggleRepository($libraryLayerId);
     $destinationLayerId->SetName($destinationLayerId->GetName().'-edit');
 
@@ -135,11 +136,11 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
     //ReplaceLayer($map, $libraryLayer, $layer);
 
     //save the session map
-    try{
 	    $map->Save($resourceService);
     }
      catch (MgException $e)
     {
+        echo "CopyLayerToSession threw exception\n";
         echo "ERROR: " . $e->GetMessage() . "n";
         echo $e->GetDetails() . "n";
         echo $e->GetStackTrace() . "n";
@@ -504,6 +505,47 @@ function GetFeatureClassDefinition($featureService, $layer, $dataSourceId){
         list($schema, $class) = explode(':', $qualifiedClass);
     }
     return $featureService->GetClassDefinition($dataSourceId, $schema, $class);
+}
+
+//-----------------------------------------------------------------
+//function GetLayerTypes
+//@param MgFeatureService featureService
+//@param MgLayer layer
+//@return the layer types as an array.
+//
+//@desc utility function to determine the set of allowed feature types for a layer's
+//@desc feature source.
+//@desc N.B. this is a workaround because the MgLayer::GetLayerType function seems to
+//@desc produce the same answer (1) for all layer types.
+//------------------------------------------------------------------
+function GetLayerTypes($featureService, $layer) {
+
+    $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+
+    //get class definition from the featureSource
+    $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
+
+    //MgPropertyDefinition classProps
+    $classProps = $classDefinition->GetProperties();
+    $aLayerTypes = array();
+    for ($i=0; $i< $classProps->GetCount(); $i++)
+    {
+        $prop = $classProps->GetItem($i);
+        if ($prop->GetPropertyType() == MgFeaturePropertyType::GeometricProperty) {
+            $featureClass = $prop->GetGeometryTypes();
+            if ($featureClass & MgFeatureGeometricType::Surface) {
+                array_push($aLayerTypes, 'surface');
+            } else if ($featureClass & MgFeatureGeometricType::Curve) {
+                array_push($aLayerTypes, 'curve');
+            } else if ($featureClass & MgFeatureGeometricType::Solid) {
+                array_push($aLayerTypes, 'solid'); //could use surface here for editing purposes?
+            } else if ($featureClass & MgFeatureGeometricType::Point){
+                array_push($aLayerTypes, 'point');
+            }
+            break;
+        }
+    }
+    return $aLayerTypes[0];
 }
 
 ?>
