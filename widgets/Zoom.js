@@ -73,9 +73,9 @@ Zoom.prototype =
         this.activateRectTool();
         /*cursor*/
         if (this.zoomIn) {
-            this.getMap().zoomInCursor(this.asCursor);
+            this.getMap().setCursor(this.zoomInCursor);
         } else {
-            this.getMap().zoomOutCursor(this.asCursor);
+            this.getMap().setCursor(this.zoomOutCursor);
         }
         /*icon button*/
         this._oButton.activateTool();
