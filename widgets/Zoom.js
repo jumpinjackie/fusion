@@ -47,6 +47,10 @@ Zoom.prototype =
         if (this._oCommand.oxmlNode.getNodeText('Direction') == 'out') {
             this.zoomIn = false;
         }
+        this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
+        this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
+        
+        
     },
 
     /**
@@ -68,7 +72,11 @@ Zoom.prototype =
         //console.log('Zoom.activate');
         this.activateRectTool();
         /*cursor*/
-        this.getMap().setCursor(this.asCursor);
+        if (this.zoomIn) {
+            this.getMap().zoomInCursor(this.asCursor);
+        } else {
+            this.getMap().zoomOutCursor(this.asCursor);
+        }
         /*icon button*/
         this._oButton.activateTool();
     },
