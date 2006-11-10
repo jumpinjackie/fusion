@@ -102,7 +102,7 @@ Zoom.prototype =
            tool - zoom in becomes out and zoom out becomes in */
         var map = this.getMap();
         var zoomIn = this.zoomIn;
-        if (this.event.shiftKey) {
+        if (this.event && this.event.shiftKey) {
             zoomIn = !zoomIn;
         }
         if (arguments.length == 2) {
