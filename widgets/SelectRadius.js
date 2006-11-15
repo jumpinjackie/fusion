@@ -12,9 +12,11 @@
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * * The above copyright notice and this permission notice shall be included
+ * 
+ * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
- * * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
  * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -31,11 +33,10 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxCanvasTool.js');
 
 var SelectRadius = Class.create();
-SelectRadius.prototype = 
-{       
+SelectRadius.prototype = {       
     nTolerance : 3, //default pixel tolernace for a point click
-    initialize : function(oCommand)
-    {
+    defaultRadius: 20,
+    initialize : function(oCommand) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['SelectRadius', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
@@ -43,20 +44,19 @@ SelectRadius.prototype =
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
-        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)
-        {
+        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0) {
             nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
         }
-        this.circle = new FeatureCircle();
-        this.circle.setCenter(0);
-        
+    },
+    
+    setRadius: function(r) {
+        this.defaultRadius = r;
     },
     
     /**
      * called when the button is clicked by the MGButtonBase widget
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         this.getMap().activateWidget(this);
         //this.activate();
     },
@@ -66,12 +66,15 @@ SelectRadius.prototype =
      * This function should be defined for all functions that register
      * as a widget in the map
      */
-    activate : function()
-    {
+    activate : function() {
         this.activateCanvas();
         this.getMap().setCursor(this.asCursor);
         /*icon button*/
         this._oButton.activateTool();
+        if (!this.circle) {
+            this.circle = new FeatureCircle(this.getMap());
+            this.circle.setCenter(0);
+        }
     },
 
     /**
@@ -79,8 +82,7 @@ SelectRadius.prototype =
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate : function()
-    {
+    deactivate : function() {
          this.deactivateCanvas();
          this.getMap().setCursor('auto');
          /*icon button*/
@@ -101,7 +103,7 @@ SelectRadius.prototype =
 
             if (!this.isDigitizing) {
                 this.circle.setCenter(p.x, p.y);
-                this.circle.setRadius(1);
+                this.circle.setRadius(this.defaultRadius);
                 this.clearContext();
                 this.circle.draw(this.context);     
                 this.isDigitizing = true;
@@ -124,13 +126,17 @@ SelectRadius.prototype =
         var center = this.circle.center;
         
         var radius = Math.sqrt(Math.pow(center.x-p.x,2) + Math.pow(center.y-p.y,2));
-        this.circle.setRadius(radius);
+        if (radius > this.nTolerance) {
+            this.circle.setRadius(radius);
+        }
         this.clearContext();
         this.circle.draw(this.context);
     },
     
     mouseUp: function(e) {
         if (this.isDigitizing) {
+            this.event = e;
+            //this.circle.draw(this.context);
             this.clearContext();
             this.isDigitizing = false;
             var center = this.getMap().pixToGeo(this.circle.center.x, this.circle.center.y);
@@ -146,8 +152,40 @@ SelectRadius.prototype =
      * @param center
      * @param radius
      **/
-    execute : function(center, radius)
-    {
-        alert(center.x + ' ' + center.y + ' ' + radius);
+    execute : function(center, radius) {
+        var wkt = 'POLYGON((';
+        var nPoints = 16;
+        var angle = 2 * Math.PI / nPoints;
+        var sep = '';
+        var first;
+        for (var i=0; i<nPoints; i++) {
+            var x = center.x + radius * Math.cos(i*angle);
+            var y = center.y + radius * Math.sin(i*angle);
+            if (i==0) {
+                first = x + ' ' + y;
+            }
+            wkt = wkt + sep + x + ' ' + y;
+            sep = ',';
+        }
+        wkt = wkt + sep + first + '))';
+        
+        var options = {};
+        options.geometry = wkt;
+        options.selectionType = "inside";
+
+        if (this.bActiveOnly) {
+            var layer = this.getMap().getActiveLayer();
+            if (layer) {
+                options.layers = layer.layerName;
+            } else {
+                return;
+            }
+        }
+        
+        if (this.event.shiftKey) {
+            options.extendSelection = true;
+        }
+        
+        this.getMap().query(options);
     }
 };
