@@ -38,12 +38,20 @@ try {
     include ("MGCommon.php");
 
     /* the name of the layer in the map to query */
-    $layers = explode(',',$_REQUEST['layers']);
-    
+    if ($_REQUEST['layers'] != '') {
+        $layers = explode(',',$_REQUEST['layers']);
+    } else {
+        $layers = array();
+    }
+
     /* selection variant if set */
     $variant = MgFeatureSpatialOperations::Intersects;
-    if (isset($_REQUEST['variant']) && strcasecmp($_REQUEST['variant'],'contains') == 0) {
-        $variant = MgFeatureSpatialOperations::Contains;
+    if (isset($_REQUEST['variant'])) {
+        if (strcasecmp($_REQUEST['variant'],'contains') == 0) {
+            $variant = MgFeatureSpatialOperations::Contains;
+        } else if (strcasecmp($_REQUEST['variant'],'inside') == 0) {
+            $variant = MgFeatureSpatialOperations::Inside;
+        }
     }
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
@@ -87,9 +95,23 @@ try {
     }
     
     $mapLayers = $map->GetLayers();
-    for ($i=0; $i<count($layers); $i++) {
+    $bAllLayers = false;
+    $nLayers = count($layers);
+    if ($nLayers == 0) {
+        $nLayers = $mapLayers->GetCount();
+        $bAllLayers = true;
+    }
+    for ($i=0; $i<$nLayers; $i++) {
         try {
-            $layerObj = $mapLayers->GetItem($layers[$i]);
+            if (!$bAllLayers) {
+                $layerObj = $mapLayers->GetItem($layers[$i]);
+            } else {
+                $layerObj = $mapLayers->GetItem($i);
+            }
+            
+            if (!$layerObj->GetSelectable()) {
+                continue;
+            }
 
             /* get the feature source from the layer */
             $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
