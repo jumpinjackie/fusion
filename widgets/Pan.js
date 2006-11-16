@@ -49,12 +49,13 @@ Pan.prototype =
      */
     activateTool : function()
     {
-        //console.log('Pan.activateTool');
+        /*console.log('Pan.activateTool');*/
         this.getMap().activateWidget(this);
     },
     
     activate : function()
     {
+        /*console.log('Pan.activate');*/
         this.activateRectTool();
         this.getMap().setCursor(this.cursorNormal);
         /*button*/
@@ -62,7 +63,7 @@ Pan.prototype =
     },
     
     deactivate: function() {
-        //console.log('Pan.deactivate');
+        /*console.log('Pan.deactivate');*/
         this.deactivateRectTool();
         this.getMap().setCursor('auto');
         /*icon button*/
