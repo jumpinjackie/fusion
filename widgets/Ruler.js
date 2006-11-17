@@ -35,7 +35,7 @@ Ruler.prototype =
     
     initialize : function(oCommand)
     {
-        console.log('Ruler.initialize');
+        /*console.log('Ruler.initialize');*/
         Object.inheritFrom(this, GxWidget.prototype, ['Ruler', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [oCommand]);
