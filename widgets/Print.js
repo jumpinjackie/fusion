@@ -61,22 +61,25 @@ Fusion.require('widgets/GxButtonBase.js');
 var Print = Class.create();
 Print.prototype = {
     initialize : function(oCommand) {
-        //console.log('Print.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Print', false]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        this.pageTitle = oCommand.oxmlNode.getNodeText('PageTitle');
-        
         var showPrintUI = oCommand.oxmlNode.getNodeText('ShowPrintUI');
         this.showPrintUI = (showPrintUI.toLowerCase() == 'true' || showPrintUI == '1');
+        
+        var showTitle = oCommand.oxmlNode.getNodeText('ShowTitle');
+        this.showTitle = (showTitle.toLowerCase() == 'true' || showTitle == '1');
 
+        this.pageTitle = oCommand.oxmlNode.getNodeText('PageTitle');
+        
         var showLegend = oCommand.oxmlNode.getNodeText('ShowLegend');
         this.showLegend = (showLegend.toLowerCase() == 'true' || showLegend == '1');
         
         var showNorthArrow = oCommand.oxmlNode.getNodeText('ShowNorthArrow');
         this.showNorthArrow = (showNorthArrow.toLowerCase() == 'true' || showNorthArrow == '1');
         
+        this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + oCommand.sLocation + '/html/Print.html';
     },
     /**
      * load an interface that builds a printable version of
@@ -91,21 +94,56 @@ Print.prototype = {
     },
     
     openPrintUI: function() {
-        var url = Fusion.getWebTierURL() + 'mapviewerphp/printablepageui.php?';
-        var extents = this.getMap().getCurrentExtents();
-        var centerX = (extents[0] + extents[2])/ 2;
-        var centerY = (extents[1] + extents[3])/ 2;
-        var dpi = this.getMap()._nDpi;
-        var scale = this.getMap()._fScale
-        url = url + 'MAPNAME=' + this.getMap().getMapName();
-        url = url + '&SESSION=' + this.getMap().getSessionId();
-        url = url + '&POPUP=1';
-        url = url + '&WIDTH='+this.getMap()._nWidth;
-        url = url + '&CENTERX='+centerX;
-        url = url + '&CENTERY='+centerY;
-        url = url + '&DPI='+dpi;
-        url = url + '&SCALE='+scale;
-        window.open(url, 'printablepageui', '');
+        if (!this.dialog) {
+
+            var size = Position.getPageDimensions();
+            var o = {
+                title: 'Printable Page ',
+                id: 'printablePage',
+                contentURL : this.dialogContentURL,
+                onContentLoaded: this.contentLoaded.bind(this),
+                width: 400,
+                height: 400,
+                top: (size.height-400)/2,
+                left: (size.width-400)/2,
+                buttons: ['generate', 'cancel'],
+                handler: this.handler.bind(this)
+            };
+            this.dialog = new JxDialog(o);
+            
+        }
+        this.dialog.open();
+    },
+    
+    contentLoaded: function() {
+        this.dialog.registerIds(['dialog.print.showtitle', 
+                                 'dialog.print.title',
+                                 'dialog.print.showlegend',
+                                 'dialog.print.shownortharrow'], this.dialog.content);
+        this.dialog.getObj('dialog.print.showtitle').checked = this.showTitle;
+        this.dialog.getObj('dialog.print.title').value = this.pageTitle;
+        this.dialog.getObj('dialog.print.title').disabled = !this.showTitle;
+        this.dialog.getObj('dialog.print.showlegend').checked = this.showLegend;
+        this.dialog.getObj('dialog.print.shownortharrow').checked = this.showNorthArrow;
+        
+        Event.observe(this.dialog.getObj('dialog.print.showtitle'), 'click', this.controlTitle.bind(this));
+    },
+    
+    controlTitle: function() {
+        this.dialog.getObj('dialog.print.title').disabled = !this.dialog.getObj('dialog.print.showtitle').checked;
+        
+    },
+    
+    handler: function(button) {
+        if (button == 'generate') {
+            this.showTitle = this.dialog.getObj('dialog.print.showtitle').checked;
+            this.pageTitle = this.dialog.getObj('dialog.print.title').value;
+            this.showLegend = this.dialog.getObj('dialog.print.showlegend').checked;
+            this.showNorthArrow = this.dialog.getObj('dialog.print.shownortharrow').checked;
+            this.openPrintable();
+            
+        }
+        this.dialog.close();
     },
     
     openPrintable: function() {
@@ -121,7 +159,7 @@ Print.prototype = {
         url = url + '&CENTERY='+centerY;
         url = url + '&DPI='+dpi;
         url = url + '&SCALE='+scale;
-        url = url + '&ISTITLE=' + (this.pageTitle != '' ? '1' : '0');
+        url = url + '&ISTITLE=' + (this.showTitle != '' ? '1' : '0');
         url = url + '&ISLEGEND=' + (this.showLegend ? '1' : '0');
         url = url + '&ISARROW=' + (this.showNorthArrow ? '1' : '0');
         if (this.pageTitle != '') {
