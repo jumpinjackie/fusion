@@ -85,6 +85,7 @@ Maptip.prototype =
     nTimer: null,
     delay: null,
     aLayers: null,
+    bOverTip: false,
     
     initialize : function(oCommand)
     {
@@ -109,7 +110,10 @@ Maptip.prototype =
         this.domObj.style.display = 'none';
         this.domObj.style.top = '0px';
         this.domObj.style.left = '0px';
-        this.domObj.style.zIndex = 98;
+        this.domObj.style.zIndex = 101;
+        
+        Event.observe(this.domObj, 'mouseover', this.mouseOverTip.bind(this));
+        Event.observe(this.domObj, 'mouseout', this.mouseOutTip.bind(this));
         
         var oDomElem =  this.getMap().getDomObj();
         oDomElem.appendChild(this.domObj);
@@ -120,13 +124,21 @@ Maptip.prototype =
     },
     
     mouseOut: function(e) {
+        /*console.log('mouseOut');*/
         if (this.nTimer) {
             window.clearTimeout(this.nTimer);
-            this.hideMaptip();
+            if (!this.nHideTimer) {
+                /*console.log('mouseOut: set hide timer');*/
+                this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
+            }
         }
     },
     
     mouseMove: function(e) {
+        /*console.log('mouseMove');*/
+        if (this.bOverTip) {
+            return;
+        }
         var p = this.getMap().getEventPosition(e);
         if (!this.oCurrentPosition) {
             this.oCurrentPosition = p;
@@ -136,7 +148,8 @@ Maptip.prototype =
             if (this.oMapTipPosition && this.bIsVisible &&
                 Math.abs(this.oMapTipPosition.x -this.oCurrentPosition.x) > 3 &&
                 Math.abs(this.oMapTipPosition.y - this.oCurrentPosition.y) > 3) {
-                this.hideMaptip();
+                /*console.log('mouseMove: set hide timer');*/
+                this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
             }
             this.oCurrentPosition = p;
         }
@@ -145,6 +158,7 @@ Maptip.prototype =
     },
     
     showMaptip: function(r) {
+        /*console.log('showMaptip');*/
         var map = this.getMap();
         var cellSize = map._nCellSize;
         var oBroker = map._oConfigObj.oApp.getBroker();
@@ -176,6 +190,7 @@ Maptip.prototype =
 
     },
     _display: function(r) {
+        /*console.log('_display');*/
         if (r.responseXML) {
             this.bIsVisible = true;
             this.oMapTipPosition = {x:this.oCurrentPosition.x, y: this.oCurrentPosition.y};
@@ -197,17 +212,30 @@ Maptip.prototype =
     },
     
     hideMaptip: function() {
-        //console.log('hideMapTip');
+        /*console.log('hideMaptip');*/
         this.bIsVisible = false;
         this.hideTimer = window.setTimeout(this._hide.bind(this),250);
     },
     
     _hide: function() {
+        /*console.log('_hide');*/
         this.hideTimer = null;
-        //console.log('_hide');
         this.domObj.style.display = 'none';
         this.domObj.innerHTML = '&nbsp;';
         this.oMapTipPosition = null;
+    },
+    
+    mouseOverTip: function() {
+        /*console.log('mouseOverTip');*/
+        window.clearTimeout(this.nHideTimer);
+        this.nHideTimer = null;
+        this.bOverTip = true;
+    },
+    
+    mouseOutTip: function() {
+        /*console.log('mouseOutTip');*/
+        this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
+        this.bOverTip = false;
     }
     
 };
