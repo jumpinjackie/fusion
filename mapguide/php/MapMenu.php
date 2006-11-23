@@ -42,9 +42,49 @@ $rootId = new MgResourceIdentifier($root);
 //Enumerate elements of type MapDefinition
 $maps = $resourceService->EnumerateResources($rootId, -1, 'MapDefinition');
 
+//make a list of maps to query for names
+$mapListXml = DOMDocument::loadXML(ByteReaderToString($maps));
+//$aMapAssoc = Array();
+$aMapIds = $mapListXml->getElementsByTagName('ResourceId');
+
+//iterate over mapIds to retrieve names
+for ( $i=0; $i < $aMapIds->length; $i++ ) { 
+    //$aPair = array();
+    //echo $aMapIds->item($i)->nodeValue . "\n";
+    $mapId = new MgResourceIdentifier($aMapIds->item($i)->nodeValue);
+    $map = $resourceService->GetResourceContent($mapId);
+    $mapXml = DOMDocument::loadXML(ByteReaderToString($map));
+    $name = $mapXml->getElementsByTagName('Name')->item(0)->nodeValue;
+    $aPair['id'] = $aMapIds->item($i)->nodeValue;
+    $aPair['name'] = $name;
+    $aMapAssoc[] = $aPair;
+}
 //output map list as xml
 header('content-type: text/xml');
-echo $maps;
-
+echo "<maps>";
+for ( $i=0; $i < count($aMapAssoc); $i++ ){
+    echo "<MapDefinition>";
+    echo "<ResourceId>".$aMapAssoc[$i]['id']."</ResourceId>";
+    echo "<Name>".$aMapAssoc[$i]['name']."</Name>";
+    echo "</MapDefinition>";     
+}
+echo "</maps>";
 exit;
+
+function ByteReaderToString($byteReader)
+{
+    $buffer = '';
+    do
+    {
+        $data = str_pad("\0", 50000, "\0");
+        $len = $byteReader->Read($data, 50000);
+        if ($len > 0)
+        {
+            $buffer = $buffer . substr($data, 0, $len);
+        }
+    } while ($len > 0);
+
+    return $buffer;
+}
+
 ?>
