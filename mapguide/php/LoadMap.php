@@ -108,11 +108,23 @@ try
     for($i=0;$i<$layers->GetCount();$i++) 
     { 
         $layer=$layers->GetItem($i);
+        $mappings = GetLayerPropertyMappings($resourceService, $layer);
+        if (!isset($_SESSION['property_mappings'])) {
+            $_SESSION['property_mappings'] = array();
+        }
+        $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
         $layerDefinition = $layer->GetLayerDefinition();
         $aLayerTypes = GetLayerTypes($featureService, $layer);
         //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
         
         echo '<layer>';
+        echo "<PropertyMappings>";
+        foreach($mappings as $name => $value) {
+            echo "<PropertyMapping>";
+            echo "<Name>$name</Name><Value>$value</Value>";
+            echo "</PropertyMapping>";
+        }
+        echo "</PropertyMappings>";
         echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
         echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
         for ( $j=0; $j < count($aLayerTypes); $j++ )
@@ -330,4 +342,19 @@ function GetLayerTypes($featureService, $layer) {
     return $aLayerTypes;
 }
 
+function GetLayerPropertyMappings($resourceService, $layer) {
+    $mappings = array();
+    $byteReader = $resourceService->GetResourceContent($layer->GetLayerDefinition());
+    $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    $mappingNodeList = $xmldoc->getElementsByTagName('PropertyMapping');
+    for ($i=0; $i<$mappingNodeList->length; $i++) {
+        $mapping = $mappingNodeList->item($i);
+        $nameElt = $mapping->getElementsByTagName('Name');
+        $name = $nameElt->item(0)->nodeValue;
+        $valueElt = $mapping->getElementsByTagName('Value');
+        $value = $valueElt->item(0)->nodeValue;
+        $mappings[$name] = $value;
+    }
+    return $mappings;
+}
 ?>

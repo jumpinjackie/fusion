@@ -35,9 +35,7 @@
  *****************************************************************************/
 
 
-$extensionDir = getcwd() . "/../../../";
-$viewDir = $extensionDir."mapviewerphp/";
-
+include('MGCommon.php');
 
 function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName) 
 {
@@ -123,20 +121,6 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
 try
 {
     header('Content-type: text/xml');
-    include $viewDir . "common.php";
-    include $viewDir . "constants.php";
-
-    MgInitializeWebTier($extensionDir. "webconfig.ini");
-
-    $sessionId = $_REQUEST['session'];
-    
-    $user = new MgUserInformation($_REQUEST['session']);
-
-    $siteConnection = new MgSiteConnection();
-    $siteConnection->Open($user);
-
-    $resourceService = 
-      $siteConnection->CreateService(MgServiceType::ResourceService);
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
     $queryOptions = new MgFeatureQueryOptions();
 
@@ -165,12 +149,12 @@ try
     $selection->Open($resourceService, $mapname);
     $layers = $selection->GetLayers();
     $nLayers = 0;
+    $nActualLayers = 0;
     $iValidLayer = 0;
     if ($layers)
     {
         echo '<Selection>';
         $nLayers = $layers->GetCount();
-        echo '<NumberOfLayers>' . $nLayers . '</NumberOfLayers>'; 
         $aSelection = array($nLayers);
         
         $oExtents = $selection->GetExtents($featureService);
@@ -182,13 +166,19 @@ try
             echo "<maxx>".$oMax->GetX()."</maxx>";
             echo "<maxy>".$oMax->GetY()."</maxy>";
         }
-
-        for ($i = 0; $i < $layers->GetCount(); $i++)
+        
+        $nTotalElements = 0;
+        for ($i = 0; $i < $nLayers; $i++)
         {
-            $nTotalElements = 0;
+            $nElements = 0;
             $layer = $layers->GetItem($i);
-            if ($layer)
+            $mappings = $_SESSION['property_mappings'][$layer->GetObjectId()];
+            if (count($mappings) == 0) {
+                continue;
+            }
+            if ($layer && $layer->IsVisible() && $layer->GetSelectable())
             {
+                $nActualLayers ++;
                 echo '<Layer>';
                 echo '<Name>' . $layer->GetName() . '</Name>';
                 
@@ -210,6 +200,13 @@ try
                 //echo "layerFeatureId = $layerFeatureId <br>\n";
 
                 $layerFeatureResource = new MgResourceIdentifier($layerFeatureId);
+                
+                //only retrieve properties that we actually need
+                foreach($mappings as $name => $value) {
+                    $queryOptions->AddFeatureProperty($name);
+                }
+                
+                
                 // Apply the filter to the feature resource for the
                 // selected layer. This returns
                 // an MgFeatureReader of all the selected features.
@@ -225,33 +222,36 @@ try
                 
                 $aSelection[$iValidLayer]["nproperties"] = $propCount;
                 $aSelection[$iValidLayer]["properties_name"] = array($propCount);
+                $aSelection[$iValidLayer]["properties_value"] = array($propCount);
                 $aSelection[$iValidLayer]["properties_type"] = array($propCount);
                 $aSelection[$iValidLayer]["elements"] = array();
 
                 echo '<PropertiesNumber>' . $propCount . '</PropertiesNumber>';
                 
-                for($i=0; $i<$propCount; $i++) 
+                for($j=0; $j<$propCount; $j++) 
                 {
-                     $aSelection[$iValidLayer]["properties_name"][$i] = 
-                       $featureReader->GetPropertyName($i);
-                     $aSelection[$iValidLayer]["properties_type"][$i] = 
-                       $featureReader->GetPropertyType($featureReader->GetPropertyName($i));
+                     $aSelection[$iValidLayer]["properties_name"][$j] = 
+                       $featureReader->GetPropertyName($j);
+                     $aSelection[$iValidLayer]["properties_value"][$j] = 
+                       $mappings[$featureReader->GetPropertyName($j)];
+                     $aSelection[$iValidLayer]["properties_type"][$j] = 
+                       $featureReader->GetPropertyType($featureReader->GetPropertyName($j));
                      
                 } 
-                echo '<PropertiesNames>' . implode(",", $aSelection[$iValidLayer]["properties_name"]) . '</PropertiesNames>';
+                echo '<PropertiesNames>' . implode(",", $aSelection[$iValidLayer]["properties_value"]) . '</PropertiesNames>';
                 echo '<PropertiesTypes>' . implode(",", $aSelection[$iValidLayer]["properties_type"]) . '</PropertiesTypes>';
                 
                 $nElements = 0;
                 while ($featureReader->ReadNext())
                 {
                     echo '<ValueCollection>';
-                    for($i=0; $i<$propCount; $i++) 
+                    for($j=0; $j<$propCount; $j++) 
                     {
-                        $aSelection[$iValidLayer]["elements"][$nElements][$i] = 
+                        $aSelection[$iValidLayer]["elements"][$nElements][$j] = 
                           GetPropertyValueFromFeatReader($featureReader, 
-                                                         $aSelection[$iValidLayer]["properties_type"][$i],
-                                                         $aSelection[$iValidLayer]["properties_name"][$i]);
-                        echo '<v>' . $aSelection[$iValidLayer]["elements"][$nElements][$i] . '</v>';
+                                                         $aSelection[$iValidLayer]["properties_type"][$j],
+                                                         $aSelection[$iValidLayer]["properties_name"][$j]);
+                        echo '<v>' . $aSelection[$iValidLayer]["elements"][$nElements][$j] . '</v>';
                     }
                      echo '</ValueCollection>';
                     $nElements++;
@@ -264,8 +264,11 @@ try
                 $iValidLayer++;
                 echo '</Layer>';
 
+            } else {
+                echo "<Layer />";
             }
         }
+        echo '<NumberOfLayers>' . $nActualLayers . '</NumberOfLayers>'; 
         echo '<TotalElementsSelected>' . $nTotalElements . '</TotalElementsSelected>';
         echo '</Selection>';
 
