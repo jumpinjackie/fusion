@@ -309,8 +309,8 @@ Legend.prototype =
             
         } else {
             layer.legend.checkBox.disabled = true;
-            layer.legend.clearTreeItem();
-            layer.legend.treeItem = this.createTreeItem(layer.legendLabel, null, null, true);
+            this.clearTreeItem(layer);
+            layer.legend.treeItem = this.createTreeItem(layer, null, null, true);
             layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
         }
         if (bFirstDisplay) {
