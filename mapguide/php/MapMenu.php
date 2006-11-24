@@ -36,7 +36,7 @@
 include ("MGCommon.php");
 
 //Get the folder to search within
-$root = (isset($_REQUEST['folder']))?$REQUEST['folder']:'Library://';
+$root = (isset($_REQUEST['folder']))?$_REQUEST['folder']:'Library://';
 $rootId = new MgResourceIdentifier($root);
 
 //Enumerate elements of type MapDefinition
@@ -49,14 +49,16 @@ $aMapIds = $mapListXml->getElementsByTagName('ResourceId');
 
 //iterate over mapIds to retrieve names
 for ( $i=0; $i < $aMapIds->length; $i++ ) { 
-    //$aPair = array();
-    //echo $aMapIds->item($i)->nodeValue . "\n";
     $mapId = new MgResourceIdentifier($aMapIds->item($i)->nodeValue);
-    $map = $resourceService->GetResourceContent($mapId);
-    $mapXml = DOMDocument::loadXML(ByteReaderToString($map));
-    $name = $mapXml->getElementsByTagName('Name')->item(0)->nodeValue;
     $aPair['id'] = $aMapIds->item($i)->nodeValue;
-    $aPair['name'] = $name;
+    $aPair['name'] = $mapId->GetName(); 
+
+    //Alternative - get the map description from the MapDefinition
+    //$map = $resourceService->GetResourceContent($mapId);
+    //$mapXml = DOMDocument::loadXML(ByteReaderToString($map));
+    //$name = $mapXml->getElementsByTagName('Name')->item(0)->nodeValue;
+    //$aPair['name'] = $name;
+    
     $aMapAssoc[] = $aPair;
 }
 //output map list as xml
