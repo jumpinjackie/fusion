@@ -102,10 +102,10 @@ Print.prototype = {
                 id: 'printablePage',
                 contentURL : this.dialogContentURL,
                 onContentLoaded: this.contentLoaded.bind(this),
-                width: 400,
-                height: 400,
-                top: (size.height-400)/2,
-                left: (size.width-400)/2,
+                width: 320,
+                height: 200,
+                top: (size.height-200)/2,
+                left: (size.width-320)/2,
                 buttons: ['generate', 'cancel'],
                 handler: this.handler.bind(this)
             };
