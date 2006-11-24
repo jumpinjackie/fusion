@@ -63,7 +63,7 @@ MapMenu.prototype =
     aMenus : null,
     initialize : function(oCommand)
     {
-        console.log('MapMenu.initialize');
+        //console.log('MapMenu.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['MapMenu', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
@@ -119,7 +119,7 @@ MapMenu.prototype =
     
     createFolders: function(sId) {
         var aPath = sId.split('/');
-        console.log('MapMenu::createFolders -'+sId +' -> '+ aPath);
+        //console.log('MapMenu::createFolders -'+sId +' -> '+ aPath);
         
         //loop through folders, creating them if they don't exist
         var sParent = '';
@@ -128,7 +128,7 @@ MapMenu.prototype =
             if (!this.aMenus[sParent + sSep + aPath[i]]){
                 var opt = {label:aPath[i]};
                 var menu = new JxMenu(opt);
-                console.log('MapMenu::createFolders -'+sParent);
+                //console.log('MapMenu::createFolders -'+sParent);
                 if (sParent == '') {
                     this.oMenu.add(menu);
                 } else {
