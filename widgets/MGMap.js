@@ -83,6 +83,8 @@ MGMap.prototype =
         this._fScale = -1;
         this._nDpi = 96;
         
+        options = options || {};
+        
         this._afInitialExtents = options.extents || null;
         this._afCurrentExtents = options.extents || null;
         this.aShowLayers = options.showlayers || [];
@@ -434,10 +436,11 @@ MGMap.prototype =
     {
         this._addWorker();
         
-        var geometry = options.geometry
+        var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
         var bPersistant = options.persistent || true;
         var selectionType = options.selectionType || 'INTERSECTS';
+        var filter = options.filter ? '&filter='+options.filter : '';
         var layers = options.layers || '';
         var extend = options.extendSelection ? '&extendselection=true' : '';
 
@@ -446,7 +449,7 @@ MGMap.prototype =
 
         var sessionid = Fusion.getSessionID();
 
-        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+'&layers='+layers+'&variant='+selectionType+extend;
+        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend;
         var options = {onSuccess: this.processQueryResults.bind(this), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
