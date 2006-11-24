@@ -63,8 +63,6 @@ MGMap.prototype =
         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
         this.registerEventID(MAP_LOADED);
         
-
-        
         this._oConfigObj = Fusion.oConfigMgr;
         
         this.sMapResourceId = oCommand.oxmlNode.getNodeText('ResourceId');
@@ -74,7 +72,7 @@ MGMap.prototype =
         
     },
     
-    loadMap: function(resourceId) {
+    loadMap: function(resourceId, options) {
         this._addWorker();
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
@@ -85,13 +83,13 @@ MGMap.prototype =
         this._fScale = -1;
         this._nDpi = 96;
         
-        this._afInitialExtents = null;
-        this._afCurrentExtents = null;
-        this.aShowLayers = [];
-        this.aHideLayers = [];
-        this.aShowGroups = [];
-        this.aHideGroups = [];
-        this.aRefreshLayers = [];
+        this._afInitialExtents = options.extents || null;
+        this._afCurrentExtents = options.extents || null;
+        this.aShowLayers = options.showlayers || [];
+        this.aHideLayers = options.hidelayers || [];
+        this.aShowGroups = options.showgroups || [];
+        this.aHideGroups = options.hidegroups || [];
+        this.aRefreshLayers = options.refreshlayers || [];
         this.aLayers = [];
         this.layerRoot = new GxGroup();
         
@@ -120,14 +118,52 @@ MGMap.prototype =
             this._sMapname = oNode.findFirstNode('mapname').textContent;
             this._fMetersperunit = oNode.findFirstNode('metersperunit').textContent;
 
-            var aExtents = [parseFloat(oNode.getNodeText('minx')),
-                            parseFloat(oNode.getNodeText('miny')),
-                            parseFloat(oNode.getNodeText('maxx')),
-                            parseFloat(oNode.getNodeText('maxy'))];
+            if (!this._afInitialExtents) {
+                this._afInitialExtents = [parseFloat(oNode.getNodeText('minx')),
+                                parseFloat(oNode.getNodeText('miny')),
+                                parseFloat(oNode.getNodeText('maxx')),
+                                parseFloat(oNode.getNodeText('maxy'))];
 
-            this.setExtents(aExtents);
+            }
             
             this.parseMapLayersAndGroups(oNode);
+            
+            for (var i=0; i<this.aShowLayers.length; i++) {
+                var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]);
+                if (layer) {
+                    this.aShowLayers[i] = layer.uniqueId;
+                } else {
+                    this.aShowLayers[i] = '';
+                }
+            }
+            for (var i=0; i<this.aHideLayers.length; i++) {
+                var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aHideLayers[i]);
+                if (layer) {
+                    this.aHideLayers[i] = layer.uniqueId;
+                } else {
+                    this.aHideLayers[i] = '';
+                }
+            }
+            
+            for (var i=0; i<this.aShowGroups.length; i++) {
+                var group =  this.layerRoot.findGroupByAttribute('groupName', this.aShowGroups[i]);
+                if (group) {
+                    this.aShowGroups[i] = group.uniqueId;
+                } else {
+                    this.aShowGroups[i] = '';
+                }
+            }
+            
+            for (var i=0; i<this.aHideGroups.length; i++) {
+                var group =  this.layerRoot.findGroupByAttribute('groupName', this.aHideGroups[i]);
+                if (group) {
+                    this.aHideGroups[i] = group.uniqueId;
+                } else {
+                    this.aHideGroups[i] = '';
+                }
+            }
+            
+            this.setExtents(this._afInitialExtents);
             
             //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
@@ -216,6 +252,7 @@ MGMap.prototype =
     },
     
     drawMap: function() {
+        //console.log('MGMap.drawMap');
         this._addWorker();
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
@@ -250,11 +287,10 @@ MGMap.prototype =
 
     _requestMapImage : function(r)
     {
-        var nWidth = this._nWidth;//getObjectWidth(this._oDomObj);
-        var nHeight = this._nHeight;//getObjectHeight(this._oDomObj);
-
         //console.log("MGMap:: _requestMapImage");
-                    
+        var nWidth = this._nWidth;
+        var nHeight = this._nHeight;
+
         if (r.responseXML)
         {
               //parse the new extent
