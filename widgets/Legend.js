@@ -97,6 +97,7 @@ Legend.prototype =
         img = oCommand.oxmlNode.getNodeText('DisabledLayerIcon');
         this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;
         
+        this.layerInfoURL = oCommand.oxmlNode.getNodeText('LayerInfoURL');
         this.selectedLayer = null;
         
         this.oTree = new JxTree(this._oDomObj);
@@ -241,6 +242,11 @@ Legend.prototype =
         } else {
             console.log('setting active layer: ' + o.data);
             this.getMap().setActiveLayer(o.data);
+            //TODO: replace this with a more comprehensive version that could possibly use metadata?
+            if (this.layerInfoURL != '') {
+                var layerInfoURL = this.layerInfoURL.replace(/\{layername\}/g, o.data.layerName);
+                window.open(layerInfoURL, o.data.layerName, '');
+            }
         }
     },
     updateGroupLayers: function(group, fScale) {
