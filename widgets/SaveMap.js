@@ -52,13 +52,23 @@ SaveMap.prototype = {
      */
     activateTool : function()
     {
-        if (!this.iframe) {
-            this.iframe = document.createElement('iframe');
-            this.iframe.style.display = 'none';
-            document.body.appendChild(this.iframe);
+        if(navigator.appVersion.match(/\bMSIE\b/)) {
+            //hack to workaround problem with ie download
+            //var img = document.getElementById('gMapImg').src;
+            //var img = this.getMap()._oImg.src;
+            
+            var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + Fusion.getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
+            window.w = open(url);
+            setTimeout('w.document.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".png)', 1500);
+        }else {
+            if (!this.iframe) {
+                this.iframe = document.createElement('iframe');
+                this.iframe.style.display = 'none';
+                document.body.appendChild(this.iframe);
+            }
+            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName();
+            //console.log(s);
+            this.iframe.src = s;
         }
-        var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName();
-        //console.log(s);
-        this.iframe.src = s;
     }
 };
