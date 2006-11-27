@@ -66,6 +66,7 @@ try
     } else {
         $map = new MgMap();
         $map->Open($resourceService, $mapName);
+        $mapid = $map->GetMapDefinition()->ToString();
     }
 
     //$sessionId =  $map->GetSessionId();
@@ -293,7 +294,7 @@ function GetFeatureClassDefinition($featureService, $layer, $dataSourceId){
 
     $qualifiedClass = $layer->GetFeatureClassName();
     if (strpos($qualifiedClass, ':') === false ) {
-        $class = $qualifiedCLass;
+        $class = $qualifiedClass;
         $schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
     } else {
         list($schema, $class) = explode(':', $qualifiedClass);
