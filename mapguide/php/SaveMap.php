@@ -32,6 +32,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
+
 include('MGCommon.php');
 
 
@@ -56,6 +57,7 @@ catch (MgException $e)
   exit;
 }
 
+/*
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // Date in the past
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
                                              // always modified
@@ -64,6 +66,9 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");                          // HTTP/1.0
 header( "Content-type: application/octet-stream" );
 header( "Content-Disposition: attachment; filename=$mapName.png" );
+*/
+header( "Content-type: image/png" );
+header( "Content-disposition: attachment; filename=$mapName.png" );
 $buffer = '';
 while ($oImg->Read($buffer, 4096) > 0) {
     echo $buffer;
