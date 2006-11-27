@@ -152,7 +152,7 @@ FDOAttributeQuery.prototype = {
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         '&layers='+this.layerName+filter+override, 
+                         '&layer='+this.layerName+filter+override, 
         params.onComplete = this.queryComplete.bind(this);
         Fusion.ajaxRequest(s, params);
         this.triggerEvent(SELECTION_STARTED);
@@ -211,7 +211,7 @@ FDOAttributeQuery.prototype = {
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGQuery." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         '&layer='+this.layerName+filter, 
+                         '&layers='+this.layerName+filter, 
         params.onComplete = this.selectComplete.bind(this);
         Fusion.ajaxRequest(s, params);
     },

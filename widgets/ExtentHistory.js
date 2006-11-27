@@ -61,12 +61,15 @@ ExtentHistory.prototype =
             this.getMap().registerForEvent(MAP_LOADED, this.reset.bind(this));
             
         }
+        this.enable = ExtentHistory.prototype.historyChanged;
+        
+        this.disable = ExtentHistory.prototype.historyChanged;
         
         this.registerEventID(HISTORY_CHANGED);
         
         this.registerForEvent(HISTORY_CHANGED, this.historyChanged.bind(this));
         
-        this._oButton.disableTool()
+        this.disable()
     },
     
     reset: function() {
@@ -107,15 +110,15 @@ ExtentHistory.prototype =
     historyChanged: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
-                this._oButton.enableTool();
+                GxButtonBase.prototype.enable.apply(this,[]);
             } else {
-                this._oButton.disableTool();
+                GxButtonBase.prototype.disable.apply(this,[]);
             }
         } else {
             if (this.aHistory['index'] < (this.aHistory['history'].length - 1)) {
-                this._oButton.enableTool();
+                GxButtonBase.prototype.enable.apply(this,[]);
             } else {
-                this._oButton.disableTool();
+                GxButtonBase.prototype.disable.apply(this,[]);
             }
         }
     },
