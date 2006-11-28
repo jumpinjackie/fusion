@@ -1,10 +1,12 @@
 <?php
+/*
+ * Buffer selected features.
+ */
+
 include ('MGCommon.php');
 include ('MGUtilities.php');
 
 try {
-
-    /* */
     header('content-type: text/xml');
     if (!isset($_REQUEST['session']) || 
         !isset($_REQUEST['mapname']) ||
@@ -50,61 +52,32 @@ try {
 
     $layers = $map->GetLayers();
     try {
+        /* if the layer already exists, we'll clear the existing features
+         * from it and reset the content
+         */
         $layer = $layers->GetItem($layerName);
         $layerId = $layer->GetLayerDefinition();
         $featureSourceName = $layer->GetFeatureSourceId();
         $featureSourceId = new MgResourceIdentifier($featureSourceName);
         $featureClassName = $layer->GetFeatureClassName();
         ClearFeatureSource($featureService, $featureSourceId, $featureClassName);
+        BuildLayerContent($resourceService, $layerId, 
+                          $featureSourceName, $schemaName, 
+                          $layerName, $fillColor, $borderColor);
+        
     } catch (MgObjectNotFoundException $nfe) {
         $featureSourceName = "Session:".$sessionID."//".$layerName.".FeatureSource";
-        //$featureSourceName = "Library:"."//".$layerName.".FeatureSource";
         $featureSourceId = new MgResourceIdentifier($featureSourceName);
         CreateFeatureSource($map, $featureSourceId, $layerName, $featureService, 
                             MgFeatureGeometricType::Surface, $schemaName);
 
         //create the output layer definition of poylgon type
         $layerDefinition = "Session:".$sessionID."//". $layerName.".LayerDefinition";
-        //$layerDefinition = "Library:"."//". $layerName.".LayerDefinition";
         $layerId = new MgResourceIdentifier($layerDefinition);
-        $layerContent = '<?xml version="1.0" encoding="UTF-8"?>
-            <LayerDefinition version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="LayerDefinition-1.0.0.xsd">
-            <VectorLayerDefinition>
-              <ResourceId>%s</ResourceId>
-              <FeatureName>%s:%s</FeatureName>
-              <FeatureNameType>FeatureClass</FeatureNameType>
-              <Geometry>GEOM</Geometry>
-              <VectorScaleRange>
-                <AreaTypeStyle>
-                  <AreaRule>
-                    <LegendLabel/>
-                    <AreaSymbolization2D>
-                      <Fill>
-                        <FillPattern>Solid</FillPattern>
-                        <ForegroundColor>%s</ForegroundColor>
-                        <BackgroundColor>FF000000</BackgroundColor>
-                      </Fill>
-                      <Stroke>
-                        <LineStyle>Solid</LineStyle>
-                        <Thickness>0</Thickness>
-                        <Color>%s</Color>
-                        <Unit>Points</Unit>
-                      </Stroke>
-                    </AreaSymbolization2D>
-                  </AreaRule>
-                </AreaTypeStyle>
-              </VectorScaleRange>
-            </VectorLayerDefinition>
-            </LayerDefinition>
-            ';
-        $layerContent = sprintf($layerContent,
-                            $featureSourceName,
-                            $schemaName,
-                            $layerName,
-                            $fillColor,
-                            $borderColor);
-        $oByteSource = new MGByteSource($layerContent, strlen($layerContent));
-        $resourceService->SetResource($layerId, $oByteSource->GetReader(), null);
+        
+        BuildLayerContent($resourceService, $layerId, 
+                          $featureSourceName, $schemaName, 
+                          $layerName, $fillColor, $borderColor);
 
         $layer = new MGLayer($layerId, $resourceService);
         $layer->SetName($layerName);
@@ -224,5 +197,46 @@ try {
     echo $e->GetStackTrace() . "\n";
 }
 
+function BuildLayerContent($resourceService, $layerId, $featureSourceName, $schemaName, $layerName, $fillColor, $borderColor) {
+    $layerContent = '<?xml version="1.0" encoding="UTF-8"?>
+        <LayerDefinition version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="LayerDefinition-1.0.0.xsd">
+        <VectorLayerDefinition>
+          <ResourceId>%s</ResourceId>
+          <FeatureName>%s:%s</FeatureName>
+          <FeatureNameType>FeatureClass</FeatureNameType>
+          <Geometry>GEOM</Geometry>
+          <VectorScaleRange>
+            <AreaTypeStyle>
+              <AreaRule>
+                <LegendLabel/>
+                <AreaSymbolization2D>
+                  <Fill>
+                    <FillPattern>Solid</FillPattern>
+                    <ForegroundColor>%s</ForegroundColor>
+                    <BackgroundColor>FF000000</BackgroundColor>
+                  </Fill>
+                  <Stroke>
+                    <LineStyle>Solid</LineStyle>
+                    <Thickness>0</Thickness>
+                    <Color>%s</Color>
+                    <Unit>Points</Unit>
+                  </Stroke>
+                </AreaSymbolization2D>
+              </AreaRule>
+            </AreaTypeStyle>
+          </VectorScaleRange>
+        </VectorLayerDefinition>
+        </LayerDefinition>
+        ';
+    $layerContent = sprintf($layerContent,
+                        $featureSourceName,
+                        $schemaName,
+                        $layerName,
+                        $fillColor,
+                        $borderColor);
+    $oByteSource = new MGByteSource($layerContent, strlen($layerContent));
+    $resourceService->SetResource($layerId, $oByteSource->GetReader(), null);
+}
 
+?>
 
