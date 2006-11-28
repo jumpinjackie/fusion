@@ -161,15 +161,47 @@ Buffer.prototype = {
     },
     
     execute: function() {
-        var layer = '&layer='+this.getValue(this.layerNameInput);
-        var distance = '&distance='+this.getValue(this.bufferDistanceInput);
-        var distanceUnits = '&distanceunits='+this.getValue(this.bufferUnitsInput);
-        var borderColor = '&bordercolor='+this.getValue(this.borderColorInput);
-        var fillColor = '&fillcolor='+this.getValue(this.fillColorInput);
+        var layer = '&layer=';
+        if (this.layerNameInput) {
+            layer += this.getValue(this.layerNameInput);
+        } else {
+            layer += this.layerName;
+        }
+        
+        var d;
+        if (this.bufferDistanceInput) {
+            d = this.getValue(this.bufferDistanceInput);
+        } else {
+            d = this.bufferDistance;
+        }
+        
+        var du;
+        if (this.bufferUnitsInput) {
+            du = this.getValue(this.bufferUnitsInput);
+        } else {
+            du = this.bufferUnits;
+        }
+        
+        /* convert distance to meters client side */
+        var distance = '&distance='+Fusion.toMeter(Fusion.unitFromName(du), d);
+        
+        var borderColor = '&bordercolor=';
+        if (this.borderColorInput) {
+            borderColor += this.getValue(this.borderColorInput);
+        } else {
+            borderColor += this.borderColor;
+        }
+        
+        var fillColor = '&fillcolor=';
+        if (this.fillColorInput) {
+            fillColor += this.getValue(this.fillColorInput);
+        } else {
+            fillColor += this.fillColor;
+        }
         
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGBuffer." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+distance+distanceUnits+borderColor+fillColor; 
+        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+distance+borderColor+fillColor; 
         params.onComplete = this.bufferCreated.bind(this);
         Fusion.ajaxRequest(s, params);
     },
