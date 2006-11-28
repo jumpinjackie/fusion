@@ -46,10 +46,6 @@ try {
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
     $agfRW = new MgAgfReaderWriter();
     
-    /* if we are merging, put all the geometries into
-       a single geometry collection */
-    $inputGeometries = new MgGeometryCollection();
-
     $layers = $map->GetLayers();
     try {
         /* if the layer already exists, we'll clear the existing features
@@ -92,7 +88,13 @@ try {
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     $selLayers = $selection->GetLayers();
-        
+    
+    /* if we are merging, put all the geometries into
+       a single geometry collection */
+    $inputGeometries = new MgGeometryCollection();
+
+    /* store the insert commands for creating buffers */
+    $oCommandsColl = new MgFeatureCommandCollection();
     
     $nCount = $selLayers->GetCount();
     for ($i=0; $i<$nCount; $i++) {
@@ -105,8 +107,6 @@ try {
         $queryOptions->SetFilter($filter);
         $featureSource = new MgResourceIdentifier($selLayer->GetFeatureSourceId());
         $featureReader = $featureService->SelectFeatures($featureSource, $featureClassName, $queryOptions);
-        
-        $oCommandsColl = new MgFeatureCommandCollection();
 
         $classDef = $featureReader->GetClassDefinition();
         $geomPropName = $classDef->GetDefaultGeometryPropertyName();
@@ -158,32 +158,60 @@ try {
         $dist = $layerCs->ConvertMetersToCoordinateSystemUnits($distance);
 
         // calculate great circle unless data source srs is arbitrary
-        if(!$arbitraryDsSrs)
+        if(!$arbitraryDsSrs) {
             $measure = new MgCoordinateSystemMeasure($layerCs);
-        else
+        } else {
             $measure = null;
-
+        }
         // create a SRS transformer if necessary.
-        if($srsDefDs != $srsDefMap)
+        if($layerSrsWkt != $srsDefMap) {
             $srsXform = new MgCoordinateSystemTransform($layerCs, $srsMap);
-        else
+        } else {
             $srsXform = null;
-
+        }
         while ($featureReader->ReadNext()) {
             $oGeomAgf = $featureReader->GetGeometry($geomPropName);
             $oGeom = $agfRW->Read($oGeomAgf);
-            /* use measure to accomodate differences in SRS */
-            $oNewGeom = $oGeom->Buffer($dist, $measure);
+            
+            if (!$merge) {
+                /* use measure to accomodate differences in SRS */
+                $oNewGeom = $oGeom->Buffer($dist, $measure);
 
+                $geomProp = new MgGeometryProperty("GEOM", $agfRW->Write($oNewGeom));
+                $oPropertyColl = new MgPropertyCollection();
+
+                $oPropertyColl->Add($geomProp);
+                $oCommandsColl->Add(new MgInsertFeatures($schemaName.':'.$layerName, $oPropertyColl));
+            } else {
+                if ($srsXform == null) {
+                    $oNewGeom = $oGeom;
+                } else {
+                    $oNewGeom = $oGeom->Transform($srsXform);
+                }
+                $inputGeometries->Add($oNewGeom);
+            }
+        }
+        $featureReader->Close();
+    }
+    if($merge) {
+        if($inputGeometries->GetCount() > 0) {
+            $dist = $srsMap->ConvertMetersToCoordinateSystemUnits($distance);
+            if(!$arbitraryMapSrs) {
+                $measure = new MgCoordinateSystemMeasure($srsMap);
+            } else {
+                $measure = null;
+            }
+            $geomFactory = new MgGeometryFactory();
+            $oGeom = $geomFactory->CreateMultiGeometry($inputGeometries);
+            $oNewGeom = $oGeom->Buffer($dist, $measure);
             $geomProp = new MgGeometryProperty("GEOM", $agfRW->Write($oNewGeom));
             $oPropertyColl = new MgPropertyCollection();
 
             $oPropertyColl->Add($geomProp);
             $oCommandsColl->Add(new MgInsertFeatures($schemaName.':'.$layerName, $oPropertyColl));
         }
-        $featureReader->Close();
-        $result = $featureService->UpdateFeatures($featureSourceId, $oCommandsColl, false);
     }
+    $result = $featureService->UpdateFeatures($featureSourceId, $oCommandsColl, false);
     $layer->ForceRefresh();
     $map->Save($resourceService);
     echo "<Buffer>";
