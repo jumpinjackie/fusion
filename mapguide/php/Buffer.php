@@ -15,13 +15,18 @@ try {
         echo "<Error>Arguments missing </Error>";
         exit;
     }
-
+    
+    /* currently no way to set this, but if we did provide a way, it
+       would allow creation of multiple buffers on individual objects
+       in the selection rather than a combined buffer */
+    $merge = true;
+    
     $layerName = $_REQUEST['layer'];
     $distance = $_REQUEST['distance'];
     $fillColor = $_REQUEST['fillcolor'];
     $borderColor = $_REQUEST['bordercolor'];
 
-    $schemaName = 'Buffer';
+    $schemaName = 'BufferSchema';
 
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
@@ -38,6 +43,10 @@ try {
 
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
     $agfRW = new MgAgfReaderWriter();
+    
+    /* if we are merging, put all the geometries into
+       a single geometry collection */
+    $inputGeometries = new MgGeometryCollection();
 
     $layers = $map->GetLayers();
     try {
@@ -45,6 +54,8 @@ try {
         $layerId = $layer->GetLayerDefinition();
         $featureSourceName = $layer->GetFeatureSourceId();
         $featureSourceId = new MgResourceIdentifier($featureSourceName);
+        $featureClassName = $layer->GetFeatureClassName();
+        ClearFeatureSource($featureService, $featureSourceId, $featureClassName);
     } catch (MgObjectNotFoundException $nfe) {
         $featureSourceName = "Session:".$sessionID."//".$layerName.".FeatureSource";
         //$featureSourceName = "Library:"."//".$layerName.".FeatureSource";
