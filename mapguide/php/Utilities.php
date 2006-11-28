@@ -31,6 +31,13 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
     $featureService->CreateFeatureSource($dataSourceId, $params);
 }
 
+function ClearFeatureSource($featureService, $dataSourceId, $featureName) {
+    $deleteCmd = new MgDeleteFeatures($featureName, "KEY > 0");
+    $commands = new MgFeatureCommandCollection();
+    $commands->Add($deleteCmd);
+    $featureService->UpdateFeatures($dataSourceId, $commands, false);
+}
+
 //------------------------------------------------------------------------------
 //duplicate a layer in the session so that it can refer to a different session
 //feature source.
@@ -547,5 +554,4 @@ function GetLayerTypes($featureService, $layer) {
     }
     return $aLayerTypes[0];
 }
-
 ?>
