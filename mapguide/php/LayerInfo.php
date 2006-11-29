@@ -54,9 +54,14 @@ $map->Open($resourceService, $mapName);
 
 //Get the layer
 $layerCollection=$map->GetLayers();
-$layer = $layerCollection->GetItem($_REQUEST['layer']);
-if ($layer == null) {
-    echo '<Error>Layer '.$_REQUEST['layer'].' Not Found</Error>';
+try {
+    $layer = $layerCollection->GetItem($_REQUEST['layer']);
+    if ($layer == null) {
+        echo '<Error>Layer '.$_REQUEST['layer'].' Not Found</Error>';
+        exit;
+    }
+} catch (MgException $e) {
+    echo 'exception';
     exit;
 }
 $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
