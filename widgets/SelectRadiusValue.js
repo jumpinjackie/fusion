@@ -54,7 +54,6 @@ SelectRadiusValue.prototype =
         if (oCommand.getName() != '') {
             $(oCommand.getName()).appendChild(this.domObj);
         }
-        this.radiusChangeWatcher = this.updateFromWidgetValue.bind(this);
         Event.observe(this.input, 'blur', this.onBlur.bind(this));
         this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
@@ -62,14 +61,10 @@ SelectRadiusValue.prototype =
     },
     
     mapLoaded: function() {
-        if (this.widget) {
-            this.widget.deregisterForEvent(RADIUS_CHANGED, this.radiusChangeWatcher);
-        }
         var widgets = Fusion.getWidgetsByType('SelectRadius');
         for (var i=0; i<widgets.length; i++) {
             if (widgets[i].sName == this.radiusWidgetName) {
                 this.widget = widgets[i];
-                this.widget.registerForEvent(RADIUS_CHANGED, this.radiusChangeWatcher)
             }
         }
         this.updateFromWidgetValue();
