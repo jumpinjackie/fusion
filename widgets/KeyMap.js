@@ -47,24 +47,36 @@ KeyMap.prototype =
         this.fMinY = this.oCommand.oxmlNode.getNodeText('MinY');
         this.fMaxX = this.oCommand.oxmlNode.getNodeText('MaxX');
         this.fMaxY = this.oCommand.oxmlNode.getNodeText('MaxY');
-        this.nWidth = this.oCommand.oxmlNode.getNodeText('KeyMapWidth');
+        
+        /*this.nWidth = this.oCommand.oxmlNode.getNodeText('KeyMapWidth');
         this.nHeight = this.oCommand.oxmlNode.getNodeText('KeyMapHeight');
+        */
+        var size = Element.getDimensions(this.oDomObj);
+        this.nWidth = size.width;
+        this.nHeight = size.height;
+        console.log('keymap width: '+this.nWidth + ', height: ' + this.nHeight);
 
         this.fCellWidth =  (this.fMaxX - this.fMinX)/this.nWidth;
         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
-        this.getMap().registerForEvent(MAP_LOADED, this.draw.bind(this));
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
+        this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(MAP_RESIZED, this.mapResized.bind(this));
     },
-
-    extentsChangedCB : function()
-    {
+    
+    mapLoaded: function() {
+        this.draw();
+    },
+    
+    mapResized: function() {
+        this.draw();
+    },
+    
+    extentsChanged : function() {
         this.draw();
     },
 
-
-    draw : function()
-    {
+    draw : function() {
         if (!this.oDomImgObj) {
             //create an image to hold the keymap
             this.oDomImgObj = document.createElement( 'img' );
@@ -93,7 +105,18 @@ KeyMap.prototype =
 
     update : function()
     {  
+        var size = Element.getDimensions(this.oDomObj);
+        this.nWidth = size.width;
+        this.nHeight = size.height;
+        console.log('update keymap width: '+this.nWidth + ', height: ' + this.nHeight);
+
+        this.fCellWidth =  (this.fMaxX - this.fMinX)/this.nWidth;
+        this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
+        
         var aMapExtents = this.getMap().getCurrentExtents();
+        if (!aMapExtents) {
+            return;
+        }
 
         var fDeltaX = (aMapExtents[2] - aMapExtents[0])/(this.fMaxX - this.fMinX)
         var fDeltaY = (aMapExtents[3] - aMapExtents[1])/(this.fMaxY - this.fMinY)
