@@ -28,6 +28,8 @@
  * perform a selection using the map guide web layout conifiguration file
  * 
  * **********************************************************************/
+var gnLastEventId = 0;
+RADIUS_CHANGED = gnLastEventId ++;
 
 Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxCanvasTool.js');
@@ -41,16 +43,28 @@ SelectRadius.prototype = {
         Object.inheritFrom(this, GxWidget.prototype, ['SelectRadius', true]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, EventMgr.prototype, []);
+        
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
         if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0) {
             nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
         }
+        
+        this.registerEventID(RADIUS_CHANGED);
     },
     
     setRadius: function(r) {
         this.defaultRadius = r;
+    },
+    
+    getRadius: function() {
+        if (this.circle) {
+            return this.circle.radius;
+        } else {
+            return this.defaultRadius;
+        }
     },
     
     /**
@@ -131,6 +145,7 @@ SelectRadius.prototype = {
         }
         this.clearContext();
         this.circle.draw(this.context);
+        this.triggerEvent(RADIUS_CHANGED, this);
     },
     
     mouseUp: function(e) {
