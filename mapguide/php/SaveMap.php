@@ -35,6 +35,7 @@
 
 include('MGCommon.php');
 
+$format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
 
 try
 {
@@ -46,7 +47,7 @@ try
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     
-    $oImg = $renderingService->RenderMap($map, $selection, 'PNG');
+    $oImg = $renderingService->RenderMap($map, $selection, $format);
     
 }
 catch (MgException $e)
@@ -67,8 +68,8 @@ header("Pragma: no-cache");                          // HTTP/1.0
 header( "Content-type: application/octet-stream" );
 header( "Content-Disposition: attachment; filename=$mapName.png" );
 */
-header( "Content-type: image/png" );
-header( "Content-disposition: attachment; filename=$mapName.png" );
+header( "Content-type: image/$format" );
+header( "Content-disposition: attachment; filename=$mapName.$format" );
 $buffer = '';
 while ($oImg->Read($buffer, 4096) > 0) {
     echo $buffer;

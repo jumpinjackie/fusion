@@ -37,7 +37,7 @@ SaveMap.prototype = {
         Object.inheritFrom(this, GxWidget.prototype, ['SaveMap', false]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
-        
+        this.format = oCommand.oxmlNode.getNodeText('Format');
         this.enable = SaveMap.prototype.enable;
     },
     
