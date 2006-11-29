@@ -48,6 +48,31 @@ SelectRadius.prototype = {
         if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0) {
             nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
         }
+        
+        var container = oCommand.oxmlNode.getNodeText('RadiusTooltipContainer');
+        if (container != '') {
+            this.radiusTip = $(container);
+        }
+        
+        if (this.radiusTip) {
+            var type = oCommand.oxmlNode.getNodeText('RadiusTooltipType');
+            switch (type.toLowerCase()) {
+                case 'dynamic':
+                case 'static':
+                    this.radiusTipType = type.toLowerCase();
+                default:
+                    this.radiusTipType = 'dynamic';
+            }
+            if (this.radiusTipType == 'dynamic') {
+                var oDomElem =  this.getMap().getDomObj();
+                oDomElem.appendChild(this.radiusTip);
+                this.radiusTip.style.position = 'absolute';
+                this.radiusTip.style.display = 'none';
+                this.radiusTip.style.top = '0px';
+                this.radiusTip.style.left = '0px';
+                this.radiusTip.style.zIndex = 101;
+            }
+        }
     },
     
     setRadius: function(r) {
@@ -118,6 +143,14 @@ SelectRadius.prototype = {
                 this.isDigitizing = true;
             }
         }
+        if (this.radiusTip && this.radiusTipType == 'dynamic') {
+            this.radiusTip.style.display = 'block';
+            var size = Element.getDimensions(this.radiusTip);
+            this.radiusTip.style.top = (p.y - size.height*2) + 'px';
+            this.radiusTip.style.left = p.x + 'px';
+            var r = this.getMap().pixToGeoMeasure(this.circle.radius);
+            this.radiusTip.innerHTML = r;
+        }
     },
 
     /**
@@ -140,6 +173,16 @@ SelectRadius.prototype = {
         }
         this.clearContext();
         this.circle.draw(this.context);
+        
+        if (this.radiusTip && this.radiusTipType == 'dynamic') {
+            this.radiusTip.style.display = 'block';
+            var size = Element.getDimensions(this.radiusTip);
+            this.radiusTip.style.top = (p.y - size.height*2) + 'px';
+            this.radiusTip.style.left = p.x + 'px';
+            var r = this.getMap().pixToGeoMeasure(this.circle.radius);
+            this.radiusTip.innerHTML = r;
+        }
+        
     },
     
     mouseUp: function(e) {
@@ -152,6 +195,12 @@ SelectRadius.prototype = {
             var radius = this.getMap().pixToGeoMeasure(this.circle.radius);
             this.execute(center, radius);
         }
+        
+        if (this.radiusTip && this.radiusTipType == 'dynamic') {
+            this.radiusTip.style.display = 'none';
+            this.radiusTip.innerHTML = '';
+        }
+        
     },
 
     /**
