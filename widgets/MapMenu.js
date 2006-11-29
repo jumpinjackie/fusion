@@ -75,6 +75,7 @@ MapMenu.prototype =
         //set up the root menu
         this.oMenu = new JxButtonMenu(this._sLabel);
         this._oButton._oDomObj.appendChild(this.oMenu.domObj);
+        Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
         
         //get the mapdefinitions as xml
         this.sRootFolder = (oCommand.oxmlNode.findFirstNode('Folder'))?
