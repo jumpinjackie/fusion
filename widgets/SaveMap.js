@@ -38,6 +38,9 @@ SaveMap.prototype = {
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         this.format = oCommand.oxmlNode.getNodeText('Format');
+        if (this.format == '') {
+            this.format = 'png';
+        }
         this.enable = SaveMap.prototype.enable;
     },
     
@@ -66,7 +69,7 @@ SaveMap.prototype = {
                 this.iframe.style.display = 'none';
                 document.body.appendChild(this.iframe);
             }
-            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName();
+            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format;
             //console.log(s);
             this.iframe.src = s;
         }
