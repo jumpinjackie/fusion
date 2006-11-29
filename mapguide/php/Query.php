@@ -109,7 +109,7 @@ try {
                 $layerObj = $mapLayers->GetItem($i);
             }
             
-            if (!$layerObj->GetSelectable()) {
+            if (!$layerObj->GetSelectable() || !$layerObj->IsVisible()) {
                 continue;
             }
 
