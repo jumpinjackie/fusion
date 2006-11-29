@@ -57,7 +57,17 @@ ZoomSlider.prototype =
         this._oSlider = new Control.Slider(this._oHandle, this._oTrack, options);
         
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
+        this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
         
+    },
+    
+    mapLoaded: function() {
+        /* rough scale approximation -  */
+        var scale = this.getMap()._fScale;
+        //TODO I tried to expand the range by 20% but it causes problems
+        this.fMaxScale = scale;
+        this._oSlider.range = $R(this.fMinScale, this.fMaxScale);
+        this._oSlider.setValue(scale);
     },
     
     clipScale: function(scale) {

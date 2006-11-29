@@ -116,12 +116,24 @@ Legend.prototype =
         } else {
             this.oRoot = this.oTree;
         }
+        this.extentsChangedWatcher = this.update.bind(this);
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.update.bind(this));
-        this.getMap().registerForEvent(MAP_LOADED, this.draw.bind(this));
+        this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(MAP_LOADING, this.mapLoading.bind(this));
         
         //this.getLayers();
     },
+    
+    mapLoading: function() {
+        //this.getMap().deregisterForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.clear();
+    },
+    
+    mapLoaded: function() {
+        //this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.draw();
+    },
+    
     /**
      * the map state has become invalid in some way (layer added, removed,
      * ect).  For now, we just re-request the map state from the server
@@ -140,8 +152,8 @@ Legend.prototype =
      *
      * @param r Object the reponse xhr object
      */
-    draw: function(r)
-    {
+    draw: function(r) {
+        
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();

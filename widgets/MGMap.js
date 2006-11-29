@@ -35,6 +35,7 @@ var MGMAP_SELECTION_ON = gnLastEventId++;
 var MGMAP_SELECTION_OFF = gnLastEventId++;
 var MGMAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
 var MAP_LOADED = gnLastEventId++;
+var MAP_LOADING = gnLastEventId++;
 
 var MGMap = Class.create();
 
@@ -62,6 +63,7 @@ MGMap.prototype =
         this.registerEventID(MGMAP_SELECTION_OFF);
         this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
         this.registerEventID(MAP_LOADED);
+        this.registerEventID(MAP_LOADING);
         
         this._oConfigObj = Fusion.oConfigMgr;
         
@@ -73,6 +75,8 @@ MGMap.prototype =
     },
     
     loadMap: function(resourceId, options) {
+        this.triggerEvent(MAP_LOADING);
+        
         this._addWorker();
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
@@ -176,6 +180,7 @@ MGMap.prototype =
     },
     
     reloadMap: function() {
+        
         this._addWorker();
         //console.log('loadMap: ' + resourceId);
         this.aShowLayers = [];
@@ -242,14 +247,12 @@ MGMap.prototype =
         return (this._afCurrentExtents) ? true : false;
     },
 
-    setExtents : function(aExtents)
-    {
+    setExtents : function(aExtents) {
         this.setExtentsGxMap(aExtents);
         this.drawMap();
     },
 
-    getScale : function()
-    {
+    getScale : function() {
         return this._fScale;
     },
     
