@@ -84,7 +84,9 @@ Legend.prototype =
         this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/tree_theme.png';
         this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/tree_layer.png';
         this.defRootFolderIcon = Fusion.getFusionURL() + 'images/tree_map.png';
-
+        this.defLayerInfoIcon = Fusion.getFusionURL() + 'images/tree_layer_info.png';
+        this.defGroupInfoIcon = Fusion.getFusionURL() + 'images/tree_group_info.png';
+        
         //console.log('Legend.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
         this.setMap(oCommand.getMap());
@@ -95,7 +97,13 @@ Legend.prototype =
         this.imgLayerThemeIcon = (img != '') ? img : this.defLayerThemeIcon;
 
         img = oCommand.oxmlNode.getNodeText('DisabledLayerIcon');
-        this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;
+        this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;        
+        
+        img = oCommand.oxmlNode.getNodeText('LayerInfoIcon');
+        this.imgLayerInfoIcon = (img != '') ? img : this.defLayerInfoIcon;
+
+        img = oCommand.oxmlNode.getNodeText('GroupInfoIcon');
+        this.imgGroupInfoIcon = (img != '') ? img : this.defGroupInfoIcon;
         
         this.layerInfoURL = oCommand.oxmlNode.getNodeText('LayerInfoURL');
         this.selectedLayer = null;
@@ -153,10 +161,10 @@ Legend.prototype =
      * @param r Object the reponse xhr object
      */
     draw: function(r) {
-        
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();
+        this.oMapInfo = map.oMapInfo;
         if (!map.layerRoot.legend) {
             map.layerRoot.legend = {};
             map.layerRoot.legend.treeItem = this.oRoot;
@@ -186,6 +194,17 @@ Legend.prototype =
             group.legend.checkBox.checked = group.visible?true:false;
             Event.observe(group.legend.checkBox, 'click', this.stateChanged.bind(this, group));
             group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
+            var groupInfo = this.getGroupInfoUrl(group.groupName);
+            if (groupInfo) {
+                var a = document.createElement('a');
+                a.href = groupInfo;
+                a.target = '_blank';
+                var img = document.createElement('img');
+                img.src = this.imgGroupInfoIcon;
+                img.border = 0;
+                a.appendChild(img);
+                group.legend.treeItem.domObj.insertBefore(a, group.legend.treeItem.domObj.childNodes[4]);
+            }
             if (this.oSelectionListener) {
                 group.legend.treeItem.addSelectionListener(this);
             }
@@ -223,7 +242,6 @@ Legend.prototype =
      * update the tree when the map scale changes
      */
     _update: function() {
-        console.log('Legend.update');
         var currentScale = this.getMap().getScale();
         var map = this.getMap();
         for (var i=0; i<map.layerRoot.groups.length; i++) {
@@ -252,13 +270,7 @@ Legend.prototype =
         if (o.data instanceof MGGroup) {
             this.getMap().setActiveLayer(null);
         } else {
-            console.log('setting active layer: ' + o.data);
             this.getMap().setActiveLayer(o.data);
-            //TODO: replace this with a more comprehensive version that could possibly use metadata?
-            if (this.layerInfoURL != '') {
-                var layerInfoURL = this.layerInfoURL.replace(/\{layername\}/g, o.data.layerName);
-                window.open(layerInfoURL, o.data.layerName, '');
-            }
         }
     },
     updateGroupLayers: function(group, fScale) {
@@ -270,21 +282,17 @@ Legend.prototype =
         }    
     },
     updateLayer: function(layer, fScale) {
-        console.log('updateLayer: ' + layer.layerName);
         var bFirstDisplay = false;
         if (!layer.displayInLegend) {
-            console.log('displayInLegend false');
             return;
         }
         var range = layer.getScaleRange(fScale);
         if (range == layer.legend.currentRange && layer.legend.treeItem) {
-            console.log('current scale range not different from last one.');
             return;
         }
         
         layer.legend.currentRange = range;
         if (range != null) {
-            console.log('range is not null');
             layer.legend.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
@@ -323,7 +331,6 @@ Legend.prototype =
             }
             
         } else {
-            console.log('range is null');
             layer.legend.checkBox.disabled = true;
             //this.clearTreeItem(layer);
             var newTreeItem = this.createTreeItem(layer, null, null, true);
@@ -348,7 +355,17 @@ Legend.prototype =
         opt.imgTreeFolder = layer.themeIcon;
         var folder = new JxTreeFolder(opt);
         folder.domObj.insertBefore(layer.legend.checkBox, folder.domObj.childNodes[1]);
-        
+        var layerInfo = this.getLayerInfoUrl(layer.layerName);
+        if (layerInfo) {
+            var a = document.createElement('a');
+            a.href = layerInfo;
+            a.target = '_blank';
+            var img = document.createElement('img');
+            img.src = this.imgLayerInfoIcon;
+            img.border = 0;
+            a.appendChild(img);
+            folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
+        }
         folder.addSelectionListener(this);
         
         return folder;
@@ -371,6 +388,18 @@ Legend.prototype =
         
         if (bCheckBox) {
             item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
+            /* only need to add layer info if it has a check box too */
+            var layerInfo = this.getLayerInfoUrl(layer.layerName);
+            if (layerInfo) {
+                var a = document.createElement('a');
+                a.href = layerInfo;
+                a.target = '_blank';
+                var img = document.createElement('img');
+                img.src = this.imgLayerInfoIcon;
+                img.border = 0;
+                a.appendChild(img);
+                item.domObj.insertBefore(a, item.domObj.childNodes[4]);
+            }
         }
 
         item.addSelectionListener(this);
@@ -393,5 +422,30 @@ Legend.prototype =
                 obj.hide();
             }
         }
+    },
+    getGroupInfoUrl: function(groupName) {
+        console.log('looking for ' + groupName);
+        if (this.oMapInfo) {
+            var groups = this.oMapInfo.links.groups;
+            for (var i=0; i<groups.length; i++) {
+                console.log('checking ' + groups[i].name);
+                if (groups[i].name == groupName) {
+                    console.log('found ' + groupName);
+                    return groups[i].url;
+                }
+            }
+        }
+        return null;
+    },
+    getLayerInfoUrl: function(layerName) {
+        if (this.oMapInfo) {
+            var layers = this.oMapInfo.links.layers;
+            for (var i=0; i<layers.length; i++) {
+                if (layers[i].name == layerName) {
+                    return layers[i].url;
+                }
+            }
+        }
+        return null;
     }
 };
