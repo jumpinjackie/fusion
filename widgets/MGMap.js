@@ -169,6 +169,8 @@ MGMap.prototype =
                 }
             }
             
+            this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
+            
             this.setExtents(this._afInitialExtents);
             
             //this._calculateScale();
