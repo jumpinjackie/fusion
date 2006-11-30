@@ -99,6 +99,7 @@ SelectPolygon.prototype =
             var p = this.getMap().getEventPosition(e);
 
             if (!this.isDigitizing) {
+                this.polygon = new FeaturePolygon(this.getMap());
                 var point = this.getMap().pixToGeo(p.x, p.y);
                 var from = new Node(point.x,point.y, this.getMap());
                 var to = new Node(point.x,point.y, this.getMap());
