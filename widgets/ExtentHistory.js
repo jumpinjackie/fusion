@@ -29,8 +29,7 @@
 
 Fusion.require('widgets/GxButtonBase.js');
 
-var gnLastEventId = 0;
-HISTORY_CHANGED = gnLastEventId ++;
+var HISTORY_CHANGED = 0;
 
 var ExtentHistory = Class.create();
 ExtentHistory.prototype = 
@@ -68,8 +67,8 @@ ExtentHistory.prototype =
         this.registerEventID(HISTORY_CHANGED);
         
         this.registerForEvent(HISTORY_CHANGED, this.historyChanged.bind(this));
-        
-        this.disable()
+        console.log(this.events[HISTORY_CHANGED].length);
+        this.disable();
     },
     
     reset: function() {
@@ -94,7 +93,6 @@ ExtentHistory.prototype =
                 aExtents[1] == extents[1] &&
                 aExtents[2] == extents[2] &&
                 aExtents[3] == extents[3]) {
-                //nothing to do
                 return;
             }
             //clear forward history if we have gone backwards at some point
@@ -126,14 +124,12 @@ ExtentHistory.prototype =
     execute: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
-                console.log('ExtentHistory: moving to previous extents');
                 this.aHistory['index'] --;
                 this.getMap().setExtents(this.aHistory['history'][this.aHistory['index']]);
                 this.triggerEvent(HISTORY_CHANGED);
             }
         } else {
             if (this.aHistory['index'] < (this.aHistory['history'].length - 1)) {
-                console.log('ExtentHistory: moving to next extents');
                 this.aHistory['index'] ++;
                 this.getMap().setExtents(this.aHistory['history'][this.aHistory['index']]);
                 this.triggerEvent(HISTORY_CHANGED);
