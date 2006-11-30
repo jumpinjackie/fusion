@@ -125,12 +125,12 @@ Legend.prototype =
     },
     
     mapLoading: function() {
-        //this.getMap().deregisterForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.getMap().deregisterForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
     },
     
     mapLoaded: function() {
-        //this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.draw();
     },
     
@@ -223,7 +223,7 @@ Legend.prototype =
      * update the tree when the map scale changes
      */
     _update: function() {
-        //console.log('Legend.update');
+        console.log('Legend.update');
         var currentScale = this.getMap().getScale();
         var map = this.getMap();
         for (var i=0; i<map.layerRoot.groups.length; i++) {
@@ -270,18 +270,21 @@ Legend.prototype =
         }    
     },
     updateLayer: function(layer, fScale) {
+        console.log('updateLayer: ' + layer.layerName);
         var bFirstDisplay = false;
         if (!layer.displayInLegend) {
+            console.log('displayInLegend false');
             return;
         }
         var range = layer.getScaleRange(fScale);
         if (range == layer.legend.currentRange && layer.legend.treeItem) {
+            console.log('current scale range not different from last one.');
             return;
         }
         
-        layer.currentRange = range;
+        layer.legend.currentRange = range;
         if (range != null) {
-            
+            console.log('range is not null');
             layer.legend.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
@@ -320,10 +323,17 @@ Legend.prototype =
             }
             
         } else {
+            console.log('range is null');
             layer.legend.checkBox.disabled = true;
-            this.clearTreeItem(layer);
-            layer.legend.treeItem = this.createTreeItem(layer, null, null, true);
-            layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
+            //this.clearTreeItem(layer);
+            var newTreeItem = this.createTreeItem(layer, null, null, true);
+            if (layer.legend.treeItem) {
+                layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
+                layer.legend.treeItem.finalize();
+            } else {
+                layer.parentGroup.legend.treeItem.append(newTreeItem);
+            }
+            layer.legend.treeItem = newTreeItem;
         }
         if (bFirstDisplay) {
             layer.legend.checkBox.checked = layer.visible?true:false;
