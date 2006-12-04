@@ -414,7 +414,6 @@ Legend.prototype =
         }
     },
     stateChanged: function(obj) {
-        console.log('stateChanged');
         if (obj.legend && obj.legend.checkBox) {
             if (obj.legend.checkBox.checked) {
                 obj.show();
@@ -424,13 +423,10 @@ Legend.prototype =
         }
     },
     getGroupInfoUrl: function(groupName) {
-        console.log('looking for ' + groupName);
         if (this.oMapInfo) {
             var groups = this.oMapInfo.links.groups;
             for (var i=0; i<groups.length; i++) {
-                console.log('checking ' + groups[i].name);
                 if (groups[i].name == groupName) {
-                    console.log('found ' + groupName);
                     return groups[i].url;
                 }
             }
