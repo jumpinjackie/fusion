@@ -36,6 +36,7 @@
 
 
 include('MGCommon.php');
+include('MGUtilities.php');
 
 function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName) 
 {
@@ -144,7 +145,14 @@ try
 
     $map = new MgMap();
     $map->Open($resourceService, $mapname);
-
+    
+    /* Get the map SRS - we use this to convert distances */
+    $srsFactory = new MgCoordinateSystemFactory();
+    //safely get an SRS ... (in MGUtilities)
+    $srsDefMap = GetMapSRS($map);
+    $srsMap = $srsFactory->Create($srsDefMap);
+    $mapSrsUnits = $srsMap->GetUnits();
+    
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapname);
     $layers = $selection->GetLayers();
@@ -206,6 +214,7 @@ try
                     $queryOptions->AddFeatureProperty($name);
                 }
                 
+                $queryOptions->AddFeatureProperty($layer->GetFeatureGeometryName());
                 
                 // Apply the filter to the feature resource for the
                 // selected layer. This returns
@@ -220,7 +229,7 @@ try
                 //TODO : use layer definition to only get properties defined.
                 $propCount = $featureReader->GetPropertyCount();
                 
-                $aSelection[$iValidLayer]["nproperties"] = $propCount;
+                $aSelection[$iValidLayer]["nproperties"] = $propCount - 1;
                 $aSelection[$iValidLayer]["properties_name"] = array($propCount);
                 $aSelection[$iValidLayer]["properties_value"] = array($propCount);
                 $aSelection[$iValidLayer]["properties_type"] = array($propCount);
@@ -228,30 +237,118 @@ try
 
                 echo '<PropertiesNumber>' . $propCount . '</PropertiesNumber>';
                 
+                $k=0;
                 for($j=0; $j<$propCount; $j++) 
                 {
-                     $aSelection[$iValidLayer]["properties_name"][$j] = 
-                       $featureReader->GetPropertyName($j);
-                     $aSelection[$iValidLayer]["properties_value"][$j] = 
-                       $mappings[$featureReader->GetPropertyName($j)];
-                     $aSelection[$iValidLayer]["properties_type"][$j] = 
-                       $featureReader->GetPropertyType($featureReader->GetPropertyName($j));
-                     
+                    $propName = $featureReader->GetPropertyName($j);
+                    $propType = $featureReader->GetPropertyType($propName);
+                    if ($propType == MgPropertyType::Geometry) {
+                        continue;
+                    }
+                    $mapping = isset($mappings[$propName]) ? $mappings[$propName] : $propName;
+
+                    $aSelection[$iValidLayer]["properties_name"][$k] = $propName;
+                    $aSelection[$iValidLayer]["properties_value"][$k] = $mapping;
+                    $aSelection[$iValidLayer]["properties_type"][$k] = $propType;
+                    $k++;
                 } 
                 echo '<PropertiesNames>' . implode(",", $aSelection[$iValidLayer]["properties_value"]) . '</PropertiesNames>';
                 echo '<PropertiesTypes>' . implode(",", $aSelection[$iValidLayer]["properties_type"]) . '</PropertiesTypes>';
                 
                 $nElements = 0;
+                
+                $spatialContext = $featureService->GetSpatialContexts($layerFeatureResource, true);
+                $srsLayerWkt = false;
+                if($spatialContext != null) {
+                    $spatialContext->ReadNext();
+                    $srsLayerWkt = $spatialContext->GetCoordinateSystemWkt();
+                    /* skip this layer if the srs is empty */
+                }
+                if ($srsLayerWkt == null) {
+                    $srsLayerWkt = $srsDefMap;
+                }
+                /* create a coordinate system from the layer's SRS wkt */
+                $srsLayer = $srsFactory->Create($srsLayerWkt);
+                
+                // exclude layer if:
+                //  the map is non-arbitrary and the layer is arbitrary or vice-versa
+                //     or
+                //  layer and map are both arbitrary but have different units
+                //
+                $bLayerSrsIsArbitrary = ($srsLayer->GetType() == MgCoordinateSystemType::Arbitrary);
+                $bMapSrsIsArbitrary = ($srsMap->GetType() == MgCoordinateSystemType::Arbitrary);
+                
+                $bComputedProperties = true;
+                if (($bLayerSrsIsArbitrary != $bMapSrsIsArbitrary) || 
+                    ($bLayerSrsIsArbitrary && ($srsLayer->GetUnits() != $srsMap->GetUnits()))) {
+                    $bComputedProperties = false;
+                } else {
+                    $srsTarget = null;
+                    $srsXform = null;
+
+                    if ($srsLayer->GetUnitScale() != 1.0) {
+                        if ($srsMap->GetUnitScale() == 1.0) {
+                            $srsTarget = $srsMap;
+                        } else {
+                            $srsTarget = $srsFactory->Create('PROJCS["UTM84-16N",GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Transverse_Mercator"],PARAMETER["false_easting",500000.000],PARAMETER["false_northing",0.000],PARAMETER["central_meridian",-87.00000000000000],PARAMETER["scale_factor",0.9996],PARAMETER["latitude_of_origin",0.000],UNIT["Meter",1.00000000000000]]');
+                        }
+                        $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
+                    }
+                }
+
                 while ($featureReader->ReadNext())
                 {
-                    echo '<ValueCollection>';
-                    for($j=0; $j<$propCount; $j++) 
+                    $dimension = '';
+                    $bbox = '';
+                    $center = '';
+                    $area = '';
+                    $length = '';
+                    
+                    if ($bComputedProperties) {
+                        $classDef = $featureReader->GetClassDefinition();
+                        $geomName = $classDef->GetDefaultGeometryPropertyName();
+                        if ($geomName != '') {
+                            $geomByteReader = $featureReader->GetGeometry($geomName);
+                            $agf = new MgAgfReaderWriter();
+                            $geom = $agf->Read($geomByteReader);
+
+                            $envelope = $geom->Envelope();
+                            $ll = $envelope->GetLowerLeftCoordinate();
+                            $ur = $envelope->GetUpperRightCoordinate();
+                            $bbox = ' bbox="'.$ll->GetX().','.$ll->GetY().','.$ur->GetX().','.$ur->GetY().'"';
+                            $centroid = $geom->GetCentroid()->GetCoordinate();
+                            $center = ' center="'.$centroid->GetX().','.$centroid->GetY().'"';
+                            
+                            /* 0 = point, 1 = curve, 2 = surface */
+                            $dimension = ' type="'.$geom->GetDimension().'"';
+
+                            if ($geom->GetDimension() > 0) {
+                                if ($srsXform != null) {
+                                    $geom = $geom->Transform($srsXform);
+                                }
+
+                                if ($geom->GetDimension() > 1) {
+                                    $area = ' area="'.$geom->GetArea().'"';
+                                }
+                                if ($geom->GetDimension() > 0) {
+                                    $length = ' distance="'.$geom->GetLength().'"';
+                                }
+                            }
+                        }
+                    }
+                    echo '<ValueCollection '.$dimension.$bbox.$center.$area.$length.'>';
+                    for($j=0; $j<$k; $j++) 
                     {
                         $aSelection[$iValidLayer]["elements"][$nElements][$j] = 
                           GetPropertyValueFromFeatReader($featureReader, 
                                                          $aSelection[$iValidLayer]["properties_type"][$j],
                                                          $aSelection[$iValidLayer]["properties_name"][$j]);
-                        echo '<v>' . $aSelection[$iValidLayer]["elements"][$nElements][$j] . '</v>';
+                        $value = htmlentities($aSelection[$iValidLayer]["elements"][$nElements][$j]);
+                        $value = addslashes($value);
+                        $value = preg_replace( "/\r?\n/", "<br>", $value );
+                        
+                        echo '<v>' . $value . '</v>';
+                        
                     }
                      echo '</ValueCollection>';
                     $nElements++;
