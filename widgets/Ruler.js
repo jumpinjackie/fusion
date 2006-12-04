@@ -33,6 +33,9 @@ Ruler.prototype =
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
     
+    /* an HTML container to put the current distance in */
+    rulerTip: null,
+    
     initialize : function(oCommand)
     {
         /*console.log('Ruler.initialize');*/
@@ -46,6 +49,32 @@ Ruler.prototype =
         if (unit != '') {
             this.units = Fusion.unitFromName(unit);
         }
+        
+        var container = oCommand.oxmlNode.getNodeText('RulerTooltipContainer');
+        if (container != '') {
+            this.rulerTip = $(container);
+        }
+        
+        if (this.rulerTip) {
+            var type = oCommand.oxmlNode.getNodeText('RulerTooltipType');
+            switch (type.toLowerCase()) {
+                case 'dynamic':
+                case 'static':
+                    this.rulerTipType = type.toLowerCase();
+                default:
+                    this.rulerTipType = 'dynamic';
+            }
+            if (this.rulerTipType == 'dynamic') {
+                var oDomElem =  this.getMap().getDomObj();
+                oDomElem.appendChild(this.rulerTip);
+                this.rulerTip.style.position = 'absolute';
+                this.rulerTip.style.display = 'none';
+                this.rulerTip.style.top = '0px';
+                this.rulerTip.style.left = '0px';
+                this.rulerTip.style.zIndex = 101;
+            }
+        }
+        
         this.registerEventID(RULER_DISTANCE_CHANGED);
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         
@@ -85,12 +114,13 @@ Ruler.prototype =
     resetCanvas: function() {
         if (this.isDigitizing) {
             this.isDigitizing = false;
-            this.clearContext();
-            this.aDistances = [];
-            this.cumulativeDistance = 0;
-            this.lastDistance = 0;
-            this.triggerEvent(RULER_DISTANCE_CHANGED, this);
         }
+        this.clearContext();
+        this.aDistances = [];
+        this.cumulativeDistance = 0;
+        this.lastDistance = 0;
+        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        this.updateTip(null);
     },
     
     /**
@@ -127,6 +157,9 @@ Ruler.prototype =
                 this.cumulativeDistance += d;
                 this.lastDistance = 0;
                 this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
+                if (this.rulerTip) {
+                    this.updateTip(e);
+                }
                 seg.setEditing(false);
                 seg = this.currentFeature.extendLine();
                 seg.setEditing(true);
@@ -153,7 +186,7 @@ Ruler.prototype =
         seg.to.set(gp.x,gp.y);
         this.clearContext();
         this.currentFeature.draw(this.context);
-        this.updateDistance(seg);
+        this.updateDistance(seg, e);
     },
 
     /**
@@ -183,12 +216,20 @@ Ruler.prototype =
         if (this.units != Fusion.PIXELS) {
             dist = dist * map._fMetersperunit;
         }
+        /* magic number - this means the map units are meters! */
+        if (map._fMetersperunit == 111319.4908) {
+            var center = map.getCurrentCenter();
+            dist = dist * Math.cos(2 * Math.PI * center.y / 360);
+        }
         return dist;
     },
     
-    updateDistance: function(seg) {
+    updateDistance: function(seg, e) {
         this.lastDistance = this.measureSegment(seg);
         this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
+        if (this.rulerTip) {
+            this.updateTip(e);
+        }
     },
     
     getLastDistance: function() {
@@ -210,6 +251,29 @@ Ruler.prototype =
     setParameter: function(param, value) {
         if (param == 'Units') {
             this.units = value;
+        }
+    },
+    
+    updateTip: function(e) {
+        var segDistance = this.getLastDistance();
+        var totalDistance = this.getDistance();
+        
+        segDistance = parseInt(segDistance * 100)/100;
+        totalDistance = parseInt(totalDistance * 100)/100;
+        if (segDistance == 0 && totalDistance == 0) {
+            this.rulerTip.innerHTML = '';
+            if(this.rulerTipType == 'dynamic') {
+                this.rulerTip.style.display = 'none';
+            }
+        } else {
+            this.rulerTip.innerHTML = "Segment: " + segDistance + " " + Fusion.unitName(this.units) + "<BR>Total: " + totalDistance + " " + Fusion.unitName(this.units);
+            if(this.rulerTipType == 'dynamic') {
+                this.rulerTip.style.display = 'block';
+                var p = this.getMap().getEventPosition(e);
+                var size = Element.getDimensions(this.rulerTip);
+                this.rulerTip.style.top = (p.y - size.height*2) + 'px';
+                this.rulerTip.style.left = p.x + 'px';
+            }
         }
     }
 };
