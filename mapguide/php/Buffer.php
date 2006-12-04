@@ -51,11 +51,20 @@ try {
         /* if the layer already exists, we'll clear the existing features
          * from it and reset the content
          */
-        $layer = $layers->GetItem($layerName);
+        $bValidLayer = false;
+        $j = 2;
+        while(!$bValidLayer) {
+            $layer = $layers->GetItem($layerName);
+            $featureClassName = $layer->GetFeatureClassName();
+            if ($featureClassName != $schemaName.':'.$layerName) {
+                $layerName = $layerName . ' (' . $j . ')';
+            } else {
+                $bValidLayer = true;
+            }
+        }
         $layerId = $layer->GetLayerDefinition();
         $featureSourceName = $layer->GetFeatureSourceId();
         $featureSourceId = new MgResourceIdentifier($featureSourceName);
-        $featureClassName = $layer->GetFeatureClassName();
         ClearFeatureSource($featureService, $featureSourceId, $featureClassName);
         BuildLayerContent($resourceService, $layerId, 
                           $featureSourceName, $schemaName, 
