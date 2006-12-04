@@ -285,14 +285,14 @@ try
                 } else {
                     $srsTarget = null;
                     $srsXform = null;
+                    $bNeedsTransform = true;
 
                     if ($srsLayer->GetUnitScale() != 1.0) {
                         if ($srsMap->GetUnitScale() == 1.0) {
                             $srsTarget = $srsMap;
-                        } else {
-                            $srsTarget = $srsFactory->Create('PROJCS["UTM84-16N",GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Transverse_Mercator"],PARAMETER["false_easting",500000.000],PARAMETER["false_northing",0.000],PARAMETER["central_meridian",-87.00000000000000],PARAMETER["scale_factor",0.9996],PARAMETER["latitude_of_origin",0.000],UNIT["Meter",1.00000000000000]]');
+                            $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
+                            $bNeedsTransform = false;
                         }
-                        $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
                     }
                 }
 
@@ -321,8 +321,13 @@ try
                             
                             /* 0 = point, 1 = curve, 2 = surface */
                             $dimension = ' type="'.$geom->GetDimension().'"';
-
+                            
                             if ($geom->GetDimension() > 0) {
+                                if ($bNeedsTransform) {
+                                    $srsTarget = $srsFactory->Create(getUtmWkt($centroid->GetX(),
+                                                                               $centroid->GetY()));
+                                    $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
+                                }
                                 if ($srsXform != null) {
                                     $geom = $geom->Transform($srsXform);
                                 }
@@ -386,4 +391,28 @@ catch (MgException $e)
 }
 exit;
 
+/* return a UTM WKT appropriate for a given lat/lon */
+function getUtmWkt($lon, $lat) {
+    /** WGS 84 / Auto UTM **/
+    $zone = floor( ($lon + 180.0) / 6.0 ) + 1;
+    
+    //WGS84 AUTO UTM
+    $epsg42001 = "PROJCS[\"WGS 84 / Auto UTM\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"central_meridian\",%.16f],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",%.16f],UNIT[\"Meter\",1]]";
+
+    //WGS 84 AUTO TRANSVERSE MERCATOR
+    $epsg42002 = "PROJCS[\"WGS 84 / Auto Tr. Mercator\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"central_meridian\",%.16f],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",%.16f],UNIT[\"Meter\",1]]";
+    
+    //WGS 84 AUTO ORTHOGRAHPIC
+    $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.16f],PARAMETER[\"latitude_of_origin\",%.16f],UNIT[\"Meter\",1]]";
+    
+    //WGS 84 AUTO EQUIRECTANGULAR
+    $epsg42004 = "PROJCS[\"WGS 84 / Auto Equirectangular\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Equirectangular\"],PARAMETER[\"central_meridian\",0],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"standard_parallel_1\",%.16f],UNIT[\"Meter\",1]]";
+    
+
+    //$wkt = sprintf( $epsg42001, -183.0 + $zone * 6.0, ($lat >= 0.0) ? 0.0 : 10000000.0 );
+    //$wkt = sprintf( $epsg42002, $lon, ($lat >= 0.0) ? 0.0 : 10000000.0 );
+    $wkt = sprintf( $epsg42003, $lon, $lat);
+    //$wkt = sprintf( $epsg42004, $lat);
+    return $wkt;
+}
 ?>
