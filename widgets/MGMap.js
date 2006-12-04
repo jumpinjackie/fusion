@@ -460,27 +460,22 @@ MGMap.prototype =
         Fusion.ajaxRequest(loadmapScript, options);
     },
     showLayer: function( sLayer ) {
-        console.log('MGMap.showLayer('+sLayer+')');
         this.aShowLayers.push(sLayer);
         this.drawMap();
     },
     hideLayer: function( sLayer ) {
-        console.log('MGMap.hideLayer('+sLayer+')');
         this.aHideLayers.push(sLayer);
         this.drawMap();
     },
     showGroup: function( sGroup ) {
-        console.log('MGMap.showGroup('+sGroup+')');
         this.aShowGroups.push(sGroup);
         this.drawMap();
     },
     hideGroup: function( sGroup ) {
-        console.log('MGMap.hideGroup('+sGroup+')');
         this.aHideGroups.push(sGroup);
         this.drawMap();
     },
     refreshLayer: function( sLayer ) {
-        console.log('MGMap.refreshLayer('+sLayer+')');
         this.aRefreshLayers.push(sLayer);        
         this.drawMap();
     },
@@ -596,6 +591,12 @@ MGSelectionObjectLayer.prototype = {
     nProperties: null,
     aPropertiesName: null,
     aPropertiesTypes: null,
+
+    type: null,
+    area: null,
+    distance: null,
+    bbox: null,
+    center: null,
     
     initialize: function(oNode) 
     {
@@ -615,6 +616,10 @@ MGSelectionObjectLayer.prototype = {
         this.aPropertiesTypes = oTmp.split(",");
         
         var oValueCollection = oNode.findNextNode('ValueCollection');
+        
+        this.area = 0;
+        this.distance = 0;
+        
         var iElement=0;
         while(oValueCollection) 
         {
@@ -623,11 +628,32 @@ MGSelectionObjectLayer.prototype = {
             {
                 oTmp = oValueCollection.childNodes[i].findFirstNode('v');
                 this.aElements[iElement][i] = oTmp.textContent;
-
+                
+            }
+            var type = oValueCollection.attributes['type'];
+            var area = oValueCollection.attributes['area'];
+            var distance = oValueCollection.attributes['distance'];
+            var bbox = oValueCollection.attributes['bbox'];
+            var center = oValueCollection.attributes['center'];
+            
+            this.aElements[iElement]['attributes'] = {};
+            this.aElements[iElement]['attributes'].type = type;
+            this.aElements[iElement]['attributes'].bbox = bbox;
+            this.aElements[iElement]['attributes'].center = bbox;
+            console.log('type is ' + type);
+            if (type > 1) {
+                this.area += parseFloat(area);
+                this.aElements[iElement]['attributes'].area = area;
+            }
+            if (type > 0) {
+                this.aElements[iElement]['attributes'].distance = distance;
+                this.distance += parseFloat(distance);
             }
             oValueCollection = oNode.findNextNode('ValueCollection');
             iElement++;
         }
+        console.log( 'final area is ' + this.area);
+        console.log( 'final distance is ' + this.distance);
         
     },
 
