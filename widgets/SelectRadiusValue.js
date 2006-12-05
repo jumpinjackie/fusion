@@ -28,29 +28,36 @@
  * **********************************************************************/
 
 var SelectRadiusValue = Class.create();
-SelectRadiusValue.prototype = 
-{
-    initialize : function(oCommand)
-    {
+SelectRadiusValue.prototype =  {
+    radiusWidgetName: null,
+    label: '',
+    className: '',
+    
+    initialize : function(oCommand) {
         Object.inheritFrom(this, GxWidget.prototype, ['SelectRadiusValue', false]);
         this.setMap(oCommand.getMap());
         
+        /* parse widget properties */
         this.radiusWidgetName = oCommand.oxmlNode.getNodeText('RadiusName');
         this.label = oCommand.oxmlNode.getNodeText('Label');
         this.className = oCommand.oxmlNode.getNodeText('ClassName');
         
-        this.input = document.createElement('input');
-        this.input.type = 'text';
-        
+        /* a container for the widget */
         this.domObj = document.createElement('div');
         this.domObj.className = this.className;
-        if (this.label != '') {
-            var span = document.createElement('span');
-            span.innerHTML = this.label;
-            this.domObj.appendChild(span);
-        }
+        
+        /* put in the label */
+        var label = document.createElement('label');
+        label.innerHTML = this.label;
+        this.domObj.appendChild(label);
+        
+        /* put in the input */
+        this.input = document.createElement('input');
+        this.input.className = 'inputText';
+        this.input.type = 'text';
         this.domObj.appendChild(this.input);
         
+        /* put into page */
         if (oCommand.getName() != '') {
             $(oCommand.getName()).appendChild(this.domObj);
         }
