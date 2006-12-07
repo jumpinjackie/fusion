@@ -34,7 +34,7 @@ KeyMap.prototype =
     initialize : function(oCommand)
     {
         //console.log('KeyMap.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['KeyMap', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['KeyMap', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.oCommand = oCommand;

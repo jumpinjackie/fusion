@@ -35,8 +35,8 @@ FitToWindow.prototype =
     initialize : function(oCommand)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['FitToWindow', false]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['FitToWindow', false, oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
 

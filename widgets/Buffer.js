@@ -42,8 +42,8 @@ Buffer.prototype = {
     fillColorInput: null,
     initialize: function(oCommand) {
         //console.log('Buffer.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Buffer', true]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Buffer', true, oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         /* pick up default values */

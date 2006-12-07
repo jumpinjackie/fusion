@@ -48,7 +48,7 @@ ColorPicker.prototype =
     picker: null,
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false, oCommand]);
         /* override the image !!! */
         var imgURL = oCommand.oxmlNode.findFirstNode('DisabledImageURL');
         if (imgURL) {
@@ -61,23 +61,27 @@ ColorPicker.prototype =
                 oCommand.oxmlNode.appendChild(DomNodeFactory.create('ImageURL', 'images/a_pixel.png'));
             }
         }
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         var id = oCommand.oxmlNode.getNodeText('ColorInputId');
         if (id != '') {
             this.colorInput = $(id);
+            
         }
         
         if (this.colorInput) {
             this.alpha = parseInt('0x'+this.colorInput.value.substring(0,2))/255;
             this.color = '#'+this.colorInput.value.substring(2);
+            Event.observe(this.colorInput, 'change', this.inputChanged.bind(this));
+            this.colorInput.widget = this;
         }
         
         this.picker = new JxColorPicker({color: this.color, alpha: this.alpha});
         this._oDomObj.appendChild(this.picker.domObj);
         
         this._oButton._oButton.domImg.style.backgroundColor = this.color;
+        Element.addClassName(this._oButton._oButton.domImg, "jxButtonSwatch");
         this.picker.addColorChangeListener(this);
     },
     
@@ -88,6 +92,15 @@ ColorPicker.prototype =
         if (this.colorInput) {
             this.colorInput.value = c;
         }
+    },
+    
+    inputChanged: function() {
+        console.log('inputChanged');
+        this.alpha = parseInt('0x'+this.colorInput.value.substring(0,2))/255;
+        this.color = '#'+this.colorInput.value.substring(2);
+        console.log('alpha is ' + this.alpha + ', color is ' + this.color);
+        this.picker.setAlpha(this.alpha);
+        this.picker.setColor(this.color);
     },
     
     execute: function() {

@@ -61,8 +61,8 @@ Fusion.require('widgets/GxButtonBase.js');
 var Print = Class.create();
 Print.prototype = {
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['Print', false]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Print', false, oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         var showPrintUI = oCommand.oxmlNode.getNodeText('ShowPrintUI');

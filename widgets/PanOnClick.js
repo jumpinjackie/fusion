@@ -38,7 +38,7 @@ PanOnClick.prototype =
     initialize : function(oCommand)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['PanOnClick', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['PanOnClick', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         

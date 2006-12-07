@@ -79,7 +79,7 @@ AttributeQuery.prototype = {
     layerName: null,
     initialize: function(oCommand) {
         //console.log('AttributeQuery.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['AttributeQuery', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['AttributeQuery', true, oCommand]);
         this.setMap(oCommand.getMap());
 
         this.layerName = oCommand.oxmlNode.getNodeText('LayerName');

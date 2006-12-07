@@ -39,7 +39,7 @@ Zoom.prototype =
     initialize : function(oCommand)
     {
         //console.log('Zoom.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());

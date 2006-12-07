@@ -33,8 +33,8 @@ Recenter.prototype =
 {
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxWidget.prototype, ['Recenter', true]);
-        Object.inheritFrom(this, ZoomOut.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Recenter', true, oCommand]);
+        Object.inheritFrom(this, ZoomOut.prototype, []);
         this.setMap(oCommand.getMap());
         this.nFactor = 1;
         this.asCursor = ['resize'];

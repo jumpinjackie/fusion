@@ -38,7 +38,7 @@ Scalebar.prototype =
     initialize : function(oCommand)
     {
         //console.log('Scalebar.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Scalebar', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Scalebar', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.oCommand = oCommand;

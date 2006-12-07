@@ -90,7 +90,7 @@ Maptip.prototype =
     initialize : function(oCommand)
     {
         //console.log('Maptip.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.delay = oCommand.oxmlNode.getNodeText('Delay');

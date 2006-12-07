@@ -35,8 +35,8 @@ Pan.prototype =
     initialize : function(oCommand)
     {
         //console.log('Pan.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Pan', true]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Pan', true, oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         

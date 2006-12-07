@@ -38,7 +38,7 @@ SelectRadius.prototype = {
     defaultRadius: 20,
     initialize : function(oCommand) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['SelectRadius', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['SelectRadius', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
         

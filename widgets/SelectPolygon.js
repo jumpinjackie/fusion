@@ -37,7 +37,7 @@ SelectPolygon.prototype =
     initialize : function(oCommand)
     {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['SelectPolygon', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['SelectPolygon', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
         this.setMap(oCommand.getMap());

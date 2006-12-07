@@ -34,7 +34,7 @@ SelectRadiusValue.prototype =  {
     className: '',
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['SelectRadiusValue', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['SelectRadiusValue', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         /* parse widget properties */
@@ -43,17 +43,17 @@ SelectRadiusValue.prototype =  {
         this.className = oCommand.oxmlNode.getNodeText('ClassName');
         
         /* a container for the widget */
-        this.domObj = document.createElement('div');
-        this.domObj.className = this.className;
+        //this.domObj = document.createElement('div');
+        //this.domObj.className = this.className;
         
         /* put in the label */
-        var label = document.createElement('label');
-        label.innerHTML = this.label;
-        this.domObj.appendChild(label);
+        this.domObj = document.createElement('label');
+        this.domObj.className = this.className;
+        this.domObj.innerHTML = this.label;
+        //this.domObj.appendChild(label);
         
         /* put in the input */
         this.input = document.createElement('input');
-        this.input.className = 'inputText';
         this.input.type = 'text';
         this.domObj.appendChild(this.input);
         

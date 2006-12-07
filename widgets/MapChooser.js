@@ -56,7 +56,7 @@ MapChooser.prototype =
     initialize : function(oCommand)
     {
         //console.log('MapChooser.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['MapChooser', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['MapChooser', true, oCommand]);
         this.setMap(oCommand.getMap());
         
         this._oDomObj = $(oCommand.getName());

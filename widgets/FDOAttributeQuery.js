@@ -84,7 +84,7 @@ FDOAttributeQuery.prototype = {
     override: null,
     initialize: function(oCommand) {
         //console.log('FDOAttributeQuery.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['FDOAttributeQuery', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['FDOAttributeQuery', true, oCommand]);
         
         this.setMap(oCommand.getMap());
 

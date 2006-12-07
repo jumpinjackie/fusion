@@ -38,7 +38,7 @@ ScaleEntry.prototype =
     
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxWidget.prototype, ['ScaleEntry', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['ScaleEntry', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         var c = oCommand.oxmlNode.getNodeText('Class');

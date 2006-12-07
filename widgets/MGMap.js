@@ -728,6 +728,11 @@ MGGroup.prototype = {
     }
 };
 
+var MGLAYER_POINT_TYPE = 0;
+var MGLAYER_LINE_TYPE = 1;
+var MGLAYER_POLYGON_TYPE = 2;
+var MGLAYER_SOLID_TYPE = 3;
+
 var MGLayer = Class.create();
 MGLayer.prototype = {
     
@@ -744,7 +749,12 @@ MGLayer.prototype = {
         this.resourceId = layerNode.getNodeText('rid');
         this.legendLabel = layerNode.getNodeText('legendlabel');
         this.selectable = layerNode.getNodeText('selectable') == 'true' ? true : false;
-        this.layerType = layerNode.getNodeText('layertype');
+        this.layerTypes = [];
+        var layerType = layerNode.findFirstNode('layertype');
+        while(layerType) {
+            this.layerTypes.push(parseInt(layerType.textContent));
+            layerType = layerNode.findNextNode('layertype');
+        }
         this.displayInLegend = layerNode.getNodeText('displayinlegend') == 'true' ? true : false;
         this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
         this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
@@ -763,6 +773,16 @@ MGLayer.prototype = {
             scaleRangeNode = layerNode.findNextNode('scalerange');
         }
     },
+    
+    supportsType: function(type) {
+        for (var i=0; i<this.layerTypes.length; i++) {
+            if (this.layerTypes[i] == type) {
+                return true;
+            }
+        }
+        return false;
+    },
+    
     getScaleRange: function(fScale) {
         for (var i=0; i<this.scaleRanges.length; i++) {
             if (this.scaleRanges[i].contains(fScale)) {

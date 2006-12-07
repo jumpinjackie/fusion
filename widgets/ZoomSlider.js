@@ -37,7 +37,7 @@ ZoomSlider.prototype =
     nFactor: null,
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxWidget.prototype, ['ZoomSlider', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['ZoomSlider', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this._oTrack = $(oCommand.oxmlNode.getNodeText('Track'));

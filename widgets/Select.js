@@ -38,7 +38,7 @@ Select.prototype =
     initialize : function(oCommand)
     {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Select', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Select', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());

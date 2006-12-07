@@ -52,7 +52,7 @@ var KeepSessionAlive = Class.create();
 KeepSessionAlive.prototype = {
     initialize : function(oCommand) {
         //console.log('KeepSessionAlive.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['KeepSessionAlive', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['KeepSessionAlive', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.delay = oCommand.oxmlNode.getNodeText('RefreshInterval');

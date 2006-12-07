@@ -58,7 +58,7 @@ var ZoomToSelection = Class.create();
 ZoomToSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ZoomToSelection', false]);
+        Object.inheritFrom(this, GxWidget.prototype, ['ZoomToSelection', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
 

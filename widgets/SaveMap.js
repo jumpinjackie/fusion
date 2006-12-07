@@ -34,8 +34,8 @@ SaveMap.prototype = {
     initialize : function(oCommand)
     {
         this.oCommand = oCommand;
-        Object.inheritFrom(this, GxWidget.prototype, ['SaveMap', false]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['SaveMap', false, oCommand]);
+        Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         this.format = oCommand.oxmlNode.getNodeText('Format');
         if (this.format == '') {
@@ -55,20 +55,28 @@ SaveMap.prototype = {
      */
     activateTool : function()
     {
+        if (!this.iframe) {
+            this.iframe = document.createElement('iframe');
+            this.iframe.id = 'w';
+            this.iframe.style.visibility = 'hidden';
+            document.body.appendChild(this.iframe);
+        }
         if(navigator.appVersion.match(/\bMSIE\b/)) {
             //hack to workaround problem with ie download
             //var img = document.getElementById('gMapImg').src;
             //var img = this.getMap()._oImg.src;
             
             var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + Fusion.getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
-            window.w = open(url);
-            setTimeout('w.document.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".png)', 1500);
-        }else {
-            if (!this.iframe) {
-                this.iframe = document.createElement('iframe');
-                this.iframe.style.display = 'none';
-                document.body.appendChild(this.iframe);
+            /*window.w = open(url);*/
+            this.iframe.contentWindow.onload = function() {
+                alert('iframe onload');
+                top.frames.w.document.execCommand("SaveAs", 1, this.getMap().getMapName()+"."+this.format);
             }
+            this.iframe.src = url;
+            /* window.w = window.frames.w; */
+            /*setTimeout('w.document.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".'+this.format+')', 1500);*/
+            /*setTimeout('w.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".'+this.format+')', 1500);*/
+        } else {
             var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format;
             //console.log(s);
             this.iframe.src = s;

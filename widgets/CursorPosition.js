@@ -95,7 +95,7 @@ CursorPosition.prototype =
     initialize : function(oCommand)
     {
         //console.log('CursorPosition.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['CursorPosition', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['CursorPosition', true, oCommand]);
         this.setMap(oCommand.getMap());
         
         this._oCommand = oCommand;

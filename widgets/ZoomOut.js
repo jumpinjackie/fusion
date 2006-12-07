@@ -36,7 +36,7 @@ ZoomOut.prototype =
     initialize : function(oCommand)
     {
         //console.log('ZoomOut.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ZoomOut', true]);
+        Object.inheritFrom(this, GxWidget.prototype, ['ZoomOut', true, oCommand]);
         Object.inheritFrom(this, GxClickTool.prototype, []);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
