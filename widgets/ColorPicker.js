@@ -67,13 +67,12 @@ ColorPicker.prototype =
         var id = oCommand.oxmlNode.getNodeText('ColorInputId');
         if (id != '') {
             this.colorInput = $(id);
-            
         }
         
         if (this.colorInput) {
             this.alpha = parseInt('0x'+this.colorInput.value.substring(0,2))/255;
             this.color = '#'+this.colorInput.value.substring(2);
-            Event.observe(this.colorInput, 'change', this.inputChanged.bind(this));
+            //Event.observe(this.colorInput, 'change', this.inputChanged.bind(this));
             this.colorInput.widget = this;
         }
         
@@ -95,16 +94,16 @@ ColorPicker.prototype =
     },
     
     inputChanged: function() {
-        console.log('inputChanged');
-        this.alpha = parseInt('0x'+this.colorInput.value.substring(0,2))/255;
-        this.color = '#'+this.colorInput.value.substring(2);
-        console.log('alpha is ' + this.alpha + ', color is ' + this.color);
+        var value = this.colorInput.value.toUpperCase();
+        var alpha = value.substring(0,2);
+        var color = value.substring(2);
+        this.alpha = 100 * parseInt('0x'+alpha)/255;
+        this.color = '#'+color;
         this.picker.setAlpha(this.alpha);
         this.picker.setColor(this.color);
     },
     
     execute: function() {
-        console.log('ColorPicker.execute()');
         this.picker.show();
     }
 };
