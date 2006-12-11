@@ -61,22 +61,24 @@ define('MG_USER_DIRECTORY_ROOT', 'Library://Nanaimo/Users/');
 // = handle request =
 // ==================
 $command = isset($_REQUEST['COMMAND'])?$_REQUEST['COMMAND']:NULL;
-if ($command)
-switch ( $command )
-{
-    case 'LOGIN':
-        header('Content-type: text/xml');
-        echo $manager->Login($_REQUEST['username'], $_REQUEST['password']);
-    break;
-    case 'REGISTER':
-    $manager->AddUser($_REQUEST['newusername'], $_REQUEST['newpassword'],
-                        $_REQUEST['firstname'], $_REQUEST['surname']);            
-    break;
-    case 'SETUSERPREF':
-        //TODO use current user, not query id 
-        $manager->SetUserPref($_REQUEST['userid'], $_REQUEST['prefid'],
-                            $_REQUEST['userprefvalue']);
-    break;
+if ($command) {
+    $manager = new MGUserManager(NULL);
+    switch ( $command )
+    {
+        case 'LOGIN':
+            header('Content-type: text/xml');
+            echo $manager->Login($_REQUEST['username'], $_REQUEST['password']);
+        break;
+        case 'REGISTER':
+        $manager->AddUser($_REQUEST['newusername'], $_REQUEST['newpassword'],
+                            $_REQUEST['firstname'], $_REQUEST['surname']);            
+        break;
+        case 'SETUSERPREF':
+            //TODO use current user, not query id 
+            $manager->SetUserPref($_REQUEST['userid'], $_REQUEST['prefid'],
+                                $_REQUEST['userprefvalue']);
+        break;
+    }
 }
 
 // ====
