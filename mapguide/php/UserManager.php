@@ -67,7 +67,12 @@ if ($command) {
     {
         case 'LOGIN':
             header('Content-type: text/xml');
-            echo $manager->Login($_REQUEST['username'], $_REQUEST['password']);
+            $preferences = $manager->Login($_REQUEST['username'], $_REQUEST['password']);
+            if ($preferences) {
+                echo $preferences;
+            } else {
+                echo '<ERROR>Bad username or password.</ERROR>';
+            }
         break;
         case 'REGISTER':
         $manager->AddUser($_REQUEST['newusername'], $_REQUEST['newpassword'],
@@ -308,6 +313,123 @@ Class MGUserManager {
             $this->DeleteUser($user['userid'], $user['username']); 
         }
     }
+    
+    /* enumerate groups - this requires admin privileges */
+    function GetGroups($username=NULL) {
+        $aGroups = array();
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            if ($username) {
+                $byteReader = $site->EnumerateGroups($username, '');
+            } else {
+                $byteReader = $site->EnumerateGroups();
+            }
+            $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+            $groupNodeList = $xmldoc->getElementsByTagName('Group');
+            for ($i=0; $i<$groupNodeList->length; $i++) {
+                $group = $groupNodeList->item($i);
+                $nameElt = $group->getElementsByTagName('Name');
+                $name = $nameElt->item(0)->nodeValue;
+                $descElt = $group->getElementsByTagName('Description');
+                $description = $descElt->item(0)->nodeValue;
+                array_push($aGroups, array('name'        => $name,
+                                           'description' => $description));
+            }            
+        } catch (MgException $e) {
+            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo $e->GetDetails() . "\n";
+            echo $e->GetStackTrace() . "\n";
+        }
+        return $aGroups;
+    }
+    
+    function AddGroup($name, $description) {
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            $site->AddGroup($name, $description);
+        } catch (MgException $e) {
+            return FALSE;
+        }
+        return TRUE;
+    }
+        
+    function RemoveGroup($group) {
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            $groups = new MgStringCollection();
+            $groups->Add( $group ) ;
+            $site->DeleteGroups($groups);
+        } catch (MgException $e) {
+            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo $e->GetDetails() . "\n";
+            echo $e->GetStackTrace() . "\n";
+            return FALSE;
+        }
+        return TRUE;
+        
+    }
+    
+    function AddUserToGroup($group, $username) {
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            $userToGrant = new MgStringCollection();
+            $userToGrant->Add( $username ) ;
+            $groupToUpdate = new MgStringCollection();
+            $groupToUpdate->Add( $group );
+            $site->GrantGroupMembershipsToUsers($groupToUpdate, $userToGrant);
+        } catch (MgException $e) {
+            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo $e->GetDetails() . "\n";
+            echo $e->GetStackTrace() . "\n";
+            return FALSE;
+        }
+        return TRUE;
+    }
+    
+    function RemoveUserFromGroup($group, $username) {
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            $userToRemove = new MgStringCollection();
+            $userToRemove->Add( $username ) ;
+            $groupToUpdate = new MgStringCollection();
+            $groupToUpdate->Add( $group );
+            $site->RevokeGroupMembershipsFromUsers($groupToUpdate, $userToRemove);
+        } catch (MgException $e) {
+            return FALSE;
+        }
+        return TRUE;
+    }
+    
+}
+function ByteReaderToString($byteReader)
+{
+    $buffer = '';
+    do
+    {
+        $data = str_pad("\0", 50000, "\0");
+        $len = $byteReader->Read($data, 50000);
+        if ($len > 0)
+        {
+            $buffer = $buffer . substr($data, 0, $len);
+        }
+    } while ($len > 0);
+
+    return $buffer;
 }
 
 function Test() {
