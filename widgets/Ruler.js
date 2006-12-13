@@ -120,7 +120,9 @@ Ruler.prototype =
         this.cumulativeDistance = 0;
         this.lastDistance = 0;
         this.triggerEvent(RULER_DISTANCE_CHANGED, this);
-        this.updateTip(null);
+        if (this.rulerTip) {
+            this.updateTip(null);
+        }
     },
     
     /**
@@ -255,6 +257,9 @@ Ruler.prototype =
     },
     
     updateTip: function(e) {
+        if (!this.rulerTip) {
+            return;
+        }
         var segDistance = this.getLastDistance();
         var totalDistance = this.getDistance();
         
