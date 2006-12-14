@@ -41,7 +41,9 @@ ScaleEntry.prototype =
         Object.inheritFrom(this, GxWidget.prototype, ['ScaleEntry', false, oCommand]);
         this.setMap(oCommand.getMap());
         
-        var c = oCommand.oxmlNode.getNodeText('Class');
+        var json = oCommand.jsonNode;
+        
+        var c = json['Class'] ? json['Class'][0] : '';
         
         var d = document.createElement('div');
         if (c != '') {
@@ -53,15 +55,9 @@ ScaleEntry.prototype =
         
         $(oCommand.getName()).appendChild(d);
         
-        var precision = oCommand.oxmlNode.getNodeText('Precision');
-        if (precision != '') {
-            this.precision = parseInt(precision);
-        }
+        this.precision = json.Precision ? parseInt(json.Precision[0]) : this.precision;
         
-        var historyLength = oCommand.oxmlNode.getNodeText('HistoryLength');
-        if (historyLength != '') {
-            this.historyLength = parseInt(historyLength);
-        }
+        this.historyLength = json.HistoryLength ? parseInt(json.HistoryLength[0]): null;
         
         this.history = [];
         

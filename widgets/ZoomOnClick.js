@@ -40,10 +40,9 @@ ZoomOnClick.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        var factor = oCommand.oxmlNode.getNodeText('Factor');
-        if (factor == '') {
-            factor = 2;
-        }
+        var json = oCommand.jsonNode;
+
+        var factor = json.Factor ? json.Factor[0] : '2';
         this.nFactor = parseFloat(factor);
     },
 

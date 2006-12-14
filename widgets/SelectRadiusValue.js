@@ -38,9 +38,11 @@ SelectRadiusValue.prototype =  {
         this.setMap(oCommand.getMap());
         
         /* parse widget properties */
-        this.radiusWidgetName = oCommand.oxmlNode.getNodeText('RadiusName');
-        this.label = oCommand.oxmlNode.getNodeText('Label');
-        this.className = oCommand.oxmlNode.getNodeText('ClassName');
+        var json = oCommand.jsonNode;
+        
+        this.radiusWidgetName = json.RadiusName ? json.RadiusName[0] : null;
+        this.label = json.Label ? json.Label[0] : '';
+        this.className = json.ClassName ? json.ClassName[0] : '';
         
         /* a container for the widget */
         //this.domObj = document.createElement('div');

@@ -43,9 +43,10 @@ SelectPolygon.prototype =
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
-        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)
-        {
-            nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
+        var json = oCommand.jsonNode;
+
+        if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
+            nTolerance = parseInt(json.Tolerance[0]);
         }
         this.polygon = new FeaturePolygon();
     },

@@ -45,24 +45,20 @@ SelectRadius.prototype = {
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 
-        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0) {
-            nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
+        var json = oCommand.jsonNode;
+
+        if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
+            nTolerance = parseInt(json.Tolerance[0]);
         }
         
-        var container = oCommand.oxmlNode.getNodeText('RadiusTooltipContainer');
+        var container = json.RadiusTooltipContainer ? json.RadiusTooltipContainer[0] : '';
         if (container != '') {
             this.radiusTip = $(container);
         }
         
         if (this.radiusTip) {
-            var type = oCommand.oxmlNode.getNodeText('RadiusTooltipType');
-            switch (type.toLowerCase()) {
-                case 'dynamic':
-                case 'static':
-                    this.radiusTipType = type.toLowerCase();
-                default:
-                    this.radiusTipType = 'dynamic';
-            }
+            this.radiusTipType = json.RadiusTooltipType ?
+                                 json.RadiusTooltipType[0].toLowerCase() : 'dynamic';
             if (this.radiusTipType == 'dynamic') {
                 var oDomElem =  this.getMap().getDomObj();
                 oDomElem.appendChild(this.radiusTip);

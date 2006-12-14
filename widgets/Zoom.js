@@ -44,9 +44,8 @@ Zoom.prototype =
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
-        if (this._oCommand.oxmlNode.getNodeText('Direction') == 'out') {
-            this.zoomIn = false;
-        }
+        var json = oCommand.jsonNode;
+        this.zoomIn = (json.Direction && json.Direction[0] == 'out') ? true : false;
         this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
         

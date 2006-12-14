@@ -40,14 +40,16 @@ ZoomSlider.prototype =
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomSlider', false, oCommand]);
         this.setMap(oCommand.getMap());
         
-        this._oTrack = $(oCommand.oxmlNode.getNodeText('Track'));
-        this._oHandle = $(oCommand.oxmlNode.getNodeText('Handle'));
-        var direction = oCommand.oxmlNode.getNodeText('Direction');
-        if (direction == '') {
-            direction = 'horizontal';
-        }
-        this.fMinScale = parseFloat(oCommand.oxmlNode.getNodeText('MinScale'));
-        this.fMaxScale = parseFloat(oCommand.oxmlNode.getNodeText('MaxScale'));
+        var json = oCommand.jsonNode;
+
+        this.layerName = json.LayerName ? json.LayerName[0] : '';
+        
+        this._oTrack = json.Track ? json.Track[0] : '';
+        this._oHandle = json.Handle ? json.Handle[0] : '';
+        var direction = json.Direction ? json.Direction[0] : 'horizontal';
+        
+        this.fMinScale = json.MinScale ? parseFloat(json.MinScale[0]) : '';
+        this.fMaxScale = json.MaxScale ? parseFloat(json.MaxScale[0]) : '';
         
         var options = {};
         options.axis = direction;

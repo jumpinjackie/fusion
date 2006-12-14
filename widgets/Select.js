@@ -46,13 +46,14 @@ Select.prototype =
         
         this.enable = Select.prototype.enable;
 
-        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0)
-        {
-            nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
+        var json = oCommand.jsonNode;
+        if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
+            nTolerance = parseInt(json.Tolerance[0]);
         }
-        
-        var activeOnly = oCommand.oxmlNode.getNodeText('QueryActiveLayer');
-        this.bActiveOnly = (activeOnly == 'true' || activeOnly == '1') ? true : false;
+
+        this.bActiveOnly = (json.QueryActiveLayer &&
+                           (json.QueryActiveLayer[0] == 'true' ||
+                            json.QueryActiveLayer[0] == '1')) ? true : false;
         
         if (this.bActiveOnly) {
             this.getMap().registerForEvent(MGMAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
