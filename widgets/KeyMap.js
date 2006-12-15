@@ -25,32 +25,25 @@
  *
  * **********************************************************************/
 var KeyMap = Class.create();
-KeyMap.prototype =  
-{
-    oCommad : null,
+KeyMap.prototype =   {
     fMinX : -1,  
     oDomImgObj : null,
   
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('KeyMap.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['KeyMap', false, oCommand]);
         this.setMap(oCommand.getMap());
         
-        this.oCommand = oCommand;
+        var json = oCommand.jsonNode;
         
-        //this.oDomObj = getRawObject(oCommand.getName());
         this.oDomObj = $(oCommand.getName());
 
-        this.sImageURL = this.oCommand.oxmlNode.getNodeText('KeyMapImageURL');
-        this.fMinX = this.oCommand.oxmlNode.getNodeText('MinX');
-        this.fMinY = this.oCommand.oxmlNode.getNodeText('MinY');
-        this.fMaxX = this.oCommand.oxmlNode.getNodeText('MaxX');
-        this.fMaxY = this.oCommand.oxmlNode.getNodeText('MaxY');
+        this.sImageURL = json.KeyMapImageURL[0];
+        this.fMinX = json.MinX ? json.MinX[0] : -1;
+        this.fMinY = json.MinY ? json.MinY[0] : -1;
+        this.fMaxX = json.MaxX ? json.MaxX[0] : -1;
+        this.fMaxY = json.MaxY ? json.MaxY[0] : -1;
         
-        /*this.nWidth = this.oCommand.oxmlNode.getNodeText('KeyMapWidth');
-        this.nHeight = this.oCommand.oxmlNode.getNodeText('KeyMapHeight');
-        */
         var size = Element.getDimensions(this.oDomObj);
         this.nWidth = size.width;
         this.nHeight = size.height;
@@ -103,8 +96,7 @@ KeyMap.prototype =
         this.update();
     },
 
-    update : function()
-    {  
+    update : function() {  
         var size = Element.getDimensions(this.oDomObj);
         this.nWidth = size.width;
         this.nHeight = size.height;
@@ -129,16 +121,6 @@ KeyMap.prototype =
         
         var fStartH = (this.fMaxY - aMapExtents[3])/(this.fMaxY - this.fMinY);
         var top = parseInt(this.nHeight * fStartH);
-
-        //var oleft = (aMapExtents[0] - this.fMinX) / this.fCellWidth;
-        //var owidth = (aMapExtents[2] - this.fMinX) / this.fCellWidth;
-        //var otop = -1 * (aMapExtents[3] - this.fMaxY) / this.fCellHeight;
-        //var oheight = (aMapExtents[3] - this.fMinY) / this.fCellHeight;
-
-        //alert('new left=' + left + ' old left=' + oleft);
-        //alert('new top=' + top + ' old top=' + otop);
-        //alert('new width=' + width + ' old width=' + owidth);
-        //alert('new height=' + height + ' old height=' + oheight);
 
         this.oDomExtents.style.top = parseInt(top+0.5)+"px";
         this.oDomExtents.style.left = parseInt(left+0.5)+"px";

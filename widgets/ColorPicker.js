@@ -50,23 +50,14 @@ ColorPicker.prototype =
     initialize : function(oCommand) {
         Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false, oCommand]);
         /* override the image !!! */
-        var imgURL = oCommand.oxmlNode.findFirstNode('DisabledImageURL');
-        if (imgURL) {
-            imgURL.setTextContent('images/a_pixel.png');
-        } else {
-            imgURL = oCommand.oxmlNode.findFirstNode('ImageURL');
-            if (imgURL) {
-                imgURL.setTextContent('images/a_pixel.png');
-            } else {
-                oCommand.oxmlNode.appendChild(DomNodeFactory.create('ImageURL', 'images/a_pixel.png'));
-            }
-        }
+        oCommand.jsonNode.DisabledImageURL = ['images/a_pixel.png'];
+        oCommand.jsonNode.ImageURL = ['images/a_pixel.png'];
+        
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
-        var id = oCommand.oxmlNode.getNodeText('ColorInputId');
-        if (id != '') {
-            this.colorInput = $(id);
+        if (oCommand.jsonNode.ColorInputId) {
+            this.colorInput = $(oCommand.jsonNode.ColorInputId[0]);
         }
         
         if (this.colorInput) {

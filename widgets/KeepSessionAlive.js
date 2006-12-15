@@ -55,7 +55,7 @@ KeepSessionAlive.prototype = {
         Object.inheritFrom(this, GxWidget.prototype, ['KeepSessionAlive', false, oCommand]);
         this.setMap(oCommand.getMap());
         
-        this.delay = oCommand.oxmlNode.getNodeText('RefreshInterval');
+        this.delay = parseInt(oCommand.jsonNode.RefreshInterval ? oCommand.jsonNode.RefreshInterval[0] : 300);
         
         window.setInterval(this.pingServer.bind(this), this.delay * 1000);
     },

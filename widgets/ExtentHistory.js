@@ -45,7 +45,7 @@ ExtentHistory.prototype =
         
         this.setMap(oCommand.getMap());
         
-        var sDirection = oCommand.oxmlNode.getNodeText('Direction').toLowerCase();
+        var sDirection = oCommand.jsonNode.Direction ? oCommand.jsonNode.Direction[0].toLowerCase() : 'previous';
         if (sDirection != 'previous' && sDirection != 'next') {
             this.sDirection = 'previous';
         } else {

@@ -90,22 +90,23 @@ try
     }   
 
 
-    header('content-type: text/xml');
-    echo "<mapguidesession>";
-    echo "<sessionid>$sessionID</sessionid>";
-    echo "<mapid>$mapid</mapid>";
-    echo "<metersperunit>$metersPerUnit</metersperunit>";
-    echo "<mapname>$mapName</mapname>";
-    echo "<extent>";
-    echo "<minx>".$oMin->GetX()."</minx>";
-    echo "<miny>".$oMin->GetY()."</miny>";
-    echo "<maxx>".$oMax->GetX()."</maxx>";
-    echo "<maxy>".$oMax->GetY()."</maxy>";
-    echo "</extent>";
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
+    echo "{";
+    echo "sessionId:'$sessionID',";
+    echo "mapId:'$mapid',";
+    echo "metersPerUnit:$metersPerUnit,";
+    echo "mapName:'".addslashes(htmlentities($mapName))."',";
+    echo "extent:[";
+    echo $oMin->GetX().",";
+    echo $oMin->GetY().",";
+    echo $oMax->GetX().",";
+    echo $oMax->GetY()."],";
     
     $layers=$map->GetLayers();
     
-    echo "<layercollection>";
+    echo "layers:[";
+    $layerSep = '';
     for($i=0;$i<$layers->GetCount();$i++) 
     { 
         $layer=$layers->GetItem($i);
@@ -118,63 +119,66 @@ try
         $aLayerTypes = GetLayerTypes($featureService, $layer);
         //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
         
-        echo '<layer>';
-        echo "<PropertyMappings>";
+        echo $layerSep.'{';
+        echo "propertyMappings:{";
+        $sep = '';
         foreach($mappings as $name => $value) {
-            echo "<PropertyMapping>";
-            echo "<Name>$name</Name><Value>$value</Value>";
-            echo "</PropertyMapping>";
+            echo $sep."$name:'$value'";
+            $sep = ',';
         }
-        echo "</PropertyMappings>";
-        echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
-        echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
+        echo "},";
+        echo "uniqueId:'".$layer->GetObjectId()."',";
+        echo "layerName:'".addslashes(htmlentities($layer->GetName()))."',";
+        echo 'layerTypes:[';
+        $sep = '';
         for ( $j=0; $j < count($aLayerTypes); $j++ )
         { 
-            echo "<layertype>".$aLayerTypes[$j]."</layertype>";
+            echo $sep . $aLayerTypes[$j];
+            $sep = ',';
         }
-        //echo '<layertype>'.$layer->GetLayerType().'</layertype>';
-        echo '<displayinlegend>'.BooleanToString($layer->GetDisplayInLegend()).'</displayinlegend>';
-        echo '<expandinlegend>'.BooleanToString($layer->GetExpandInLegend()).'</expandinlegend>';
-        echo '<rid>'.$layerDefinition->ToString().'</rid>';
-        if ($layer->GetGroup()) {
-            echo '<parentgroup>'.$layer->GetGroup()->GetObjectId().'</parentgroup>';
-        }
-        echo '<legendlabel>'.htmlentities($layer->GetLegendLabel()).'</legendlabel>';
-        echo '<selectable>'.BooleanToString($layer->GetSelectable()).'</selectable>';
-        echo '<visible>'.BooleanToString($layer->GetVisible()).'</visible>';
-        echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
-        echo '<editable>true</editable>';
+        echo '],';
+        echo "displayInLegend:".BooleanToString($layer->GetDisplayInLegend()).",";
+        echo "expandInLegend:".BooleanToString($layer->GetExpandInLegend()).",";
+        echo "resourceId:'".$layerDefinition->ToString()."',";
+        echo "parentGroup:";
+        echo $layer->GetGroup() ? "'".$layer->GetGroup()->GetObjectId()."'," : 'null,';
+        echo "legendLabel:'".addslashes(htmlentities($layer->GetLegendLabel()))."',";
+        echo "selectable:".BooleanToString($layer->GetSelectable()).",";
+        echo "visible:".BooleanToString($layer->GetVisible()).",";
+        echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
+        echo "editable:true,";
         buildScaleRanges($layer);
-        echo '</layer>';
+        echo '}';
+        $layerSep = ',';
     } 
-    echo "</layercollection>"; 
+    echo "],"; 
 
     //Get layer groups as xml
     $groups = $map->GetLayerGroups();
-    echo "<groupcollection>"; 
+    echo "groups:["; 
+    $groupSep = '';
     for($i=0;$i<$groups->GetCount();$i++) 
     { 
         $group=$groups->GetItem($i);
         $layerDefinition = $layer->GetLayerDefinition();
-        echo '<group>';
-        echo '<groupname>'.htmlentities($group->GetName()).'</groupname>';
-        echo '<legendlabel>'.htmlentities($group->GetLegendLabel()).'</legendlabel>';
-        echo '<uniqueid>'.$group->GetObjectId().'</uniqueid>';
-        echo '<displayinlegend>'.BooleanToString($group->GetDisplayInLegend()).'</displayinlegend>';
-        echo '<expandinlegend>'.BooleanToString($group->GetExpandInLegend()).'</expandinlegend>';
-        echo '<layergrouptype>'.$group->GetLayerGroupType().'</layergrouptype>';
+        echo $groupSep.'{';
+        echo "groupName:'".addslashes(htmlentities($group->GetName()))."',";
+        echo "legendLabel:'".addslashes(htmlentities($group->GetLegendLabel()))."',";
+        echo "uniqueId:'".$group->GetObjectId()."',";
+        echo "displayInLegend:".BooleanToString($group->GetDisplayInLegend()).",";
+        echo "expandInLegend:".BooleanToString($group->GetExpandInLegend()).",";
+        echo "layerGroupType:'".$group->GetLayerGroupType()."',";
         $parent = $group->GetGroup();
-        if ($parent){
-            echo '<parentuniqueid>'.$parent->GetObjectId().'</parentuniqueid>';
-        }
-
-        echo '<visible>'.BooleanToString($group->GetVisible()).'</visible>';
-        echo '<actuallyvisible>'.BooleanToString($group->isVisible()).'</actuallyvisible>';
-        echo '</group>';
+        echo "parentUniqueId:";
+        echo $parent != null ? "'".$parent->GetObjectId()."," : "null,";
+        echo "visible:".BooleanToString($group->GetVisible()).",";
+        echo "actuallyVisible:".BooleanToString($group->isVisible());
+        echo '}';
+        $groupSep = ',';
     } 
-    echo"</groupcollection>"; 
+    echo"]"; 
     
-    echo "</mapguidesession>";
+    echo "}";
 }
 catch (MgException $e)
 {
@@ -205,7 +209,8 @@ function buildScaleRanges($layer) {
     }
     $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle");
     $ruleNames = array("PointRule", "LineRule", "AreaRule", );
-    $output = '';
+    $output = 'scaleRanges: [';
+    $scaleSep = '';
     for($sc = 0; $sc < $scaleRanges->length; $sc++)
     {
         $scaleRange = $scaleRanges->item($sc);
@@ -220,11 +225,12 @@ function buildScaleRanges($layer) {
 
         if($type != 0)
             break;
-        $output .= '<scalerange>';
-        $output .= '<minscale>'.$minScale.'</minscale>';
-        $output .= '<maxscale>'.$maxScale.'</maxscale>';
-
+        $output .= $scaleSep."{";
+        $output .= "minScale:".$minScale.",";
+        $output .= "maxScale:".$maxScale.",";
+        $output .= 'styles:[';
         $styleIndex = 0;
+        $styleSep = '';
         for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
         {
             $typeStyle = $scaleRange->getElementsByTagName($typeStyles[$ts]);
@@ -238,17 +244,20 @@ function buildScaleRanges($layer) {
 
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
-                    $output .= '<styleitem>';
-                    $output .= '<label>'.htmlentities(trim($labelText)).'</label>';
-                    $output .= '<filter>'.htmlentities(trim($filterText)).'</filter>';
-                    $output .= '<geomtype>'.($ts+1).'</geomtype>';
-                    $output .= '<categoryindex>'.($catIndex++).'</categoryindex>';
-                    $output .= '</styleitem>';
+                    $output .= $styleSep."{";
+                    $output .= "legendLabel:'".addslashes(htmlentities(trim($labelText)))."',";
+                    $output .= "filter:'".addslashes(htmlentities(trim($filterText)))."',";
+                    $output .= "geometryType:".($ts+1).",";
+                    $output .= "categoryIndex:".($catIndex++);
+                    $output .= '}';
+                    $styleSep = ',';
                 }
             }
         }
-        $output .= '</scalerange>';
+        $output .= ']}';
+        $scaleSep = ',';
     }
+    $output .= '],';
     echo $output;
 }
 
@@ -275,7 +284,7 @@ function BooleanToString($boolean)
     if (is_bool($boolean))
         return ($boolean ? "true" : "false");
     else
-        return "ERROR in BooleanToString.";
+        return "'ERROR in BooleanToString.'";
 }
 
 //-----------------------------------------------------------------
@@ -330,11 +339,14 @@ function GetLayerTypes($featureService, $layer) {
             $featureClass = $prop->GetGeometryTypes();
             if ($featureClass & MgFeatureGeometricType::Surface) {
                 array_push($aLayerTypes, '2'/*'surface'*/);
-            } else if ($featureClass & MgFeatureGeometricType::Curve) {
+            }
+            if ($featureClass & MgFeatureGeometricType::Curve) {
                 array_push($aLayerTypes, '1'/*'curve'*/);
-            } else if ($featureClass & MgFeatureGeometricType::Solid) {
+            }
+            if ($featureClass & MgFeatureGeometricType::Solid) {
                 array_push($aLayerTypes, '3'/*'solid'*/); //could use surface here for editing purposes?
-            } else if ($featureClass & MgFeatureGeometricType::Point){
+            }
+            if ($featureClass & MgFeatureGeometricType::Point){
                 array_push($aLayerTypes, '0'/*'point'*/);
             }
             break;

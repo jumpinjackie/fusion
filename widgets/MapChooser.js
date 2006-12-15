@@ -70,40 +70,39 @@ MapChooser.prototype =
         opt.isOpen = true;
         this.oRoot = new JxTreeFolder(opt);
         this.oTree.append(this.oRoot);
-        var groupNode = oCommand.oxmlNode.findFirstNode('Group');
-        while (groupNode) {
-            this.processGroupNode(groupNode, this.oRoot);
-            groupNode = oCommand.oxmlNode.findNextNode('Group');
+        if (json.Group) {
+            for (var i=0; i<json.Group.length; i++) {
+                this.processGroupNode(json.Group[i], this.oRoot);
+            }
         }
     },
     
-    processGroupNode: function(oGroupNode, oParent) {
+    processGroupNode: function(json, oParent) {
         opt = {};
-        opt.label = oGroupNode.getNodeText('Name');
+        opt.label = json.Name ? json.Name[0] : '';
         opt.isOpen = true;
         var folder = new JxTreeFolder(opt)
         oParent.append(folder);
     
         //there is a bug in DomNode that is not easily fixed
         //that has to do with searching for nested nodes
-        for (var i=0; i<oGroupNode.childNodes.length; i++) {
-            if (oGroupNode.childNodes[i].nodeName == 'Group') {
-                this.processGroupNode(oGroupNode.childNodes[i], folder);
+        if (json.Group) {
+            for (var i=0; i<json.Group.length; i++) {
+            this.processGroupNode(json.Group[i], folder);
             }
         }
         
-        var mapNode = oGroupNode.findFirstNode('Map');
-        while(mapNode) {
-            opt = {};
-            opt.label = mapNode.getNodeText('Name');
-            opt.data = mapNode.getNodeText('ResourceId');
-            opt.imgIcon = this.defIcon;
-            var item = new JxTreeItem(opt);
-            item.addSelectionListener(this);
-            folder.append(item);
-            mapNode = oGroupNode.findNextNode('Map');
+        if (json.Map) {
+            for (var i=0; i<json.Map.length; i++) {
+                opt = {};
+                opt.label = json.Name ? json.Name[0] : '';
+                opt.data = json.ResourceId ? json.ResourceId[0] : '';
+                opt.imgIcon = this.defIcon;
+                var item = new JxTreeItem(opt);
+                item.addSelectionListener(this);
+                folder.append(item);
+            }
         }
-        
     },
     
     

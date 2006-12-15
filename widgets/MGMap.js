@@ -67,7 +67,7 @@ MGMap.prototype =
         
         this._oConfigObj = Fusion.oConfigMgr;
         
-        this.sMapResourceId = oCommand.oxmlNode.getNodeText('ResourceId');
+        this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
         if (this.sMapResourceId != '') {
             this.loadMap(this.sMapResourceId);
         }
@@ -114,25 +114,19 @@ MGMap.prototype =
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapLoaded: function(r) {
-        //console.log('MGMap.loadmapScript ' + r.responseText);
-            
-        if (r.responseXML)
-        {
-            var oNode = new DomNode(r.responseXML);
-            this._sResourceId = mapid = oNode.findFirstNode('mapid').textContent;
-            this._sMapname = oNode.findFirstNode('mapname').textContent;
-            this._fMetersperunit = oNode.findFirstNode('metersperunit').textContent;
+    mapLoaded: function(r, json) {
+        if (json) {
+            var o;
+            eval('o='+r.responseText);
+            this._sResourceId = o.mapId;
+            this._sMapname = o.mapName;
+            this._fMetersperunit = o.metersPerUnit;
 
             if (!this._afInitialExtents) {
-                this._afInitialExtents = [parseFloat(oNode.getNodeText('minx')),
-                                parseFloat(oNode.getNodeText('miny')),
-                                parseFloat(oNode.getNodeText('maxx')),
-                                parseFloat(oNode.getNodeText('maxy'))];
-
+                this._afInitialExtents = [].concat(o.extent);
             }
             
-            this.parseMapLayersAndGroups(oNode);
+            this.parseMapLayersAndGroups(o);
             
             for (var i=0; i<this.aShowLayers.length; i++) {
                 var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]);
@@ -204,11 +198,11 @@ MGMap.prototype =
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapReloaded: function(r) {
-        if (r.responseXML)
-        {
-            var oNode = new DomNode(r.responseXML);
-            this.parseMapLayersAndGroups(oNode);
+    mapReloaded: function(r,json) {
+        if (json) {
+            var o;
+            eval('o='+r.responseText);
+            this.parseMapLayersAndGroups(o);
             this.triggerEvent(MAP_LOADED);
         } else {
             Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
@@ -216,10 +210,9 @@ MGMap.prototype =
         this._removeWorker();
     },
     
-    parseMapLayersAndGroups: function(oNode) {
-        var groupNode = oNode.findFirstNode('group');
-        while(groupNode) {
-            var group = new MGGroup(groupNode, this);
+    parseMapLayersAndGroups: function(o) {
+        for (var i=0; i<o.groups.length; i++) {
+            var group = new MGGroup(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
                 parent = this.layerRoot.findGroup(group.parentUniqueId);
@@ -227,12 +220,10 @@ MGMap.prototype =
                 parent = this.layerRoot;
             }
             parent.addGroup(group);
-
-            groupNode = oNode.findNextNode('group');
         }
-        var layerNode = oNode.findFirstNode('layer');
-        while(layerNode) {
-            var layer = new MGLayer(layerNode, this);
+
+        for (var i=0; i<o.layers.length; i++) {
+            var layer = new MGLayer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
                 parent = this.layerRoot.findGroup(layer.parentGroup);
@@ -241,7 +232,6 @@ MGMap.prototype =
             }
             parent.addLayer(layer);
             this.aLayers.push(layer);
-            layerNode = oNode.findNextNode('layer');
         }
     },
     
@@ -699,18 +689,18 @@ MGSelectionObjectLayer.prototype = {
 var MGGroup = Class.create();
 MGGroup.prototype = {
     oMap: null,
-    initialize: function(groupNode, oMap) {
-        this.uniqueId = groupNode.getNodeText('uniqueid');
+    initialize: function(o, oMap) {
+        this.uniqueId = o.uniqueId;
         Object.inheritFrom(this, GxGroup.prototype, [this.uniqueId]);
         this.oMap = oMap;
-        this.groupName = groupNode.getNodeText('groupname');
-        this.legendLabel = groupNode.getNodeText('legendlabel');
-        this.parentUniqueId = groupNode.getNodeText('parentuniqueid');
-        this.groupType = groupNode.getNodeText('layergrouptype');
-        this.displayInLegend = groupNode.getNodeText('displayinlegend') == 'true' ? true : false;
-        this.expandInLegend = groupNode.getNodeText('expandinlegend') == 'true' ? true : false;
-        this.visible = groupNode.getNodeText('visible') == 'true' ? true : false;
-        this.actuallyVisible = groupNode.getNodeText('actuallyvisible') == 'true' ? true : false;
+        this.groupName = o.groupName;
+        this.legendLabel = o.legendLabel;
+        this.parentUniqueId = o.parentUniqueId;
+        this.groupType = o.groupType;
+        this.displayInLegend = o.displayInLegend;
+        this.expandInLegend = o.expandInLegend;
+        this.visible = o.visible;
+        this.actuallyVisible = o.actuallyVisible;
     },
     
     show: function() {
@@ -740,37 +730,30 @@ MGLayer.prototype = {
     
     oMap: null,
     
-    initialize: function(layerNode, oMap) {
-        this.uniqueId = layerNode.getNodeText('uniqueid');
+    initialize: function(o, oMap) {
+        this.uniqueId = o.uniqueId;
         Object.inheritFrom(this, GxLayer.prototype, [this.uniqueId]);
         this.oMap = oMap;
-        this.layerName = layerNode.getNodeText('layername');
-        this.uniqueId = layerNode.getNodeText('uniqueid');
-        this.resourceId = layerNode.getNodeText('rid');
-        this.legendLabel = layerNode.getNodeText('legendlabel');
-        this.selectable = layerNode.getNodeText('selectable') == 'true' ? true : false;
-        this.layerTypes = [];
-        var layerType = layerNode.findFirstNode('layertype');
-        while(layerType) {
-            this.layerTypes.push(parseInt(layerType.textContent));
-            layerType = layerNode.findNextNode('layertype');
-        }
-        this.displayInLegend = layerNode.getNodeText('displayinlegend') == 'true' ? true : false;
-        this.expandInLegend = layerNode.getNodeText('expandinlegend') == 'true' ? true : false;
-        this.visible = layerNode.getNodeText('visible') == 'true' ? true : false;
-        this.actuallyVisible = layerNode.getNodeText('actuallyvisible') == 'true' ? true : false;
-        this.editable = layerNode.getNodeText('editable') == 'true' ? true : false;
+        this.layerName = o.layerName;
+        this.uniqueId = o.uniqueId;
+        this.resourceId = o.resourceId;
+        this.legendLabel = o.legendLabel;
+        this.selectable = o.selectable;
+        this.layerTypes = [].concat(o.layerTypes);
+        this.displayInLegend = o.displayInLegend;
+        this.expandInLegend = o.expandInLegend;
+        this.visible = o.visible;
+        this.actuallyVisible = o.actuallyVisible;
+        this.editable = o.editable;
         //TODO: make this configurable
         this.themeIcon = 'images/tree_theme.png';
         this.disabledLayerIcon = 'images/tree_layer.png';
         
-        this.parentGroup = layerNode.getNodeText('parentgroup');
+        this.parentGroup = o.parentGroup
         this.scaleRanges = [];
-        var scaleRangeNode = layerNode.findFirstNode('scalerange');
-        while(scaleRangeNode) {
-            var scaleRange = new MGScaleRange(scaleRangeNode);
+        for (var i=0; i<o.scaleRanges.length; i++) {
+            var scaleRange = new MGScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
-            scaleRangeNode = layerNode.findNextNode('scalerange');
         }
     },
     
@@ -810,15 +793,13 @@ MGLayer.prototype = {
 var MGScaleRange = Class.create();
 MGScaleRange.prototype = {
     styles: null,
-    initialize: function(scaleRangeNode) {
-        this.minScale = scaleRangeNode.getNodeText('minscale');
-        this.maxScale = scaleRangeNode.getNodeText('maxscale');
+    initialize: function(o) {
+        this.minScale = o.minScale;
+        this.maxScale = o.maxScale;
         this.styles = [];
-        styleItemNode = scaleRangeNode.findFirstNode('styleitem');
-        while(styleItemNode) {
-            var styleItem = new MGStyleItem(styleItemNode);
+        for (var i=0; i<o.styles.length; i++) {
+            var styleItem = new MGStyleItem(o.styles[i]);
             this.styles.push(styleItem);
-            styleItemNode = scaleRangeNode.findNextNode('styleitem');
         }
     },
     contains: function(fScale) {
@@ -828,14 +809,14 @@ MGScaleRange.prototype = {
 
 var MGStyleItem = Class.create();
 MGStyleItem.prototype = {
-    initialize: function(styleItemNode) {
-        this.legendLabel = styleItemNode.getNodeText('label');
-        this.filter = styleItemNode.getNodeText('filter');
-        this.geometryType = styleItemNode.getNodeText('geomtype');
+    initialize: function(o) {
+        this.legendLabel = o.legendLabel;
+        this.filter = o.filter;
+        this.geometryType = o.geometryType;
         if (this.geometryType == '') {
             this.geometryType = -1;
         }
-        this.categoryIndex = styleItemNode.getNodeText('categoryindex');
+        this.categoryIndex = o.categoryIndex;
         if (this.categoryindex == '') {
             this.categoryindex = -1;
         }

@@ -46,17 +46,19 @@ Buffer.prototype = {
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
+        var json = oCommand.jsonNode;
+        
         /* pick up default values */
-        this.layerName = oCommand.oxmlNode.getNodeText('LayerName');
-        this.layerNameInput = oCommand.oxmlNode.getNodeText('LayerNameInput', null);
-        this.bufferDistance = oCommand.oxmlNode.getNodeText('BufferDistance', 0);
-        this.bufferDistanceInput = oCommand.oxmlNode.getNodeText('BufferDistanceInput', null);
-        this.bufferUnits = Fusion.unitFromName(oCommand.oxmlNode.getNodeText('BufferUnits', 'meters'));
-        this.bufferUnitsInput = oCommand.oxmlNode.getNodeText('BufferUnitsInput', null);
-        this.borderColor = oCommand.oxmlNode.getNodeText('BorderColor', '00000000');
-        this.borderColorInput = oCommand.oxmlNode.getNodeText('BorderColorInput', null);
-        this.fillColor = oCommand.oxmlNode.getNodeText('FillColor', '00000000');
-        this.fillColorInput = oCommand.oxmlNode.getNodeText('FillColorInput', null);
+        this.layerName = json.LayerName ? json.LayerName[0] : '';
+        this.layerNameInput = json.LayerNameInput ? json.LayerNameInput[0] : null;
+        this.bufferDistance = json.BufferDistance ? parseFloat(json.BufferDistance[0]) : '';
+        this.bufferDistanceInput = json.BufferDistanceInput ? json.BufferDistanceInput[0] : null;
+        this.bufferUnits = Fusion.unitFromName(json.BufferUnits ? json.BufferUnits[0] : 'meters');
+        this.bufferUnitsInput = json.BufferUnitsInput ? json.BufferUnitsInput[0] : null;
+        this.borderColor = json.BorderColor ? json.BorderColor[0] :'00000000';
+        this.borderColorInput = json.BorderColorInput ? json.BorderColorInput[0] : null;
+        this.fillColor = json.FillColor ? json.FillColor[0] : '00000000';
+        this.fillColorInput = json.FillColorInput ? json.FillColorInput[0] : null;
         
         /* initialize inputs with defaults */
         if (this.layerNameInput) {

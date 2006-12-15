@@ -40,7 +40,7 @@ ExecuteJS.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
-        this.sScript = oCommand.oxmlNode.getNodeText('Script');
+        this.sScript = oCommand.jsonNode.Script ? oCommand.jsonNode.Script[0] : '';
     },
 
     /**

@@ -103,24 +103,17 @@ CursorPosition.prototype =
         
         this.emptyText = this.domObj.innerHTML;
         
-        this.template = oCommand.oxmlNode.getNodeText('Template');
-        this.template = this.template == '' ? this.defaultTemplate : this.template;
+        var json = oCommand.jsonNode;
         
-        this.precision = oCommand.oxmlNode.getNodeText('Precision');
-        this.precision = this.precision == '' ? -1 : this.precision;
-        
-        var unit = oCommand.oxmlNode.getNodeText('Units');
-        if (unit != '') {
-            this.units = Fusion.unitFromName(unit);
-        }
-        
+        this.template = json.Template ? json.Template[0] : this.defaultTemplate;
+        this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;
+        this.units = json.Units ? Fusion.unitFromName(json.Units[0]) : Fusion.UNKOWN;
+
         this.enable = CursorPosition.prototype.enable;
         this.disable = CursorPosition.prototype.enable;
         
         this.mouseMoveWatcher = this.mouseMove.bind(this);
         this.mouseOutWatcher = this.mouseOut.bind(this);
-        
-        
     },
     
     enable: function() {

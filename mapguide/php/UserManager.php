@@ -95,6 +95,16 @@ Class MGUserManager {
     private $db = null;
     private $site = null;
     private $currentUserId = null;
+    private $aszInitialPrefs = array('Extents' => '-81, 43,-87,50',
+                             'Mode' => 'advanced',
+                             'Keymap' => 'True',
+                             'SelectionType' => 'INTERSECTS',
+                             'ToolUnits' => 'metres',
+                             'Print_ShowTitle'=>'True',
+                             'Print_Title'=>'Nanaimo Map',
+                             'Print_ShowLegend'=>'True',
+                             'Print_ShowNorthArrow'=>'True'
+                        );
     
     function __construct($args) {
 
@@ -120,10 +130,17 @@ Class MGUserManager {
             $this->db->query("CREATE TABLE user_prefs (userid INTEGER NOT NULL, prefid INTEGER NOT NULL, value VARCHAR(255));");
             //add default preferences;
             $szPrefsSQL = '';
-            $aszInitialPrefs = array('extents' => '-81, 43,-87,50',
-                                     'interface' => 'basic'
-                                     );
-            foreach($aszInitialPrefs as $key => $value) {
+            // $aszInitialPrefs = array('Extents' => '-81, 43,-87,50',
+            //                          'Mode' => 'advanced',
+            //                          'Keymap' => 'True',
+            //                          'SelectionType' => 'INTERSECTS',
+            //                          'ToolUnits' => 'metres',
+            //                          'Print_ShowTitle'=>'True',
+            //                          'Print_Title'=>'Nanaimo Map',
+            //                          'Print_ShowLegend'=>'True',
+            //                          'Print_ShowNorthArrow'=>'True'
+            //                     );
+            foreach($this->aszInitialPrefs as $key => $value) {
                 $szPrefsSQL .= 'INSERT INTO prefs (name, default_value) VALUES ("'.$key.'","'.$value.'");';
             }
             if ($szPrefsSQL != ''){
@@ -160,8 +177,8 @@ Class MGUserManager {
                 $usersToGrant->Add( $username ) ;
                 $site->GrantRoleMembershipsToUsers( $roleToUpdate, $usersToGrant );                
                 
-                //TODO create user directory in repository
-                //Create Header
+                // Create user directory in repository:
+                // Create Header
                 $headerContent = $this->GetUserFolderHeader($username);
                 $header_byteSource = new MgByteSource($headerContent, strlen($headerContent));
                 $header_byteSource->setMimeType("text/xml");
@@ -169,10 +186,19 @@ Class MGUserManager {
 
                 $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
 
-                //Create Folder
+                // Create Folder
                 $id = new MgResourceIdentifier(MG_USER_DIRECTORY_ROOT.$username.'/');
                 $resourceService->SetResource($id, NULL, $header_byteReader);
-                
+
+                //setup default prefs
+                foreach($this->aszInitialPrefs as $key => $value) {
+                    $result = $this->db->SingleQuery('SELECT prefid FROM prefs WHERE name="'.$key.'";');
+                    if ($result) {
+                        $prefid = $result;
+                    }
+                    //TODO: improve efficiency by combining queries
+                    $this->AddUserPref($userId, $prefid, $value);
+                }
             } catch (MgDuplicateUserException $du_e) {
                 echo '<ERROR>Duplicate user!</ERROR>';
                 return FALSE;
@@ -219,6 +245,13 @@ Class MGUserManager {
     }
 
     function SetUserPref($userId, $prefId, $value) {
+        // use default value from prefs table if value is not supplied.        
+        if ($value == '') {
+            $result = $this->db->SingleQuery('SELECT default_value FROM prefs WHERE prefid='.$prefId.';');
+            if ($result) {
+                 $value = $result;
+            }
+        }
         //determine if the pref already exists for this user
         $test = $this->db->query('SELECT userid FROM user_prefs WHERE userid='.$userId.
                                  ' AND prefid='.$prefId.';');
@@ -233,7 +266,6 @@ Class MGUserManager {
     }
 
     function AddUserPref ($userId, $prefId, $value) {
-        //TODO use default value from prefs table if value is not supplied.
         $this->db->queryExec('INSERT INTO user_prefs (userid, prefid, value) VALUES ('.$userId.', '.$prefId.', "'.$value.'");');
         return $this->db->lastInsertRowid();
     }

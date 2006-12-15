@@ -82,20 +82,22 @@ AttributeQuery.prototype = {
         Object.inheritFrom(this, GxWidget.prototype, ['AttributeQuery', true, oCommand]);
         this.setMap(oCommand.getMap());
 
-        this.layerName = oCommand.oxmlNode.getNodeText('LayerName');
+        var json = oCommand.jsonNode;
+        
+        this.layerName = json.LayerName ? json.LayerName[0] : '';
 
-        var oSpatialFilter = oCommand.oxmlNode.findFirstNode('SpatialFilter');
+        var oSpatialFilter = json.SpatialFilter: json.SpatialFilter[0] : '';
         if (oSpatialFilter) {
             this.spatialFilter = new MGSpatialFilter(oSpatialFilter);
         }
         
         this.filters = [];
-        var oFilter = oCommand.oxmlNode.findFirstNode('Filter');
-        while (oFilter) {
-            this.filters.push(new MGFilter(oFilter));
-            oFilter = oCommand.oxmlNode.findNextNode('Filter');
+        if (json.Filter instanceof Array) {
+            for (var i=0; i<json.Filter.length; i++) {
+                this.filters.push(new MGFilter(json.Filter[i]));
+            }
         }
-
+        
         this._oDomObj = $(oCommand.getName());
         Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
     },
@@ -151,18 +153,18 @@ MGFilterBase.prototype = {
     operator: null,
     operatorId: null,
     operatorInput: null,
-    initialize: function(oNode) {
-        this.valueId = oNode.getNodeText('ValueId');
+    initialize: function(json) {
+        this.valueId = json.ValueId ? json.ValueId[0] : '';
         this.valueInput = $(this.valueId);
-        this.operator = oNode.getNodeText('Operator');
-        this.operatorId = oNode.getNodeText('OperatorId');
+        this.operator = json.Operator ? json.Operator[0] : '';
+        this.operatorId = json.OperatorId ? json.OperatorId[0] : '';
         if (this.operatorId != '') {
             this.operatorInput = $(this.operatorId);
             if (this.operator != '' && this.operatorInput) {
                 this.setValue(this.operatorInput, this.operator);
             }
         }
-        this.valueType = oNode.getNodeText('ValueType');
+        this.valueType = json.ValueType ? json.ValueType[0] : '';
     },
     getValue: function( idOrObj, defaultValue ) {
         var result = defaultValue;
@@ -198,16 +200,15 @@ MGFilter.prototype = {
     fieldName: null,
     unaryNot: null,
     validOperators: ['=', '<>', '<=', '<', '>=', '>', 'LIKE'],
-    initialize: function( oNode ) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [oNode]);
+    initialize: function( json ) {
+        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
         
-        this.allowEmptyValue = (oNode.getNodeText('AllowEmptyValue') == '1' ||
-                                oNode.getNodeText('AllowEmptyValue') == 'true') ? 
-                                   true : false ;
-        this.fieldName = oNode.getNodeText('Field');
+        var b = json.AllowEmptyValue ? json.AllowEmptyValue[0] : '';
+        this.allowEmptyValue = (b == '1' || b == 'true') ?true : false ;
+        this.fieldName = json.Field ? json.Field[0] : '';
         //console.log('filter for field ' + this.fieldName);
-        this.unaryNot = (oNode.getNodeText('Not') == '1' || 
-                         oNode.getNodeText('Not') == 'true') ? true : false;
+        b = json.Not ? json.Not[0] : '';
+        this.unaryNot = (b == '1' || b == 'true') ? true : false;
                          
     },
     getFilterText: function() {
@@ -231,8 +232,8 @@ MGSpatialFilter.prototype = {
                      'INSIDE', 'INTERSECTS', 'OVERLAPS', 'TOUCHES',
                      'WITHIN', 'COVEREDBY'],
 
-    initialize: function(oNode) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [oNode]);
+    initialize: function(json) {
+        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
     },
     getFilterText: function() {
         var result = '';

@@ -92,15 +92,15 @@ Maptip.prototype =
         //console.log('Maptip.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true, oCommand]);
         this.setMap(oCommand.getMap());
+        var json = oCommand.jsonNode;
         
-        this.delay = oCommand.oxmlNode.getNodeText('Delay');
-        this.delay = this.delay == '' ? 350 : parseInt(this.delay);
+        this.delay = json.Delay ? parseInt(json.Delay[0]) : 350;
         
         this.aLayers = [];
-        var layer = oCommand.oxmlNode.findFirstNode('Layer');
-        while(layer) {
-            this.aLayers.push(layer.textContent);
-            layer = oCommand.oxmlNode.findNextNode('Layer');
+        if (json.Layer) {
+            for (var i=0; i<json.Layer.length; i++) {
+                this.aLayers.push(json.Layer[i][0]);
+            }
         }
         
         this._oCommand = oCommand;

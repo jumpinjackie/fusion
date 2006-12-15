@@ -68,9 +68,11 @@ MapMenu.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
+        var json = oCommand.jsonNode;
+        
         this._oDomObj = $(oCommand.getName());
-        this._sLabel = oCommand.oxmlNode.getNodeText('Label');
-        this._sImageURL = oCommand.oxmlNode.getNodeText('ImageURL');
+        this._sLabel = json.Label ? json.Label[0] : '';
+        this._sImageURL = json.ImageURL ? json.ImageURL[0] : '';
         
         //set up the root menu
         this.oMenu = new JxButtonMenu(this._sLabel);
@@ -78,8 +80,7 @@ MapMenu.prototype =
         Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
         
         //get the mapdefinitions as xml
-        this.sRootFolder = (oCommand.oxmlNode.findFirstNode('Folder'))?
-                      oCommand.oxmlNode.getNodeText('Folder'):'Library://';
+        this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
         var s =        'server/' + Fusion.getScriptLanguage() +
                       '/MGMapMenu.' + Fusion.getScriptLanguage();
         var params =  {parameters:'session='+Fusion.getSessionID() +

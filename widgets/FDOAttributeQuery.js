@@ -88,29 +88,29 @@ FDOAttributeQuery.prototype = {
         
         this.setMap(oCommand.getMap());
 
-        this.layerName = oCommand.oxmlNode.getNodeText('LayerName');
+        var json = oCommand.jsonNode;
+        
+        this.layerName = json.LayerName ? json.LayerName[0] : null;
 
         this.filters = [];
-        var oFilter = oCommand.oxmlNode.findFirstNode('Filter');
-        while (oFilter) {
-            this.filters.push(new MGFilter(oFilter));
-            oFilter = oCommand.oxmlNode.findNextNode('Filter');
+        if (json.Filter) {
+            for (var i=0; i<json.Filter.length; i++) {
+                this.filters.push(new MGFilter(json.Filter[i]));
+            }
         }
 
         this.propertyMappings = [];
-        var oMapping = oCommand.oxmlNode.findFirstNode('PropertyMapping');
-        while (oMapping) {
-            this.propertyMappings.push(new MGPropertyMapping(oMapping));
-            oMapping = oCommand.oxmlNode.findNextNode('PropertyMapping');
-        }
-        
-        var oOverride = oCommand.oxmlNode.findFirstNode('Override');
-        if(oOverride) {
-            this.override = new MGOverride(oOverride);
+        if (json.PropertyMapping) {
+            for (var i=0; i<json.PropertyMapping.length; i++) {
+                this.propertyMappings.push(new MGPropertyMapping(json.PropertyMapping[i]));
+            }
         }
 
+        this.override = json.Override ? new MGOverride(json.Override[0]) : null;
+
         this._oDomObj = $(oCommand.getName());
-        this.resultObj = $(oCommand.oxmlNode.getNodeText('ResultId'));
+        
+        this.resultObj = $(json.ResultId ? json.ResultId[0] : null);
         
         Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
         this.registerEventID(SELECTION_STARTED);
@@ -299,24 +299,25 @@ MGFilterBase.prototype = {
     operatorId: null,
     operatorInput: null,
     validators: null,
-    initialize: function(oNode) {
-        this.valueId = oNode.getNodeText('ValueId');
+    initialize: function(json) {
+        this.valueId = json.ValueId ? json.ValueId[0] : '';
         this.valueInput = $(this.valueId);
-        this.operator = oNode.getNodeText('Operator');
-        this.operatorId = oNode.getNodeText('OperatorId');
+        this.operator = json.Operator ? json.Operator[0] : '';
+        this.operatorId = json.OperatorId ? json.OperatorId[0] : '';
         if (this.operatorId != '') {
             this.operatorInput = $(this.operatorId);
             if (this.operator != '' && this.operatorInput) {
                 this.setValue(this.operatorInput, this.operator);
             }
         }
+        
         this.validators = [];
-        var v = oNode.findFirstNode('Validator');
-        while(v) {
-            this.validators.push(new MGValidator(v));
-            v = oNode.findNextNode('Validator');
+        if (json.Validator) {
+            for (var i=0; i<json.Validator.length; i++) {
+                this.validators.push(new MGValidator(json.Validator[i]));
+            }
         }
-        this.valueType = oNode.getNodeText('ValueType');
+        this.valueType = json.ValueType ? json.ValueType[0] : '';
     },
     getValue: function( idOrObj, defaultValue ) {
         var result = defaultValue;
@@ -360,12 +361,15 @@ MGValidator.prototype = {
     domNode: null,
     message: 'validation failed',
     type: '',
-    initialize: function(domNode) {
-        this.domNode = domNode;
-        this.message = domNode.getNodeText('Message');
-        this.type = domNode.getNodeText('Type');
-        this.className = domNode.getNodeText('Class');
-        this.messageId = domNode.getNodeText('MessageId');
+    initialize: function(json) {
+        this.message = json.Message ? json.Message[0] : this.message;
+        this.type = json.Type ? json.Type[0] : this.type;
+        this.className = json.ClassName ? json.ClassName[0] : '';
+        this.messageId = json.MessageId ? json.MessageId[0] : '';
+        this.max = json.Max ? json.Max[0] : '';
+        this.min = json.Min ? json.Min[0] : '';
+        this.regex = json.Regex ? new RegExp(json.Regex[0]) : null;
+        
     },
     validate: function(filter) {
         if ($(this.messageId)) {
@@ -374,14 +378,12 @@ MGValidator.prototype = {
         if (value != '' || filter.allowEmptyValue) {
             switch(this.type) {
                 case 'regex':
-                    var r = this.domNode.getNodeText('Regex');
-                    var regex = new RegExp(r);
-                    if (!regex.test(value)) {
+                    if (!this.regex.test(value)) {
                         return this.fail(filter);
                     }
                     break;
                 case 'range':
-                    var min = this.domNode.getNodeText('Min');
+                    var min = this.min;
                     if (min != '') {
                         if (min == '[YEAR]') {
                             var d = new Date();
@@ -392,8 +394,7 @@ MGValidator.prototype = {
                             return this.fail(filter);
                         }
                     }
-                    
-                    var max = this.domNode.getNodeText('Max');
+                    var max = this.max
                     if (max != '') {
                         if (max == '[YEAR]') {
                             var d = new Date();
@@ -427,16 +428,15 @@ MGFilter.prototype = {
     fieldName: null,
     unaryNot: null,
     validOperators: ['=', '<>', '<=', '<', '>=', '>', 'LIKE'],
-    initialize: function( oNode ) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [oNode]);
+    initialize: function( json ) {
+        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
         
-        this.allowEmptyValue = (oNode.getNodeText('AllowEmptyValue') == '1' ||
-                                oNode.getNodeText('AllowEmptyValue') == 'true') ? 
-                                   true : false ;
-        this.fieldName = oNode.getNodeText('Field');
+        var b  = json.AllowEmptyValue ? json.AllowEmptyValue[0] : 'false';
+        this.allowEmptyValue = (b == '1' || b == 'true') ? true : false ;
+        this.fieldName = json.Field[0];
         //console.log('filter for field ' + this.fieldName);
-        this.unaryNot = (oNode.getNodeText('Not') == '1' || 
-                         oNode.getNodeText('Not') == 'true') ? true : false;
+        b = json.Not ? json.Not[0] : 'false';
+        this.unaryNot = (b == '1' || b == 'true') ? true : false;
                          
     },
     getFilterText: function() {
@@ -459,10 +459,10 @@ MGFilter.prototype = {
 
 var MGPropertyMapping = Class.create();
 MGPropertyMapping.prototype = {
-    initialize: function(oMapping) {
-        this.name = oMapping.getNodeText('Name');
-        this.value = oMapping.getNodeText('Value');
-        this.type = oMapping.getNodeText('Type');
+    initialize: function(json) {
+        this.name = json.Name[0];
+        this.value = json.Value[0];
+        this.type = json.Type[0];
     },
     getValue: function() {
         return this.value;
@@ -474,30 +474,17 @@ MGPropertyMapping.prototype = {
 
 var MGOverride = Class.create();
 MGOverride.prototype = {
-    initialize: function(oOverride) {
-        this.parent = oOverride.getNodeText('Parent');
-        this.parentField = oOverride.getNodeText('ParentField');
-        this.child = oOverride.getNodeText('Child');
-        this.childField = oOverride.getNodeText('ChildField');
-        var identifyParentAttributes = oOverride.getNodeText('IdentifyParentAttributes');
-        if (identifyParentAttributes.toLowerCase() == 'true' || identifyParentAttributes == '1') {
-            this.identifyParentAttributes = true;
-        } else {
-            this.identifyParentAttributes = false;
-        }
-        var useParentGeometry = oOverride.getNodeText('UseParentGeometeryInChildSearchResults');
-        if (useParentGeometry.toLowerCase() == 'true' || useParentGeometry == '1') {
-            this.useParentGeometry = true;
-        } else {
-            this.useParentGeometry = false;
-        }
-        //console.log('MGOverride:');
-        //console.log('parent: '+this.parent);
-        //console.log('parentField: '+this.parentField);
-        //console.log('child: '+this.child);
-        //console.log('childField: '+this.childField);
-        //console.log('useParentGeometry: '+this.useParentGeometry);
+    initialize: function(json) {
+        this.parent = json.Parent[0]
+        this.parentField = json.ParentField[0];
+        this.child = json.Child[0];
+        this.childField = json.ChildField[0];
         
+        var b = json.IdentifyParentAttributes ? json.IdentifyParentAttributes[0] : '';
+        this.identifyParentAttributes = (b.toLowerCase() == 'true' || b == '1') ? true : false;
+        b = json.UseParentGeometeryInChildSearchResults ?
+                json.UseParentGeometeryInChildSearchResults[0] : '';
+        this.useParentGeometry = (b.toLowerCase() == 'true' || b == '1') ? true : false;
     },
     getFilterText: function() {
         var result = '&parent='+this.parent;
@@ -517,8 +504,8 @@ MGSpatialFilter.prototype = {
                      'INSIDE', 'INTERSECTS', 'OVERLAPS', 'TOUCHES',
                      'WITHIN', 'COVEREDBY'],
 
-    initialize: function(oNode) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [oNode]);
+    initialize: function(json) {
+        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
     },
     getFilterText: function() {
         var result = '';

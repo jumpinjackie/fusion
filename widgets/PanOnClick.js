@@ -42,13 +42,12 @@ PanOnClick.prototype =
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
-        var percent = oCommand.oxmlNode.getNodeText('Percentage');
-        if (percent == '') {
-            percent = 75;
-        }
+        var json = oCommand.jsonNode;
+        
+        var percent = json.Percentage ? json.Percentage[0] : 75;
         this.fPercent = parseFloat(percent)/100;
         
-        var direction = oCommand.oxmlNode.getNodeText('Direction');
+        var direction = json.Direction : json.Direction[0] : '';
         switch (direction) {
             case 'north':
                 this.nDeltaX = 0;

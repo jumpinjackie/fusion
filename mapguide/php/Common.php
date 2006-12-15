@@ -109,7 +109,7 @@ try {
         if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
             $_SESSION['username'] = $_REQUEST['username'];
         }
-        //echo "current user: ".$_SESSION['username'];
+        //echo "<current user: >".$_SESSION['username']. '</current>';
     }
 } catch (MgAuthenticationFailedException $afe) {
     header('Content-type: text/xml');

@@ -93,30 +93,28 @@ Legend.prototype =
         
         this._oDomObj = $(oCommand.getName());
         
-        var img = oCommand.oxmlNode.getNodeText('LayerThemeIcon');
-        this.imgLayerThemeIcon = (img != '') ? img : this.defLayerThemeIcon;
-
-        img = oCommand.oxmlNode.getNodeText('DisabledLayerIcon');
-        this.imgDisabledLayerIcon = (img != '') ? img : this.defDisabledLayerIcon;        
+        var json = oCommand.jsonNode;
         
-        img = oCommand.oxmlNode.getNodeText('LayerInfoIcon');
-        this.imgLayerInfoIcon = (img != '') ? img : this.defLayerInfoIcon;
+        this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.defLayerThemeIcon;
 
-        img = oCommand.oxmlNode.getNodeText('GroupInfoIcon');
-        this.imgGroupInfoIcon = (img != '') ? img : this.defGroupInfoIcon;
+        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.defDisabledLayerIcon;        
         
-        this.layerInfoURL = oCommand.oxmlNode.getNodeText('LayerInfoURL');
+        this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.defLayerInfoIcon;
+
+        this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.defGroupInfoIcon;
+        
+        this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
         
         this.oTree = new JxTree(this._oDomObj);
         
-        var showMapFolder = oCommand.oxmlNode.getNodeText('ShowRootFolder');
+        var showMapFolder = json.ShowRootFolder ? json.ShowRootFolder[0] : 'false';
         if (showMapFolder == 'true' || showMapFolder == '1') {
             var opt = {};
             opt.label = this.getMap().getMapName();
             opt.data = null;
-            img = oCommand.oxmlNode.getNodeText('RootFolderIcon');
-            opt.imgTreeFolder = (img != '') ? img : defRootFolderIcon;
+            img = oCommand.oxmlNode.getNodeText('');
+            opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
             opt.isOpen = true;
             this.oRoot = new JxTreeFolder(opt);

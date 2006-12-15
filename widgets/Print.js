@@ -65,18 +65,20 @@ Print.prototype = {
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
-        var showPrintUI = oCommand.oxmlNode.getNodeText('ShowPrintUI');
+        var json = oCommand.jsonNode;
+        
+        var showPrintUI = json.ShowPrintUI ? json.ShowPrintUI[0] : 'false';
         this.showPrintUI = (showPrintUI.toLowerCase() == 'true' || showPrintUI == '1');
         
-        var showTitle = oCommand.oxmlNode.getNodeText('ShowTitle');
+        var showTitle = json.ShowTitle ? json.ShowTitle[0] : 'false';
         this.showTitle = (showTitle.toLowerCase() == 'true' || showTitle == '1');
 
-        this.pageTitle = oCommand.oxmlNode.getNodeText('PageTitle');
+        this.pageTitle = json.PageTitle ? json.PageTitle[0] : '';
         
-        var showLegend = oCommand.oxmlNode.getNodeText('ShowLegend');
+        var showLegend = json.ShowLegend ? json.ShowLegend[0] : 'false';
         this.showLegend = (showLegend.toLowerCase() == 'true' || showLegend == '1');
         
-        var showNorthArrow = oCommand.oxmlNode.getNodeText('ShowNorthArrow');
+        var showNorthArrow =json.ShowNorthArrow ? json.ShowNorthArrow[0] : 'false';
         this.showNorthArrow = (showNorthArrow.toLowerCase() == 'true' || showNorthArrow == '1');
         
         this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + oCommand.sLocation + '/html/Print.html';
@@ -113,6 +115,23 @@ Print.prototype = {
             
         }
         this.dialog.open();
+    },
+    
+    setParameter: function(param, value) {
+        switch (param) {
+            case 'Print_ShowTitle':
+            this.showTitle = value;
+            break;
+            case 'Print_Title':
+            this.pageTitle = value;
+            break;
+            case 'Print_ShowLegend':
+            this.showLegend = value;
+            break;
+            case 'Print_ShowNorthArrow':
+            this.showNorthArrow = value;
+            break;
+        }
     },
     
     contentLoaded: function() {

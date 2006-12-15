@@ -42,11 +42,11 @@ PanQuery.prototype =
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());
         
-        if (parseInt(oCommand.oxmlNode.getNodeText('Tolerance')) > 0) {
-            nTolerance = parseInt(oCommand.oxmlNode.getNodeText('Tolerance'));
-        }
+        var json = oCommand.jsonNode;
+        
+        this.nTolerance = json.Tolerance ? Math.abs(parseInt(json.Tolerance)) : 3;
 
-        var activeOnly = oCommand.oxmlNode.getNodeText('QueryActiveLayer');
+        var activeOnly = json.QueryActiveLayer ? json.QueryActiveLayer[0] : 'false';
         this.bActiveOnly = (activeOnly == 'true' || activeOnly == '1') ? true : false;
         
         this.cursorNormal = ['auto'];
