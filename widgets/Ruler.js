@@ -45,25 +45,19 @@ Ruler.prototype =
         this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];
-        var unit = oCommand.oxmlNode.getNodeText('Units');
-        if (unit != '') {
-            this.units = Fusion.unitFromName(unit);
-        }
+        var json = oCommand.jsonNode;
         
-        var container = oCommand.oxmlNode.getNodeText('RulerTooltipContainer');
+        this.units = (json.Units && (json.Units[0] != '')) ?
+                      Fusion.unitFromName(json.Units[0]): this.units;
+        
+        var container = json.RulerTooltipContainer ? json.RulerTooltipContainer[0] : '';
         if (container != '') {
             this.rulerTip = $(container);
         }
         
         if (this.rulerTip) {
-            var type = oCommand.oxmlNode.getNodeText('RulerTooltipType');
-            switch (type.toLowerCase()) {
-                case 'dynamic':
-                case 'static':
-                    this.rulerTipType = type.toLowerCase();
-                default:
-                    this.rulerTipType = 'dynamic';
-            }
+            this.rulerTipType = json.RulerTooltipType ?
+                                json.RulerTooltipType[0].toLowerCase() : 'dynamic';
             if (this.rulerTipType == 'dynamic') {
                 var oDomElem =  this.getMap().getDomObj();
                 oDomElem.appendChild(this.rulerTip);
