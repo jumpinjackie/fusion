@@ -48,10 +48,7 @@ define('MG_ADMIN_PASSWD', 'admin');
 define('MG_USER_DIRECTORY_ROOT', 'Library://Nanaimo/Users/');
 
 //array of preferences and their default value;
-// global $aszInitialPrefs;
-// $aszInitialPrefs = array('extents' => '-81, 43,-87,50',
-//                          'interface' => 'basic'
-//                          );
+//MOVED TO Class MGUserManager
 
 ////////////////////////
 //END OF CONFIGURATION//
@@ -130,16 +127,6 @@ Class MGUserManager {
             $this->db->query("CREATE TABLE user_prefs (userid INTEGER NOT NULL, prefid INTEGER NOT NULL, value VARCHAR(255));");
             //add default preferences;
             $szPrefsSQL = '';
-            // $aszInitialPrefs = array('Extents' => '-81, 43,-87,50',
-            //                          'Mode' => 'advanced',
-            //                          'Keymap' => 'True',
-            //                          'SelectionType' => 'INTERSECTS',
-            //                          'ToolUnits' => 'metres',
-            //                          'Print_ShowTitle'=>'True',
-            //                          'Print_Title'=>'Nanaimo Map',
-            //                          'Print_ShowLegend'=>'True',
-            //                          'Print_ShowNorthArrow'=>'True'
-            //                     );
             foreach($this->aszInitialPrefs as $key => $value) {
                 $szPrefsSQL .= 'INSERT INTO prefs (name, default_value) VALUES ("'.$key.'","'.$value.'");';
             }
