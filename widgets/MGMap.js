@@ -57,6 +57,7 @@ MGMap.prototype =
     
     initialize : function(oCommand)
     {
+        console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
         this.registerEventID(MGMAP_SELECTION_ON);
@@ -68,6 +69,7 @@ MGMap.prototype =
         this._oConfigObj = Fusion.oConfigMgr;
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
+        console.log('resource id is ' + this.sMapResourceId);
         if (this.sMapResourceId != '') {
             this.loadMap(this.sMapResourceId);
         }
@@ -78,7 +80,7 @@ MGMap.prototype =
         this.triggerEvent(MAP_LOADING);
         
         this._addWorker();
-        //console.log('loadMap: ' + resourceId);
+        console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
             return;
@@ -115,7 +117,9 @@ MGMap.prototype =
     },
     
     mapLoaded: function(r, json) {
+        console.log('mapLoaded: ' + json);
         if (json) {
+            console.log('processing json: '+r.responseText);
             var o;
             eval('o='+r.responseText);
             this._sResourceId = o.mapId;
