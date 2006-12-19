@@ -133,8 +133,6 @@ for ($i=0; $i< $classProps->GetCount(); $i++)
     $propName = $featureReader->GetPropertyName($j);
     $propType = $featureReader->GetPropertyType($propName);
     $mapping = isset($mappings[$propName]) ? $mappings[$propName] : $propName;
-
-    }
 }
 
 //Get layer collection as xml
