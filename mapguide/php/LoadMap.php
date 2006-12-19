@@ -147,7 +147,7 @@ try
         echo "visible:".BooleanToString($layer->GetVisible()).",";
         echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
         echo "editable:true,";
-        buildScaleRanges($layer);
+        echo buildScaleRanges($layer);
         echo '}';
         $layerSep = ',';
     } 
@@ -257,8 +257,8 @@ function buildScaleRanges($layer) {
         $output .= ']}';
         $scaleSep = ',';
     }
-    $output .= '],';
-    echo $output;
+    $output .= ']';
+    return $output;
 }
 
 function ByteReaderToString($byteReader)
