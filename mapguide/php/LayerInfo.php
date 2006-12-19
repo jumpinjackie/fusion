@@ -64,6 +64,11 @@ try {
     echo 'exception';
     exit;
 }
+//property mappings from the session
+if (isset($_SESSION['property_mappings')) {
+    $mappings = $_SESSION['property_mappings'][$layer->GetObjectId()];
+}
+
 $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
 //echo $dataSourceId->ToString();exit;
 $agf = new MgAgfReaderWriter();
@@ -107,6 +112,7 @@ $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourc
 $classProps = $classDefinition->GetProperties();
 $featureGeometryName = $layer->GetFeatureGeometryName();
 $aLayerTypes = array();
+$aProperties = array();
 for ($i=0; $i< $classProps->GetCount(); $i++)
 {
     $prop = $classProps->GetItem($i);
@@ -122,6 +128,12 @@ for ($i=0; $i< $classProps->GetCount(); $i++)
             array_push($aLayerTypes, 'point');
         }
         break;
+    }
+    
+    $propName = $featureReader->GetPropertyName($j);
+    $propType = $featureReader->GetPropertyType($propName);
+    $mapping = isset($mappings[$propName]) ? $mappings[$propName] : $propName;
+
     }
 }
 
