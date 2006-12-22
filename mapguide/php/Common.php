@@ -120,6 +120,7 @@ try {
     echo "</Exception>";
     exit;
 } catch (MgUserNotFoundException $unfe) {
+    header("HTTP/1.0 500 Internal Server Error");
     header('Content-type: text/xml');
     echo "<Exception>";
     echo "<Type>User Not Found</Type>";

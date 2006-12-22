@@ -36,22 +36,20 @@
 try {
     /* set up the session */
     include ("MGCommon.php");
-
-    /* override join properties */
-    $parent = isset($_REQUEST['parent']) ? $_REQUEST['parent'] : false;
-    $parentField = isset($_REQUEST['parentfield']) ? $_REQUEST['parentfield'] : false;
-    $child = isset($_REQUEST['child']) ? $_REQUEST['child'] : false;
-    $childField = isset($_REQUEST['childfield']) ? $_REQUEST['childfield'] : false;
-    $includeParent = isset($_REQUEST['includeparentattributes']) ? $_REQUEST['includeparentattributes'] : false;
-    $useParentGeom = isset($_REQUEST['useparentgeometry']) ? $_REQUEST['useparentgeometry'] : false;
+    include ("MGUtilities.php");
+    
+    /* join properties */
+    $joinLayer = isset($_REQUEST['joinlayer']) ? $_REQUEST['joinlayer'] : false;
+    $joinForeignKey = isset($_REQUEST['joinfk']) ? $_REQUEST['joinfk'] : false;
+    $joinPrimaryKey = isset($_REQUEST['joinpk']) ? $_REQUEST['joinpk'] : false;
 
     /* the name of the layer in the map to query */
     $layer = $_REQUEST['layer'];
 
     /* a filter expression to apply, in the form of an FDO SQL statement */
     $filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode($_REQUEST['filter'])) : false;
+    /* passing a % in the URL is a 'BAD THING' (tm) - we pass a * instead */
     $filter = str_replace('*', '%', $filter);
-    //echo "filter: $filter<BR>";
 
     /* we need a feature service to query the features */
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
@@ -61,24 +59,47 @@ try {
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 
-    /* get the named layer from the map */
-    $layerObj = $map->GetLayers()->GetItem($layer);
+    /* set up the objects required to search the requested layer */
+    $layerObj = new MgLayer(new MgResourceIdentifier($layer), $resourceService);
+    
+    if ($layerObj == null) {
+        echo "layer $layer not found.";
+        exit;
+    }
+    $mappings = GetLayerPropertyMappings($resourceService,$layerObj);
+    $reverseMappings = array_flip($mappings);
+    
+    /* set up the objects required by the join, if required */
+    $joinLayerObj = null;
+    $joinMappings = null;
+    if ($joinLayer != false) {
+        $joinLayerObj = new MgLayer(new MgResourceIdentifier($joinLayer), $resourceService);
+        $joinMappings = GetLayerPropertyMappings($resourceService,$joinLayerObj);
+        $joinReverseMappings = array_flip($joinMappings);
 
+        /* grab the real property name of the joined field */
+        $primaryLinkProperty = $reverseMappings[$joinPrimaryKey];
+        $foreignLinkProperty = $joinReverseMappings[$joinForeignKey];
+
+        /* remove join keys from both child and parent */
+        if (array_key_exists($joinForeignKey, $joinReverseMappings)) {
+            unset($joinMappings[$joinReverseMappings[$joinForeignKey]]);
+            unset($joinReverseMappings[$joinForeignKey]);
+        }
+        
+        if (array_key_exists($joinPrimaryKey, $reverseMappings)) {
+            unset($mappings[$reverseMappings[$joinPrimaryKey]]);
+            unset($reverseMappings[$joinPrimaryKey]);
+        }
+        
+    }
+    
     /* get the feature source from the layer */
     $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
     $featureGeometryName = $layerObj->GetFeatureGeometryName();
-    //echo "feature geometry name is $featureGeometryName<BR>";
-    /* the class that is used for this layer will be used to select
-       features */
-    /* get the feature source from the layer */
-    $featureResId = new MgResourceIdentifier($layerObj->GetFeatureSourceId());
-    if ($child) {
-        $class = $child;
-    } else {
-        $class = $layerObj->GetFeatureClassName();
-    }
-    //echo "feature class is $class<BR>";
-
+    /* the class that is used for this layer will be used to select features */
+    $class = $layerObj->GetFeatureClassName();
+    
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
@@ -87,87 +108,105 @@ try {
 
     /* select the features */
     $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-
-    //TODO : use layer definition to only get properties defined.
-    $propCount = $featureReader->GetPropertyCount();
-
-    $props = array();
-    $types = array();
-
-    for($i=0; $i<$propCount; $i++)
-    {
-         $props[$i] = $featureReader->GetPropertyName($i);
-         $types[$i] = $featureReader->GetPropertyType($props[$i]);
-    }
-    header('Content-type: text/plain');
-    echo "result={properties:[";
-
-    $valSep = '';
-    for($i=0; $i<$propCount; $i++) {
-        echo $valSep."'".$props[$i]."'";
-        $valSep = ',';
-    }
-    echo $valSep."'has_geometry'],\n";
-    $nElements = 0;
-    $recSep = '';
+    
+    /* figure out if the feature source has geometry in the non-joined case */
+    $classDefn = $featureReader->GetClassDefinition();
+    $hasGeom = ($classDefn->GetDefaultGeometryPropertyName() != '') ? 1 : 0;
+        
+    $primaryValues = array();
+    $foreignValues = array();
+    $geometries = array();
+    $joinValues = array();
+    
+    /* output the attributes from the main feature source.  We take some
+     * pains in the join case to build up a filter for the joined feature
+     * source so we can go get additional attributes and check for geometry
+     * there if necessary
+     */
     $filterExpr = array();
-    $allValues = array();
     $linkValues = array();
-    while ($featureReader->ReadNext())
-    {
-        $featureValues = array();
-        $linkValue = false;
-        for($i=0; $i<$propCount; $i++)
-        {
-            $value = GetPropertyValueFromFeatReader($featureReader,
-                                             $props[$i]);
+    $index = 0;
+    
+    while ($featureReader->ReadNext()) {
+        /* put the has_geometry property in first - it may be calculated later
+         * if the layer is joined, but we still need a placeholder
+         */
+        $geometries[$index] = ($joinLayerObj != null) ? 0 : $hasGeom;
+        
+        /* stuff all the mapped properties in */
+        foreach($mappings as $key => $mapped) {
+            $value = GetPropertyValueFromFeatReader($featureReader, $key);
             //clean up the values to make them safe for transmitting to the client
             $value = htmlentities($value);
             $value = addslashes($value);
             $value = preg_replace( "/\r?\n/", "<br>", $value );
-            array_push($featureValues, $value);
-
-            if ($useParentGeom && strcasecmp(trim($props[$i]),trim($childField)) == 0) {
-
-                $linkValue = $value;
-            }
+            $primaryValues[$mapped][$index] = $value;
         }
-        array_push($featureValues, 0); //assume all features have no geometry first
-
-        $len = array_push($allValues, $featureValues);
-        if ($linkValue !== false) {
-            array_push($filterExpr, $childField ."=".$linkValue);
+        
+        /* fill in the joined property values in case we don't get a value later */
+        foreach($joinMappings as $key => $mapped) {
+            $foreignValues[$key][$index] = '';
+        }
+        
+        /* if we are joining to another feature source, we aren't finished yet */
+        if ($joinLayerObj != null) {
+            $linkValue = GetPropertyValueFromFeatReader($featureReader, $primaryLinkProperty);
+            array_push($joinValues, $linkValue);
+            array_push($filterExpr, $foreignLinkProperty."=".$linkValue);
             if (!array_key_exists($linkValue,$linkValues)) {
                 $linkValues[$linkValue] = array();
             }
-            array_push($linkValues[$linkValue], $len - 1);
+            array_push($linkValues[$linkValue], $index);
         }
-        $nElements ++;
+        $index ++;
     }
     $featureReader->Close();
-    echo 'values:[';
     if (count($filterExpr) > 0) {
         $filter = '(' . implode(') OR (', $filterExpr).')';
         $parentOptions = new MgFeatureQueryOptions();
         $parentOptions->SetFilter($filter);
-        $geomReader = $featureService->SelectFeatures($featureResId, $parent, $parentOptions);
+        $joinFeatureResId = new MgResourceIdentifier($joinLayerObj->GetFeatureSourceId());
+        $joinClass = $joinLayerObj->GetFeatureClassName();
+        $geomReader = $featureService->SelectFeatures($joinFeatureResId, $joinClass, $parentOptions);
         while($geomReader->ReadNext()) {
-            $linkValue = GetPropertyValueFromFeatReader($geomReader, $parentField);
+            $linkValue = GetPropertyValueFromFeatReader($geomReader, $foreignLinkProperty);
             if (isset($linkValues[$linkValue])) {
-                foreach($linkValues[$linkValue] as $val) {
-                    array_pop($allValues[$val]);
-                    array_push($allValues[$val], 1);
+                foreach($linkValues[$linkValue] as $index) {
+                    $geometries[$index] = 1;
+                    foreach($joinMappings as $key => $mapped) {
+                        $value = GetPropertyValueFromFeatReader($geomReader, $key);
+                        $foreignValues[$mapped][$index] = $value;
+
+                    }
                 }
             }
         }
     }
+    
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
+    /* insert has_geometry property by default */
+    echo "{properties:['".implode("','", array_values($mappings)).implode("','", array_values($joinMappings))."'],\n";
+    echo "geometries:[".implode(",", $geometries)."],\n";
+    echo "join_values:[".implode(",", $joinValues)."],\n";
+    echo "values:[";
     $sep = '';
-    foreach($allValues as $values) {
-        echo $sep.'["'.implode('","', $values).'"]';
+    $nElements = count($geometries);
+    for ($i=0; $i<$nElements; $i++) {
+        echo $sep."[";
+        $vSep = '';
+        foreach($primaryValues as $key => $values) {
+            echo $vSep."'".$values[$i]."'";
+            $vSep = ',';
+        }
+        foreach($foreignValues as $key => $values) {
+            echo $vSep."'".$values[$i]."'";
+            $vSep = ',';
+        }
+        echo "]";
         $sep = ',';
     }
     echo "]};";
-
 }
 catch (MgException $e)
 {

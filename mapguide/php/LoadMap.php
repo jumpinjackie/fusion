@@ -33,7 +33,7 @@
  *
  *****************************************************************************/
 include('MGCommon.php');
-
+include('MGUtilities.php');
 
 try
 {
@@ -261,21 +261,7 @@ function buildScaleRanges($layer) {
     return $output;
 }
 
-function ByteReaderToString($byteReader)
-{
-    $buffer = '';
-    do
-    {
-        $data = str_pad("\0", 50000, "\0");
-        $len = $byteReader->Read($data, 50000);
-        if ($len > 0)
-        {
-            $buffer = $buffer . substr($data, 0, $len);
-        }
-    } while ($len > 0);
 
-    return $buffer;
-}
 
 // Converts a boolean to "yes" or "no"
 // --from MG Web Tier API Reference
@@ -285,89 +271,5 @@ function BooleanToString($boolean)
         return ($boolean ? "true" : "false");
     else
         return "'ERROR in BooleanToString.'";
-}
-
-//-----------------------------------------------------------------
-//function GetFeatureClassAndSchema
-//@param MgFeatureService featureService
-//@param MgResourceIdentifier dataSourceId
-//@param MgLayer layer
-//@return the classdefinition reference.
-//
-//@desc Get class definition and schema from the layer.
-//@desc This works around changes between MG 1.0.1 and 1.0.2
-//@desc described in MG341 (see mapguide.osego.org)
-//@desc This function can be removed when all servers are updated.
-//------------------------------------------------------------------
-function GetFeatureClassDefinition($featureService, $layer, $dataSourceId){
-
-    $qualifiedClass = $layer->GetFeatureClassName();
-    if (strpos($qualifiedClass, ':') === false ) {
-        $class = $qualifiedClass;
-        $schema = $featureService->GetSchemas($dataSourceId)->GetItem(0);
-    } else {
-        list($schema, $class) = explode(':', $qualifiedClass);
-    }
-    return $featureService->GetClassDefinition($dataSourceId, $schema, $class);
-}
-
-//-----------------------------------------------------------------
-//function GetLayerTypes
-//@param MgFeatureService featureService
-//@param MgLayer layer
-//@return the layer types as an array.
-//
-//@desc utility function to determine the set of allowed feature types for a layer's
-//@desc feature source.
-//@desc N.B. this is a workaround because the MgLayer::GetLayerType function seems to
-//@desc produce the same answer (1) for all layer types.
-//------------------------------------------------------------------
-function GetLayerTypes($featureService, $layer) {
-
-    $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-    
-    //get class definition from the featureSource
-    $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
-
-    //MgPropertyDefinition classProps
-    $classProps = $classDefinition->GetProperties();
-    $aLayerTypes = array();
-    for ($i=0; $i< $classProps->GetCount(); $i++)
-    {
-        $prop = $classProps->GetItem($i);
-        if ($prop->GetPropertyType() == MgFeaturePropertyType::GeometricProperty) {
-            $featureClass = $prop->GetGeometryTypes();
-            if ($featureClass & MgFeatureGeometricType::Surface) {
-                array_push($aLayerTypes, '2'/*'surface'*/);
-            }
-            if ($featureClass & MgFeatureGeometricType::Curve) {
-                array_push($aLayerTypes, '1'/*'curve'*/);
-            }
-            if ($featureClass & MgFeatureGeometricType::Solid) {
-                array_push($aLayerTypes, '3'/*'solid'*/); //could use surface here for editing purposes?
-            }
-            if ($featureClass & MgFeatureGeometricType::Point){
-                array_push($aLayerTypes, '0'/*'point'*/);
-            }
-            break;
-        }
-    }
-    return $aLayerTypes;
-}
-
-function GetLayerPropertyMappings($resourceService, $layer) {
-    $mappings = array();
-    $byteReader = $resourceService->GetResourceContent($layer->GetLayerDefinition());
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
-    $mappingNodeList = $xmldoc->getElementsByTagName('PropertyMapping');
-    for ($i=0; $i<$mappingNodeList->length; $i++) {
-        $mapping = $mappingNodeList->item($i);
-        $nameElt = $mapping->getElementsByTagName('Name');
-        $name = $nameElt->item(0)->nodeValue;
-        $valueElt = $mapping->getElementsByTagName('Value');
-        $value = $valueElt->item(0)->nodeValue;
-        $mappings[$name] = $value;
-    }
-    return $mappings;
 }
 ?>
