@@ -64,16 +64,17 @@ if ($command) {
     {
         case 'LOGIN':
             header('Content-type: text/xml');
-            $preferences = $manager->Login($_REQUEST['username'], $_REQUEST['password']);
+            $preferences = $manager->Login(trim($_REQUEST['username']), trim($_REQUEST['password']));
             if ($preferences) {
                 echo $preferences;
             } else {
-                echo '<ERROR>Bad username or password.</ERROR>';
+                echo '<Error>Bad username or password.</Error>';
             }
         break;
         case 'REGISTER':
-        $manager->AddUser($_REQUEST['newusername'], $_REQUEST['newpassword'],
-                            $_REQUEST['firstname'], $_REQUEST['surname']);            
+        $manager->AddUser(trim($_REQUEST['newusername']), trim($_REQUEST['newpassword']),
+                          trim($_REQUEST['newusername']), '');//,
+                            //$_REQUEST['firstname'], $_REQUEST['surname']);            
         break;
         case 'SETUSERPREF':
             //TODO use current user, not query id 
@@ -156,7 +157,8 @@ Class MGUserManager {
                 $siteConnection = new MgSiteConnection();
                 $siteConnection->Open($user);
                 $site = $siteConnection->GetSite();
-                $site->AddUser($username, $username, $password, $firstName." ".$surName);                
+                $fullname = trim($firstName." ".$surName);
+                $site->AddUser($username, $username, $password, $fullname);                
                 //set author role
                 $usersToGrant = new MgStringCollection();
                 $roleToUpdate = new MgStringCollection();
@@ -187,7 +189,7 @@ Class MGUserManager {
                     $this->AddUserPref($userId, $prefid, $value);
                 }
             } catch (MgDuplicateUserException $du_e) {
-                echo '<ERROR>Duplicate user!</ERROR>';
+                echo '<Error>Duplicate user!</Error>';
                 return FALSE;
             } catch (MgException $e) {
                 echo "ERROR: " . $e->GetMessage() . "\n";
@@ -196,6 +198,7 @@ Class MGUserManager {
                 return FALSE;
             }
 
+            echo "<Success><UserRegistered>".$userId."</UserRegistered></Success>";
             return $userId;
         }
     }
@@ -260,34 +263,36 @@ Class MGUserManager {
     function Login($username, $password) {
         $encryptedPassword = crypt($password, SALT);
         $result = $this->db->query('SELECT password, userid, prefs.name FROM users, prefs WHERE username = "'.$username.'";');
-        if ($result) {
-            $aRow = $result->fetch(SQLITE_ASSOC);
-            if ($encryptedPassword == ($aRow['password'])) {
-                $userId = $aRow['userid'];
-                $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$userId.' AND user_prefs.prefid = prefs.prefid;');
-                $szOut = '';
-                if ($result) {
-                    $szOut = '<preferences>';
-                    while ($aRow = $result->fetch(SQLITE_ASSOC)) {
-                        $szOut .= '<pref>';
-                        $szOut .= '<name>';
-                        $szOut .= $aRow['prefs.name'];
-                        $szOut .= '</name>';
-                        $szOut .= '<value>';
-                        $szOut .= $aRow['user_prefs.value'];
-                        $szOut .= '</value>';
-                        $szOut .= '</pref>';
+        try {
+            if ($result) {
+                $aRow = $result->fetch(SQLITE_ASSOC);
+                if ($encryptedPassword == ($aRow['password'])) {
+                    $userId = $aRow['userid'];
+                    $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$userId.' AND user_prefs.prefid = prefs.prefid;');
+                    $szOut = '';
+                    if ($result) {
+                        $szOut = '<preferences>';
+                        while ($aRow = $result->fetch(SQLITE_ASSOC)) {
+                            $szOut .= '<pref>';
+                            $szOut .= '<name>';
+                            $szOut .= $aRow['prefs.name'];
+                            $szOut .= '</name>';
+                            $szOut .= '<value>';
+                            $szOut .= $aRow['user_prefs.value'];
+                            $szOut .= '</value>';
+                            $szOut .= '</pref>';
+                        }
+                        $szOut .= '</preferences>';
                     }
-                    $szOut .= '</preferences>';
-                }
-                //create a session in mg
-                //$user = new MgUserInformation($_REQUEST['username'], $_REQUEST['password']);
-                //$user->SetMgSessionId($sessionID);
+                    //create a session in mg
+                    //$user = new MgUserInformation($_REQUEST['username'], $_REQUEST['password']);
+                    //$user->SetMgSessionId($sessionID);
                 
-                return $szOut;
+                    return $szOut;
+                }
             }
-        } else {
-            return FALSE;
+        } catch(MgException $e) {
+            return "<Error>Login failed.</Error>";
         }
     }
     
