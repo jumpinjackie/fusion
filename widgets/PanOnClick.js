@@ -47,7 +47,7 @@ PanOnClick.prototype =
         var percent = json.Percentage ? json.Percentage[0] : 75;
         this.fPercent = parseFloat(percent)/100;
         
-        var direction = json.Direction : json.Direction[0] : '';
+        var direction = json.Direction ? json.Direction[0] : '';
         switch (direction) {
             case 'north':
                 this.nDeltaX = 0;
