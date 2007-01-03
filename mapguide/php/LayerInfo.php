@@ -64,8 +64,18 @@ try {
     echo 'exception';
     exit;
 }
+
+if (isset($_REQUEST['selectable'])) {
+    if (strcasecmp($_REQUEST['selectable'], 'true') == 0) {
+        $layer->SetSelectable(true);
+    } else {
+        $layer->SetSelectable(false);
+    }
+    $map->Save($resourceService);
+}
+
 //property mappings from the session
-if (isset($_SESSION['property_mappings')) {
+if (isset($_SESSION['property_mappings'])) {
     $mappings = $_SESSION['property_mappings'][$layer->GetObjectId()];
 }
 
@@ -129,10 +139,6 @@ for ($i=0; $i< $classProps->GetCount(); $i++)
         }
         break;
     }
-    
-    $propName = $featureReader->GetPropertyName($j);
-    $propType = $featureReader->GetPropertyType($propName);
-    $mapping = isset($mappings[$propName]) ? $mappings[$propName] : $propName;
 }
 
 //Get layer collection as xml
