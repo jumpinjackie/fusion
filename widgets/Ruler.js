@@ -71,7 +71,16 @@ Ruler.prototype =
         
         this.registerEventID(RULER_DISTANCE_CHANGED);
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
-        
+        this.keyHandler = this.onKeyPress.bind(this);
+    },
+    
+    onKeyPress: function(e) {
+        console.log('Rule::onKeyPress');
+        var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
+        console.log(charCode);
+        if (charCode == Event.KEY_ESC) {
+            this.resetCanvas();
+        } 
     },
     
     /**
@@ -91,6 +100,7 @@ Ruler.prototype =
         this.cumulativeDistance = 0;
         this.lastDistance = 0;
         this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        Event.observe(document,"keypress",this.keyHandler);
     },
     
     /**
@@ -100,6 +110,7 @@ Ruler.prototype =
      */
     deactivate: function() {
         //console.log('Ruler.deactivate');
+        Event.stopObserving(document, 'keypress', this.keyHandler);           
         this._oButton.deactivateTool();
         this.deactivateCanvas();
         this.resetCanvas();
