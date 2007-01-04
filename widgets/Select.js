@@ -35,8 +35,7 @@ Select.prototype =
 {       
     nTolerance : 3, //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Select', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
@@ -77,8 +76,7 @@ Select.prototype =
     /**
      * called when the button is clicked by the MGButtonBase widget
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         this.getMap().activateWidget(this);
         //this.activate();
     },
@@ -88,8 +86,7 @@ Select.prototype =
      * This function should be defined for all functions that register
      * as a widget in the map
      */
-    activate : function()
-    {
+    activate : function() {
         this.activateRectTool();
         this.getMap().setCursor(this.asCursor);
         /*icon button*/
@@ -101,8 +98,7 @@ Select.prototype =
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate : function()
-    {
+    deactivate : function() {
          this.deactivateRectTool();
          this.getMap().setCursor('auto');
          /*icon button*/
