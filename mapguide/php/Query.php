@@ -175,11 +175,29 @@ try {
     header( 'Content-type: text/xml');
     $layers = $selection->GetLayers();
     
-    if ($layers && $layers->GetCount() >= 0) {
+    if ($layers && $layers->GetCount() >= 0) 
+    {
+        echo "<SelectionResult>";
         echo '<Selection>true</Selection>';
-    } else {
+        $oExtents = $selection->GetExtents($featureService);
+        if ($oExtents) 
+        {
+            $oMin = $oExtents->GetLowerLeftCoordinate();
+            $oMax = $oExtents->GetUpperRightCoordinate();
+            echo "<minx>".$oMin->GetX()."</minx>";
+            echo "<miny>".$oMin->GetY()."</miny>";
+            echo "<maxx>".$oMax->GetX()."</maxx>";
+            echo "<maxy>".$oMax->GetY()."</maxy>";
+        }
+        echo "</SelectionResult>";
+    } 
+    else 
+    {
+        echo "<SelectionResult>";
         echo '<Selection>false</Selection>';
+        echo "</SelectionResult>";
     }
+
 } 
 catch (MgException $e)
 {
