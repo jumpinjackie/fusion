@@ -127,7 +127,7 @@ FDOAttributeQuery.prototype = {
         var sep = '';
         for (var i=0; i<this.filters.length; i++) {
             if (!this.filters[i].validate()) {
-                console.log('validation failed');
+                //console.log('validation failed');
                 return;
             }
             var filterText = this.filters[i].getFilterText();

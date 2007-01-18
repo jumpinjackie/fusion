@@ -75,9 +75,9 @@ Ruler.prototype =
     },
     
     onKeyPress: function(e) {
-        console.log('Rule::onKeyPress');
+        //console.log('Rule::onKeyPress');
         var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
-        console.log(charCode);
+        //console.log(charCode);
         if (charCode == Event.KEY_ESC) {
             this.resetCanvas();
         } 

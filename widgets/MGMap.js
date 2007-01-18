@@ -57,7 +57,7 @@ MGMap.prototype =
     
     initialize : function(oCommand)
     {
-        console.log('MGMap.initialize');
+        //console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
         this.registerEventID(MGMAP_SELECTION_ON);
@@ -69,7 +69,7 @@ MGMap.prototype =
         this._oConfigObj = Fusion.oConfigMgr;
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
-        console.log('resource id is ' + this.sMapResourceId);
+        //console.log('resource id is ' + this.sMapResourceId);
         if (this.sMapResourceId != '') {
             this.loadMap(this.sMapResourceId);
         }
@@ -80,7 +80,7 @@ MGMap.prototype =
         this.triggerEvent(MAP_LOADING);
         
         this._addWorker();
-        console.log('loadMap: ' + resourceId);
+        //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
             return;
@@ -117,9 +117,9 @@ MGMap.prototype =
     },
     
     mapLoaded: function(r, json) {
-        console.log('mapLoaded: ' + json);
+        //console.log('mapLoaded: ' + json);
         if (json) {
-            console.log('processing json: '+r.responseText);
+            //console.log('processing json: '+r.responseText);
             var o;
             eval('o='+r.responseText);
             this._sResourceId = o.mapId;
@@ -634,7 +634,7 @@ MGSelectionObjectLayer.prototype = {
             this.aElements[iElement]['attributes'].type = type;
             this.aElements[iElement]['attributes'].bbox = bbox;
             this.aElements[iElement]['attributes'].center = bbox;
-            console.log('type is ' + type);
+            //console.log('type is ' + type);
             if (type > 1) {
                 this.area += parseFloat(area);
                 this.aElements[iElement]['attributes'].area = area;
@@ -646,8 +646,8 @@ MGSelectionObjectLayer.prototype = {
             oValueCollection = oNode.findNextNode('ValueCollection');
             iElement++;
         }
-        console.log( 'final area is ' + this.area);
-        console.log( 'final distance is ' + this.distance);
+        //console.log( 'final area is ' + this.area);
+        //console.log( 'final distance is ' + this.distance);
         
     },
 

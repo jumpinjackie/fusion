@@ -96,7 +96,7 @@ KeyMap.prototype =   {
 
         this.nHeight = size.height;
 
-        console.log('keymap width: '+this.nWidth + ', height: ' + this.nHeight);
+        //console.log('keymap width: '+this.nWidth + ', height: ' + this.nHeight);
 
 
 
@@ -202,7 +202,7 @@ KeyMap.prototype =   {
 
         this.nHeight = size.height;
 
-        console.log('update keymap width: '+this.nWidth + ', height: ' + this.nHeight);
+        //console.log('update keymap width: '+this.nWidth + ', height: ' + this.nHeight);
 
 
 

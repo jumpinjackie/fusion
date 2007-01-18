@@ -66,7 +66,7 @@ ExtentHistory.prototype =
         this.registerEventID(HISTORY_CHANGED);
         
         this.registerForEvent(HISTORY_CHANGED, this.historyChanged.bind(this));
-        console.log(this.events[HISTORY_CHANGED].length);
+        //console.log(this.events[HISTORY_CHANGED].length);
         this.disable();
     },
     

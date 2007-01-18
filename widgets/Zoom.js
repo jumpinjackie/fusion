@@ -122,7 +122,7 @@ Zoom.prototype =
         var ratio = this.nFactor;
         var pWidth = Math.abs(nRight-nLeft);
         var pHeight = Math.abs(nBottom-nTop);
-        console.log('pWidth: ' + pWidth + ', pHeight: ' + pHeight);
+        //console.log('pWidth: ' + pWidth + ', pHeight: ' + pHeight);
         if (pWidth > this.nTolerance ||
             pHeight > this.nTolerance) {
             ratio = Math.min(map._nWidth/pWidth,map._nHeight/pHeight);
