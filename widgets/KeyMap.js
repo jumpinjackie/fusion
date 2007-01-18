@@ -54,23 +54,30 @@ KeyMap.prototype =   {
 
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
         this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
+    },
+    
+    mapLoaded: function() 
+    {
         this.getMap().registerForEvent(MAP_RESIZED, this.mapResized.bind(this));
-    },
-    
-    mapLoaded: function() {
+        //console.log('keymap mapLoaded');
         this.draw();
     },
     
-    mapResized: function() {
+    mapResized: function() 
+    {
+        //console.log('keymap mapResized');
         this.draw();
     },
     
-    extentsChanged : function() {
+    extentsChanged : function() 
+    {
+        //console.log('extentsChanged');
         this.draw();
     },
 
     draw : function() {
         if (!this.oDomImgObj) {
+            //console.log('keymap '+ this.sImageURL);
             //create an image to hold the keymap
             this.oDomImgObj = document.createElement( 'img' );
             this.oDomImgObj.src = this.sImageURL;
