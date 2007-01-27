@@ -123,7 +123,6 @@ try
 {
     header('Content-type: text/xml');
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
-    $queryOptions = new MgFeatureQueryOptions();
 
     /*mapname*/
     $mapname = "";
@@ -195,26 +194,25 @@ try
 
                 //gives the feature class name
                 $layerClassName = $layer->GetFeatureClassName();
-                //echo "GetFeatureClassName : $layerClassName <br>";
 
                 // Create a filter containing the IDs of the selected
                 // features on this layer
                 //gives something like this : (FeatId=21) OR (FeatId=50) ...
                 $selectionString = $selection->GenerateFilter($layer, $layerClassName);
-                //echo "selection->GenerateFilter : $selectionString <br>";
           
                 // Get the feature resource for the selected layer
                 $layerFeatureId = $layer->GetFeatureSourceId();
-                //echo "layerFeatureId = $layerFeatureId <br>\n";
 
                 $layerFeatureResource = new MgResourceIdentifier($layerFeatureId);
+                
+                $queryOptions = new MgFeatureQueryOptions();
                 
                 //only retrieve properties that we actually need
                 foreach($mappings as $name => $value) {
                     $queryOptions->AddFeatureProperty($name);
                 }
-                
-                $queryOptions->AddFeatureProperty($layer->GetFeatureGeometryName());
+                $geomName = $layer->GetFeatureGeometryName();
+                $queryOptions->AddFeatureProperty($geomName);
                 
                 // Apply the filter to the feature resource for the
                 // selected layer. This returns
@@ -329,7 +327,10 @@ try
                                     $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
                                 }
                                 if ($srsXform != null) {
-                                    $geom = $geom->Transform($srsXform);
+                                    try {
+                                        $ageom = $geom->Transform($srsXform);
+                                        $geom = $ageom;
+                                    } catch (MgException $ee) {}
                                 }
 
                                 if ($geom->GetDimension() > 1) {
@@ -359,6 +360,7 @@ try
                     $nElements++;
                     
                 }
+                $featureReader->Close();
                 echo '<ElementsSelected>' . $nElements . '</ElementsSelected>';
                 $aSelection[$iValidLayer]["nelements"] = $nElements;
           
