@@ -618,7 +618,7 @@ MGSelectionObjectLayer.prototype = {
         while(oValueCollection) 
         {
             this.aElements[iElement] = [];
-            for (i=0; i<oValueCollection.childNodes.length; i++)
+            for (var i=0; i<oValueCollection.childNodes.length; i++)
             {
                 oTmp = oValueCollection.childNodes[i].findFirstNode('v');
                 this.aElements[iElement][i] = oTmp.textContent;
