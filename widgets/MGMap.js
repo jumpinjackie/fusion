@@ -51,7 +51,8 @@ MGMap.prototype =
     aRefreshLayers: null,
     sActiveLayer: null,
     bSelectionOn: false,
-    
+    oSelection: null,
+
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
@@ -68,6 +69,8 @@ MGMap.prototype =
         
         this._oConfigObj = Fusion.oConfigMgr;
         
+        this.oSelection = null;
+
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
         //console.log('resource id is ' + this.sMapResourceId);
         if (this.sMapResourceId != '') {
@@ -337,6 +340,7 @@ MGMap.prototype =
                 this.aSelectionCallbacks[i](this.oSelection);
             }
             this.aSelectionCallbacks = [];
+
         }       
         this._removeWorker();
     },
@@ -364,6 +368,7 @@ MGMap.prototype =
      */
     getSelection : function(userFunc)
     {
+
         if (this.oSelection == null)
         {
             /* if the user wants a callback, register it
@@ -505,25 +510,33 @@ MGSelectionObject.prototype =
 
         var root = new DomNode(oXML);
         
-        var oTmpNode = root.findFirstNode('TotalElementsSelected');
-        this.nTotalElements = parseInt(oTmpNode.textContent);
-        if (this.nTotalElements > 0)
+        var node  = root.getNodeText('minx');
+        if (node)
         {
-            this.nLayers =  root.getNodeText('NumberOfLayers');
             this.fMinX =  parseFloat(root.getNodeText('minx'));
             this.fMinY =  parseFloat(root.getNodeText('miny'));
             this.fMaxX =  parseFloat(root.getNodeText('maxx'));
             this.fMaxY =  parseFloat(root.getNodeText('maxy'));
-
-            var layerNode = root.findFirstNode('Layer');
-            var iLayer=0;             
-            while(layerNode) 
+        }
+    
+        //this is only available when the property mapping is set
+        //on the layer. TODO : review
+        var oTmpNode = root.findFirstNode('TotalElementsSelected');
+        if (oTmpNode)
+        {
+            this.nTotalElements = parseInt(oTmpNode.textContent);
+            if (this.nTotalElements > 0)
             {
-                this.aLayers[iLayer++] = new MGSelectionObjectLayer(layerNode);
+                this.nLayers =  root.getNodeText('NumberOfLayers');
+                var layerNode = root.findFirstNode('Layer');
+                var iLayer=0;             
+                while(layerNode) 
+                {
+                    this.aLayers[iLayer++] = new MGSelectionObjectLayer(layerNode);
                 
-                layerNode =  root.findNextNode('Layer');
+                    layerNode =  root.findNextNode('Layer');
+                }
             }
-            
         }
     },
 
