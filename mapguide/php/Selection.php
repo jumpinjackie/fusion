@@ -380,9 +380,7 @@ try
     }
     else
     {
-      echo '<Selection>';
-      echo '<TotalElementsSelected>0</TotalElementsSelected>';
-      echo '</Selection>';
+      echo '<Selection>false</Selection>';
     }
 }
 catch (MgException $e)
