@@ -49,6 +49,7 @@ Zoom.prototype =
         this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
         
+        this.keypressWatcher = this.keypressHandler.bind(this)
         
     },
 
@@ -59,6 +60,8 @@ Zoom.prototype =
     {
         //console.log('Zoom.activateTool');
         this.getMap().activateWidget(this);
+        Event.observe(document, 'keypress', this.keypressWatcher);
+        
     },
 
     /**
@@ -92,6 +95,8 @@ Zoom.prototype =
         this.getMap().setCursor('auto');
         /*icon button*/
         this._oButton.deactivateTool();
+        Event.stopObserving(document, 'keypress', this.keypressWatcher);
+        
     },
 
     /**
@@ -138,6 +143,14 @@ Zoom.prototype =
         if (param == "Factor" && value > 0)
         {
             this.nFactor = value;
+        }
+    },
+    
+    keypressHandler: function(e) {
+        var charCode=(e.charCode)?e.charCode:e.keyCode;
+        if (charCode == Event.KEY_ESC) {
+            this.deactivateRectTool();
+            this.activateRectTool();
         }
     }
 };
