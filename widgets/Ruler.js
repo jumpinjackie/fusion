@@ -208,9 +208,10 @@ Ruler.prototype =
         if (!this.isDigitizing) return;
     
         var p = this.getMap().getEventPosition(e);
+        var gp = this.getMap().pixToGeo(p.x, p.y);
         var seg = this.currentFeature.lastSegment();
         seg.setEditing(false);
-        seg.to.set(p.x,p.y);
+        seg.to.set(gp.x,gp.y);
         this.clearContext();
         this.currentFeature.draw(this.context);
         this.isDigitizing = false;
