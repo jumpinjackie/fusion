@@ -57,7 +57,7 @@ ScaleEntry.prototype =
         
         this.precision = json.Precision ? parseInt(json.Precision[0]) : this.precision;
         
-        this.historyLength = json.HistoryLength ? parseInt(json.HistoryLength[0]): null;
+        this.historyLength = json.HistoryLength ? parseInt(json.HistoryLength[0]): this.historyLength;
         
         this.history = [];
         
@@ -97,7 +97,7 @@ ScaleEntry.prototype =
         this.picker.add(""+scale, 0);
         if (this.history.length > this.historyLength) {
             this.history.pop();
-            this.picker.remove(this.historyLength-1);
+            this.picker.remove(this.historyLength);
         }
     }
 };
