@@ -27,17 +27,13 @@
  * scale from a drop-down list.
  *
  * **********************************************************************/
-//Fusion.require('jx/picker/jxpicker.js');
-
 var ScaleEntry = Class.create();
-ScaleEntry.prototype = 
-{
+ScaleEntry.prototype = {
     precision: 4,
     historyLength: 10,
     history: null,
     
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         Object.inheritFrom(this, GxWidget.prototype, ['ScaleEntry', false, oCommand]);
         this.setMap(oCommand.getMap());
         
@@ -80,7 +76,7 @@ ScaleEntry.prototype =
         }
         var rx = /[0-9]+(\.[0-9]*)?/;
         if (rx.test(v)) {
-            v = parseFloat(v);
+            v = parseFloat(this.scaleToString(v));
             if (this.getMap().getScale() != v) {
                 this.getMap().zoomScale(v);
                 if (!bInHistory) {
@@ -91,15 +87,21 @@ ScaleEntry.prototype =
     },
     
     addToHistory: function(scale) {
-        this.history.unshift(scale);
-        this.picker.add(this.scaleToString(scale), 0);
-        if (this.history.length > this.historyLength) {
+        for (var i=0; i<this.history.length; i++) {
+            if (scale > this.history[i]) {
+                break;
+            }
+        }
+        this.history.splice(i, 0, scale);
+        this.picker.add(this.scaleToString(scale), i);
+        if (this.historyLength && this.history.length > this.historyLength) {
             this.history.pop();
             this.picker.remove(this.historyLength);
         }
     },
     
     scaleToString: function(scale) {
+        scale = parseFloat(scale);
         return "" + Math.round(scale * Math.pow(10,this.precision))/Math.pow(10,this.precision);
     }
 };
