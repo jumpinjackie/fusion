@@ -50,6 +50,8 @@ SelectRadius.prototype = {
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
         }
+
+        this.defaultRadius = json.DefaultRadius ? parseInt(json.DefaultRadius[0]) : this.defaultRadius;
         
         var container = json.RadiusTooltipContainer ? json.RadiusTooltipContainer[0] : '';
         if (container != '') {
