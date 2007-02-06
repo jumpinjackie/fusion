@@ -66,9 +66,7 @@ ScaleEntry.prototype =
     },
     
     scaleChanged: function() {
-        var scale = this.getMap().getCurrentScale();
-        scale = parseInt(scale * Math.pow(10,this.precision))/Math.pow(10,this.precision);
-        this.picker.setValue(""+scale);
+        this.picker.setValue(this.scaleToString(this.getMap().getCurrentScale()));
     },
     
     selectionChanged: function(obj) {
@@ -94,10 +92,14 @@ ScaleEntry.prototype =
     
     addToHistory: function(scale) {
         this.history.unshift(scale);
-        this.picker.add(""+scale, 0);
+        this.picker.add(this.scaleToString(scale), 0);
         if (this.history.length > this.historyLength) {
             this.history.pop();
             this.picker.remove(this.historyLength);
         }
+    },
+    
+    scaleToString: function(scale) {
+        return "" + Math.round(scale * Math.pow(10,this.precision))/Math.pow(10,this.precision);
     }
 };
