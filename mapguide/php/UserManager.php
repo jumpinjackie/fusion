@@ -32,57 +32,10 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-include('MGCommon.php');
-
-/////////////////
-//CONFIGURATION//
-/////////////////
-
-putenv('TMP=C:/temp');
-define('DB_LOCATION', "c:\\temp\\users.sqlite");
+ 
+/* used to salt passwords */
 define('SALT', "U2FsdGVkX1/TY2/7nsjOUmLc/sOW4O8z+/zmyQQjy3k=");
 
-//define account for elevated permissions needed to add a user
-define('MG_ADMIN_USER', 'NanaimoAdmin');
-define('MG_ADMIN_PASSWD', 'admin');
-define('MG_USER_DIRECTORY_ROOT', 'Library://Nanaimo/Users/');
-
-//array of preferences and their default value;
-//MOVED TO Class MGUserManager
-
-////////////////////////
-//END OF CONFIGURATION//
-////////////////////////
-
-// ==================
-// = handle request =
-// ==================
-$command = isset($_REQUEST['COMMAND'])?$_REQUEST['COMMAND']:NULL;
-if ($command) {
-    $manager = new MGUserManager(NULL);
-    switch ( $command )
-    {
-        case 'LOGIN':
-            header('Content-type: text/xml');
-            $preferences = $manager->Login(trim($_REQUEST['username']), trim($_REQUEST['password']));
-            if ($preferences) {
-                echo $preferences;
-            } else {
-                echo '<Error>Bad username or password.</Error>';
-            }
-        break;
-        case 'REGISTER':
-        $manager->AddUser(trim($_REQUEST['newusername']), trim($_REQUEST['newpassword']),
-                          trim($_REQUEST['newusername']), '');//,
-                            //$_REQUEST['firstname'], $_REQUEST['surname']);            
-        break;
-        case 'SETUSERPREF':
-            //TODO use current user, not query id 
-            $manager->SetUserPref($_REQUEST['userid'], $_REQUEST['prefid'],
-                                $_REQUEST['userprefvalue']);
-        break;
-    }
-}
 
 // ====
 // = MGUserManager - a class for manipulating the a user database
@@ -90,40 +43,37 @@ if ($command) {
 // ====
 Class MGUserManager {
 
+    private $admin_user = '';
+    private $admin_pass = '';
     private $db = null;
     private $site = null;
     private $currentUserId = null;
-    private $aszInitialPrefs = array('Extents' => '-81, 43,-87,50',
-                             'Mode' => 'advanced',
-                             'Keymap' => 'True',
-                             'SelectionType' => 'INTERSECTS',
-                             'ToolUnits' => 'metres',
-                             'Print_ShowTitle'=>'True',
-                             'Print_Title'=>'Nanaimo Map',
-                             'Print_ShowLegend'=>'True',
-                             'Print_ShowNorthArrow'=>'True'
-                        );
+    private $aszInitialPrefs = array();
     
-    function __construct($args) {
-
-        //debug
-        //if(file_exists(DB_LOCATION)) { unlink(DB_LOCATION);}
-
+    function __construct($admin_user, $admin_pass, $db, $default_prefs = array()) {
         global $siteConnection;
         global $user;
+        
+        $this->admin_user = $admin_user;
+        $this->admin_pass = $admin_pass;
+        
         $this->site = $siteConnection->GetSite();
         $this->site->Open($user);
 
-        $createTables = (file_exists(DB_LOCATION))?false:true;
-        $this->db = new SQLiteDatabase(DB_LOCATION);
+        $createTables = (file_exists($db))?false:true;
+        $this->db = new SQLiteDatabase($db);
 
+        $this->aszInitialPrefs = $default_prefs;
         if ($createTables) {
             //build db tables
             $this->db->query("CREATE TABLE users (userid INTEGER PRIMARY KEY,
                                 username VARCHAR(255) NOT NULL UNIQUE,
                                 password VARCHAR ( 255 ) NOT NULL,
                                 firstname VARCHAR ( 255 ),
-                                surname VARCHAR ( 255 ));");
+                                disabled INTEGER,
+                                surname VARCHAR ( 255 ),
+                                email VARCHAR ( 255 ))
+                                ;");
             $this->db->query("CREATE TABLE prefs (prefid INTEGER PRIMARY KEY, name VARCHAR ( 255 ) NOT NULL, default_value VARCHAR ( 255 ));");
             $this->db->query("CREATE TABLE user_prefs (userid INTEGER NOT NULL, prefid INTEGER NOT NULL, value VARCHAR(255));");
             //add default preferences;
@@ -133,7 +83,7 @@ Class MGUserManager {
             }
             if ($szPrefsSQL != ''){
                 $this->db->queryExec($szPrefsSQL);
-            }
+            }            
         }
         
     }
@@ -144,12 +94,13 @@ Class MGUserManager {
      // = in MgCommon
      // = =======================================================================           
     function AddUser ($username, $password,
-                             $firstName, $surName
+                             $firstName, $surName,
+                             $email
                              // $street, $city,
                             //$province, $postcode = ''
                      ) {
         $encryptedPassword = crypt($password, SALT);
-        $success = $this->db->queryExec('INSERT INTO users (username, password, firstname, surname) VALUES ("'.$username.'", "'.$encryptedPassword.'", "'.$firstName.'", "'.$surName.'" );');
+        $success = $this->db->queryExec('INSERT INTO users (username, password, firstname, surname, disabled, email) VALUES ("'.$username.'", "'.$encryptedPassword.'", "'.$firstName.'", "'.$surName.'", 0, "'.$email.'" );');
         if ($success) {
             $userId = $this->db->lastInsertRowid();
             try {
@@ -198,32 +149,46 @@ Class MGUserManager {
                 return FALSE;
             }
 
-            echo "<Success><UserRegistered>".$userId."</UserRegistered></Success>";
+            return $this->GetUser($userId);
+        }
+    }
+    
+    function EnableUser ($userId) {
+        $success = $this->db->queryExec('UPDATE users SET disabled = 1 where userid ='.$userId.';');
+        if ($success) {
             return $userId;
+        }else {
+            //couldn't update the user
+            return FALSE;
+        }
+    }
+    
+    function DisableUser ($userId) {
+        $success = $this->db->queryExec('UPDATE users SET disabled = 1 where userid ='.$userId.';');
+        if ($success) {
+            return $userId;
+        }else {
+            //couldn't create the user - not unique
+            return FALSE;
         }
     }
     
     function DeleteUser ($userId, $userName) {
+        $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+        $siteConnection = new MgSiteConnection();
+        $siteConnection->Open($user);
+        $users = new MgStringCollection();
+        $users->Add($userName);
+        if (!$users->GetCount()) {
+            throw new Exception("User was not removed from MapGuide.");                  
+        }
+        $siteConnection->GetSite()->DeleteUsers($users);
         $success = $this->db->queryExec('DELETE FROM users WHERE userid ='.$userId.';'.
                                         'DELETE FROM user_prefs WHERE userid ='.$userId.';');
         if ($success) {
             $userId = $this->db->lastInsertRowid();
-            try {
-                $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
-                $siteConnection = new MgSiteConnection();
-                $siteConnection->Open($user);
-                $users = new MgStringCollection();
-                $users->Add($userName);
-                if (!$users->GetCount()) {
-                    //throw
-                    return "<error>User was not deleted from MapGuide Server.</error>";                    
-                }
-                $siteConnection->GetSite()->DeleteUsers($users);
-            } catch (MgException $e) {
-                return "<error>User was not deleted from MapGuide Server.</error>";
-            }
             return $userId;
-        }else {
+        } else {
             //couldn't create the user - not unique
             return FALSE;
         }
@@ -261,39 +226,24 @@ Class MGUserManager {
     }
 
     function Login($username, $password) {
+        $user = FALSE;
         $encryptedPassword = crypt($password, SALT);
-        $result = $this->db->query('SELECT password, userid, prefs.name FROM users, prefs WHERE username = "'.$username.'";');
+        $result = $this->db->query('SELECT userid FROM users WHERE username = "'.$username.'" and password = "'.$encryptedPassword.'" and disabled = 0;');
         try {
             if ($result) {
                 $aRow = $result->fetch(SQLITE_ASSOC);
-                if ($encryptedPassword == ($aRow['password'])) {
-                    $userId = $aRow['userid'];
-                    $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$userId.' AND user_prefs.prefid = prefs.prefid;');
-                    $szOut = '';
-                    if ($result) {
-                        $szOut = '<preferences>';
-                        while ($aRow = $result->fetch(SQLITE_ASSOC)) {
-                            $szOut .= '<pref>';
-                            $szOut .= '<name>';
-                            $szOut .= $aRow['prefs.name'];
-                            $szOut .= '</name>';
-                            $szOut .= '<value>';
-                            $szOut .= $aRow['user_prefs.value'];
-                            $szOut .= '</value>';
-                            $szOut .= '</pref>';
-                        }
-                        $szOut .= '</preferences>';
-                    }
-                    //create a session in mg
-                    //$user = new MgUserInformation($_REQUEST['username'], $_REQUEST['password']);
-                    //$user->SetMgSessionId($sessionID);
-                
-                    return $szOut;
-                }
+                $user = $this->GetUser($aRow['userid']);
+            } else {
+                //user was logged in by the MapGuide server if we got to here, we
+                //need to kick them out.
+                global $sessionID;
+                $user = new MgUserInformation("Anonymous", "");
+                $user->SetMgSessionId($sessionID);
             }
         } catch(MgException $e) {
             return "<Error>Login failed.</Error>";
         }
+        return $user;
     }
     
     //
@@ -305,7 +255,7 @@ Class MGUserManager {
     }
 
     function GetUsers() {
-        $result = $this->db->query('SELECT userid, username, firstname, surname FROM users;');
+        $result = $this->db->query('SELECT * FROM users;');
         return $result->FetchAll(SQLITE_ASSOC);
     }
     
@@ -439,7 +389,89 @@ Class MGUserManager {
         return TRUE;
     }
     
+    
+    function GetUser($id) {
+        $user = FALSE;
+        $result = $this->db->query("SELECT * FROM users where userid = $id;");
+        if ($result) {
+            $a = $result->fetch();
+            $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$id.' AND user_prefs.prefid = prefs.prefid;');
+            $prefs = array();
+            if ($result) {
+                while ($pref = $result->fetch()) {
+                    array_push($prefs, array('name'=>$pref['prefs.name'], 'value'=>$pref['user_prefs.value']));
+                }
+            }
+            $user = new FusionUser($a['userid'], $a['username'], $a['firstname'],
+                                   $a['surname'], $a['email'], $prefs );
+        }
+        return $user;
+    }
 }
+
+class FusionUser {
+    private $username = '';
+    private $id = -1;
+    private $firstname = '';
+    private $surname = '';
+    private $email = '';
+    private $preferences = array();
+    
+    function __construct($id, $username, $firstname, $surname, $email, $preferences) {
+        $this->id = $id;
+        $this->username = $username;
+        $this->firstname = $firstname;
+        $this->surname = $surname;
+        $this->email = $email;
+        $this->preferences = $preferences;
+    }
+    
+    function userName() {
+        return $this->username;
+    }
+    
+    function id() {
+        return $this->id;
+    }
+    
+    function firstName() {
+        return $this->firstName;
+    }
+    
+    function lastName() {
+        return $this->surname;
+    }
+    
+    function email() {
+        return $this->email;
+    }
+    
+    function preferences() {
+        return $this->preferences;
+    }
+    
+    function toXML() {
+        $result = '';
+        $result .= "<User>\n";
+        $result .= "<UserName>".$this->userName()."</UserName>\n";
+        $result .= "<UserId>".$this->id()."</UserId>\n";
+        $result .= "<FirstName>".$this->firstName()."</FirstName>\n";
+        $result .= "<LastName>".$this->lastName()."</LastName>\n";
+        $result .= "<Email>".$this->email()."</Email>\n";
+        $result .= "<Preferences>\n";
+        foreach($this->preferences() as $pref) {
+            $result .= "<Preference>\n";
+            $result .= "<Name>".$pref['name']."</Name>\n";
+            $result .= "<Value>".$pref['value']."</Value>\n";
+            $result .= "</Preference>\n";
+        }
+        $result .= "</Preferences>\n";
+        $result .= "</User>\n";
+        return $result;
+    }
+}
+
+
 function ByteReaderToString($byteReader)
 {
     $buffer = '';
