@@ -94,8 +94,8 @@ MGMap.prototype =
         
         options = options || {};
         
-        this._afInitialExtents = options.extents || null;
-        this._afCurrentExtents = options.extents || null;
+        this._afInitialExtents = null;
+        this._afCurrentExtents = [].concat(options.extents) || null;
         this.aShowLayers = options.showlayers || [];
         this.aHideLayers = options.hidelayers || [];
         this.aShowGroups = options.showgroups || [];
@@ -172,7 +172,10 @@ MGMap.prototype =
             
             this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
             
-            this.setExtents(this._afInitialExtents);
+            if (!this._afCurrentExtents) {
+                this._afCurrentExtents = [].concat(this._afInitialExtents);
+            }
+            this.setExtents(this._afCurrentExtents);
             
             //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
@@ -487,7 +490,7 @@ MGMap.prototype =
     },
 
     getSessionId: function() {
-        return this._oConfigObj.getSessionId()
+        return this._oConfigObj.getSessionId();
     }
 };
 
@@ -766,7 +769,7 @@ MGLayer.prototype = {
         this.themeIcon = 'images/tree_theme.png';
         this.disabledLayerIcon = 'images/tree_layer.png';
         
-        this.parentGroup = o.parentGroup
+        this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
         for (var i=0; i<o.scaleRanges.length; i++) {
             var scaleRange = new MGScaleRange(o.scaleRanges[i]);
