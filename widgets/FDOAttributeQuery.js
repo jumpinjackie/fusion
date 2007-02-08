@@ -106,8 +106,7 @@ FDOAttributeQuery.prototype = {
             }
         }
 
-        this.override = json.Override ? new MGOverride(json.Override[0]) : null;
-
+        this.override = json.MultiJoinOverrides ? new MGOverride(json.MultiJoinOverrides[0].Override[0]) : null;
         this._oDomObj = $(oCommand.getName());
         
         this.resultObj = $(json.ResultId ? json.ResultId[0] : null);
@@ -132,7 +131,7 @@ FDOAttributeQuery.prototype = {
             }
             var filterText = this.filters[i].getFilterText();
             if (filterText != '') {
-                filter = filter + sep + '(' + filterText + ')'
+                filter = filter + sep + '(' + filterText + ')';
                 sep = ' AND ';
                 nFilters ++;
             }
@@ -152,7 +151,7 @@ FDOAttributeQuery.prototype = {
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         '&layer='+this.layerName+filter+override, 
+                         '&layer='+this.layerName+filter+override; 
         params.onComplete = this.queryComplete.bind(this);
         Fusion.ajaxRequest(s, params);
         this.triggerEvent(SELECTION_STARTED);
@@ -211,7 +210,7 @@ FDOAttributeQuery.prototype = {
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGQuery." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         '&layers='+this.layerName+filter, 
+                         '&layers='+this.layerName+filter; 
         params.onComplete = this.selectComplete.bind(this);
         Fusion.ajaxRequest(s, params);
     },
@@ -262,7 +261,7 @@ FDOAttributeQuery.prototype = {
             var propIdx = -1;
             for (var i=0; i<layer.getNumProperties(); i++) {
                 //console.log(layer.aPropertiesName[i] + '. .'+this.override.childField);
-                if (layer.aPropertiesName[i] == this.override.childField) {
+                if (this.override && layer.aPropertiesName[i] == this.override.childField) {
                     propIdx = i;
                     break;
                 }
@@ -274,7 +273,7 @@ FDOAttributeQuery.prototype = {
             
             var sep = '';
             for (var i=0; i<layer.getNumElements(); i++) {
-                var val = layer.getElementValue(i, propIdx)
+                var val = layer.getElementValue(i, propIdx);
                 filter += sep + '(' + this.override.childField + ' = ' + val + ')';
                 sep = ' OR ';
             }
@@ -282,7 +281,7 @@ FDOAttributeQuery.prototype = {
             var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
             params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                             '&layer='+this.layerName+filter+override, 
+                             '&layer='+this.layerName+filter+override; 
             params.onComplete = this.queryComplete.bind(this);
             Fusion.ajaxRequest(s, params);
             this.triggerEvent(SELECTION_STARTED);
@@ -394,7 +393,7 @@ MGValidator.prototype = {
                             return this.fail(filter);
                         }
                     }
-                    var max = this.max
+                    var max = this.max;
                     if (max != '') {
                         if (max == '[YEAR]') {
                             var d = new Date();
@@ -475,7 +474,7 @@ MGPropertyMapping.prototype = {
 var MGOverride = Class.create();
 MGOverride.prototype = {
     initialize: function(json) {
-        this.parent = json.Parent[0]
+        this.parent = json.Parent[0];
         this.parentField = json.ParentField[0];
         this.child = json.Child[0];
         this.childField = json.ChildField[0];
