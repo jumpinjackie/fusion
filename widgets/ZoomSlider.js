@@ -48,9 +48,9 @@ ZoomSlider.prototype =
         this._oHandle = json.Handle ? json.Handle[0] : '';
         var direction = json.Direction ? json.Direction[0] : 'horizontal';
         
-        this.fMinScale = json.MinScale ? parseFloat(json.MinScale[0]) : '';
-        this.fMaxScale = json.MaxScale ? parseFloat(json.MaxScale[0]) : '';
-        
+        this.fMinScale = json.MinScale ? parseFloat(json.MinScale[0]) : 0;
+        this.fMaxScale = json.MaxScale ? parseFloat(json.MaxScale[0]) : 1;
+        console.log('ZoomSlider minscale: ' + this.fMinScale + ', maxscale: ' + this.fMaxScale);
         var options = {};
         options.axis = direction;
         options.range = $R(this.fMinScale, this.fMaxScale);
@@ -67,8 +67,10 @@ ZoomSlider.prototype =
         /* rough scale approximation -  */
         var scale = this.getMap()._fScale;
         //TODO I tried to expand the range by 20% but it causes problems
-        this.fMaxScale = scale;
-        this._oSlider.range = $R(this.fMinScale, this.fMaxScale);
+        if (this.fMaxScale == 1) {
+            this.fMaxScale = scale;
+            this._oSlider.range = $R(this.fMinScale, this.fMaxScale);
+        }
         this._oSlider.setValue(scale);
     },
     
