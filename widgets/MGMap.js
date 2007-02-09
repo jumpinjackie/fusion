@@ -418,22 +418,17 @@ MGMap.prototype =
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(r)
-    {
-        if (r.responseXML)
-        {
+    processQueryResults : function(r) {
+        this._removeWorker();
+        if (r.responseXML) {
             var oNode = new DomNode(r.responseXML);
-            if (oNode.getNodeText('Selection') == 'false')
-            {
+            if (oNode.getNodeText('Selection') == 'false') {
                 this.drawMap();
                 return;
-            }
-            else
-            {
+            } else {
                 this.newSelection();
             }
         }
-        this._removeWorker();
     },
 
     /**
