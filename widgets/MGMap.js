@@ -95,7 +95,7 @@ MGMap.prototype =
         options = options || {};
         
         this._afInitialExtents = null;
-        this._afCurrentExtents = [].concat(options.extents) || null;
+        this._afCurrentExtents = options.extents ? [].concat(options.extents) : null;
         this.aShowLayers = options.showlayers || [];
         this.aHideLayers = options.hidelayers || [];
         this.aShowGroups = options.showgroups || [];
