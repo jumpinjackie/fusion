@@ -42,8 +42,7 @@ var MGMap = Class.create();
 //TODO: what is this doing here???
 Object.extend(MGWebLayout.prototype, EventMgr.prototype);
 
-MGMap.prototype =
-{
+MGMap.prototype = {
     aShowLayers: null,
     aHideLayers: null,
     aShowGroups: null,
@@ -56,8 +55,7 @@ MGMap.prototype =
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
@@ -80,14 +78,14 @@ MGMap.prototype =
     },
     
     loadMap: function(resourceId, options) {
-        this.triggerEvent(MAP_LOADING);
         
-        this._addWorker();
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
             return;
         }
+        this.triggerEvent(MAP_LOADING);
+        this._addWorker();
         
         this._fScale = -1;
         this._nDpi = 96;
@@ -120,9 +118,7 @@ MGMap.prototype =
     },
     
     mapLoaded: function(r, json) {
-        //console.log('mapLoaded: ' + json);
         if (json) {
-            //console.log('processing json: '+r.responseText);
             var o;
             eval('o='+r.responseText);
             this._sResourceId = o.mapId;
@@ -292,14 +288,12 @@ MGMap.prototype =
         oBroker.dispatchRequest(r, this._requestMapImage.bind(this));
     },
 
-    _requestMapImage : function(r)
-    {
+    _requestMapImage : function(r) {
         //console.log("MGMap:: _requestMapImage");
         var nWidth = this._nWidth;
         var nHeight = this._nHeight;
 
-        if (r.responseXML)
-        {
+        if (r.responseXML) {
               //parse the new extent
             var newExtents = [];
 
@@ -319,9 +313,7 @@ MGMap.prototype =
                                  parseInt(nWidth)),
                         Math.abs((this._afCurrentExtents[3] - this._afCurrentExtents[1])/
                                  parseInt(nHeight)));
-        }
-        else
-        {
+        } else {
             //alert("non valid");
         }
 
@@ -333,11 +325,9 @@ MGMap.prototype =
     
     hasSelection: function() { return this.bSelectionOn; },
     
-    getSelectionCB : function(userFunc, r)
-    {
+    getSelectionCB : function(userFunc, r) {
         this._bSelectionIsLoading = false;
-        if (r.responseXML)
-        {
+        if (r.responseXML) {
             this.oSelection = new MGSelectionObject(r.responseXML);
             for (var i=0; i<this.aSelectionCallbacks.length; i++) {
                 this.aSelectionCallbacks[i](this.oSelection);
@@ -369,11 +359,8 @@ MGMap.prototype =
      * @param userFunc {Function} a function to call when the
      *        selection has loaded
      */
-    getSelection : function(userFunc)
-    {
-
-        if (this.oSelection == null)
-        {
+    getSelection : function(userFunc) {
+        if (this.oSelection == null) {
             /* if the user wants a callback, register it
              * for when the selection becomes available
              */
@@ -407,8 +394,7 @@ MGMap.prototype =
     /**
        Utility function to clear current selection
     */
-    clearSelection : function()
-    {
+    clearSelection : function() {
         var s = 'server/' + Fusion.getScriptLanguage() + "/MGClearSelection." + Fusion.getScriptLanguage() ;
         var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
         Fusion.ajaxRequest(s, params);
@@ -434,8 +420,7 @@ MGMap.prototype =
     /**
        Do a query on the map
     */
-    query : function(options)
-    {
+    query : function(options) {
         this._addWorker();
         
         var geometry = options.geometry || '';
