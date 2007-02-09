@@ -142,7 +142,7 @@ Ruler.prototype =
         if (Event.isLeftClick(e)) {
             var map = this.getMap();
             var p = map.getEventPosition(e);
-            var gp = map.pixToGeo(p.x, p.y)
+            var gp = map.pixToGeo(p.x, p.y);
 
             if (!this.isDigitizing) {
                 this.currentFeature = new FeatureLine(map);
@@ -282,8 +282,19 @@ Ruler.prototype =
                 this.rulerTip.style.display = 'block';
                 var p = this.getMap().getEventPosition(e);
                 var size = Element.getDimensions(this.rulerTip);
-                this.rulerTip.style.top = (p.y - size.height*2) + 'px';
-                this.rulerTip.style.left = p.x + 'px';
+                var t = (p.y - size.height * 1.5);
+                if (t < 0) {
+                    t = p.y + size.height * 0.5;
+                }
+                
+                var pSize = Element.getDimensions(this.rulerTip.parentNode);
+                var l = p.x;
+                if (l+size.width > pSize.width) {
+                    l = p.x - size.width;
+                }
+                
+                this.rulerTip.style.top = t + 'px';
+                this.rulerTip.style.left = l + 'px';
             }
         }
     }
