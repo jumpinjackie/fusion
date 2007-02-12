@@ -21,8 +21,7 @@ Fusion.require('widgets/GxCanvasTool.js');
 var RULER_DISTANCE_CHANGED;
 
 var Ruler = Class.create();
-Ruler.prototype = 
-{
+Ruler.prototype = {
     isDigitizing: false,
     //distance of each segment
     aDistances: [],
@@ -36,8 +35,7 @@ Ruler.prototype =
     /* an HTML container to put the current distance in */
     rulerTip: null,
     
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         /*console.log('Ruler.initialize');*/
         Object.inheritFrom(this, GxWidget.prototype, ['Ruler', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
@@ -258,7 +256,7 @@ Ruler.prototype =
     
     setParameter: function(param, value) {
         if (param == 'Units') {
-            this.units = value;
+            this.units = Fusion.unitsFromName(value);
         }
     },
     
