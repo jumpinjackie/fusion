@@ -85,15 +85,13 @@
  * **********************************************************************/
 
 var CursorPosition = Class.create();
-CursorPosition.prototype = 
-{
+CursorPosition.prototype = {
     defaultTemplate: 'x: {x}, y: {y}',
     
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('CursorPosition.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['CursorPosition', true, oCommand]);
         this.setMap(oCommand.getMap());
@@ -156,7 +154,7 @@ CursorPosition.prototype =
 
     setParameter: function(param, value) {
         if (param == 'Units') {
-            this.units = value;
+            this.units = Fusion.unitFromName(value);
         }
     }
 };

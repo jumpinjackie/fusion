@@ -256,7 +256,7 @@ Ruler.prototype = {
     
     setParameter: function(param, value) {
         if (param == 'Units') {
-            this.units = Fusion.unitsFromName(value);
+            this.units = Fusion.unitFromName(value);
         }
     },
     
