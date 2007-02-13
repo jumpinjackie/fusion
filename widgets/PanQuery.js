@@ -30,12 +30,11 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxRectTool.js');
 
 var PanQuery = Class.create();
-PanQuery.prototype = 
-{
+PanQuery.prototype = {
+    selectionType: 'INTERSECTS',
     nTolerance: 3,
     bActiveOnly: false,
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('PanQuery.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['PanQuery', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
@@ -43,6 +42,7 @@ PanQuery.prototype =
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
+        this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
         
         this.nTolerance = json.Tolerance ? Math.abs(parseInt(json.Tolerance)) : 3;
 
@@ -68,7 +68,7 @@ PanQuery.prototype =
         this.activateRectTool();
         this.getMap().setCursor(this.cursorNormal);
         /*button*/
-        this._oButton.activateTool()
+        this._oButton.activateTool();
     },
     
     deactivate: function() {
@@ -178,5 +178,15 @@ PanQuery.prototype =
         }
 
         Event.stop(e);
+    },
+    
+    
+    setParameter : function(param, value) {
+        if (param == "Tolerance" && value > 0) {
+            this.nTolerance = value;
+        }
+        if (param == 'SelectionType') {
+            this.selectionType = value;
+        }
     }
 };
