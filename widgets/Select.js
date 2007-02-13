@@ -31,8 +31,8 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxRectTool.js');
 
 var Select = Class.create();
-Select.prototype = 
-{       
+Select.prototype =  {       
+    selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
     initialize : function(oCommand) {
@@ -46,6 +46,9 @@ Select.prototype =
         this.enable = Select.prototype.enable;
 
         var json = oCommand.jsonNode;
+        
+        this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
+        
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
         }
@@ -134,7 +137,7 @@ Select.prototype =
         }
         
         options.geometry = 'POLYGON(('+ sMin.x + ' ' +  sMin.y + ', ' +  sMax.x + ' ' +  sMin.y + ', ' + sMax.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMin.y + '))';
-        options.selectionType = "INTERSECTS";
+        options.selectionType = this.selectionType;
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
@@ -152,11 +155,12 @@ Select.prototype =
         this.getMap().query(options);
     },
 
-    setParameter : function(param, value)
-    {
-        if (param == "Tolerance" && value > 0)
-        {
+    setParameter : function(param, value) {
+        if (param == "Tolerance" && value > 0) {
             this.nTolerance = value;
+        }
+        if (param == 'SelectionType') {
+            this.selectionType = value;
         }
     }
 };

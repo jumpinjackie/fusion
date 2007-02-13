@@ -33,7 +33,8 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxCanvasTool.js');
 
 var SelectRadius = Class.create();
-SelectRadius.prototype = {       
+SelectRadius.prototype = {
+    selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     defaultRadius: 20,
     initialize : function(oCommand) {
@@ -46,6 +47,7 @@ SelectRadius.prototype = {
         this.asCursor = ['auto'];
 
         var json = oCommand.jsonNode;
+        this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
 
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
@@ -243,5 +245,14 @@ SelectRadius.prototype = {
         }
         
         this.getMap().query(options);
+    },
+    
+    setParameter : function(param, value) {
+        if (param == "Tolerance" && value > 0) {
+            this.nTolerance = value;
+        }
+        if (param == 'SelectionType') {
+            this.selectionType = value;
+        }
     }
 };

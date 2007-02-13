@@ -31,11 +31,10 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxCanvasTool.js');
 
 var SelectPolygon = Class.create();
-SelectPolygon.prototype = 
-{       
+SelectPolygon.prototype = {
+    selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
-    initialize : function(oCommand)
-    {
+    initialize : function(oCommand) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['SelectPolygon', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
@@ -44,7 +43,8 @@ SelectPolygon.prototype =
         this.asCursor = ['auto'];
 
         var json = oCommand.jsonNode;
-
+        
+        this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
         }
@@ -193,5 +193,14 @@ SelectPolygon.prototype =
         }
         
         this.getMap().query(options);
+    },
+    
+    setParameter : function(param, value) {
+        if (param == "Tolerance" && value > 0) {
+            this.nTolerance = value;
+        }
+        if (param == 'SelectionType') {
+            this.selectionType = value;
+        }
     }
 };

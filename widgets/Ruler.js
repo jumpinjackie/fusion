@@ -241,7 +241,7 @@ Ruler.prototype = {
     getLastDistance: function() {
         var d = this.lastDistance;
         if (this.units != Fusion.PIXELS && this.units != Fusion.METERS) {
-            d = Fusion.toMeter(this.units,d);
+            d = Fusion.fromMeter(this.units,d);
         }
         return d;
     },
@@ -249,12 +249,13 @@ Ruler.prototype = {
     getDistance: function() {
         var totalDistance = this.cumulativeDistance + this.lastDistance;
         if (this.units != Fusion.PIXELS && this.units != Fusion.METERS) {
-            totalDistance = Fusion.toMeter(this.units,totalDistance);
+            totalDistance = Fusion.fromMeter(this.units,totalDistance);
         }
         return totalDistance;
     },
     
     setParameter: function(param, value) {
+        console.log('setParameter: ' + param + ' = ' + value);
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
         }
