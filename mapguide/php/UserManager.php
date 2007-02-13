@@ -99,37 +99,37 @@ Class MGUserManager {
                              // $street, $city,
                             //$province, $postcode = ''
                      ) {
-        $encryptedPassword = crypt($password, SALT);
-        $success = $this->db->queryExec('INSERT INTO users (username, password, firstname, surname, disabled, email) VALUES ("'.$username.'", "'.$encryptedPassword.'", "'.$firstName.'", "'.$surName.'", 0, "'.$email.'" );');
-        if ($success) {
-            $userId = $this->db->lastInsertRowid();
-            try {
-                $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
-                $siteConnection = new MgSiteConnection();
-                $siteConnection->Open($user);
-                $site = $siteConnection->GetSite();
-                $fullname = trim($firstName." ".$surName);
-                $site->AddUser($username, $username, $password, $fullname);                
-                //set author role
-                $usersToGrant = new MgStringCollection();
-                $roleToUpdate = new MgStringCollection();
-                $roleToUpdate->Add( MgRole::Author );
-                $usersToGrant->Add( $username ) ;
-                $site->GrantRoleMembershipsToUsers( $roleToUpdate, $usersToGrant );                
-                
-                // Create user directory in repository:
-                // Create Header
-                $headerContent = $this->GetUserFolderHeader($username);
-                $header_byteSource = new MgByteSource($headerContent, strlen($headerContent));
-                $header_byteSource->setMimeType("text/xml");
-                $header_byteReader = $header_byteSource->GetReader();
+        try {
+            $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($user);
+            $site = $siteConnection->GetSite();
+            $fullname = trim($firstName." ".$surName);
+            $site->AddUser($username, $username, $password, $fullname);                
+            //set author role
+            $usersToGrant = new MgStringCollection();
+            $roleToUpdate = new MgStringCollection();
+            $roleToUpdate->Add( MgRole::Author );
+            $usersToGrant->Add( $username ) ;
+            $site->GrantRoleMembershipsToUsers( $roleToUpdate, $usersToGrant );                
+            
+            // Create user directory in repository:
+            // Create Header
+            $headerContent = $this->GetUserFolderHeader($username);
+            $header_byteSource = new MgByteSource($headerContent, strlen($headerContent));
+            $header_byteSource->setMimeType("text/xml");
+            $header_byteReader = $header_byteSource->GetReader();
 
-                $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
+            $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
 
-                // Create Folder
-                $id = new MgResourceIdentifier(MG_USER_DIRECTORY_ROOT.$username.'/');
-                $resourceService->SetResource($id, NULL, $header_byteReader);
+            // Create Folder
+            $id = new MgResourceIdentifier(MG_USER_DIRECTORY_ROOT.$username.'/');
+            $resourceService->SetResource($id, NULL, $header_byteReader);
 
+            $encryptedPassword = crypt($password, SALT);
+            $success = $this->db->queryExec('INSERT INTO users (username, password, firstname, surname, disabled, email) VALUES ("'.$username.'", "'.$encryptedPassword.'", "'.$firstName.'", "'.$surName.'", 0, "'.$email.'" );');
+            if ($success) {
+                $userId = $this->db->lastInsertRowid();
                 //setup default prefs
                 foreach($this->aszInitialPrefs as $key => $value) {
                     $result = $this->db->SingleQuery('SELECT prefid FROM prefs WHERE name="'.$key.'";');
@@ -139,17 +139,20 @@ Class MGUserManager {
                     //TODO: improve efficiency by combining queries
                     $this->AddUserPref($userId, $prefid, $value);
                 }
-            } catch (MgDuplicateUserException $du_e) {
-                echo '<Error>Duplicate user!</Error>';
-                return FALSE;
-            } catch (MgException $e) {
-                echo "ERROR: " . $e->GetMessage() . "\n";
-                echo $e->GetDetails() . "\n";
-                echo $e->GetStackTrace() . "\n";
+                return $this->GetUser($userId);
+            } else {
+                echo "<Error>Failed to insert user</Error>";
                 return FALSE;
             }
-
-            return $this->GetUser($userId);
+            
+        } catch (MgDuplicateUserException $du_e) {
+            echo '<Error>Duplicate user!</Error>';
+            return FALSE;
+        } catch (MgException $e) {
+            echo "<Error>" . $e->GetMessage() . "\n";
+            echo $e->GetDetails() . "\n";
+            echo $e->GetStackTrace() . "</Error>\n";
+            return FALSE;
         }
     }
     
@@ -199,8 +202,10 @@ Class MGUserManager {
         return $this->db->lastInsertRowid();
     }
 
-    function SetUserPref($userId, $prefId, $value) {
-        // use default value from prefs table if value is not supplied.        
+    function SetUserPref($userId, $pref, $value) {
+        $prefId = $this->db->SingleQuery('select prefid from prefs where name = "'.$pref.'"');
+        
+        // use default value from prefs table if value is not supplied.
         if ($value == '') {
             $result = $this->db->SingleQuery('SELECT default_value FROM prefs WHERE prefid='.$prefId.';');
             if ($result) {
@@ -435,7 +440,7 @@ class FusionUser {
     }
     
     function firstName() {
-        return $this->firstName;
+        return $this->firstname;
     }
     
     function lastName() {
