@@ -49,6 +49,7 @@ MGMap.prototype = {
     aHideGroups: null,
     aRefreshLayers: null,
     sActiveLayer: null,
+    selectionType: 'INTERSECTS',
     bSelectionOn: false,
     oSelection: null,
 
@@ -69,6 +70,8 @@ MGMap.prototype = {
         
         this.oSelection = null;
 
+        this.selectionType = oCommand.jsonNode.SelectionType ? oCommand.jsonNode.SelectionType[0] : 'INTERSECTS';
+        
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
         //console.log('resource id is ' + this.sMapResourceId);
         if (this.sMapResourceId != '') {
@@ -426,7 +429,7 @@ MGMap.prototype = {
         var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
         var bPersistant = options.persistent || true;
-        var selectionType = options.selectionType || 'INTERSECTS';
+        var selectionType = options.selectionType || this.selectionType;
         var filter = options.filter ? '&filter='+options.filter : '';
         var layers = options.layers || '';
         var extend = options.extendSelection ? '&extendselection=true' : '';
@@ -471,6 +474,12 @@ MGMap.prototype = {
 
     getSessionId: function() {
         return this._oConfigObj.getSessionId();
+    },
+    
+    setParameter : function(param, value) {
+        if (param == 'SelectionType') {
+            this.selectionType = value;
+        }
     }
 };
 
