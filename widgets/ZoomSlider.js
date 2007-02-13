@@ -50,7 +50,7 @@ ZoomSlider.prototype =
         
         this.fMinScale = json.MinScale ? parseFloat(json.MinScale[0]) : 0;
         this.fMaxScale = json.MaxScale ? parseFloat(json.MaxScale[0]) : 1;
-        console.log('ZoomSlider minscale: ' + this.fMinScale + ', maxscale: ' + this.fMaxScale);
+
         var options = {};
         options.axis = direction;
         options.range = $R(this.fMinScale, this.fMaxScale);
