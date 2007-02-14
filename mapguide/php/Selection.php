@@ -202,7 +202,6 @@ try
           
                 // Get the feature resource for the selected layer
                 $layerFeatureId = $layer->GetFeatureSourceId();
-
                 $layerFeatureResource = new MgResourceIdentifier($layerFeatureId);
                 
                 $queryOptions = new MgFeatureQueryOptions();
@@ -212,9 +211,9 @@ try
                     foreach($mappings as $name => $value) {
                         $queryOptions->AddFeatureProperty($name);
                     }
+                    $geomName = $layer->GetFeatureGeometryName();
+                    $queryOptions->AddFeatureProperty($geomName);
                 }
-                $geomName = $layer->GetFeatureGeometryName();
-                $queryOptions->AddFeatureProperty($geomName);
                 
                 // Apply the filter to the feature resource for the
                 // selected layer. This returns
