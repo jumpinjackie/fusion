@@ -180,9 +180,9 @@ try
             $nElements = 0;
             $layer = $layers->GetItem($i);
             $mappings = $_SESSION['property_mappings'][$layer->GetObjectId()];
-            if (count($mappings) == 0) {
-                continue;
-            }
+            // if (count($mappings) == 0) {
+            //                 continue;
+            //             }
             if ($layer && $layer->IsVisible() && $layer->GetSelectable())
             {
                 $nActualLayers ++;
@@ -208,8 +208,10 @@ try
                 $queryOptions = new MgFeatureQueryOptions();
                 
                 //only retrieve properties that we actually need
-                foreach($mappings as $name => $value) {
-                    $queryOptions->AddFeatureProperty($name);
+                if (count($mappings) > 0) {
+                    foreach($mappings as $name => $value) {
+                        $queryOptions->AddFeatureProperty($name);
+                    }
                 }
                 $geomName = $layer->GetFeatureGeometryName();
                 $queryOptions->AddFeatureProperty($geomName);
