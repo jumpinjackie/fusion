@@ -100,6 +100,8 @@ $agf = new MgAgfReaderWriter();
  get the layer's attributes and types
  *****************************************************************************/
 
+$attributes = GetFeatureSourceAttributes($map, $layer->GetLayerDefinition(), $featureService);
+
  
 /*****************************************************************************
  determine whether a shadow feature source has been created for the layer
@@ -143,13 +145,32 @@ for ($i=0; $i< $classProps->GetCount(); $i++)
 
 //Get layer collection as xml
 header('content-type: text/xml');
-echo "<LayerInfo>";
+echo "<LayerInfo>\n";
 for ( $i=0; $i < count($aLayerTypes); $i++ )
 { 
-    echo "<LayerType>".$aLayerTypes[$i]."</LayerType>";
+    echo "<LayerType>".$aLayerTypes[$i]."</LayerType>\n";
 }
-echo "<Editable>true</Editable>";
-echo "<Shadowed>$hasShadow</Shadowed>";
+echo "<Editable>true</Editable>\n";
+echo "<Shadowed>$hasShadow</Shadowed>\n";
+echo "<Attributes>\n";
+foreach($attributes as $attribute) {
+    if (!is_array($attribute)) {
+        continue;
+    }
+    echo "<Attribute>\n";
+    echo "<Name>".$attribute['name']."</Name>";
+    echo "<Description>".$attribute['description']."</Description>";
+    echo "<Datatype>".$attribute['datatype']."</Datatype>";
+    echo "<Readonly>".$attribute['readonly']."</Readonly>";
+    echo "<Length>".$attribute['length']."</Length>";
+    echo "<Default>".$attribute['default']."</Default>";
+    echo "<Precision>".$attribute['precision']."</Precision>";
+    echo "<Scale>".$attribute['scale']."</Scale>";
+    echo "<Nullable>".$attribute['nullable']."</Nullable>";
+    
+    echo "</Attribute>\n";
+}
+echo "</Attributes>\n";
 echo "</LayerInfo>";
 exit;
 ?>
