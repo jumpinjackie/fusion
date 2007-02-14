@@ -255,7 +255,7 @@ Ruler.prototype = {
     },
     
     setParameter: function(param, value) {
-        console.log('setParameter: ' + param + ' = ' + value);
+      //console.log('setParameter: ' + param + ' = ' + value);
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
         }
