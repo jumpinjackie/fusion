@@ -108,12 +108,11 @@ Legend.prototype =
         
         this.oTree = new JxTree(this._oDomObj);
         
-        var showMapFolder = json.ShowRootFolder ? json.ShowRootFolder[0] : 'false';
-        if (showMapFolder == 'true' || showMapFolder == '1') {
+        this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
+        if (this.showMapFolder) {
             var opt = {};
-            opt.label = this.getMap().getMapName();
+            opt.label = 'Map';
             opt.data = null;
-            img = oCommand.oxmlNode.getNodeText('');
             opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
             opt.isOpen = true;
@@ -162,6 +161,9 @@ Legend.prototype =
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();
+        if (this.showMapFolder) {
+            this.oRoot.setName(map.getMapName());
+        }
         this.oMapInfo = map.oMapInfo;
         if (!map.layerRoot.legend) {
             map.layerRoot.legend = {};
@@ -260,10 +262,10 @@ Legend.prototype =
     },
     selectionChanged: function(o) {
         if (this.currentNode) {
-            Element.removeClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+            Element.removeClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode');
         }
         this.currentNode = o;
-        Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode')
+        Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode');
         
         if (o.data instanceof MGGroup) {
             this.getMap().setActiveLayer(null);
