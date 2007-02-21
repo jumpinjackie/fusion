@@ -577,6 +577,29 @@ function GetLayerPropertyMappings($resourceService, $layer) {
     return $mappings;
 }
 
+/* retrieve the property mappings for a layer */
+function IsLayerEditable($resourceService, $layer) {
+    $result = true;
+    $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+    $byteReader = $resourceService->GetResourceContent($dataSourceId);
+    $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    $parameterList = $xmldoc->getElementsByTagName('Parameter');
+    for ($i=0; $i<$parameterList->length; $i++) {
+        $parameter = $parameterList->item($i);
+        $nameElt = $parameter->getElementsByTagName('Name');
+        $name = $nameElt->item(0)->nodeValue;
+        if ($name != 'ReadOnly') {
+            continue;
+        } else {
+            $valueElt = $parameter->getElementsByTagName('Value');
+            $value = $valueElt->item(0)->nodeValue;
+            $result = (strcasecmp($value, 'TRUE') == 0) ? false : true;
+            break;
+        }
+    }
+    return $result;
+}
+
 function ByteReaderToString($byteReader)
 {
     $buffer = '';
