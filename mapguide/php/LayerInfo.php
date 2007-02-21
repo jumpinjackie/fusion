@@ -143,7 +143,12 @@ try {
     { 
         echo "<LayerType>".$aLayerTypes[$i]."</LayerType>\n";
     }
-    echo "<Editable>true</Editable>\n";
+    echo "<!--is editable?-->";
+    if (IsLayerEditable($resourceService, $layer)) {
+        echo "<Editable>true</Editable>\n";
+    } else {
+        echo "<Editable>false</Editable>\n";
+    }
     echo "<Shadowed>$hasShadow</Shadowed>\n";
     echo "<Attributes>\n";
     foreach($attributes as $attribute) {

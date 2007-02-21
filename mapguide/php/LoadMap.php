@@ -146,7 +146,11 @@ try
         echo "selectable:".BooleanToString($layer->GetSelectable()).",";
         echo "visible:".BooleanToString($layer->GetVisible()).",";
         echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
-        echo "editable:true,";
+        if (IsLayerEditable($resourceService, $layer)) {
+            echo "editable:true,";
+        } else {
+            echo "editable:false,";
+        }
         echo buildScaleRanges($layer);
         echo '}';
         $layerSep = ',';
