@@ -101,7 +101,7 @@ ScaleEntry.prototype = {
     },
     
     scaleToString: function(scale) {
-        scale = parseFloat(scale);
+        scale = Math.abs(parseFloat(scale));
         return "" + Math.round(scale * Math.pow(10,this.precision))/Math.pow(10,this.precision);
     }
 };
