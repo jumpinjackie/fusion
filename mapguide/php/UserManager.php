@@ -69,9 +69,8 @@ Class MGUserManager {
             $this->db->query("CREATE TABLE users (userid INTEGER PRIMARY KEY,
                                 username VARCHAR(255) NOT NULL UNIQUE,
                                 password VARCHAR ( 255 ) NOT NULL,
-                                firstname VARCHAR ( 255 ),
                                 disabled INTEGER,
-                                surname VARCHAR ( 255 ),
+                                resetkey VARCHAR ( 255 ) default '',
                                 email VARCHAR ( 255 ))
                                 ;");
             $this->db->query("CREATE TABLE prefs (prefid INTEGER PRIMARY KEY, name VARCHAR ( 255 ) NOT NULL, default_value VARCHAR ( 255 ));");
@@ -93,12 +92,7 @@ Class MGUserManager {
      // = AddUser will be invoked with new user credentials assuming login failed
      // = in MgCommon
      // = =======================================================================           
-    function AddUser ($username, $password,
-                             $firstName, $surName,
-                             $email
-                             // $street, $city,
-                            //$province, $postcode = ''
-                     ) {
+    function AddUser ($username, $password, $email) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
             $siteConnection = new MgSiteConnection();
@@ -127,7 +121,7 @@ Class MGUserManager {
             $resourceService->SetResource($id, NULL, $header_byteReader);
 
             $encryptedPassword = crypt($password, SALT);
-            $success = $this->db->queryExec('INSERT INTO users (username, password, firstname, surname, disabled, email) VALUES ("'.$username.'", "'.$encryptedPassword.'", "'.$firstName.'", "'.$surName.'", 0, "'.$email.'" );');
+            $success = $this->db->queryExec('INSERT INTO users (username, password, disabled, email) VALUES ("'.$username.'", "'.$encryptedPassword.'", 0, "'.$email.'" );');
             if ($success) {
                 $userId = $this->db->lastInsertRowid();
                 //setup default prefs
@@ -233,7 +227,7 @@ Class MGUserManager {
     function Login($username, $password) {
         $user = FALSE;
         $encryptedPassword = crypt($password, SALT);
-        $result = $this->db->query('SELECT userid FROM users WHERE username = "'.$username.'" and password = "'.$encryptedPassword.'" and disabled = 0;');
+        $result = $this->db->query('SELECT userid FROM users WHERE username = "'.$username.'" and password = "'.$encryptedPassword.'" and disabled = 0 and resetkey = '."''".';');
         try {
             if ($result) {
                 $aRow = $result->fetch(SQLITE_ASSOC);
@@ -407,26 +401,77 @@ Class MGUserManager {
                     array_push($prefs, array('name'=>$pref['prefs.name'], 'value'=>$pref['user_prefs.value']));
                 }
             }
-            $user = new FusionUser($a['userid'], $a['username'], $a['firstname'],
-                                   $a['surname'], $a['email'], $prefs );
+            $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs );
         }
         return $user;
+    }
+    
+    function GetUserByName($username) {
+        $user = FALSE;
+        $result = $this->db->query('SELECT * FROM users where username = "'.$username.'";');
+        if ($result) {
+            $a = $result->fetch();
+            $user = $this->GetUser($a['userid']);
+            
+        }
+        return $user;
+    }
+    
+    function GetUserByEmail($email) {
+        $user = FALSE;
+        $result = $this->db->query('SELECT * FROM users where email = "'.$email.'";');
+        if ($result) {
+            $a = $result->fetch();
+            $user = $this->GetUser($a['userid']);
+        }
+        return $user;
+    }
+    
+    function GetUserByKey($key) {
+        $user = FALSE;
+        $result = $this->db->query('SELECT * FROM users where resetkey = "'.$key.'";');
+        if ($result) {
+            $a = $result->fetch();
+            $user = $this->GetUser($a['userid']);
+        }
+        return $user;
+    }
+    
+    function ResetPassword($id) {
+        $uuid = uuid();
+        $this->db->query('UPDATE users SET resetkey = "'.$uuid.'" where userid = '.$id);
+        return $uuid;
+    }
+    
+    function SetPassword($id, $password) {
+        $encryptedPassword = crypt($password, SALT);
+        $success = $this->db->queryExec('UPDATE users SET password = "'.$encryptedPassword.'", resetkey = "" where userid = '.$id);
+        
+        $user = $this->GetUser($id);
+        if ($success) {
+            $adminUser = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
+            $siteConnection = new MgSiteConnection();
+            $siteConnection->Open($adminUser);
+            $site = $siteConnection->GetSite();
+        
+            $site->UpdateUser( $user->userName(), "", $user->userName(), $password, "" );
+        } else {
+            echo "/* failed to update user password */";
+        }
+        
+        return $success;
     }
 }
 
 class FusionUser {
     private $username = '';
     private $id = -1;
-    private $firstname = '';
-    private $surname = '';
     private $email = '';
     private $preferences = array();
     
-    function __construct($id, $username, $firstname, $surname, $email, $preferences) {
+    function __construct($id, $username, $email, $preferences) {
         $this->id = $id;
         $this->username = $username;
-        $this->firstname = $firstname;
-        $this->surname = $surname;
         $this->email = $email;
         $this->preferences = $preferences;
     }
@@ -437,14 +482,6 @@ class FusionUser {
     
     function id() {
         return $this->id;
-    }
-    
-    function firstName() {
-        return $this->firstname;
-    }
-    
-    function lastName() {
-        return $this->surname;
     }
     
     function email() {
@@ -459,10 +496,7 @@ class FusionUser {
         $result = '';
         $result .= "<User>\n";
         $result .= "<UserName>".$this->userName()."</UserName>\n";
-        $result .= "<UserId>".$this->id()."</UserId>\n";
-        $result .= "<FirstName>".$this->firstName()."</FirstName>\n";
-        $result .= "<LastName>".$this->lastName()."</LastName>\n";
-        $result .= "<Email>".$this->email()."</Email>\n";
+        $result .= "<UserId>".$this->id()."</UserId>\n";        $result .= "<Email>".$this->email()."</Email>\n";
         $result .= "<Preferences>\n";
         foreach($this->preferences() as $pref) {
             $result .= "<Preference>\n";
@@ -510,5 +544,21 @@ function Test() {
 
     $manager->DeleteUser($userId, 'bob');
     
+}
+
+function uuid()
+{
+   // version 4 UUID
+   return sprintf(
+       '%08x-%04x-%04x-%02x%02x-%012x',
+       mt_rand(),
+       mt_rand(0, 65535),
+       bindec(substr_replace(
+           sprintf('%016b', mt_rand(0, 65535)), '0100', 11, 4)
+       ),
+       bindec(substr_replace(sprintf('%08b', mt_rand(0, 255)), '01', 5, 2)),
+       mt_rand(0, 255),
+       mt_rand()
+   );
 }
 ?>
