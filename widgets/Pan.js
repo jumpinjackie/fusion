@@ -30,10 +30,8 @@ Fusion.require('widgets/GxButtonBase.js');
 Fusion.require('widgets/GxRectTool.js');
 
 var Pan = Class.create();
-Pan.prototype = 
-{
-    initialize : function(oCommand)
-    {
+Pan.prototype = {
+    initialize : function(oCommand) {
         //console.log('Pan.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['Pan', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
@@ -47,19 +45,21 @@ Pan.prototype =
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         /*console.log('Pan.activateTool');*/
         this.getMap().activateWidget(this);
     },
     
-    activate : function()
-    {
+    activate : function() {
         /*console.log('Pan.activate');*/
         this.activateRectTool();
+        /* override the default handling of the rect tool */
+        this.oMap.stopObserveEvent('mousemove', this.mouseMoveCB);
+        this.oMap.stopObserveEvent('mouseup', this.mouseUpCB);
+        
         this.getMap().setCursor(this.cursorNormal);
         /*button*/
-        this._oButton.activateTool()
+        this._oButton.activateTool();
     },
     
     deactivate: function() {
@@ -70,8 +70,7 @@ Pan.prototype =
         this._oButton.deactivateTool();
     },
 
-    execute : function(nX, nY)
-    {
+    execute : function(nX, nY) {
         var sGeoPoint = this.getMap().pixToGeo(nX,nY);
         this.getMap().zoom(sGeoPoint.x, sGeoPoint.y, 1);
     },
@@ -86,8 +85,11 @@ Pan.prototype =
     mouseDown: function(e) {
         if (Event.isLeftClick(e)) {
             this.getMap().setCursor(this.cursorDrag);
-            var p = this.getMap().getEventPosition(e);    
+            var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
             this.startPos = p;
+            Event.observe(document, 'mouseup', this.mouseUpCB);
+            Event.observe(document, 'mousemove', this.mouseMoveCB);
+            Event.observe(document, 'mouseout', this.mouseOutCB);
         }
         Event.stop(e);
     },
@@ -103,8 +105,8 @@ Pan.prototype =
         if (this.startPos) {
             this.getMap().setCursor(this.cursorNormal);
 
-            var p = this.getMap().getEventPosition(e);
-
+            var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
+            
             var dx = p.x - this.startPos.x;
             var dy = p.y - this.startPos.y;
 
@@ -121,6 +123,10 @@ Pan.prototype =
             this.getMap().setExtents([min.x,min.y,max.x,max.y]);
             Event.stop(e);
         }
+        Event.stopObserving(document, 'mouseup', this.mouseUpCB);
+        Event.stopObserving(document, 'mousemove', this.mouseMoveCB);
+        Event.stopObserving(document, 'mouseout', this.mouseOutCB);
+        
     },
 
     /**
@@ -135,7 +141,7 @@ Pan.prototype =
         if (!this.startPos) {
             return false;
         }
-        var p = this.getMap().getEventPosition(e);
+        var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
 
         var dx = p.x - this.startPos.x;
         var dy = p.y - this.startPos.y;

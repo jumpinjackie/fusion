@@ -56,16 +56,18 @@ PanQuery.prototype = {
     /**
      * called when the button is clicked by the GxButtonBase widget
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         //console.log('PanQuery.activateTool');
         this.getMap().activateWidget(this);
     },
     
-    activate : function()
-    {
+    activate : function() {
         /*console.log('PanQuery.activate');*/
         this.activateRectTool();
+        /* override the default handling of the rect tool */
+        this.oMap.stopObserveEvent('mousemove', this.mouseMoveCB);
+        this.oMap.stopObserveEvent('mouseup', this.mouseUpCB);
+        
         this.getMap().setCursor(this.cursorNormal);
         /*button*/
         this._oButton.activateTool();
@@ -88,8 +90,11 @@ PanQuery.prototype = {
      */
     mouseDown: function(e) {
         if (Event.isLeftClick(e)) {
-            var p = this.getMap().getEventPosition(e);    
+            var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
             this.startPos = p;
+            Event.observe(document, 'mouseup', this.mouseUpCB);
+            Event.observe(document, 'mousemove', this.mouseMoveCB);
+            Event.observe(document, 'mouseout', this.mouseOutCB);
         }
         Event.stop(e);
     },
@@ -105,7 +110,7 @@ PanQuery.prototype = {
         if (this.startPos) {
             this.getMap().setCursor(this.cursorNormal);
 
-            var p = this.getMap().getEventPosition(e);
+            var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
 
             var dx = p.x - this.startPos.x;
             var dy = p.y - this.startPos.y;
@@ -121,7 +126,9 @@ PanQuery.prototype = {
                 var min = this.getMap().pixToGeo(l,b); 
                 var max = this.getMap().pixToGeo(r,t); 
                 this.getMap().setExtents([min.x,min.y,max.x,max.y]); 
+                
             } else { 
+                p = this.getMap().getEventPosition(e);
                 var pos = this.getMap().pixToGeo(this.startPos.x,this.startPos.y);
                 var options = {};
                 var dfGeoTolerance = this.getMap().pixToGeoMeasure(this.nTolerance);
@@ -148,6 +155,9 @@ PanQuery.prototype = {
                 this.getMap().query(options);
             }
             this.startPos = null;
+            Event.stopObserving(document, 'mouseup', this.mouseUpCB);
+            Event.stopObserving(document, 'mousemove', this.mouseMoveCB);
+            Event.stopObserving(document, 'mouseout', this.mouseOutCB);
 
             Event.stop(e);
         }
@@ -165,7 +175,7 @@ PanQuery.prototype = {
         if (!this.startPos) {
             return false;
         }
-        var p = this.getMap().getEventPosition(e);
+        var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
 
         var dx = p.x - this.startPos.x;
         var dy = p.y - this.startPos.y;
