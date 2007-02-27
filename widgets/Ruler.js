@@ -184,7 +184,10 @@ Ruler.prototype = {
     mouseMove: function(e) {
         //console.log('Digitizer.mouseMove');
         if (!this.isDigitizing) return;
-    
+        var target = e.target || e.srcElement;
+        if (target.id != '_oEventDiv_mapContainer') {
+            return;
+        }
         var p = this.getMap().getEventPosition(e);
         var gp = this.getMap().pixToGeo(p.x, p.y);
         var seg = this.currentFeature.lastSegment();
