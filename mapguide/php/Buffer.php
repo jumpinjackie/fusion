@@ -21,7 +21,7 @@ try {
     /* currently no way to set this, but if we did provide a way, it
        would allow creation of multiple buffers on individual objects
        in the selection rather than a combined buffer */
-    $merge = true;
+    $merge = false;
     
     $layerName = $_REQUEST['layer'];
     $distance = $_REQUEST['distance'];
@@ -172,6 +172,7 @@ try {
         } else {
             $measure = null;
         }
+        
         // create a SRS transformer if necessary.
         if($layerSrsWkt != $srsDefMap) {
             $srsXform = new MgCoordinateSystemTransform($layerCs, $srsMap);
@@ -181,7 +182,11 @@ try {
         while ($featureReader->ReadNext()) {
             $oGeomAgf = $featureReader->GetGeometry($geomPropName);
             $oGeom = $agfRW->Read($oGeomAgf);
-            
+
+            $wktReaderWriter = new MgWktReaderWriter();
+            $agfTextPoint = $wktReaderWriter->Write($oGeom);
+
+            echo "<!-- wkt: ".$agfTextPoint." -->\n";
             if (!$merge) {
                 /* use measure to accomodate differences in SRS */
                 $oNewGeom = $oGeom->Buffer($dist, $measure);
