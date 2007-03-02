@@ -731,6 +731,7 @@ var MGLAYER_POINT_TYPE = 0;
 var MGLAYER_LINE_TYPE = 1;
 var MGLAYER_POLYGON_TYPE = 2;
 var MGLAYER_SOLID_TYPE = 3;
+var MGLAYER_RASTER_TYPE = 4;
 
 var MGLayer = Class.create();
 MGLayer.prototype = {
@@ -806,6 +807,9 @@ MGScaleRange.prototype = {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         this.styles = [];
+        if (!o.styles) {
+            return;
+        }
         for (var i=0; i<o.styles.length; i++) {
             var styleItem = new MGStyleItem(o.styles[i]);
             this.styles.push(styleItem);

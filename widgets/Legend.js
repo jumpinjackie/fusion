@@ -81,6 +81,7 @@ Legend.prototype =
     initialize : function(oCommand)
     {
         
+        this.defLayerRasterIcon = Fusion.getFusionURL() + 'images/tree_raster.png';
         this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/tree_theme.png';
         this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/tree_layer.png';
         this.defRootFolderIcon = Fusion.getFusionURL() + 'images/tree_map.png';
@@ -94,6 +95,8 @@ Legend.prototype =
         this._oDomObj = $(oCommand.getName());
         
         var json = oCommand.jsonNode;
+        
+        this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.defLayerRasterIcon;
         
         this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.defLayerThemeIcon;
 
@@ -319,11 +322,23 @@ Legend.prototype =
                 //tree item is really a tree item
                 if (!layer.legend.treeItem) {
                     bFirstDisplay = true;
-                    layer.legend.treeItem = this.createTreeItem(layer, range.styles[0], fScale, true);
+                    var style;
+                    if (layer.supportsType(4)) {
+                        style = true;
+                    } else {
+                        style = range.styles[0];
+                    }
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                    
                 } else if (layer.legend.treeItem instanceof JxTreeFolder) {
                     this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createTreeItem(layer, range.styles[0], fScale, true);
+                    var style;
+                    if (layer.supportsType(4)) {
+                        style = true;
+                    } else {
+                        style = range.styles[0];
+                    }
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {                    
                     layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer.resourceId);
@@ -378,14 +393,16 @@ Legend.prototype =
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
         }
         opt.data = layer;
-        if (!style) {
-            opt.imgIcon = layer.disabledLayerIcon;
+        if (layer.supportsType(4)) {
+            opt.imgIcon = this.imgLayerRasterIcon;
+        } else if (!style) {
+            opt.imgIcon = this.imgDisabledLayerIcon;
+            opt.enabled = false;
         } else {
             opt.imgIcon = style.getLegendImageURL(scale, layer.resourceId);
         }
         
         var item = new JxTreeItem(opt);
-        
         if (bCheckBox) {
             item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */

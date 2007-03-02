@@ -204,13 +204,15 @@ function buildScaleRanges($layer) {
         $scaleRanges = $xmldoc->getElementsByTagName('GridScaleRange');
         if($scaleRanges->length == 0) {
             $scaleRanges = $xmldoc->getElementsByTagName('DrawingLayerDefinition');
-            if($scaleRanges->length == 0)
+            if($scaleRanges->length == 0) {
                 return;
+            }
             $type = 2;
-        }
-        else
+        } else {
             $type = 1;
+        }
     }
+    echo "\n/* type: $type */ \n";
     $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle");
     $ruleNames = array("PointRule", "LineRule", "AreaRule", );
     $output = 'scaleRanges: [';
@@ -226,12 +228,17 @@ function buildScaleRanges($layer) {
             $minScale = $minElt->item(0)->nodeValue;
         if($maxElt->length > 0)
             $maxScale = $maxElt->item(0)->nodeValue;
-
-        if($type != 0)
-            break;
+            
         $output .= $scaleSep."{";
         $output .= "minScale:".$minScale.",";
         $output .= "maxScale:".$maxScale.",";
+        
+        if($type != 0) {
+            $output .= "}";
+            $scaleSep = ',';
+            break;
+        }
+            
         $output .= 'styles:[';
         $styleIndex = 0;
         $styleSep = '';

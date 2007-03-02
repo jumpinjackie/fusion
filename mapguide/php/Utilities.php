@@ -554,7 +554,10 @@ function GetLayerTypes($featureService, $layer) {
                 array_push($aLayerTypes, '0'/*'point'*/);
             }
             break;
+        } else if ($prop->GetPropertyType() == MgFeaturePropertyType::RasterProperty) {
+            array_push($aLayerTypes, '4' /* raster */);
         }
+        
     }
     return $aLayerTypes;
 }
