@@ -36,16 +36,18 @@ ColorPicker.prototype =
        color changes */
     colorInput: null,
 
-    /* String containing the HEX value of the alpha chosen by the
-       user */
-    alpha: 'FF',
+    /* Int (0-100) containing the alpha chosen by the user */
+    alpha: 100,
     
     /* String containing the HEX value of the color chosen by the
        user, in RRGGBB format */
     color: '#000000',
     
-    /* reference to the color picker object */
-    picker: null,
+    /* shared reference to the color picker object */
+    picker: [null],
+    
+    /* shared reference to the current instance of this widget that is using the color picker */
+    currentPicker: [null],
     
     initialize : function(oCommand) {
         Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false, oCommand]);
@@ -61,24 +63,24 @@ ColorPicker.prototype =
         }
         
         if (this.colorInput) {
-            this.alpha = parseInt('0x'+this.colorInput.value.substring(0,2))/255;
+            this.alpha = 100 * parseInt('0x'+this.colorInput.value.substring(0,2))/255;
             this.color = '#'+this.colorInput.value.substring(2);
             //Event.observe(this.colorInput, 'change', this.inputChanged.bind(this));
             this.colorInput.widget = this;
         }
         
-        this.picker = new JxColorPicker({color: this.color, alpha: this.alpha});
-        this._oDomObj.appendChild(this.picker.domObj);
+        if(!this.picker[0]) {
+            this.picker[0] = new JxColorPicker({color: this.color, alpha: this.alpha});
+        }
         
         this._oButton._oButton.domImg.style.backgroundColor = this.color;
         Element.addClassName(this._oButton._oButton.domImg, "jxButtonSwatch");
-        this.picker.addColorChangeListener(this);
     },
     
     colorChanged: function(picker) {
-        this._oButton._oButton.domImg.style.backgroundColor = this.picker.color;
-        var a = parseInt(this.picker.alpha*255).toString(16);
-        var c = a + this.picker.color.substring(1);
+        this._oButton._oButton.domImg.style.backgroundColor = this.picker[0].color;
+        var a = parseInt(this.picker[0].alpha*255).toString(16);
+        var c = a + this.picker[0].color.substring(1);
         if (this.colorInput) {
             this.colorInput.value = c;
         }
@@ -90,11 +92,21 @@ ColorPicker.prototype =
         var color = value.substring(2);
         this.alpha = 100 * parseInt('0x'+alpha)/255;
         this.color = '#'+color;
-        this.picker.setAlpha(this.alpha);
-        this.picker.setColor(this.color);
+        this.picker[0].setAlpha(this.alpha);
+        this.picker[0].setColor(this.color);
     },
     
     execute: function() {
-        this.picker.show();
+        if (this.currentPicker[0] != this) {
+            if (this.currentPicker[0]) {
+                this.picker[0].removeColorChangeListener(this.currentPicker[0]);
+            }
+            this.currentPicker[0] = this;
+            this.picker[0].addColorChangeListener(this);
+            this._oDomObj.appendChild(this.picker[0].domObj);
+            this.picker[0].setAlpha(this.alpha);
+            this.picker[0].setColor(this.color);
+        }
+        this.picker[0].show();
     }
 };
