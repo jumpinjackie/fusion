@@ -231,7 +231,7 @@ function buildScaleRanges($layer) {
             
         $output .= $scaleSep."{";
         $output .= "minScale:".$minScale.",";
-        $output .= "maxScale:".$maxScale.",";
+        $output .= "maxScale:".$maxScale;
         
         if($type != 0) {
             $output .= "}";
@@ -239,7 +239,7 @@ function buildScaleRanges($layer) {
             break;
         }
             
-        $output .= 'styles:[';
+        $output .= ',styles:[';
         $styleIndex = 0;
         $styleSep = '';
         for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
