@@ -36,6 +36,7 @@
 include('MGCommon.php');
 
 $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
+$layout = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
 
 try
 {
@@ -47,8 +48,26 @@ try
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     
-    $oImg = $renderingService->RenderMap($map, $selection, $format);
-    
+    if ($format == 'DWF') {
+        //TODO create a default print layout in the session if none is specified
+        if (!$layout){
+            $layout = 'Library://Nanaimo/NanaimoMap/PrintLayouts/test.PrintLayout';
+        }
+        $layoutId = new MgResourceIdentifier($layout);
+        $layoutId->Validate();
+        $oLayout = new MgLayout($layoutId,'Map', 'meters');
+        
+        $oPlotSpec = new MgPlotSpecification(8.5,11,MgPageUnitsType::Inches);
+        
+        $dwfVersion = new MgDwfVersion('6.01','1.2');
+        
+        $oImg = $mappingService->GeneratePlot($map, $map->GetMapExtent(), false,
+                                              $oPlotSpec,
+                                              $oLayout,
+                                              $dwfVersion);
+    } else {
+        $oImg = $renderingService->RenderMap($map, $selection, $format);
+    }    
 }
 catch (MgException $e)
 {
@@ -70,6 +89,7 @@ header( "Content-Disposition: attachment; filename=$mapName.png" );
 */
 header( "Content-type: image/$format" );
 header( "Content-disposition: attachment; filename=$mapName.$format" );
+
 $buffer = '';
 while ($oImg->Read($buffer, 4096) > 0) {
     echo $buffer;

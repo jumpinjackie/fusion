@@ -31,6 +31,8 @@ Fusion.require('widgets/GxButtonBase.js');
 var SaveMap = Class.create();
 SaveMap.prototype = {
     iframe : null,
+    oMenu : null,
+    printLayout : null,
     initialize : function(oCommand)
     {
         this.oCommand = oCommand;
@@ -39,7 +41,32 @@ SaveMap.prototype = {
         this.setMap(oCommand.getMap());
         this.format = (oCommand.jsonNode.Format && oCommand.jsonNode.Format[0] != '')?
                        oCommand.jsonNode.Format[0] : 'png';
+        
+        //for DWF, parse printLayouts and build menu
+        if (this.format == 'DWF' && oCommand.jsonNode.PrintLayout.length) {
+            var opt = {label:this._sLabel};
+            this.oMenu = new JxMenu(opt);
+            //this._oDomObj = $(oCommand.getName());
+            //this._oDomObj.appendChild(this.oMenu.domObj);
+            //Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
+            
+            var layouts = oCommand.jsonNode.PrintLayout;
+            for (var i = 0; i < layouts.length; i++) {
+                var opt = {};
+                opt.label = layouts[i].Name[0];
+                var data = layouts[i].ResourceId[0];
+                var action = new JxAction(this.setLayout.bind(this, data));
+                var menuItem = new JxMenuItem(action,opt);
+                
+                this.oMenu.add(menuItem);
+            }
+        }
+
         this.enable = SaveMap.prototype.enable;
+    },
+    
+    setLayout: function(rid) {
+        this.printLayout = rid;
     },
     
     enable: function() {
@@ -59,24 +86,20 @@ SaveMap.prototype = {
             this.iframe.style.visibility = 'hidden';
             document.body.appendChild(this.iframe);
         }
+        var szLayout = '';
+        if (this.format === 'dwf') {
+            szLayout = '&layout=' + this.printLayout;
+        }
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            //hack to workaround problem with ie download
-            //var img = document.getElementById('gMapImg').src;
-            //var img = this.getMap()._oImg.src;
+            //var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + Fusion.getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
             
-            var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + Fusion.getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
-            /*window.w = open(url);*/
-            this.iframe.contentWindow.onload = function() {
-                alert('iframe onload');
-                top.frames.w.document.execCommand("SaveAs", 1, this.getMap().getMapName()+"."+this.format);
-            }
-            this.iframe.src = url;
-            /* window.w = window.frames.w; */
-            /*setTimeout('w.document.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".'+this.format+')', 1500);*/
-            /*setTimeout('w.execCommand("SaveAs", 1, "'+this.getMap().getMapName()+'".'+this.format+')', 1500);*/
+            var url = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMapFrame." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
+            //this.iframe.src = url;
+            w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format;
+            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
             //console.log(s);
+            
             this.iframe.src = s;
         }
     }
