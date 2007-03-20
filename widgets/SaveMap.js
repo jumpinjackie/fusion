@@ -93,11 +93,11 @@ SaveMap.prototype = {
         if(navigator.appVersion.match(/\bMSIE\b/)) {
             //var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + Fusion.getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
             
-            var url = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMapFrame." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
+            var url = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
             //this.iframe.src = url;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/MGSaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
+            var s = Fusion.getWebTierURL() + 'fusion/server/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+Fusion.getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
             //console.log(s);
             
             this.iframe.src = s;

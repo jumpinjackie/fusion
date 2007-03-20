@@ -48,7 +48,7 @@ go.
 If the Web Server Extensions are installed elsewhere, you must now 
 change the default values in the following file:
 
-fusion/server/php/MGCommon.php
+fusion/mapguide/php/Common.php
 
 At the beginning of this file are two lines as follows:
 

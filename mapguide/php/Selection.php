@@ -35,8 +35,8 @@
  *****************************************************************************/
 
 
-include('MGCommon.php');
-include('MGUtilities.php');
+include('Common.php');
+include('Utilities.php');
 
 function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName) 
 {
@@ -147,7 +147,7 @@ try
     
     /* Get the map SRS - we use this to convert distances */
     $srsFactory = new MgCoordinateSystemFactory();
-    //safely get an SRS ... (in MGUtilities)
+    //safely get an SRS ... (in Utilities)
     $srsDefMap = GetMapSRS($map);
     $srsMap = $srsFactory->Create($srsDefMap);
     $mapSrsUnits = $srsMap->GetUnits();

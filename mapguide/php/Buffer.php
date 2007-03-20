@@ -3,8 +3,8 @@
  * Buffer selected features.
  */
 
-include ('MGCommon.php');
-include ('MGUtilities.php');
+include ('Common.php');
+include ('Utilities.php');
 
 try {
     header('content-type: text/xml');
@@ -35,7 +35,7 @@ try {
 
     /* Get the map SRS - we use this to convert distances */
     $srsFactory = new MgCoordinateSystemFactory();
-    //safely get an SRS ... (in MGUtilities)
+    //safely get an SRS ... (in Utilities)
     $srsDefMap = GetMapSRS($map);
     $mapSrsUnits = "";
     $srsMap = $srsFactory->Create($srsDefMap);

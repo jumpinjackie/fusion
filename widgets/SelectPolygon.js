@@ -52,7 +52,7 @@ SelectPolygon.prototype = {
     },
     
     /**
-     * called when the button is clicked by the MGButtonBase widget
+     * called when the button is clicked by the ButtonBase widget
      */
     activateTool : function()
     {

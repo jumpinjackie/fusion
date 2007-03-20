@@ -84,8 +84,8 @@ Buffer.prototype = {
         
         /* override selection behaviour */
         this.enable = Buffer.prototype.enable;
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
     },
     
     setValue: function(input, value) {
@@ -201,7 +201,7 @@ Buffer.prototype = {
             fillColor += this.fillColor;
         }
         
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGBuffer." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+distance+borderColor+fillColor; 
         params.onComplete = this.bufferCreated.bind(this);

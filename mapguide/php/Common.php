@@ -53,7 +53,7 @@ $defaultExtensionDir = $defaultInstallDir . "WebServerExtensions/www/";
  * some problems.
  */
 
-//widgets outside Fusion can set the $extensionDir before including MGCommon.php
+//widgets outside Fusion can set the $extensionDir before including Common.php
 
 if (!isset($extensionDir)){
     $installDir = $defaultInstallDir;

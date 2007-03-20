@@ -33,8 +33,8 @@
  *
  *****************************************************************************/
 
-include ("MGCommon.php");
-include ("MGUtilities.php");
+include ("Common.php");
+include ("Utilities.php");
 
 $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
 

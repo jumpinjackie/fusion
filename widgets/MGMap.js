@@ -25,23 +25,23 @@
  *
  * extended description
  * **********************************************************************/
+
+Fusion.sServer = 'mapguide';
+Fusion.createSession();
+
 /**
  * MGMap : MapGuide map widget Based on generic class GxMap
 */
 Fusion.require('widgets/GxMap.js');
 
 var gnLastEventId = 10;
-var MGMAP_SELECTION_ON = gnLastEventId++;
-var MGMAP_SELECTION_OFF = gnLastEventId++;
-var MGMAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
+var MAP_SELECTION_ON = gnLastEventId++;
+var MAP_SELECTION_OFF = gnLastEventId++;
+var MAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
 var MAP_LOADED = gnLastEventId++;
 var MAP_LOADING = gnLastEventId++;
 
 var MGMap = Class.create();
-
-//TODO: what is this doing here???
-Object.extend(MGWebLayout.prototype, EventMgr.prototype);
-
 MGMap.prototype = {
     aShowLayers: null,
     aHideLayers: null,
@@ -60,9 +60,9 @@ MGMap.prototype = {
         //console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
-        this.registerEventID(MGMAP_SELECTION_ON);
-        this.registerEventID(MGMAP_SELECTION_OFF);
-        this.registerEventID(MGMAP_ACTIVE_LAYER_CHANGED);
+        this.registerEventID(MAP_SELECTION_ON);
+        this.registerEventID(MAP_SELECTION_OFF);
+        this.registerEventID(MAP_ACTIVE_LAYER_CHANGED);
         this.registerEventID(MAP_LOADED);
         this.registerEventID(MAP_LOADING);
         
@@ -81,7 +81,6 @@ MGMap.prototype = {
     },
     
     loadMap: function(resourceId, options) {
-        
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
@@ -110,7 +109,7 @@ MGMap.prototype = {
         this._bSelectionIsLoading = false;
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
+        var loadmapScript = Fusion.sServer + '/' + sl  + '/LoadMap.' + sl;
         
         var sessionid = Fusion.getSessionID();
         
@@ -197,7 +196,7 @@ MGMap.prototype = {
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'server/' + sl  + '/MGLoadMap.' + sl;
+        var loadmapScript = Fusion.sServer + '/' + sl  + '/LoadMap.' + sl;
         
         var sessionid = Fusion.getSessionID();
         
@@ -350,7 +349,7 @@ MGMap.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(MGMAP_SELECTION_ON);
+        this.triggerEvent(MAP_SELECTION_ON);
     },
 
     /**
@@ -373,7 +372,7 @@ MGMap.prototype = {
             if (!this._bSelectionIsLoading) {
                 this._addWorker();
                 this._bSelectionIsLoading = true;
-                var s = 'server/' + Fusion.getScriptLanguage() + "/MGSelection." + Fusion.getScriptLanguage() ;
+                var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
                 var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, 
                               onComplete: this.getSelectionCB.bind(this, userFunc)};
                 Fusion.ajaxRequest(s, params);
@@ -389,7 +388,7 @@ MGMap.prototype = {
     selectionCleared : function()
     {
         this.bSelectionOn = true;
-        this.triggerEvent(MGMAP_SELECTION_OFF);
+        this.triggerEvent(MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
@@ -398,7 +397,7 @@ MGMap.prototype = {
        Utility function to clear current selection
     */
     clearSelection : function() {
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGClearSelection." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
         var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
         Fusion.ajaxRequest(s, params);
     },
@@ -435,7 +434,7 @@ MGMap.prototype = {
         var extend = options.extendSelection ? '&extendselection=true' : '';
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'server/' + sl  + '/MGQuery.' + sl;
+        var loadmapScript = Fusion.sServer + '/' + sl  + '/Query.' + sl;
 
         var sessionid = Fusion.getSessionID();
 
@@ -466,7 +465,7 @@ MGMap.prototype = {
     },
     setActiveLayer: function( oLayer ) {
         this.oActiveLayer = oLayer;
-        this.triggerEvent(MGMAP_ACTIVE_LAYER_CHANGED, oLayer);
+        this.triggerEvent(MAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
     getActiveLayer: function() {
         return this.oActiveLayer;

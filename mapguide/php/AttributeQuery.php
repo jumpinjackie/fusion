@@ -35,8 +35,8 @@
 
 try {
     /* set up the session */
-    include ("MGCommon.php");
-    include ("MGUtilities.php");
+    include ("Common.php");
+    include ("Utilities.php");
     
     /* join properties */
     $joinLayer = isset($_REQUEST['joinlayer']) ? $_REQUEST['joinlayer'] : false;
@@ -55,7 +55,7 @@ try {
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
 
     /* open the map from the session using the provided map name.  The map was
-       previously created by calling MGLoadMap. */
+       previously created by calling LoadMap. */
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 

@@ -64,8 +64,8 @@ ZoomToSelection.prototype = {
 
         this.enable = ZoomToSelection.prototype.enable;
         
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MGMAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
     },
 
     /**

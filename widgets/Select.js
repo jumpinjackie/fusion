@@ -58,7 +58,7 @@ Select.prototype =  {
                             json.QueryActiveLayer[0] == '1')) ? true : false;
         
         if (this.bActiveOnly) {
-            this.getMap().registerForEvent(MGMAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
+            this.getMap().registerForEvent(MAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
         }
         
     },
@@ -77,7 +77,7 @@ Select.prototype =  {
     },
     
     /**
-     * called when the button is clicked by the MGButtonBase widget
+     * called when the button is clicked by the ButtonBase widget
      */
     activateTool : function() {
         this.getMap().activateWidget(this);

@@ -61,7 +61,7 @@ KeepSessionAlive.prototype = {
     },
     
     pingServer: function() {
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGCommon." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID();
         Fusion.ajaxRequest(s, params);

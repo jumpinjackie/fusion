@@ -33,7 +33,7 @@
  *
  *****************************************************************************/
 
-include ("MGCommon.php");
+include ("Common.php");
 
 // Converts a boolean to "yes" or "no"
 // --from MG Web Tier API Reference

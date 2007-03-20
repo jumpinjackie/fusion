@@ -35,7 +35,7 @@
 
 try {
     /* set up the session */
-    include ("MGCommon.php");
+    include ("Common.php");
     
     /* the name of the layer in the map to query */
     $layer = $_REQUEST['layer'];
@@ -48,7 +48,7 @@ try {
     $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
     
     /* open the map from the session using the provided map name.  The map was
-       previously created by calling MGLoadMap. */
+       previously created by calling LoadMap. */
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 

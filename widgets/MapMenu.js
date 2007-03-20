@@ -81,8 +81,8 @@ MapMenu.prototype =
         
         //get the mapdefinitions as xml
         this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
-        var s =        'server/' + Fusion.getScriptLanguage() +
-                      '/MGMapMenu.' + Fusion.getScriptLanguage();
+        var s =        Fusion.sServer + '/' + Fusion.getScriptLanguage() +
+                      '/MapMenu.' + Fusion.getScriptLanguage();
         var params =  {parameters:'session='+Fusion.getSessionID() +
                       //'&mapname='+ this.getMap().getMapName() +
                       '&folder='+this.sRootFolder,

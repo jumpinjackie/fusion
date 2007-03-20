@@ -33,7 +33,7 @@
  *
  *****************************************************************************/
 
-include ("MGCommon.php");
+include ("Common.php");
 
 //Get the folder to search within
 $root = (isset($_REQUEST['folder']))?$_REQUEST['folder']:'Library://';

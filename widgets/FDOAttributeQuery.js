@@ -117,7 +117,7 @@ FDOAttributeQuery.prototype = {
                 
         this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
         
-        this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
+        this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
     },
     
     submitQuery: function() {
@@ -148,7 +148,7 @@ FDOAttributeQuery.prototype = {
             override = this.override.getFilterText();
         }
         
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+override; 
@@ -207,7 +207,7 @@ FDOAttributeQuery.prototype = {
         //console.log('zoomTo ' + filter);
         var filter = '&filter='+filter;
         
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGQuery." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layers='+this.layerName+filter; 
@@ -218,10 +218,10 @@ FDOAttributeQuery.prototype = {
         var node = new DomNode(r.responseXML);
         var success = node.getNodeText('Selection');
         if (success == 'true') {
-            this.getMap().deregisterForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
+            this.getMap().deregisterForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
             this.getMap().newSelection();
             this.getMap().getSelection(this.zoomToSelection.bind(this));
-            this.getMap().registerForEvent(MGMAP_SELECTION_ON, this.fpMapSelectionChanged);
+            this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
         } else {
             this.getMap().clearSelection();
         }    
@@ -278,7 +278,7 @@ FDOAttributeQuery.prototype = {
                 sep = ' OR ';
             }
             //console.log('filter: ' + filter);
-            var s = 'server/' + Fusion.getScriptLanguage() + "/MGAttributeQuery." + Fusion.getScriptLanguage() ;
+            var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
             params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                              '&layer='+this.layerName+filter+override; 

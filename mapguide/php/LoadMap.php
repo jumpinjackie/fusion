@@ -32,8 +32,8 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-include('MGCommon.php');
-include('MGUtilities.php');
+include('Common.php');
+include('Utilities.php');
 
 try
 {

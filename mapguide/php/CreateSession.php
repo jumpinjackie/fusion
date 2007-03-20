@@ -32,7 +32,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-include('MGCommon.php');
+include('Common.php');
 
 try {
     $site = $siteConnection->GetSite();

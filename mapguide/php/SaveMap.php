@@ -33,7 +33,7 @@
  *
  *****************************************************************************/
 
-include('MGCommon.php');
+include('Common.php');
 
 $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
 $layout = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;

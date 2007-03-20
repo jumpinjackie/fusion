@@ -125,7 +125,7 @@ AttributeQuery.prototype = {
             spatialFilter = '&spatialfilter='+this.spatialFilter.getFilterText();
         }
         
-        var s = 'server/' + Fusion.getScriptLanguage() + "/MGQuery." + Fusion.getScriptLanguage() ;
+        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+spatialFilter, 
