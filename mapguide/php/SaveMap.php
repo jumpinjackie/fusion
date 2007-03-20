@@ -34,9 +34,9 @@
  *****************************************************************************/
 
 include('Common.php');
-
 $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
 $layout = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
+$scale  = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
 
 try
 {
@@ -49,7 +49,7 @@ try
     $selection->Open($resourceService, $mapName);
     
     if ($format == 'DWF') {
-        //TODO create a default print layout in the session if none is specified
+        $extent = $map->GetMapExtent();
         if (!$layout){
             $layout = 'Library://Nanaimo/NanaimoMap/PrintLayouts/test.PrintLayout';
         }
@@ -61,10 +61,25 @@ try
         
         $dwfVersion = new MgDwfVersion('6.01','1.2');
         
-        $oImg = $mappingService->GeneratePlot($map, $map->GetMapExtent(), false,
+        if ($scale) {
+            //compute center point and plot with the passed scale
+        
+            $centerX = $extent->GetLowerLeftCoordinate()->GetX() + ($extent->GetWidth())/2;
+            $centerY = $extent->GetLowerLeftCoordinate()->GetY() + ($extent->GetHeight())/2;
+            $geomFactory = new MgGeometryFactory();
+            $center = $geomFactory->CreateCoordinateXY($centerX, $centerY);
+
+            $oImg = $mappingService->GeneratePlot($map, $center, $scale,
+                                               $oPlotSpec,
+                                               $oLayout,
+                                               $dwfVersion);
+        } else {
+            //use current extents for plot
+            $oImg = $mappingService->GeneratePlot($map, $extent, false,
                                               $oPlotSpec,
                                               $oLayout,
                                               $dwfVersion);
+        }
     } else {
         $oImg = $renderingService->RenderMap($map, $selection, $format);
     }    
