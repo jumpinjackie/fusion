@@ -90,6 +90,7 @@ SaveMap.prototype = {
         if (this.format === 'dwf') {
             szLayout = '&layout=' + this.printLayout;
         }
+        //TODO: revisit Fusion.getWebAgentURL
         if(navigator.appVersion.match(/\bMSIE\b/)) {
             //var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getMap().getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
             
