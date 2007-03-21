@@ -61,9 +61,9 @@ KeepSessionAlive.prototype = {
     },
     
     pingServer: function() {
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
+        var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID();
+        params.parameters = 'session='+this.getMap().getSessionID();
         Fusion.ajaxRequest(s, params);
     }
 };

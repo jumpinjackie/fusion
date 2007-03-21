@@ -148,9 +148,9 @@ FDOAttributeQuery.prototype = {
             override = this.override.getFilterText();
         }
         
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+        var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+        params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+override; 
         params.onComplete = this.queryComplete.bind(this);
         Fusion.ajaxRequest(s, params);
@@ -207,9 +207,9 @@ FDOAttributeQuery.prototype = {
         //console.log('zoomTo ' + filter);
         var filter = '&filter='+filter;
         
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
+        var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+        params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layers='+this.layerName+filter; 
         params.onComplete = this.selectComplete.bind(this);
         Fusion.ajaxRequest(s, params);
@@ -278,9 +278,9 @@ FDOAttributeQuery.prototype = {
                 sep = ' OR ';
             }
             //console.log('filter: ' + filter);
-            var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+            var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
-            params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
                              '&layer='+this.layerName+filter+override; 
             params.onComplete = this.queryComplete.bind(this);
             Fusion.ajaxRequest(s, params);

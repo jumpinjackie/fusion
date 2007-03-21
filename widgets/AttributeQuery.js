@@ -125,9 +125,9 @@ AttributeQuery.prototype = {
             spatialFilter = '&spatialfilter='+this.spatialFilter.getFilterText();
         }
         
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
+        var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+
+        params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
                          '&layer='+this.layerName+filter+spatialFilter, 
         params.onComplete = this.queryComplete.bind(this);
         Fusion.ajaxRequest(s, params);

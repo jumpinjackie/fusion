@@ -341,7 +341,7 @@ Legend.prototype =
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {                    
-                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer.resourceId);
+                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer.resourceId, this.getMap().getSessionID());
                 }
             }
             
@@ -399,7 +399,7 @@ Legend.prototype =
             opt.imgIcon = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-            opt.imgIcon = style.getLegendImageURL(scale, layer.resourceId);
+            opt.imgIcon = style.getLegendImageURL(scale, layer.resourceId, this.getMap().getSessionID());
         }
         
         var item = new JxTreeItem(opt);

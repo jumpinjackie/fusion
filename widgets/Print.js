@@ -173,7 +173,7 @@ Print.prototype = {
         var dpi = this.getMap()._nDpi;
         var scale = this.getMap()._fScale
         url = url + 'MAPNAME=' + this.getMap().getMapName();
-        url = url + '&SESSION=' + this.getMap().getSessionId();
+        url = url + '&SESSION=' + this.getMap().getSessionID();
         url = url + '&CENTERX='+centerX;
         url = url + '&CENTERY='+centerY;
         url = url + '&DPI='+dpi;

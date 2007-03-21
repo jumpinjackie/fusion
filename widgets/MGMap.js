@@ -26,9 +26,6 @@
  * extended description
  * **********************************************************************/
 
-Fusion.sServer = 'mapguide';
-Fusion.createSession();
-
 /**
  * MGMap : MapGuide map widget Based on generic class GxMap
 */
@@ -43,6 +40,8 @@ var MAP_LOADING = gnLastEventId++;
 
 var MGMap = Class.create();
 MGMap.prototype = {
+	arch: 'mapguide',
+	session: [null],
     aShowLayers: null,
     aHideLayers: null,
     aShowGroups: null,
@@ -74,11 +73,38 @@ MGMap.prototype = {
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
         //console.log('resource id is ' + this.sMapResourceId);
-        if (this.sMapResourceId != '') {
-            this.loadMap(this.sMapResourceId);
-        }
-        
+		this.createSession();
     },
+
+	createSession: function() {
+		if (!this.session[0] || this.session[0] != '...') {
+			this.session[0] = '...';
+			var sl = Fusion.getScriptLanguage();
+			var scriptURL = this.arch + '/' + sl + '/CreateSession.' + sl;
+	        var options = {onComplete: this.createSessionCB.bind(this)};
+	        Fusion.ajaxRequest(scriptURL,options);	
+		}
+	},
+    
+    createSessionCB : function(r) {
+        if (r.status == 200) {
+            if (r.responseXML) {
+                var node = new DomNode(r.responseXML);
+                this.session[0] = node.getNodeText('sessionid');
+		        if (this.sMapResourceId != '') {
+		            this.loadMap(this.sMapResourceId);
+		        }
+            }
+        }
+    },
+
+	sessionReady: function() {
+		return (this.session[0] != null && this.session[0] != '...');
+	},
+
+	getSessionID: function() {
+		return this.session[0];
+	},
     
     loadMap: function(resourceId, options) {
         //console.log('loadMap: ' + resourceId);
@@ -86,6 +112,13 @@ MGMap.prototype = {
         if (this._sResourceId == resourceId) {
             return;
         }
+
+		if (!this.sessionReady()) {
+			this.sMapResourceId = resourceId;
+			this.createSession();
+			return;
+		}
+		
         this.triggerEvent(MAP_LOADING);
         this._addWorker();
         
@@ -109,9 +142,9 @@ MGMap.prototype = {
         this._bSelectionIsLoading = false;
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = Fusion.sServer + '/' + sl  + '/LoadMap.' + sl;
+        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
         
-        var sessionid = Fusion.getSessionID();
+        var sessionid = this.getSessionID();
         
         var params = 'mapid='+resourceId+"&session="+sessionid;
         var options = {onSuccess: this.mapLoaded.bind(this), 
@@ -196,9 +229,9 @@ MGMap.prototype = {
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = Fusion.sServer + '/' + sl  + '/LoadMap.' + sl;
+        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
         
-        var sessionid = Fusion.getSessionID();
+        var sessionid = this.getSessionID();
         
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
         var options = {onSuccess: this.mapReloaded.bind(this), 
@@ -281,7 +314,7 @@ MGMap.prototype = {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        var r = new MGGetVisibleMapExtent(this._oConfigObj.getSessionId(),
+        var r = new MGGetVisibleMapExtent(this.getSessionID(),
                                this._sMapname, cx, cy,
                                this._fScale, null, this._nDpi, nWidth, 
                                nHeight, showLayers, hideLayers, 
@@ -319,7 +352,7 @@ MGMap.prototype = {
             //alert("non valid");
         }
 
-        url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this._oConfigObj.getSessionId() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
+        url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
         //console.log('MGURL ' + url);
         this.setMapImageURL(url);
@@ -372,8 +405,8 @@ MGMap.prototype = {
             if (!this._bSelectionIsLoading) {
                 this._addWorker();
                 this._bSelectionIsLoading = true;
-                var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
-                var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, 
+                var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
+                var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, 
                               onComplete: this.getSelectionCB.bind(this, userFunc)};
                 Fusion.ajaxRequest(s, params);
             }
@@ -397,8 +430,8 @@ MGMap.prototype = {
        Utility function to clear current selection
     */
     clearSelection : function() {
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
-        var params = {parameters:'session='+Fusion.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
+        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
+        var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
         Fusion.ajaxRequest(s, params);
     },
 
@@ -434,9 +467,9 @@ MGMap.prototype = {
         var extend = options.extendSelection ? '&extendselection=true' : '';
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = Fusion.sServer + '/' + sl  + '/Query.' + sl;
+        var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
 
-        var sessionid = Fusion.getSessionID();
+        var sessionid = this.getSessionID();
 
         var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend;
         var options = {onSuccess: this.processQueryResults.bind(this), 
@@ -471,10 +504,6 @@ MGMap.prototype = {
         return this.oActiveLayer;
     },
 
-    getSessionId: function() {
-        return this._oConfigObj.getSessionId();
-    },
-    
     setParameter : function(param, value) {
         if (param == 'SelectionType') {
             this.selectionType = value;
@@ -833,9 +862,8 @@ MGStyleItem.prototype = {
             this.categoryindex = -1;
         }
     },
-    getLegendImageURL: function(fScale, resourceID) {
+    getLegendImageURL: function(fScale, resourceID, session) {
         var url = Fusion.getWebAgentURL();
-        var session = Fusion.getSessionID();
         return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };

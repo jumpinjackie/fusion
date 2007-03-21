@@ -81,11 +81,9 @@ MapMenu.prototype =
         
         //get the mapdefinitions as xml
         this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
-        var s =        Fusion.sServer + '/' + Fusion.getScriptLanguage() +
+        var s =        this.getMap().arch + '/' + Fusion.getScriptLanguage() +
                       '/MapMenu.' + Fusion.getScriptLanguage();
-        var params =  {parameters:'session='+Fusion.getSessionID() +
-                      //'&mapname='+ this.getMap().getMapName() +
-                      '&folder='+this.sRootFolder,
+        var params =  {parameters:'folder='+this.sRootFolder,
                       onComplete: this.processMapMenu.bind(this)};
 
         Fusion.ajaxRequest(s, params);

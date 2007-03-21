@@ -181,7 +181,7 @@ Maptip.prototype =
          var selection = 'INTERSECTS';
          //TODO: possibly make the layer names configurable?
          var layerNames = this.aLayers.toString();
-         var r = new MGQueryMapFeatures(map._oConfigObj.getSessionId(),
+         var r = new MGQueryMapFeatures(map.getSessionID(),
                                         map._sMapname,
                                         sGeometry,
                                         maxFeatures, persist, selection, layerNames);

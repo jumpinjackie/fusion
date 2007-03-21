@@ -201,9 +201,9 @@ Buffer.prototype = {
             fillColor += this.fillColor;
         }
         
-        var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage() ;
+        var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+Fusion.getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+distance+borderColor+fillColor; 
+        params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+distance+borderColor+fillColor; 
         params.onComplete = this.bufferCreated.bind(this);
         Fusion.ajaxRequest(s, params);
     },
