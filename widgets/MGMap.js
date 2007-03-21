@@ -37,11 +37,12 @@ var MAP_SELECTION_OFF = gnLastEventId++;
 var MAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
 var MAP_LOADED = gnLastEventId++;
 var MAP_LOADING = gnLastEventId++;
+var MAP_SESSION_CREATED = gnLastEventId++;
 
 var MGMap = Class.create();
 MGMap.prototype = {
-	arch: 'mapguide',
-	session: [null],
+    arch: 'mapguide',
+    session: [null],
     aShowLayers: null,
     aHideLayers: null,
     aShowGroups: null,
@@ -64,6 +65,10 @@ MGMap.prototype = {
         this.registerEventID(MAP_ACTIVE_LAYER_CHANGED);
         this.registerEventID(MAP_LOADED);
         this.registerEventID(MAP_LOADING);
+        this.registerEventID(MAP_SESSION_CREATED);
+        
+        //this.registerForEvent(SESSION_CREATED, this.historyChanged.bind(this));
+
         
         this._oConfigObj = Fusion.oConfigMgr;
         
@@ -73,38 +78,45 @@ MGMap.prototype = {
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
         //console.log('resource id is ' + this.sMapResourceId);
-		this.createSession();
+        this.createSession();
     },
 
-	createSession: function() {
-		if (!this.session[0] || this.session[0] != '...') {
-			this.session[0] = '...';
-			var sl = Fusion.getScriptLanguage();
-			var scriptURL = this.arch + '/' + sl + '/CreateSession.' + sl;
-	        var options = {onComplete: this.createSessionCB.bind(this)};
-	        Fusion.ajaxRequest(scriptURL,options);	
-		}
-	},
+    createSession: function() {
+        if (!this.session[0]) {
+            this.session[0] = this;
+            var sl = Fusion.getScriptLanguage();
+            var scriptURL = this.arch + '/' + sl + '/CreateSession.' + sl;
+            var options = {onComplete: this.createSessionCB.bind(this)};
+            Fusion.ajaxRequest(scriptURL,options);  
+        }
+        if (this.session[0] instanceof MGMap) {
+            this.session[0].registerForEvent(MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
+        }
+    },
     
     createSessionCB : function(r) {
         if (r.status == 200) {
             if (r.responseXML) {
                 var node = new DomNode(r.responseXML);
                 this.session[0] = node.getNodeText('sessionid');
-		        if (this.sMapResourceId != '') {
-		            this.loadMap(this.sMapResourceId);
-		        }
+                this.triggerEvent(MAP_SESSION_CREATED);
             }
         }
     },
 
-	sessionReady: function() {
-		return (this.session[0] != null && this.session[0] != '...');
-	},
+    mapSessionCreated: function() {
+        if (this.sMapResourceId != '') {
+            this.loadMap(this.sMapResourceId);
+        }
+    },
 
-	getSessionID: function() {
-		return this.session[0];
-	},
+    sessionReady: function() {
+        return (typeof this.session[0] == 'string');
+    },
+
+    getSessionID: function() {
+        return this.session[0];
+    },
     
     loadMap: function(resourceId, options) {
         //console.log('loadMap: ' + resourceId);
@@ -113,12 +125,12 @@ MGMap.prototype = {
             return;
         }
 
-		if (!this.sessionReady()) {
-			this.sMapResourceId = resourceId;
-			this.createSession();
-			return;
-		}
-		
+        if (!this.sessionReady()) {
+            this.sMapResourceId = resourceId;
+            this.createSession();
+            return;
+        }
+        
         this.triggerEvent(MAP_LOADING);
         this._addWorker();
         
