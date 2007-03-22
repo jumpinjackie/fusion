@@ -37,9 +37,9 @@
  * 
  * Configuration: you may edit the following section if necessary
  */
- 
-$szPHPMapScriptModuleName = 'php_mapscript'.PHP_SHLIB_SUFFIX;
-$szGDModuleName = 'php_gd2'.PHP_SHLIB_SUFFIX;
+
+$szPHPMapScriptModule = 'php_mapscript.'.PHP_SHLIB_SUFFIX;
+$szGDModule = 'php_gd2.'.PHP_SHLIB_SUFFIX;
 
 /*
  * End of configurable items.
@@ -47,6 +47,9 @@ $szGDModuleName = 'php_gd2'.PHP_SHLIB_SUFFIX;
  * The remainder of this file just sets up a common environment for server-side
  * scripts.
  */
+ 
+include(dirname(__FILE__).'/Session.php');
+installSessionDirectoryHandler();
 
 /* merge request vars.  $_REQUEST includes cookies in preference to get/post,
  * which we don't like */
@@ -56,14 +59,14 @@ $REQUEST_VARS = array_merge($_GET, $_POST);
 if (!extension_loaded('MapScript')) {
     dl( $szPHPMapScriptModule );
     if (!extension_loaded('MapScript')) {
-        die('Failed to load php_mapscript.  Please check configuration settings in '.__FILE__);
+        die("Failed to load $szPHPMapScriptModule.  Please check configuration settings in ".__FILE__);
     }
 }
 
 /* handle restoring a session */
 if (isset($REQUEST_VARS['session'])) {
     $sessionID = $REQUEST_VARS['session'];
-    
+    initializeSession( "sid", "", $sessionID );
 }
 
 if (isset($_REQUEST['mapname'])) { 
