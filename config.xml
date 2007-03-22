@@ -1,0 +1,13 @@
+<Configuration>
+	<General>
+		<TemporaryDirectory>/tmp</TemporaryDirectory>
+	</General>
+	<MapGuide>
+		<WebTierUrl>http://localhost:8008/mapguide</WebTierUrl>
+	</MapGuide>
+	<MapServer>
+		<MapserverCGI>http://localhost/cgi-bin/mapserv</MapserverCGI>
+		<ImagePath>/tmp/ms_tmp</ImagePath>
+		<ImageUrl>http://localhost/tmp/ms_tmp</ImageUrl>
+	</MapServer>
+</Configuration>
