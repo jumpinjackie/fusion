@@ -24,7 +24,30 @@
  ********************************************************************
  *
  * save the current map image on the client's computer
- * 
+ *
+ * usage:
+ * DWF format support requires a structure like this in the weblayout:
+ * scales
+ * <Command xsi:type="FusionCommandType">
+ *    <Name>SaveDWF</Name>
+ *    <Label>Save as DWF</Label>
+ *    <Tooltip>Click to save the current map as a DWF document</Tooltip>
+ *    <TargetViewer>All</TargetViewer>
+ *    <PrintLayout>
+ *        <Name>My Layout</Name>
+ *        <ResourceId>Library://PrintLayouts/first.PrintLayout</ResourceId>
+ *        <Scale>25000</Scale>
+ *        <Scale>10000</Scale>
+ *    </PrintLayout>
+ *    <PrintLayout>
+ *        <Name>My Other Layout</Name>
+ *        <ResourceId>Library://PrintLayouts/second.PrintLayout</ResourceId>
+ *    </PrintLayout>
+ *    <Action>SaveMap</Action>
+ *    <Format>DWF</Format>
+ * </Command>
+ *
+
  * **********************************************************************/
 Fusion.require('widgets/GxButtonBase.js');
 
@@ -32,7 +55,9 @@ var SaveMap = Class.create();
 SaveMap.prototype = {
     iframe : null,
     oMenu : null,
+    isMenuWidget : false,
     printLayout : null,
+    printScale : null,
     initialize : function(oCommand)
     {
         this.oCommand = oCommand;
@@ -44,20 +69,36 @@ SaveMap.prototype = {
         
         //for DWF, parse printLayouts and build menu
         if (this.format == 'DWF' && oCommand.jsonNode.PrintLayout.length) {
-            var opt = {label:this._sLabel};
+            var opt = {label:this._oButton._sLabel};
+            this.isMenuWidget = true;
             this.oMenu = new JxMenu(opt);
-            //this._oDomObj = $(oCommand.getName());
-            //this._oDomObj.appendChild(this.oMenu.domObj);
-            //Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
             
             var layouts = oCommand.jsonNode.PrintLayout;
             for (var i = 0; i < layouts.length; i++) {
+                var layout = layouts[i];
                 var opt = {};
-                opt.label = layouts[i].Name[0];
-                var data = layouts[i].ResourceId[0];
-                var action = new JxAction(this.setLayout.bind(this, data));
-                var menuItem = new JxMenuItem(action,opt);
-                
+                opt.label = layout.Name[0];
+                var data = layout.ResourceId[0];
+                var menuItem = null;
+                if (layout.Scale) {
+                    //create entries for weblayout specified scales
+                    menuItem = new JxMenu(opt);
+                    for (var j=0; j < layout.Scale.length; j++) {
+                        var scale = layout.Scale[j];
+                        var scaleAction = new JxAction(this.setLayout.bind(this, data, scale));
+                        var subMenuItem = new JxMenuItem(scaleAction,{label:scale});
+                        menuItem.add(subMenuItem);
+                    }
+                    //add an entry for current scale
+                    var currentScaleAction = new JxAction(this.setLayout.bind(this, data));
+                    var currentScaleItem = new JxMenuItem(currentScaleAction,
+                                                         {label:'Current Scale'});
+                    menuItem.add(currentScaleItem);
+                } else {
+                    //if there are no scales, the layout is used with current scale
+                    var action = new JxAction(this.setLayout.bind(this, data));
+                    menuItem = new JxMenuItem(action,opt);
+                }
                 this.oMenu.add(menuItem);
             }
         }
@@ -65,14 +106,20 @@ SaveMap.prototype = {
         this.enable = SaveMap.prototype.enable;
     },
     
+    getMenu: function() {
+        return this.oMenu;
+    },
     setLayout: function(rid) {
+        if (arguments.length > 1) {
+            this.printScale = parseInt(arguments[1]);
+        }
         this.printLayout = rid;
+        this.activateTool();
     },
     
     enable: function() {
         GxButtonBase.prototype.enable.apply(this, []);
     },
-    
     
     /**
      * called when the button is clicked by the GxButtonBase widget
@@ -87,8 +134,10 @@ SaveMap.prototype = {
             document.body.appendChild(this.iframe);
         }
         var szLayout = '';
-        if (this.format === 'dwf') {
+        var szScale = '';
+        if (this.format === 'DWF') {
             szLayout = '&layout=' + this.printLayout;
+            szScale = '&scale=' + this.printScale;
         }
         //TODO: revisit Fusion.getWebAgentURL
         if(navigator.appVersion.match(/\bMSIE\b/)) {
@@ -98,7 +147,7 @@ SaveMap.prototype = {
             //this.iframe.src = url;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + 'fusion/' + this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+this.getMap().getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
+            var s = Fusion.fusionURL + '/' + this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+this.getMap().getSessionID() + '&mapname=' + this.getMap().getMapName() + '&format=' + this.format + szLayout;
             //console.log(s);
             
             this.iframe.src = s;
