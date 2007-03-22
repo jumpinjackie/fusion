@@ -1,5 +1,6 @@
 <Configuration>
 	<General>
+		<ScriptLanguage>php</ScriptLanguage>
 		<TemporaryDirectory>/tmp</TemporaryDirectory>
 	</General>
 	<MapGuide>
