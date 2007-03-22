@@ -166,12 +166,12 @@ Print.prototype = {
     },
     
     openPrintable: function() {
-        var url = Fusion.getWebTierURL() + 'mapviewerphp/printablepage.php?';
+        var url = Fusion.getConfigurationItem('mapguide', 'webTierUrl') + 'mapviewerphp/printablepage.php?';
         var extents = this.getMap().getCurrentExtents();
         var centerX = (extents[0] + extents[2])/ 2;
         var centerY = (extents[1] + extents[3])/ 2;
         var dpi = this.getMap()._nDpi;
-        var scale = this.getMap()._fScale
+        var scale = this.getMap()._fScale;
         url = url + 'MAPNAME=' + this.getMap().getMapName();
         url = url + '&SESSION=' + this.getMap().getSessionID();
         url = url + '&CENTERX='+centerX;

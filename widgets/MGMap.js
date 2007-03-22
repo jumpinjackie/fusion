@@ -364,7 +364,7 @@ MGMap.prototype = {
             //alert("non valid");
         }
 
-        url = this._oConfigObj.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
+        url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl') + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
         //console.log('MGURL ' + url);
         this.setMapImageURL(url);
@@ -875,7 +875,7 @@ MGStyleItem.prototype = {
         }
     },
     getLegendImageURL: function(fScale, resourceID, session) {
-        var url = Fusion.getWebAgentURL();
+        var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
         return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };
