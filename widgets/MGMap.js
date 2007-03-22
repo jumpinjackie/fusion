@@ -331,7 +331,7 @@ MGMap.prototype = {
                                this._fScale, null, this._nDpi, nWidth, 
                                nHeight, showLayers, hideLayers, 
                                showGroups, hideGroups, refreshLayers);
-        var oBroker = this._oConfigObj.oApp.getBroker();
+        var oBroker = Fusion.getBroker();
         oBroker.dispatchRequest(r, this._requestMapImage.bind(this));
     },
 
