@@ -56,7 +56,7 @@ MGMap.prototype = {
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(oCommand) {
+    initialize : function(oCommand, sid) {
         //console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
@@ -77,8 +77,12 @@ MGMap.prototype = {
         this.selectionType = oCommand.jsonNode.SelectionType ? oCommand.jsonNode.SelectionType[0] : 'INTERSECTS';
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
-        //console.log('resource id is ' + this.sMapResourceId);
-        this.createSession();
+
+        if (sid) {
+            this.session[0] = sid;
+        } else {
+            this.createSession();
+        }
     },
 
     createSession: function() {
