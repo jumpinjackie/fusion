@@ -80,6 +80,7 @@ MGMap.prototype = {
 
         if (sid) {
             this.session[0] = sid;
+            this.mapSessionCreated();
         } else {
             this.createSession();
         }
