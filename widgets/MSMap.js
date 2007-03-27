@@ -80,6 +80,7 @@ MSMap.prototype = {
 
         if (sid) {
             this.session[0] = sid;
+            this.mapSessionCreated();
         } else {
             this.createSession();
         }
@@ -139,7 +140,7 @@ MSMap.prototype = {
         this._addWorker();
         
         this._fScale = -1;
-        this._nDpi = 96;
+        this._nDpi = 72;
         
         options = options || {};
         
@@ -302,9 +303,9 @@ MSMap.prototype = {
         console.log('showLayers = ' + showLayers);
         console.log('hideLayers = ' + hideLayers);
         
-        url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?mode=map&SESSION=" + this.getSessionID() + "&MAP=" + this.sMapFile + "&mapext=" + this._afCurrentExtents[0] + ' ' + this._afCurrentExtents[1] + ' ' + this._afCurrentExtents[2] + ' ' + this._afCurrentExtents[3]+ "&SEQ=" + Math.random();
+        url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?mode=map&SESSION=" + this.getSessionID() + "&MAP=" + this.sMapFile + "&mapext=" + this._afCurrentExtents[0] + ' ' + this._afCurrentExtents[1] + ' ' + this._afCurrentExtents[2] + ' ' + this._afCurrentExtents[3]+ "&SEQ=" + Math.random()+'&mapsize='+nWidth + ' ' + nHeight;
 
-        //console.log(url);
+        console.log(url);
         this.setMapImageURL(url);
     },
     
