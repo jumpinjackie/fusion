@@ -6,13 +6,13 @@ if (!isset($mapName)) {
 }
 if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
-    $oLayer = $oMap->getLayerByName($_REQUEST['layername']);
-    $oClass = $oLayer->getClass($_REQUEST['classindex']);
+    $oLayer = $oMap->getLayerByName($REQUEST_VARS['layername']);
+    $oClass = $oLayer->getClass($REQUEST_VARS['classindex']);
+    /* TODO: should size be configurable? */
     $oImg = $oClass->createLegendIcon(16,16);
-    $imagetype = $oMap->imagetype;
+    /* TODO: can we figure out what the content type is? */
     header('Content-type: image/png');
     $oImg->saveImage("");
     $oImg->free();
-    exit;
 }
 ?>
