@@ -238,7 +238,7 @@ MSMap.prototype = {
     
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
-            var group = new MGGroup(o.groups[i], this);
+            var group = new MSGroup(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
                 parent = this.layerRoot.findGroup(group.parentUniqueId);
@@ -249,7 +249,7 @@ MSMap.prototype = {
         }
 
         for (var i=0; i<o.layers.length; i++) {
-            var layer = new MGLayer(o.layers[i], this);
+            var layer = new MSLayer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
                 parent = this.layerRoot.findGroup(layer.parentGroup);
@@ -552,8 +552,8 @@ MGSelectionObjectLayer.prototype = {
     }
 };
     
-var MGGroup = Class.create();
-MGGroup.prototype = {
+var MSGroup = Class.create();
+MSGroup.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
@@ -584,14 +584,14 @@ MGGroup.prototype = {
     }
 };
 
-var MGLAYER_POINT_TYPE = 0;
-var MGLAYER_LINE_TYPE = 1;
-var MGLAYER_POLYGON_TYPE = 2;
-var MGLAYER_SOLID_TYPE = 3;
-var MGLAYER_RASTER_TYPE = 4;
+var MSLAYER_POINT_TYPE = 0;
+var MSLAYER_LINE_TYPE = 1;
+var MSLAYER_POLYGON_TYPE = 2;
+var MSLAYER_SOLID_TYPE = 3;
+var MSLAYER_RASTER_TYPE = 4;
 
-var MGLayer = Class.create();
-MGLayer.prototype = {
+var MSLayer = Class.create();
+MSLayer.prototype = {
     
     scaleRanges: null,
     
@@ -619,7 +619,7 @@ MGLayer.prototype = {
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new MGScaleRange(o.scaleRanges[i]);
+            var scaleRange = new MSScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
         }
     },
@@ -657,18 +657,20 @@ MGLayer.prototype = {
     }
 };
 
-var MGScaleRange = Class.create();
-MGScaleRange.prototype = {
+var MSScaleRange = Class.create();
+MSScaleRange.prototype = {
     styles: null,
     initialize: function(o) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         this.styles = [];
+        //TODO: remove this and enable styles properly
+        this.styles.push(new MSStyleItem({}));
         if (!o.styles) {
             return;
         }
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new MGStyleItem(o.styles[i]);
+            var styleItem = new MSStyleItem(o.styles[i]);
             this.styles.push(styleItem);
         }
     },
@@ -677,8 +679,8 @@ MGScaleRange.prototype = {
     }
 };
 
-var MGStyleItem = Class.create();
-MGStyleItem.prototype = {
+var MSStyleItem = Class.create();
+MSStyleItem.prototype = {
     initialize: function(o) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
@@ -692,7 +694,7 @@ MGStyleItem.prototype = {
         }
     },
     getLegendImageURL: function(fScale, resourceID, session) {
-        var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+        /* todo */
+        return 'images/a_pixel.png';
     }
 };
