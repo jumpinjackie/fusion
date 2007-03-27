@@ -145,11 +145,8 @@ MSMap.prototype = {
         
         this._afInitialExtents = null;
         this._afCurrentExtents = options.extents ? [].concat(options.extents) : null;
-        this.aShowLayers = options.showlayers || [];
-        this.aHideLayers = options.hidelayers || [];
-        this.aShowGroups = options.showgroups || [];
-        this.aHideGroups = options.hidegroups || [];
-        this.aRefreshLayers = options.refreshlayers || [];
+        this.aVisibleLayers = options.showlayers || [];
+        this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
         this.layerRoot = new GxGroup();
         
@@ -181,46 +178,11 @@ MSMap.prototype = {
             } 
             
             this.parseMapLayersAndGroups(o);
-             for (var i=0; i<this.aShowLayers.length; i++) { 
-                 var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]); 
-                 if (layer) {
-                     this.aShowLayers[i] = layer.uniqueId; 
-                 } else {
-                     this.aShowLayers[i] = '';
-                 } 
-             } 
-             for (var i=0; i<this.aHideLayers.length; i++) { 
-                 var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aHideLayers[i]); 
-                 if (layer) { 
-                     this.aHideLayers[i] = layer.uniqueId; 
-                 } else { 
-                     this.aHideLayers[i] = ''; 
-                 } 
-             } 
-            
-            for (var i=0; i<this.aShowGroups.length; i++) 
-            { 
-                var group =  this.layerRoot.findGroupByAttribute('groupName', this.aShowGroups[i]); 
-                if (group) 
-                { 
-                    this.aShowGroups[i] = group.uniqueId; 
-                } 
-                else 
-                { 
-                    this.aShowGroups[i] = ''; 
-                 } 
-             } 
-            
-             for (var i=0; i<this.aHideGroups.length; i++) { 
-                 var group =  this.layerRoot.findGroupByAttribute('groupName', this.aHideGroups[i]); 
-                 if (group) { 
-                     this.aHideGroups[i] = group.uniqueId; 
-                 } else { 
-                     this.aHideGroups[i] = ''; 
-                 } 
-             } 
-            
-            //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
+            for (var i=0; i<this.aLayers.length; i++) {
+                if (this.aLayers[i].visible) {
+                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+                }
+            }
             
             if (!this._afCurrentExtents) 
             { 
@@ -275,57 +237,46 @@ MSMap.prototype = {
     },
     
     drawMap: function() {
-        //console.log('MGMap.drawMap');
         this._addWorker();
-        var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
-        var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
-
-        var nWidth = this._nWidth;
-        var nHeight = this._nHeight;
-        
-        var showLayers = this.aShowLayers.length > 0 ? 
-                              this.aShowLayers.toString() : null;
-        var hideLayers = this.aHideLayers.length > 0 ? 
-                              this.aHideLayers.toString() : null;
-        var showGroups = this.aShowGroups.length > 0 ? 
-                              this.aShowGroups.toString() : null;
-        var hideGroups = this.aHideGroups.length > 0 ? 
-                              this.aHideGroups.toString() : null;
-        var refreshLayers = this.aRefreshLayers.length > 0 ? 
-                              this.aRefreshLayers.toString() : null;
-        this.aShowLayers = [];
-        this.aHideLayers = [];
-        this.aShowGroups = [];
-        this.aHideGroups = [];
-        this.aRefreshLayers = [];
-
-        console.log('showLayers = ' + showLayers);
-        console.log('hideLayers = ' + hideLayers);
-        
-        url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?mode=map&SESSION=" + this.getSessionID() + "&MAP=" + this.sMapFile + "&mapext=" + this._afCurrentExtents[0] + ' ' + this._afCurrentExtents[1] + ' ' + this._afCurrentExtents[2] + ' ' + this._afCurrentExtents[3]+ "&SEQ=" + Math.random()+'&mapsize='+nWidth + ' ' + nHeight;
-
-        console.log(url);
+        var params = [];
+        params.push('mode=map');
+        params.push('mapext='+this._afCurrentExtents.join(' '));
+        params.push('layers='+this.aVisibleLayers.join(' '));
+        params.push('mapsize='+ this._nWidth + ' ' + this._nHeight);
+        params.push('session='+this.getSessionID());
+        params.push('map='+this.sMapFile);
+        params.push('seq='+Math.random());
+        url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
         this.setMapImageURL(url);
     },
     
     showLayer: function( sLayer ) {
-        this.aShowLayers.push(sLayer);
+        this.aVisibleLayers.push(sLayer);
         this.drawMap();
     },
     hideLayer: function( sLayer ) {
-        this.aHideLayers.push(sLayer);
+        for (var i=0; i<this.aLayers.length; i++) {
+            if (this.aVisibleLayers[i] == sLayer) {
+                this.aVisibleLayers.splice(i,1);
+                break;
+            }
+        }
         this.drawMap();
     },
     showGroup: function( sGroup ) {
-        this.aShowGroups.push(sGroup);
+        this.aVisibleGroups.push(sGroup);
         this.drawMap();
     },
     hideGroup: function( sGroup ) {
-        this.aHideGroups.push(sGroup);
+        for (var i=0; i<this.aVisibleGroups.length; i++) {
+            if (this.aVisibleGroups[i] == sGroup) {
+                this.aVisibleGroups.splice(i,1);
+                break;
+            }
+        }        
         this.drawMap();
     },
     refreshLayer: function( sLayer ) {
-        this.aRefreshLayers.push(sLayer);        
         this.drawMap();
     },
     setActiveLayer: function( oLayer ) {
@@ -570,12 +521,12 @@ MSGroup.prototype = {
     },
     
     show: function() {
-        this.oMap.showGroup(this.uniqueId);
+        this.oMap.showGroup(this.groupName);
         this.visible = true;
     },
     
     hide: function() {
-        this.oMap.hideGroup(this.uniqueId);
+        this.oMap.hideGroup(this.groupName);
         this.visible = false;
     },
     
@@ -643,12 +594,12 @@ MSLayer.prototype = {
     },
 
     show: function() {
-        this.oMap.showLayer(this.uniqueId);
+        this.oMap.showLayer(this.layerName);
         this.set('visible', true);
     },
 
     hide: function() {
-        this.oMap.hideLayer(this.uniqueId);
+        this.oMap.hideLayer(this.layerName);
         this.set('visible',false);
     },
 
