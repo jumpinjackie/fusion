@@ -81,10 +81,10 @@ Legend.prototype =
     initialize : function(oCommand)
     {
         
-        this.defLayerRasterIcon = Fusion.getFusionURL() + 'images/tree_raster.png';
-        this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/tree_theme.png';
-        this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/tree_layer.png';
-        this.defRootFolderIcon = Fusion.getFusionURL() + 'images/tree_map.png';
+        this.defLayerRasterIcon = Fusion.getFusionURL() + 'images/legend-raster.png';
+        this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/legend-theme.png';
+        this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/legend-layer.png';
+        this.defRootFolderIcon = Fusion.getFusionURL() + 'images/legend-map.png';
         this.defLayerInfoIcon = Fusion.getFusionURL() + 'images/tree_layer_info.png';
         this.defGroupInfoIcon = Fusion.getFusionURL() + 'images/tree_group_info.png';
         
@@ -341,7 +341,7 @@ Legend.prototype =
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {                    
-                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer.resourceId, this.getMap().getSessionID());
+                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer, this.getMap());
                 }
             }
             

@@ -801,8 +801,8 @@ MGLayer.prototype = {
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
         //TODO: make this configurable
-        this.themeIcon = 'images/tree_theme.png';
-        this.disabledLayerIcon = 'images/tree_layer.png';
+        this.themeIcon = 'images/legend-theme.png';
+        this.disabledLayerIcon = 'images/legend-layer.png';
         
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];

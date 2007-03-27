@@ -58,7 +58,7 @@ MSMap.prototype = {
     sMapFile: null,
     
     initialize : function(oCommand, sid) {
-        //console.log('MGMap.initialize');
+        //console.log('MSMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
         this.registerEventID(MAP_SELECTION_ON);
@@ -564,8 +564,8 @@ MSLayer.prototype = {
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
         //TODO: make this configurable
-        this.themeIcon = 'images/tree_theme.png';
-        this.disabledLayerIcon = 'images/tree_layer.png';
+        this.themeIcon = 'images/legend-theme.png';
+        this.disabledLayerIcon = 'images/legend-layer.png';
         
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
@@ -640,7 +640,6 @@ MSStyleItem.prototype = {
         var url = Fusion.getFusionURL() + '/' + map.arch + '/' + sl  + '/LegendIcon.' + sl;
         var sessionid = map.getSessionID();
         var params = 'mapname='+map._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
-        console.log(url + '?'+params);
         return url + '?'+params;
     }
 };

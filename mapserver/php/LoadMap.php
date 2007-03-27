@@ -47,7 +47,24 @@ if (isset($_REQUEST['mapfile'])) {
              $layerObj->propertyMappings = '';
              $layerObj->uniqueId = $i;
              $layerObj->layerName = $layer->name;
-             $layerObj->layerTypes = array($layer->type);
+             switch($layer->type) {
+                 case MS_LAYER_POINT:
+                 case MS_LAYER_ANNOTATION:
+                    $type = 0;
+                    break;
+                 case MS_LAYER_LINE:
+                    $type = 1;
+                    break;
+                 case MS_LAYER_POLYGON:
+                    $type = 2;
+                    break;
+                 case MS_LAYER_RASTER:
+                    $type = 4;
+                    break;
+                 default:
+                    $type = 0;
+             }
+             $layerObj->layerTypes = array($type);
              $layerObj->displayInLegend = true;
              $layerObj->expandInLegend = true;
              $layerObj->resourceId = $layer->name;

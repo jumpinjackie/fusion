@@ -1,4 +1,12 @@
 <?php
+/*****************************************************************************
+ * $Id$
+ * Purpose: Draw a legend icon 
+ * Project: Fusion
+ * Author: DM Solutions Group Inc
+ *****************************************************************************
+ * Copyright (c) 2005, DM Solutions Group Inc.
+ *****************************************************************************/
 include(dirname(__FILE__).'/Common.php');
 
 if (!isset($mapName)) {
