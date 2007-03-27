@@ -52,7 +52,7 @@ MSMap.prototype = {
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
     oSelection: null,
-    _afCurrentExtents : [],
+    _afCurrentExtents : null,
 
     //the map file
     sMapFile: null,
@@ -72,7 +72,6 @@ MSMap.prototype = {
         this._oConfigObj = Fusion.oConfigMgr;
         
         this.oSelection = null;
-        this._afCurrentExtents = [];
         
         //this.selectionType = oCommand.jsonNode.SelectionType ? oCommand.jsonNode.SelectionType[0] : 'INTERSECTS';
         
@@ -337,6 +336,7 @@ MSMap.prototype = {
         return this.oActiveLayer;
     },
 
+    hasSelection: function() { return this.bSelectionOn; }
 
 };
 
