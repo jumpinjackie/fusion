@@ -664,8 +664,6 @@ MSScaleRange.prototype = {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         this.styles = [];
-        //TODO: remove this and enable styles properly
-        this.styles.push(new MSStyleItem({}));
         if (!o.styles) {
             return;
         }
@@ -684,17 +682,14 @@ MSStyleItem.prototype = {
     initialize: function(o) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
-        this.geometryType = o.geometryType;
-        if (this.geometryType == '') {
-            this.geometryType = -1;
-        }
-        this.categoryIndex = o.categoryIndex;
-        if (this.categoryindex == '') {
-            this.categoryindex = -1;
-        }
+        this.index = o.index;
     },
-    getLegendImageURL: function(fScale, resourceID, session) {
-        /* todo */
-        return 'images/a_pixel.png';
+    getLegendImageURL: function(fScale, layer, map) {
+        var sl = Fusion.getScriptLanguage();
+        var url = Fusion.getFusionURL() + '/' + map.arch + '/' + sl  + '/LegendIcon.' + sl;
+        var sessionid = map.getSessionID();
+        var params = 'mapname='+map._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
+        console.log(url + '?'+params);
+        return url + '?'+params;
     }
 };
