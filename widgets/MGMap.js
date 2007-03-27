@@ -879,8 +879,8 @@ MGStyleItem.prototype = {
             this.categoryindex = -1;
         }
     },
-    getLegendImageURL: function(fScale, resourceID, session) {
+    getLegendImageURL: function(fScale, layer, map) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + session + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(resourceID) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + map.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };
