@@ -399,7 +399,7 @@ Legend.prototype =
             opt.imgIcon = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-            opt.imgIcon = style.getLegendImageURL(scale, layer.resourceId, this.getMap().getSessionID());
+            opt.imgIcon = style.getLegendImageURL(scale, layer, this.getMap());
         }
         
         var item = new JxTreeItem(opt);
