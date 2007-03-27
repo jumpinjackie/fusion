@@ -1,16 +1,26 @@
 <?php
+/*****************************************************************************
+ * $Id$
+ * Purpose: Load a mapfile into the session and return information about the
+ *          map to the client
+ * Project: Fusion
+ * Author: DM Solutions Group Inc
+ *****************************************************************************
+ * Copyright (c) 2005, DM Solutions Group Inc.
+ *****************************************************************************/
+/* Common starts the session */
 include(dirname(__FILE__).'/Common.php');
 include(dirname(__FILE__).'/Utilities.php');
-/* load a Map into the user's session and return some information about what's in the map. */
 
+/* if scales are not set, these become the default values */
+define('MIN_SCALE', 1);
 define('MAX_SCALE', 1000000000);
-if (isset($_REQUEST['mapfile']))
-{
-    echo "/*".$_REQUEST['mapfile']."*/";
+
+/* only do something if a mapfile was requested */
+if (isset($_REQUEST['mapfile'])) {
     $oMap = ms_newMapObj($_REQUEST['mapfile']);
     $mapObj = NULL;
-    if ($oMap)
-    {
+    if ($oMap) {
         header('Content-type: text/x-json');
         header('X-JSON: true');
         $mapObj->sessionId = $sessionID;
@@ -26,9 +36,8 @@ if (isset($_REQUEST['mapfile']))
         }
         $mapObj->extent = array( $oMap->extent->minx, $oMap->extent->miny, 
                                  $oMap->extent->maxx, $oMap->extent->maxy );
-        $minScale = max($oMap->minscale, 1);
-        $maxScale = ($oMap->maxscale == NULL || $oMap->maxscale == -1) ? 
-                            MAX_SCALE : $oMap->maxscale;
+        $minScale = $oMap->web->minscale == -1 ? MIN_SCALE : $oMap->web->minscale;
+        $maxScale = $oMap->web->maxscale == -1 ? MAX_SCALE : $oMap->web->maxscale;
         //layers
         $mapObj->layers = array();
         for ($i=0;$i<$oMap->numlayers;$i++)
@@ -48,27 +57,61 @@ if (isset($_REQUEST['mapfile']))
              $layerObj->visible = ($layer->status == MS_ON || $layer->status == MS_DEFAULT);
              $layerObj->actuallyVisible = true;
              $layerObj->editable = false;
+             
+             /* process the classes.  The legend expects things 
+              * organized by scale range so we have to first
+              * find all the scale breaks, then create ranges
+              * for each scale break pair, then slot the classes
+              * into the scale ranges that they apply to.
+              */
+             
              $aScaleRanges = array();
-             $scaleRange = NULL;
-             $layerMin = $layer->minscale == NULL ? 1 : $layer->minscale;
-             $layerMax = ($layer->maxscale == NULL || $layer->maxscale == -1) ? 
-                                MAX_SCALE : $layer->maxscale;
-             $scaleRange->minScale = max($layerMin, $minScale);
-             $scaleRange->maxScale = min($layerMax, $maxScale);
-             $scaleRange->styles = array();
-             array_push($aScaleRanges, $scaleRange);
+             //create a default scale range for the layer as a whole
+             $layerMin = $layer->minscale == -1 ? $minScale : $layer->minscale;
+             $layerMax = $layer->maxscale == -1 ? $maxScale : $layer->maxscale;
+             
+             //find all the unique scale breaks in this layer                  
+             $aScaleBreaks = array($layerMin, $layerMax);
+             for ($j=0; $j<$layer->numclasses; $j++) {
+                 $oClass = $layer->getClass($j);
+                 $classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
+                 $classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
+                 if (!in_array($classMin, $aScaleBreaks)) {
+                     array_push($aScaleBreaks, $classMin);
+                 }
+                 if (!in_array($classMax, $aScaleBreaks)) {
+                     array_push($aScaleBreaks, $classMax);
+                 }
+             }
+             //sort them
+             sort($aScaleBreaks);
+             
+             //create scale ranges for each pair of breaks
+             for ($j=0; $j<count($aScaleBreaks)-1; $j++) {
+                 $scaleRange = NULL;
+                 $scaleRange->minScale = $aScaleBreaks[$j];
+                 $scaleRange->maxScale = $aScaleBreaks[$j+1];
+                 $scaleRange->styles = array();
+                 array_push($aScaleRanges, $scaleRange);
+             }
+             
+             //create classes and slot them into the scale breaks
              for ($j=0; $j<$layer->numclasses; $j++) {
                  $oClass = $layer->getClass($j);
                  $classObj = NULL;
                  $classObj->legendLabel = $oClass->name;
                  $classObj->filter = $oClass->getExpression();
-                 $classMin = $oClass->minscale == NULL ? 1 : $oClass->minscale;
-                 $classMax= ($oClass->maxscale == NULL || $oClass->maxscale == -1) ? 
-                                MAX_SCALE : $oClass->maxscale;
-                 $classObj->minscale = max($classMin, $layerMin, $minScale);
-                 $classObj->maxscale = min($classMax, $layerMax, $maxScale);
+                 $classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
+                 $classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
+                 $classObj->minScale = $classMin;
+                 $classObj->maxScale = $classMax;
                  $classObj->index = $j;
-                 array_push($scaleRange->styles, $classObj);
+                 for ($k=0; $k<count($aScaleRanges); $k++) {
+                     if ($classMin < $aScaleRanges[$k]->maxScale &&
+                         $classMax > $aScaleRanges[$k]->minScale) {
+                         array_push($aScaleRanges[$k]->styles, $classObj);
+                     }
+                 }
              }
              $layerObj->scaleRanges = $aScaleRanges;
              array_push($mapObj->layers, $layerObj);
