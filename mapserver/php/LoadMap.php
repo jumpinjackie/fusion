@@ -5,6 +5,7 @@ include(dirname(__FILE__).'/Common.php');
 
 if (isset($_REQUEST['mapfile']))
 {
+    echo "/*".$_REQUEST['mapfile']."*/";
     $oMap = ms_newMapObj($_REQUEST['mapfile']);
     if ($oMap)
     {
@@ -46,7 +47,8 @@ if (isset($_REQUEST['mapfile']))
                echo "visible:false,";
              echo "actuallyVisible:true,";
              echo "editable:false,";
-             echo "scaleRanges:[]";
+             /* todo - mapguide does scale ranges quite differently than mapserver */
+             echo "scaleRanges:[{minScale: 0, maxScale: 100000000}]";
              
              echo "},";       
         } 
