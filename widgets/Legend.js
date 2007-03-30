@@ -342,6 +342,7 @@ Legend.prototype =
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {                   
                     layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer, this.getMap());
+                    Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
                 }
             }
            
