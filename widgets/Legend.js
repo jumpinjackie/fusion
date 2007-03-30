@@ -111,6 +111,8 @@ Legend.prototype =
        
         this.oTree = new JxTree(this._oDomObj);
        
+        this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
+        
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
         if (this.showMapFolder) {
             var opt = {};
@@ -347,16 +349,23 @@ Legend.prototype =
             }
            
         } else {
-            layer.legend.checkBox.disabled = true;
-            this.clearTreeItem(layer);
-            var newTreeItem = this.createTreeItem(layer, null, null, true);
-            if (layer.legend.treeItem) {
-                layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
-                layer.legend.treeItem.finalize();
+            if (this.hideInvisibleLayers) {
+                if (layer.legend.treeItem) {
+                    layer.parentGroup.legend.treeItem.remove(layer.legend.treeItem);
+                    layer.legend.treeItem = null;
+                }
             } else {
-                layer.parentGroup.legend.treeItem.append(newTreeItem);
+                layer.legend.checkBox.disabled = true;
+                this.clearTreeItem(layer);
+                var newTreeItem = this.createTreeItem(layer, null, null, true);
+                if (layer.legend.treeItem) {
+                    layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
+                    layer.legend.treeItem.finalize();
+                } else {
+                    layer.parentGroup.legend.treeItem.append(newTreeItem);
+                }
+                layer.legend.treeItem = newTreeItem;
             }
-            layer.legend.treeItem = newTreeItem;
         }
         if (bFirstDisplay) {
             layer.legend.checkBox.checked = layer.visible?true:false;
