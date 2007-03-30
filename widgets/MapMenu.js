@@ -67,6 +67,7 @@ MapMenu.prototype =
         Object.inheritFrom(this, GxWidget.prototype, ['MapMenu', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
+        this.enable();
         
         var json = oCommand.jsonNode;
         

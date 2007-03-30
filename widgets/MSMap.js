@@ -109,7 +109,7 @@ MSMap.prototype = {
     },
 
     mapSessionCreated: function() {
-        if (this.sMapResourceId != '') {
+        if (this.sMapFile != '') {
             this.loadMap(this.sMapFile);
         }
     },
@@ -125,13 +125,12 @@ MSMap.prototype = {
     loadMap: function(mapfile, options) {
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
-      //if (this.sMapFile == mapfile) {
-      //     return;
-      //}
+        if (this._sMapFile == mapfile) {
+            return;
+        }
 
         if (!this.sessionReady()) {
             this.sMapFile = mapfile;
-            this.createSession();
             return;
         }
         
@@ -170,6 +169,7 @@ MSMap.prototype = {
         { 
             var o; 
             eval('o='+r.responseText); 
+            this._sMapFile = o.mapId;
             this._sMapname = o.mapName; 
             this._fMetersperunit = o.metersPerUnit; 
 

@@ -24,7 +24,7 @@ if (isset($_REQUEST['mapfile'])) {
         header('Content-type: text/x-json');
         header('X-JSON: true');
         $mapObj->sessionId = $sessionID;
-        $mapObj->mapId = '';
+        $mapObj->mapId = $_REQUEST['mapfile'];
         $mapObj->metersPerUnit = 1;
         $mapObj->dpi = $oMap->resolution;
         $mapObj->mapName = $oMap->name;

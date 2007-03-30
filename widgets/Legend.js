@@ -1,4 +1,4 @@
-/********************************************************************** * 
+/********************************************************************** *
  * @project Fusion
  * @revision $Id$
  * @purpose Legend widget
@@ -41,8 +41,8 @@
  *
  * The important parts of this Command are:
  *
- * Name (string, mandatory) 
- * 
+ * Name (string, mandatory)
+ *
  * an element with an id that is the same as this name must be in
  * the application.  For instance:
  *
@@ -65,7 +65,7 @@
  * LayerThemeIcon: (string, optional)
  *
  * The url to an image to use for layers that are currently themed.
- * 
+ *
  * DisabledLayerIcon: (string, optional)
  *
  * The url to an image to use for layers that are out of scale.
@@ -74,43 +74,43 @@
 //Fusion.require('jx/tree/jxtree.js');
 
 var Legend = Class.create();
-Legend.prototype = 
+Legend.prototype =
 {
     currentNode: null,
     bIsDrawn: false,
     initialize : function(oCommand)
     {
-        
+       
         this.defLayerRasterIcon = Fusion.getFusionURL() + 'images/legend-raster.png';
         this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/legend-theme.png';
         this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/legend-layer.png';
         this.defRootFolderIcon = Fusion.getFusionURL() + 'images/legend-map.png';
         this.defLayerInfoIcon = Fusion.getFusionURL() + 'images/tree_layer_info.png';
         this.defGroupInfoIcon = Fusion.getFusionURL() + 'images/tree_group_info.png';
-        
+       
         //console.log('Legend.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Zoom', true, oCommand]);
+        Object.inheritFrom(this, GxWidget.prototype, ['Legend', true, oCommand]);
         this.setMap(oCommand.getMap());
-        
+       
         this._oDomObj = $(oCommand.getName());
-        
+       
         var json = oCommand.jsonNode;
-        
+       
         this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.defLayerRasterIcon;
-        
+       
         this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.defLayerThemeIcon;
 
-        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.defDisabledLayerIcon;        
-        
+        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.defDisabledLayerIcon;       
+       
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.defLayerInfoIcon;
 
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.defGroupInfoIcon;
-        
+       
         this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
-        
+       
         this.oTree = new JxTree(this._oDomObj);
-        
+       
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
         if (this.showMapFolder) {
             var opt = {};
@@ -125,23 +125,23 @@ Legend.prototype =
             this.oRoot = this.oTree;
         }
         this.extentsChangedWatcher = this.update.bind(this);
-        
+       
         this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(MAP_LOADING, this.mapLoading.bind(this));
-        
+       
         //this.getLayers();
     },
-    
+   
     mapLoading: function() {
         this.getMap().deregisterForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
     },
-    
+   
     mapLoaded: function() {
         this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.draw();
     },
-    
+   
     /**
      * the map state has become invalid in some way (layer added, removed,
      * ect).  For now, we just re-request the map state from the server
@@ -152,11 +152,11 @@ Legend.prototype =
     invalidate: function() {
         this.draw();
     },
-    
+   
     /**
      * Callback for legend XML response. Creates a list of layers and sets up event
      * handling. Create groups if applicable.
-     * TODO: error handling 
+     * TODO: error handling
      *
      * @param r Object the reponse xhr object
      */
@@ -181,7 +181,7 @@ Legend.prototype =
         this.bIsDrawn = true;
         this.update();
     },
-    
+   
     processMapGroup: function(group, folder) {
         if (group.displayInLegend) {
             /* make a 'namespace' on the group object to store legend-related info */
@@ -219,7 +219,7 @@ Legend.prototype =
             }
         }
     },
-    
+   
     processMapLayer: function(layer, folder) {
         /* make a 'namespace' on the layer object to store legend-related info */
         layer.legend = {};
@@ -230,7 +230,7 @@ Legend.prototype =
         layer.legend.currentRange = null;
         layer.registerForEvent(LAYER_PROPERTY_CHANGED, this.layerPropertyChanged.bind(this));
     },
-    
+   
     layerPropertyChanged: function(eventID, layer) {
         layer.legend.checkBox.checked = layer.isVisible();
     },
@@ -240,7 +240,7 @@ Legend.prototype =
             window.setTimeout(this._update.bind(this), 1);
         }
     },
-    
+   
     /**
      * update the tree when the map scale changes
      */
@@ -254,7 +254,7 @@ Legend.prototype =
             this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
     },
-    
+   
     /**
      * remove the dom objects representing the legend layers and groups
      */
@@ -269,7 +269,7 @@ Legend.prototype =
         }
         this.currentNode = o;
         Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode');
-        
+       
         if (o.data instanceof MGGroup) {
             this.getMap().setActiveLayer(null);
         } else {
@@ -282,7 +282,7 @@ Legend.prototype =
         }
         for (var i=0; i<group.layers.length; i++) {
             this.updateLayer(group.layers[i], fScale);
-        }    
+        }   
     },
     updateLayer: function(layer, fScale) {
         var bFirstDisplay = false;
@@ -293,7 +293,7 @@ Legend.prototype =
         if (range == layer.legend.currentRange && layer.legend.treeItem) {
             return;
         }
-        
+       
         layer.legend.currentRange = range;
         if (range != null) {
             layer.legend.checkBox.disabled = false;
@@ -313,12 +313,12 @@ Legend.prototype =
                     }
                 }
                 for (var i=0; i<range.styles.length; i++) {
-                    var item = this.createTreeItem(layer, 
+                    var item = this.createTreeItem(layer,
                                                range.styles[i], fScale, false);
                     layer.legend.treeItem.append(item);
                 }
             } else {
-                
+               
                 //tree item is really a tree item
                 if (!layer.legend.treeItem) {
                     bFirstDisplay = true;
@@ -329,7 +329,7 @@ Legend.prototype =
                         style = range.styles[0];
                     }
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                    
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
                 } else if (layer.legend.treeItem instanceof JxTreeFolder) {
                     this.clearTreeItem(layer);
                     var style;
@@ -340,14 +340,14 @@ Legend.prototype =
                     }
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else {                    
+                } else {                   
                     layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer, this.getMap());
                 }
             }
-            
+           
         } else {
             layer.legend.checkBox.disabled = true;
-            //this.clearTreeItem(layer);
+            this.clearTreeItem(layer);
             var newTreeItem = this.createTreeItem(layer, null, null, true);
             if (layer.legend.treeItem) {
                 layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
@@ -382,7 +382,7 @@ Legend.prototype =
             folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
         }
         folder.addSelectionListener(this);
-        
+       
         return folder;
     },
     createTreeItem: function(layer, style, scale, bCheckBox) {
@@ -401,7 +401,7 @@ Legend.prototype =
         } else {
             opt.imgIcon = style.getLegendImageURL(scale, layer, this.getMap());
         }
-        
+       
         var item = new JxTreeItem(opt);
         if (bCheckBox) {
             item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
@@ -420,7 +420,7 @@ Legend.prototype =
         }
 
         item.addSelectionListener(this);
-        
+       
         return item;
     },
     clearTreeItem: function(layer) {
