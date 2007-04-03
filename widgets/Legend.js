@@ -272,7 +272,7 @@ Legend.prototype =
         this.currentNode = o;
         Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode');
        
-        if (o.data instanceof MGGroup) {
+        if (o.data instanceof GxGroup) {
             this.getMap().setActiveLayer(null);
         } else {
             this.getMap().setActiveLayer(o.data);
