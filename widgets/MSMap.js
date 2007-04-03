@@ -246,6 +246,9 @@ MSMap.prototype = {
         params.push('session='+this.getSessionID());
         params.push('map='+this._sMapFile);
         params.push('seq='+Math.random());
+        if (this.hasSelection()) {
+            params.push('queryfile='+this._sQueryfile);
+        }
         url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
         this.setMapImageURL(url);
     },
@@ -287,8 +290,124 @@ MSMap.prototype = {
         return this.oActiveLayer;
     },
 
-    hasSelection: function() { return this.bSelectionOn; }
+    hasSelection: function() { return this.bSelectionOn; },
 
+    getSelectionCB : function(userFunc, r) {
+        this._bSelectionIsLoading = false;
+        if (r.responseXML) {
+            this.oSelection = new MSSelectionObject(r.responseXML);
+            for (var i=0; i<this.aSelectionCallbacks.length; i++) {
+                this.aSelectionCallbacks[i](this.oSelection);
+            }
+            this.aSelectionCallbacks = [];
+
+        }       
+        this._removeWorker();
+    },
+    
+    /**
+     * advertise a new selection is available and redraw the map
+     */
+    newSelection: function() {
+        if (this.oSelection) {
+            this.oSelection = null;
+        }
+        this.bSelectionOn = true;
+        this.drawMap();
+        this.triggerEvent(MAP_SELECTION_ON);
+    },
+
+    /**
+     * asynchronously load the current selection.  When the current
+     * selection changes, the selection is not loaded because it
+     * could be a lengthy process.  The user-supplied function will
+     * be called when the selection is available.
+     *
+     * @param userFunc {Function} a function to call when the
+     *        selection has loaded
+     */
+    getSelection : function(userFunc) {
+        if (this.oSelection == null) {
+            /* if the user wants a callback, register it
+             * for when the selection becomes available
+             */
+            if (userFunc) {
+                this.aSelectionCallbacks.push(userFunc);
+            }
+            if (!this._bSelectionIsLoading) {
+                this._addWorker();
+                this._bSelectionIsLoading = true;
+                var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
+                var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, 
+                              onComplete: this.getSelectionCB.bind(this, userFunc)};
+                Fusion.ajaxRequest(s, params);
+            }
+        } else if (userFunc){
+            userFunc(this.oSelection);
+        }
+    },
+
+    /**
+       Call back function when selection is cleared
+    */
+    selectionCleared : function()
+    {
+        this.bSelectionOn = true;
+        this.triggerEvent(MAP_SELECTION_OFF);
+        this.drawMap();
+        this.oSelection = null;
+    },
+
+    /**
+       Utility function to clear current selection
+    */
+    clearSelection : function() {
+        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
+        var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
+        Fusion.ajaxRequest(s, params);
+    },
+
+
+    /**
+       Call back function when slect functions are called (eg queryRect)
+    */
+    processQueryResults : function(r) {
+        this._removeWorker();
+        if (r.responseXML) {
+            var oNode = new DomNode(r.responseXML);
+            if (oNode.getNodeText('Selection') == 'false') {
+                this.drawMap();
+                return;
+            } else {
+                this._sQueryfile = oNode.getNodeText('QueryFile');
+                this.newSelection();
+            }
+        }
+    },
+    /**
+       Do a query on the map
+    */
+    query : function(options) {
+        this._addWorker();
+        
+        var geometry = options.geometry || '';
+        var maxFeatures = options.maxFeatures || -1;
+        var bPersistant = options.persistent || true;
+        var selectionType = options.selectionType || this.selectionType;
+        var filter = options.filter ? '&filter='+options.filter : '';
+        var layers = options.layers || '';
+        var extend = options.extendSelection ? '&extendselection=true' : '';
+
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
+
+        var sessionid = this.getSessionID();
+
+        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend;
+        var options = {onSuccess: this.processQueryResults.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    }
 };
 
 
@@ -298,8 +417,8 @@ MSMap.prototype = {
  * Utility class to hold slection information
  *
  */
-var MGSelectionObject = Class.create();
-MGSelectionObject.prototype = 
+var MSSelectionObject = Class.create();
+MSSelectionObject.prototype = 
 {
     aLayers : null,
 
@@ -332,7 +451,7 @@ MGSelectionObject.prototype =
                 var iLayer=0;             
                 while(layerNode) 
                 {
-                    this.aLayers[iLayer++] = new MGSelectionObjectLayer(layerNode);
+                    this.aLayers[iLayer++] = new MSSelectionObjectLayer(layerNode);
                 
                     layerNode =  root.findNextNode('Layer');
                 }
@@ -389,8 +508,8 @@ MGSelectionObject.prototype =
 };
 
 
-var MGSelectionObjectLayer = Class.create();
-MGSelectionObjectLayer.prototype = {
+var MSSelectionObjectLayer = Class.create();
+MSSelectionObjectLayer.prototype = {
 
     sName: null,
     nElements: null,
