@@ -16,15 +16,48 @@ include(dirname(__FILE__).'/Utilities.php');
 define('MIN_SCALE', 1);
 define('MAX_SCALE', 1000000000);
 
+/* could potentially make this optional */
+$moveToSession = true;
+
+/** 
+   TODO make it possible to specify only a relative path
+   in the WebLayout and have this code know where to
+   look for it on the server somehow
+ */
+ 
 /* only do something if a mapfile was requested */
 if (isset($_REQUEST['mapfile'])) {
     $oMap = ms_newMapObj($_REQUEST['mapfile']);
+    
+    /* optionally move the mapfile to the session */
+    if ($moveToSession) {
+        //path to map file in the session is used by the client
+        $mapId = getSessionSavePath().($oMap->name).".map";
+        //modify various paths if necessary
+        $pathToMap = dirname($_REQUEST['mapfile']);
+        $cwd = getcwd();
+        chdir($pathToMap);
+        $shapePath = $oMap->shapepath;
+        $oMap->set('shapepath', realpath($shapePath));
+        $symbolSet = $oMap->symbolsetfilename;
+        if ($symbolSet != '') {
+            $oMap->setSymbolSet(realpath($symbolSet));
+        }
+        $fontSet = $oMap->fontsetfilename;
+        if ($fontSet != '') {
+            $oMap->setFontSet(realpath($fontSet));
+        }
+        $oMap->save($mapId);
+        chdir($cwd);
+    } else {
+        $mapId = $_REQUEST['mapfile'];
+    }
     $mapObj = NULL;
     if ($oMap) {
         header('Content-type: text/x-json');
         header('X-JSON: true');
         $mapObj->sessionId = $sessionID;
-        $mapObj->mapId = $_REQUEST['mapfile'];
+        $mapObj->mapId = $mapId;
         $mapObj->metersPerUnit = 1;
         $mapObj->dpi = $oMap->resolution;
         $mapObj->mapName = $oMap->name;

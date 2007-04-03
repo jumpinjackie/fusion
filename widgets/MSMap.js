@@ -244,7 +244,7 @@ MSMap.prototype = {
         params.push('layers='+this.aVisibleLayers.join(' '));
         params.push('mapsize='+ this._nWidth + ' ' + this._nHeight);
         params.push('session='+this.getSessionID());
-        params.push('map='+this.sMapFile);
+        params.push('map='+this._sMapFile);
         params.push('seq='+Math.random());
         url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
         this.setMapImageURL(url);
