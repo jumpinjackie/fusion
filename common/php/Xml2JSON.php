@@ -8,7 +8,7 @@ if (!isset($_POST['xml'])) {
     die('xml not set');
 }
 
-$xml = urlndecode($_POST['xml']);
+$xml = urldecode($_POST['xml']);
 $document = DOMDocument::loadXML($xml);
 if ($document == null) {
     die ('/* invalid xml document:'.$xml.' */');
