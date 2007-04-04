@@ -18,6 +18,7 @@
 
 /* set up the session */
 include ("Common.php");
+include ("Utilities.php");
 
 /* the name of the layer in the map to query */
 if ($_REQUEST['layers'] != '') {
@@ -95,6 +96,7 @@ if ($bExtendSelection) {
 header( 'Content-type: text/xml');
 if ($nSelections > 0) {
     $oMap->savequery(getSessionSavePath()."query.qry");
+    SaveQuery($oMap, getSessionSavePath()."query2.qry");
     echo "<SelectionResult>";
     echo '<Selection>true</Selection>';
     echo '<QueryFile>'.getSessionSavePath()."query.qry"."</QueryFile>";
