@@ -359,13 +359,13 @@ MGMap.prototype = {
 
             this._afCurrentExtents = newExtents;
 
-            this._nCellSize  = 
-              Math.max( Math.abs((this._afCurrentExtents[2] - this._afCurrentExtents[0])/
-                                 parseInt(nWidth)),
-                        Math.abs((this._afCurrentExtents[3] - this._afCurrentExtents[1])/
-                                 parseInt(nHeight)));
+            this._nCellSize  =  Math.max( 
+                Math.abs((newExtents[2] - newExtents[0])/parseInt(nWidth)),
+                Math.abs((newExtents[3] - newExtents[1])/parseInt(nHeight))
+                );
         } else {
-            //alert("non valid");
+            //console.log('error');
+            return;
         }
 
         url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl') + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
@@ -492,24 +492,50 @@ MGMap.prototype = {
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
-    showLayer: function( sLayer ) {
-        this.aShowLayers.push(sLayer);
+    showLayer: function( layer ) {
+        if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
+            var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
+            for (var i=0; i<layerEvent.onEnable.length; i++) {
+                var l = this.layerRoot.findLayer(layerEvent.onEnable[i].name);
+                if (l) {
+                    if (layerEvent.onEnable[i].enable) {
+                        l.show();
+                    } else {
+                        l.hide();
+                    }
+                }
+            }
+        }
+        this.aShowLayers.push(layer.uniqueId);
         this.drawMap();
     },
-    hideLayer: function( sLayer ) {
-        this.aHideLayers.push(sLayer);
+    hideLayer: function( layer ) {
+        if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
+            var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
+            for (var i=0; i<layerEvent.onDisable.length; i++) {
+                var l = this.layerRoot.findLayer(layerEvent.onDisable[i].name);
+                if (l) {
+                    if (layerEvent.onDisable[i].enable) {
+                        l.show();
+                    } else {
+                        l.hide();
+                    }
+                }
+            }
+        }        
+        this.aHideLayers.push(layer.uniqueId);
         this.drawMap();
     },
-    showGroup: function( sGroup ) {
-        this.aShowGroups.push(sGroup);
+    showGroup: function( group ) {
+        this.aShowGroups.push(group.uniqueId);
         this.drawMap();
     },
-    hideGroup: function( sGroup ) {
-        this.aHideGroups.push(sGroup);
+    hideGroup: function( group ) {
+        this.aHideGroups.push(group.uniqueId);
         this.drawMap();
     },
-    refreshLayer: function( sLayer ) {
-        this.aRefreshLayers.push(sLayer);        
+    refreshLayer: function( layer ) {
+        this.aRefreshLayers.push(layer.uniqueId);        
         this.drawMap();
     },
     setActiveLayer: function( oLayer ) {
@@ -744,7 +770,7 @@ MGGroup.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxGroup.prototype, [this.uniqueId]);
+        Object.inheritFrom(this, GxGroup.prototype, [o.groupName]);
         this.oMap = oMap;
         this.groupName = o.groupName;
         this.legendLabel = o.legendLabel;
@@ -757,13 +783,25 @@ MGGroup.prototype = {
     },
     
     show: function() {
-        this.oMap.showGroup(this.uniqueId);
+        if (this.visible) {
+            return;
+        }
+        this.oMap.showGroup(this);
         this.visible = true;
+        if (this.legend && this.legend.checkBox) {
+            this.legend.checkBox.checked = true;
+        }
     },
     
     hide: function() {
-        this.oMap.hideGroup(this.uniqueId);
+        if (!this.visible) {
+            return;
+        }
+        this.oMap.hideGroup(this);
         this.visible = false;
+        if (this.legend && this.legend.checkBox) {
+            this.legend.checkBox.checked = false;
+        }
     },
     
     isVisible: function() {
@@ -786,7 +824,7 @@ MGLayer.prototype = {
     
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxLayer.prototype, [this.uniqueId]);
+        Object.inheritFrom(this, GxLayer.prototype, [o.layerName]);
         this.oMap = oMap;
         this.layerName = o.layerName;
         this.uniqueId = o.uniqueId;
@@ -830,13 +868,25 @@ MGLayer.prototype = {
     },
 
     show: function() {
-        this.oMap.showLayer(this.uniqueId);
+        if (this.visible) {
+            return;
+        }
+        this.oMap.showLayer(this);
         this.set('visible', true);
+        if (this.legend && this.legend.checkBox) {
+            this.legend.checkBox.checked = true;
+        }
     },
 
     hide: function() {
-        this.oMap.hideLayer(this.uniqueId);
+        if (!this.visible) {
+            return;
+        }
+        this.oMap.hideLayer(this);
         this.set('visible',false);
+        if (this.legend && this.legend.checkBox) {
+            this.legend.checkBox.checked = false;
+        }
     },
 
     isVisible: function() {
