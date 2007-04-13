@@ -272,7 +272,7 @@ MGMap.prototype = {
             var group = new MGGroup(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
-                parent = this.layerRoot.findGroup(group.parentUniqueId);
+                parent = this.layerRoot.findGroupByAttribute('uniqueId', group.parentUniqueId);
             } else {
                 parent = this.layerRoot;
             }
@@ -283,7 +283,7 @@ MGMap.prototype = {
             var layer = new MGLayer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
-                parent = this.layerRoot.findGroup(layer.parentGroup);
+                parent = this.layerRoot.findGroupByAttribute('uniqueId', layer.parentGroup);
             } else {
                 parent = this.layerRoot;
             }
