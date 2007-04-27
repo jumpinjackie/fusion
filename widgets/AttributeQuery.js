@@ -111,28 +111,29 @@ AttributeQuery.prototype = {
         
     },
     
-    submitQuery: function(mapName, value, callback) {
+    submitQuery: function() {
         var sd = Fusion.getSearchDefinitions();
         if (sd[this.searchCategory]) {
+            var searchParams = {};
             for (var i=0; i<this.filters.length; i++) {
-                var filterText = this.filters[i].getFilterText();
-                if (filterText != '') {
-                    filter = filter + sep + '(' + filterText + ')';
-                    sep = ' AND ';
+                var filter = this.filters[i];
+                var text = filter.getFilterText();
+                if (text != '') {
+                    if (filter.validate()) {
+                        searchParams[filter.parameter] = text;
+                    } else {
+                        return;
+                    }
                 }
             }
-            var params = {};
-            for (i=0; i<this.filters.length; i++) {
-                var p = this.filters[i];
-                params[p.column] = p.getValue(this.lastResult);
-            }
+            
             var defn = sd[this.searchCategory];
             this.currentSearchDefinition = defn;
             var layer = '&layer=' + defn.category.layer;
-            var filter = defn.getFilterUrl(params);
+            var filter = defn.getFilterUrl(searchParams);
             var join = defn.getJoinUrl();
             
-            var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+            var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
             params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
             params.onComplete = this.queryComplete.bind(this);
@@ -142,46 +143,141 @@ AttributeQuery.prototype = {
         }
     },
     
-    blah : function() {
-        var filter = '&filter=';
-        var nFilters = 0;
-        var sep = '';
-        for (var i=0; i<this.filters.length; i++) {
-            var filterText = this.filters[i].getFilterText();
-            if (filterText != '') {
-                filter = filter + sep + '(' + filterText + ')'
-                sep = ' AND ';
-                nFilters ++;
-            }
+    queryComplete: function(r) {
+        var result = '';
+        eval ('result='+r.responseText);
+        this.lastResult = result;
+        this.triggerEvent(SELECTION_COMPLETE);
+    },
+    
+    getProperties: function() {
+        var properties = null;
+        if (this.lastResult && this.lastResult.properties) {
+            properties = this.lastResult.properties;
         }
-        if (nFilters > 0) {
-            filter = encodeURI(filter);
-        } else {
-            filter = '';
+        return properties;
+    },
+    getNumberOfProperties: function() {
+        var n = 0;
+        if (this.lastResult && this.lastResult.properties) {
+            n = this.lastResult.properties.length;
         }
-        
-        var spatialFilter = '';
-        if (this.spatialFilter) {
-            spatialFilter = '&spatialfilter='+this.spatialFilter.getFilterText();
+        return n;
+    },
+    getProperty: function(n) {
+        var property = '';
+        if (this.lastResult && this.lastResult.properties) {
+            property = this.lastResult.properties[n];
         }
+        return property;
+    },
+    getNumberOfResults: function() {
+        result = 0;
+        if (this.lastResult && this.lastResult.values) {
+            result = this.lastResult.values.length;
+        }
+        return result;
+    },
+    getResult: function(idx) {
+        return this.lastResult.values[idx];
+    },
+    
+    resultHasGeometry: function(idx) {
+        return this.lastResult.geometries[idx];
+    },
+    
+    resultJoinValue: function(idx) {
+        return this.lastResult.join_values[idx];
+    },
+    
+    zoomToResult: function(condition) {
+        //console.log('zoomTo ' + filter);
+        var filter = '&filter='+encodeURIComponent(condition);
+        var sd = Fusion.getSearchDefinitions();
+        var defn = sd[this.searchCategory];
+        var joinLayer = defn.join.layer;
+        var layerName = this.getMap().layerRoot.findLayerByAttribute('resourceId', joinLayer).layerName;
+        var layer = '&layers=' + layerName;
         
         var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         '&layer='+this.layerName+filter+spatialFilter, 
-        params.onComplete = this.queryComplete.bind(this);
+                         layer+filter; 
+        params.onComplete = this.selectComplete.bind(this);
         Fusion.ajaxRequest(s, params);
     },
-    
-    queryComplete: function(r) {
+    selectComplete: function(r) {
         var node = new DomNode(r.responseXML);
         var success = node.getNodeText('Selection');
         if (success == 'true') {
+            this.getMap().deregisterForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
             this.getMap().newSelection();
+            this.getMap().getSelection(this.zoomToSelection.bind(this));
+            this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
         } else {
             this.getMap().clearSelection();
+        }    
+    },
+    /**
+     * set the extents of the map based on the pixel coordinates
+     * passed
+     * 
+     * @param selection the active selection, or null if there is none
+     */
+    zoomToSelection : function(selection) {
+        var ll = selection.getLowerLeftCoord();
+        var ur = selection.getUpperRightCoord();
+        //buffer extents (zoom out by factor of two)
+        var dX = ur.x - ll.x;
+        var dY = ur.y - ll.y;
+        ll.x = ll.x - dX;
+        ur.x = ur.x + dX;
+        ll.y = ll.y - dY;
+        ur.y = ur.y + dY;
+        this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
+    },
+    mapSelectionChanged: function() {
+        //console.log('map selection changed');
+        this.getMap().getSelection(this.fetchMapSelection.bind(this));
+    },
+    fetchMapSelection: function(oSelection) {
+        var layer = oSelection.getLayerByName(this.layerName);
+        if (layer) {
+            var override = '';
+            if (this.override) {
+                override = this.override.getFilterText();
+            }
+            
+            filter = '&filter=';
+            
+            var propIdx = -1;
+            for (var i=0; i<layer.getNumProperties(); i++) {
+                //console.log(layer.aPropertiesName[i] + '. .'+this.override.childField);
+                if (this.override && layer.aPropertiesName[i] == this.override.childField) {
+                    propIdx = i;
+                    break;
+                }
+            }
+            
+            if (propIdx == -1) {
+                return;
+            }
+            
+            var sep = '';
+            for (var i=0; i<layer.getNumElements(); i++) {
+                var val = layer.getElementValue(i, propIdx);
+                filter += sep + '(' + this.override.childField + ' = ' + val + ')';
+                sep = ' OR ';
+            }
+            //console.log('filter: ' + filter);
+            var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+            var params = {};
+            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
+                             '&layer='+this.layerName+filter+override; 
+            params.onComplete = this.queryComplete.bind(this);
+            Fusion.ajaxRequest(s, params);
+            this.triggerEvent(SELECTION_STARTED);
         }
-        this.triggerEvent(SELECTION_COMPLETE);
     }
     
 };
@@ -259,7 +355,8 @@ MGValidator.prototype = {
     validate: function(filter) {
         if ($(this.messageId)) {
             $(this.messageId).innerHTML = '';
-        }var value = filter.getValue(filter.valueInput);
+        }
+        var value = filter.getValue(filter.valueInput);
         if (value != '' || filter.allowEmptyValue) {
             switch(this.type) {
                 case 'regex':

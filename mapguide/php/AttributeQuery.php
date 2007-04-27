@@ -76,7 +76,6 @@ try {
         $joinLayerObj = new MgLayer(new MgResourceIdentifier($joinLayer), $resourceService);
         $joinMappings = GetLayerPropertyMappings($resourceService,$joinLayerObj);
         $joinReverseMappings = array_flip($joinMappings);
-
         /* grab the real property name of the joined field */
         $primaryLinkProperty = $reverseMappings[$joinPrimaryKey];
         $foreignLinkProperty = $joinReverseMappings[$joinForeignKey];
@@ -108,7 +107,6 @@ try {
 
     /* select the features */
     $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-    
     /* figure out if the feature source has geometry in the non-joined case */
     $classDefn = $featureReader->GetClassDefinition();
     $hasGeom = ($classDefn->GetDefaultGeometryPropertyName() != '') ? 1 : 0;
@@ -126,7 +124,6 @@ try {
     $filterExpr = array();
     $linkValues = array();
     $index = 0;
-    
     while ($featureReader->ReadNext()) {
         /* put the has_geometry property in first - it may be calculated later
          * if the layer is joined, but we still need a placeholder
@@ -142,7 +139,6 @@ try {
             $value = preg_replace( "/\r?\n/", "<br>", $value );
             $primaryValues[$mapped][$index] = $value;
         }
-        
         /* fill in the joined property values in case we don't get a value later */
         foreach($joinMappings as $key => $mapped) {
             $foreignValues[$key][$index] = '';
