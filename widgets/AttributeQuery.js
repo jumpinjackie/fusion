@@ -72,6 +72,9 @@
  *
  * **********************************************************************/
  
+var SELECTION_STARTED = 1;
+var SELECTION_COMPLETE = 2;
+ 
 var AttributeQuery = Class.create();
 AttributeQuery.prototype = {
     spatialFilter: null,
@@ -86,7 +89,9 @@ AttributeQuery.prototype = {
         
         this.layerName = json.LayerName ? json.LayerName[0] : '';
 
-        var oSpatialFilter = json.SpatialFilter: json.SpatialFilter[0] : '';
+        this.searchCategory = json.SearchCategory[0];
+
+        var oSpatialFilter = json.SpatialFilter ? json.SpatialFilter[0] : '';
         if (oSpatialFilter) {
             this.spatialFilter = new MGSpatialFilter(oSpatialFilter);
         }
@@ -100,9 +105,44 @@ AttributeQuery.prototype = {
         
         this._oDomObj = $(oCommand.getName());
         Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
+        
+        this.registerEventID(SELECTION_STARTED);
+        this.registerEventID(SELECTION_COMPLETE);
+        
     },
     
-    submitQuery: function() {
+    submitQuery: function(mapName, value, callback) {
+        var sd = Fusion.getSearchDefinitions();
+        if (sd[this.searchCategory]) {
+            for (var i=0; i<this.filters.length; i++) {
+                var filterText = this.filters[i].getFilterText();
+                if (filterText != '') {
+                    filter = filter + sep + '(' + filterText + ')';
+                    sep = ' AND ';
+                }
+            }
+            var params = {};
+            for (i=0; i<this.filters.length; i++) {
+                var p = this.filters[i];
+                params[p.column] = p.getValue(this.lastResult);
+            }
+            var defn = sd[this.searchCategory];
+            this.currentSearchDefinition = defn;
+            var layer = '&layer=' + defn.category.layer;
+            var filter = defn.getFilterUrl(params);
+            var join = defn.getJoinUrl();
+            
+            var s = Fusion.sServer + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+            var params = {};
+            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
+            params.onComplete = this.queryComplete.bind(this);
+            Fusion.ajaxRequest(s, params);
+            this.triggerEvent(SELECTION_STARTED);
+            
+        }
+    },
+    
+    blah : function() {
         var filter = '&filter=';
         var nFilters = 0;
         var sep = '';
@@ -141,6 +181,7 @@ AttributeQuery.prototype = {
         } else {
             this.getMap().clearSelection();
         }
+        this.triggerEvent(SELECTION_COMPLETE);
     }
     
 };
@@ -149,22 +190,19 @@ var MGFilterBase = Class.create();
 MGFilterBase.prototype = {
     valueId: null,
     valueInput: null,
-    valueType: null,
-    operator: null,
-    operatorId: null,
-    operatorInput: null,
+    parameter: null,
+    validators: null,
     initialize: function(json) {
         this.valueId = json.ValueId ? json.ValueId[0] : '';
         this.valueInput = $(this.valueId);
-        this.operator = json.Operator ? json.Operator[0] : '';
-        this.operatorId = json.OperatorId ? json.OperatorId[0] : '';
-        if (this.operatorId != '') {
-            this.operatorInput = $(this.operatorId);
-            if (this.operator != '' && this.operatorInput) {
-                this.setValue(this.operatorInput, this.operator);
+        this.parameter = json.Parameter ? json.Parameter[0] : '';
+        
+        this.validators = [];
+        if (json.Validator) {
+            for (var i=0; i<json.Validator.length; i++) {
+                this.validators.push(new MGValidator(json.Validator[i]));
             }
         }
-        this.valueType = json.ValueType ? json.ValueType[0] : '';
     },
     getValue: function( idOrObj, defaultValue ) {
         var result = defaultValue;
@@ -192,36 +230,99 @@ MGFilterBase.prototype = {
                 }
             }
         }
+    },
+    validate: function() {
+        for (var i=0; i<this.validators.length; i++) {
+            if (!(this.validators[i].validate(this))) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+var MGValidator = Class.create();
+MGValidator.prototype = {
+    domNode: null,
+    message: 'validation failed',
+    type: '',
+    initialize: function(json) {
+        this.message = json.Message ? json.Message[0] : this.message;
+        this.type = json.Type ? json.Type[0] : this.type;
+        this.className = json.ClassName ? json.ClassName[0] : '';
+        this.messageId = json.MessageId ? json.MessageId[0] : '';
+        this.max = json.Max ? json.Max[0] : '';
+        this.min = json.Min ? json.Min[0] : '';
+        this.regex = json.Regex ? new RegExp(json.Regex[0]) : null;
+        
+    },
+    validate: function(filter) {
+        if ($(this.messageId)) {
+            $(this.messageId).innerHTML = '';
+        }var value = filter.getValue(filter.valueInput);
+        if (value != '' || filter.allowEmptyValue) {
+            switch(this.type) {
+                case 'regex':
+                    if (!this.regex.test(value)) {
+                        return this.fail(filter);
+                    }
+                    break;
+                case 'range':
+                    var min = this.min;
+                    if (min != '') {
+                        if (min == '[YEAR]') {
+                            var d = new Date();
+                            min = d.getFullYear();
+                        }
+                        min = parseFloat(min);
+                        if (value < min) {
+                            return this.fail(filter);
+                        }
+                    }
+                    var max = this.max;
+                    if (max != '') {
+                        if (max == '[YEAR]') {
+                            var d = new Date();
+                            max = d.getFullYear();
+                        }
+                        max = parseFloat(max);
+                        if (value > max) {
+                            return this.fail(filter);
+                        }
+                    }
+                    break;
+                    
+                default:
+                    return true;
+            }
+        }
+        Element.removeClassName($(filter.valueInput), this.className);
+        return true;
+    },
+    fail: function(filter) {
+        Element.addClassName($(filter.valueInput), this.className);
+        if ($(this.messageId)) {
+            $(this.messageId).innerHTML = this.message;
+        }
+        return false;
     }
 };
 
 var MGFilter = Class.create();
 MGFilter.prototype = {
-    fieldName: null,
     unaryNot: null,
     validOperators: ['=', '<>', '<=', '<', '>=', '>', 'LIKE'],
     initialize: function( json ) {
         Object.inheritFrom(this, MGFilterBase.prototype, [json]);
         
-        var b = json.AllowEmptyValue ? json.AllowEmptyValue[0] : '';
-        this.allowEmptyValue = (b == '1' || b == 'true') ?true : false ;
-        this.fieldName = json.Field ? json.Field[0] : '';
-        //console.log('filter for field ' + this.fieldName);
-        b = json.Not ? json.Not[0] : '';
+        var b  = json.AllowEmptyValue ? json.AllowEmptyValue[0] : 'false';
+        this.allowEmptyValue = (b == '1' || b == 'true') ? true : false ;
+        b = json.Not ? json.Not[0] : 'false';
         this.unaryNot = (b == '1' || b == 'true') ? true : false;
                          
     },
     getFilterText: function() {
-        var result = '';
-        var value = this.getValue(this.valueInput, '');
-        
-        this.operator = this.getValue(this.operatorInput, this.operator);
-        if ((value != '' || this.allowEmptyValue) && this.operator != '') {
-            var sep = (this.valueType == 'String' || this.valueType == 'DateTime') ? "'" : "";
-            var sNot = this.unaryNot ? 'NOT ' : '';
-            result = sNot + ' ' + this.fieldName + ' ' + this.operator + ' ' + sep + value + sep;
-        }
-        return result;
+        return this.getValue(this.valueInput, '');
     }
 
 };
