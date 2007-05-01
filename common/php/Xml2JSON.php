@@ -13,10 +13,10 @@ if (isset($_FILES['xml'])) {
         die('xml not set');
     }
 
-    $xml = $REQUEST_VARS['xml'];
+    $xml = rawurldecode ($REQUEST_VARS['xml']);
     $xml = str_replace('\"', '"', $xml);
 }
-
+//print_r($xml);
 $document = DOMDocument::loadXML($xml);
 if ($document == null) {
     die ('/* invalid xml document:'.$xml.' */');
