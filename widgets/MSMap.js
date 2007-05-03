@@ -237,6 +237,9 @@ MSMap.prototype = {
     },
     
     drawMap: function() {
+        /*if (!this._afCurrentExtents) {
+            return;
+        }*/
         this._addWorker();
         var params = [];
         params.push('mode=map');
@@ -249,7 +252,7 @@ MSMap.prototype = {
         if (this.hasSelection()) {
             params.push('queryfile='+this._sQueryfile);
         }
-        url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
+        var url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
         this.setMapImageURL(url);
     },
     
