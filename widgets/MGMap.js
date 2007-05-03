@@ -57,7 +57,7 @@ MGMap.prototype = {
     _sResourceId: null,
     
     initialize : function(oCommand, sid) {
-        console.log('MGMap.initialize');
+        // console.log('MGMap.initialize');
         Object.inheritFrom(this, GxMap.prototype, [oCommand]);
         
         this.registerEventID(MAP_SELECTION_ON);
@@ -94,7 +94,7 @@ MGMap.prototype = {
             Fusion.ajaxRequest(scriptURL,options);  
         }
         if (this.session[0] instanceof MGMap) {
-            console.log('register for event');
+            // console.log('register for event');
             this.session[0].registerForEvent(MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
         }
     },
@@ -102,7 +102,7 @@ MGMap.prototype = {
     createSessionCB : function(r) {
         if (r.status == 200) {
             if (r.responseXML) {
-                console.log('setting session id');
+                // console.log('setting session id');
                 var node = new DomNode(r.responseXML);
                 this.session[0] = node.getNodeText('sessionid');
                 this.triggerEvent(MAP_SESSION_CREATED);
