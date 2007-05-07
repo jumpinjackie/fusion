@@ -182,7 +182,7 @@ try {
     header('Content-type: text/x-json');
     header('X-JSON: true');
     /* insert has_geometry property by default */
-    echo "{properties:['".implode("','", array_values($mappings)).implode("','", array_values($joinMappings))."'],\n";
+    echo "{properties:['".implode("','", array_values($mappings))."','".implode("','", array_values($joinMappings))."'],\n";
     echo "geometries:[".implode(",", $geometries)."],\n";
     echo "join_values:[".implode(",", $joinValues)."],\n";
     echo "values:[";
