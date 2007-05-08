@@ -106,6 +106,9 @@ AttributeQuery.prototype = {
             }
         }
         
+        this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
+        this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
+        
         this._oDomObj = $(oCommand.getName());
         Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
         
@@ -240,49 +243,39 @@ AttributeQuery.prototype = {
         this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
     },
     mapSelectionChanged: function() {
-        //console.log('map selection changed');
+        console.log('map selection changed');
         this.getMap().getSelection(this.fetchMapSelection.bind(this));
     },
     fetchMapSelection: function(oSelection) {
         var layer = oSelection.getLayerByName(this.layerName);
         if (layer) {
-            var override = '';
-            if (this.override) {
-                override = this.override.getFilterText();
-            }
+            var sd = Fusion.getSearchDefinitions();
+            var defn = sd[this.searchCategory];
+            if (!defn) { return; }
             
-            filter = '&filter=';
+            var a = [];
+            var n = layer.getNumElements();
             
-            var propIdx = -1;
-            for (var i=0; i<layer.getNumProperties(); i++) {
-                //console.log(layer.aPropertiesName[i] + '. .'+this.override.childField);
-                if (this.override && layer.aPropertiesName[i] == this.override.childField) {
-                    propIdx = i;
-                    break;
-                }
+            var p = layer.getPropertyNames();
+            var pIdx = p.indexOf(defn.join.foreignKey);
+            for (var i=0; i<n; i++) {
+                var s = layer.getElementValue(i, pIdx);
+                a.push('('+defn.join.primaryKey+' = ' + s + ')');
             }
-            
-            if (propIdx == -1) {
-                return;
+            if (a.length > 0) {
+                var layer = '&layer=' + defn.category.layer;
+                var filter = '&filter='+encodeURIComponent(a.join(' OR '));
+                var join = defn.getJoinUrl();
+
+                var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
+                var params = {};
+                params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
+                params.onComplete = this.queryComplete.bind(aq);
+                Fusion.ajaxRequest(s, params);
+                this.triggerEvent(SELECTION_STARTED);
             }
-            
-            var sep = '';
-            for (var i=0; i<layer.getNumElements(); i++) {
-                var val = layer.getElementValue(i, propIdx);
-                filter += sep + '(' + this.override.childField + ' = ' + val + ')';
-                sep = ' OR ';
-            }
-            //console.log('filter: ' + filter);
-            var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
-            var params = {};
-            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                             '&layer='+this.layerName+filter+override; 
-            params.onComplete = this.queryComplete.bind(this);
-            Fusion.ajaxRequest(s, params);
-            this.triggerEvent(SELECTION_STARTED);
         }
     }
-    
 };
 
 var MGFilterBase = Class.create();
