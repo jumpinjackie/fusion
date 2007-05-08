@@ -434,7 +434,7 @@ Legend.prototype =
         return item;
     },
     clearTreeItem: function(layer) {
-        if (layer.legend.treeItem) {
+        if (layer.legend.treeItem && layer.legend.treeItem.parent) {
             layer.legend.treeItem.parent.remove(layer.legend.treeItem);
             layer.legend.treeItem.finalize();
             layer.legend.treeItem = null;
