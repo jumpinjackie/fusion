@@ -99,7 +99,7 @@ Maptip.prototype =
         this.aLayers = [];
         if (json.Layer) {
             for (var i=0; i<json.Layer.length; i++) {
-                this.aLayers.push(json.Layer[i][0]);
+                this.aLayers.push(json.Layer[i]);
             }
         }
         
@@ -171,9 +171,9 @@ Maptip.prototype =
         }
         min.x -= cellSize;
         min.y -= cellSize;
-    	var max = map.pixToGeo(x, y);
-    	max.x -= cellSize;
-    	max.y -= cellSize;
+        var max = map.pixToGeo(x, y);
+        max.x -= cellSize;
+        max.y -= cellSize;
         var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
 
          var maxFeatures = 1;
