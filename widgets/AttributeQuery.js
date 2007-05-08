@@ -105,6 +105,7 @@ AttributeQuery.prototype = {
                 this.filters.push(new MGFilter(json.Filter[i]));
             }
         }
+        this.fpQueryComplete = this.queryComplete.bind(this);
         
         this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
         this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
@@ -142,7 +143,7 @@ AttributeQuery.prototype = {
             var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
             params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
-            params.onComplete = this.queryComplete.bind(this);
+            params.onComplete = this.fpQueryComplete;
             Fusion.ajaxRequest(s, params);
             this.triggerEvent(SELECTION_STARTED);
             
@@ -247,11 +248,16 @@ AttributeQuery.prototype = {
         this.getMap().getSelection(this.fetchMapSelection.bind(this));
     },
     fetchMapSelection: function(oSelection) {
-        var layer = oSelection.getLayerByName(this.layerName);
+        var sd = Fusion.getSearchDefinitions();
+        var defn = sd[this.searchCategory];
+        if (!defn) { return; }
+        var map = this.getMap();
+        var oLayer = map.layerRoot.findLayerByAttribute('resourceId', defn.join.layer);
+        var layer = null;
+        if (oLayer) {
+            layer = oSelection.getLayerByName(oLayer.layerName);
+        }
         if (layer) {
-            var sd = Fusion.getSearchDefinitions();
-            var defn = sd[this.searchCategory];
-            if (!defn) { return; }
             
             var a = [];
             var n = layer.getNumElements();
@@ -270,7 +276,7 @@ AttributeQuery.prototype = {
                 var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
                 var params = {};
                 params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
-                params.onComplete = this.queryComplete.bind(aq);
+                params.onComplete = this.fpQueryComplete;
                 Fusion.ajaxRequest(s, params);
                 this.triggerEvent(SELECTION_STARTED);
             }
