@@ -276,7 +276,8 @@ try
                 //
                 $bLayerSrsIsArbitrary = ($srsLayer->GetType() == MgCoordinateSystemType::Arbitrary);
                 $bMapSrsIsArbitrary = ($srsMap->GetType() == MgCoordinateSystemType::Arbitrary);
-                
+                $aalayer = $srsLayer->GetUnits();
+                $aaMap = $srsMap->GetUnits();
                 $bComputedProperties = true;
                 if (($bLayerSrsIsArbitrary != $bMapSrsIsArbitrary) || 
                     ($bLayerSrsIsArbitrary && ($srsLayer->GetUnits() != $srsMap->GetUnits()))) {
@@ -284,15 +285,7 @@ try
                 } else {
                     $srsTarget = null;
                     $srsXform = null;
-                    $bNeedsTransform = true;
-
-                    if ($srsLayer->GetUnitScale() != 1.0) {
-                        if ($srsMap->GetUnitScale() == 1.0) {
-                            $srsTarget = $srsMap;
-                            $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
-                            $bNeedsTransform = false;
-                        }
-                    }
+                    $bNeedsTransform = ($srsLayer->GetUnitScale() != 1.0);
                 }
 
                 while ($featureReader->ReadNext())
