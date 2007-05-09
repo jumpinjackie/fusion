@@ -31,7 +31,8 @@
 var ZoomSlider = Class.create();
 ZoomSlider.prototype = 
 {
-    bUseMapScale: false;
+    bUseMapScale: false,
+
     initialize : function(oCommand)
     {
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomSlider', false, oCommand]);
