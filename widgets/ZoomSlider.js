@@ -40,8 +40,6 @@ ZoomSlider.prototype =
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
-
-        this.layerName = json.LayerName ? json.LayerName[0] : '';
         
         this._oTrack = json.Track ? json.Track[0] : '';
         this._oHandle = json.Handle ? json.Handle[0] : '';
