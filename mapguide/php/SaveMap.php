@@ -50,13 +50,12 @@ try
     
     if ($format == 'DWF') {
         $extent = $map->GetMapExtent();
-        if (!$layout){
-            $layout = 'Library://Nanaimo/NanaimoMap/PrintLayouts/test.PrintLayout';
+        $oLayout = null;
+        if ($layout) {
+            $layoutId = new MgResourceIdentifier($layout);
+            $layoutId->Validate();
+            $oLayout = new MgLayout($layoutId,'Map', 'meters');
         }
-        $layoutId = new MgResourceIdentifier($layout);
-        $layoutId->Validate();
-        $oLayout = new MgLayout($layoutId,'Map', 'meters');
-        
         $oPlotSpec = new MgPlotSpecification(8.5,11,MgPageUnitsType::Inches);
         
         $dwfVersion = new MgDwfVersion('6.01','1.2');
@@ -68,11 +67,49 @@ try
             $centerY = $extent->GetLowerLeftCoordinate()->GetY() + ($extent->GetHeight())/2;
             $geomFactory = new MgGeometryFactory();
             $center = $geomFactory->CreateCoordinateXY($centerX, $centerY);
+            
+            //echo $centerX.", ".$centerY;exit;
+            //$metersPerUnit = $map->GetMetersPerUnit();
+            $coordSysFactory = new MgCoordinateSystemFactory();
+            $coordSystem = $coordSysFactory->Create($map->GetMapSRS());
+            $metersPerUnit = $coordSystem->ConvertCoordinateSystemUnitsToMeters(1.0);
+            $metersPerPixel = 1.0/(100.0 / 2.54 * $map->GetDisplayDpi());
+            //echo $metersPerPixel; exit;
 
-            $oImg = $mappingService->GeneratePlot($map, $center, $scale,
-                                               $oPlotSpec,
-                                               $oLayout,
-                                               $dwfVersion);
+            $height = $map->GetDisplayHeight();
+            $width = $map->GetDisplayWidth();
+            $mapWidth = $scale * $width * $metersPerPixel/$metersPerUnit;
+            $mapHeight = $scale * $height * $metersPerPixel/$metersPerUnit;
+            //echo $mapWidth.", ".$mapHeight;exit;
+            
+            // $lowerLeft = $geomFactory->CreateCoordinateXY($center->GetX() - 0.5*$mapWidth,
+            //                                               $center->GetY() - 0.5*$mapHeight);
+            // $topRight = $geomFactory->CreateCoordinateXY($center->GetX() + 0.5*$mapWidth,
+            //                                               $center->GetY() + 0.5*$mapHeight);
+            $extent = new MgEnvelope( 
+                                      $center->GetX() - 0.5*$mapWidth,
+                                      $center->GetY() - 0.5*$mapHeight,
+                                      $center->GetX() + 0.5*$mapWidth,
+                                      $center->GetY() + 0.5*$mapHeight);
+            //this is broken because the swig api has an error
+            //$center = $map->GetViewCenter();
+            // echo $oPlotSpec; exit;
+            //echo $map->GetName()." ".$center->GetX().", ".
+            //                        $center->GetY().", ".
+            //                        $scale."  paper height: ".
+            //$oPlotSpec->GetPaperHeight().", layout: ".$oLayout->GetTitle().", dwfVersion ".$dwfVersion->GetFileVersion()."\n";
+            // $oImg = $mappingService->GeneratePlot($map,
+            //                                   $center,
+            //                                   $scale,
+            //                                   $oPlotSpec,
+            //                                   $oLayout,
+            //                                   $dwfVersion);
+            
+            $oImg = $mappingService->GeneratePlot($map, $extent, true,
+                                              $oPlotSpec,
+                                              $oLayout,
+                                              $dwfVersion);
+            
         } else {
             //use current extents for plot
             $oImg = $mappingService->GeneratePlot($map, $extent, false,
