@@ -164,6 +164,13 @@ AttributeQuery.prototype = {
         }
         return properties;
     },
+    getPropertyKeys: function() {
+        var propertyKeys = null;
+        if (this.lastResult && this.lastResult.property_keys) {
+            propertyKeys = this.lastResult.property_keys;
+        }
+        return propertyKeys;
+    },
     getNumberOfProperties: function() {
         var n = 0;
         if (this.lastResult && this.lastResult.properties) {
