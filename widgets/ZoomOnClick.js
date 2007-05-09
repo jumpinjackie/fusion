@@ -32,18 +32,16 @@ Fusion.require('widgets/GxButtonBase.js');
 var ZoomOnClick = Class.create();
 ZoomOnClick.prototype = 
 {
-    nFactor: null,
+    nFactor: 2,
     initialize : function(oCommand)
     {
-        //console.log('FitToWindow.initialize');
+        //console.log('ZoomOnClick.initialize');
         Object.inheritFrom(this, GxWidget.prototype, ['ZoomOnClick', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
-
-        var factor = json.Factor ? json.Factor[0] : '2';
-        this.nFactor = parseFloat(factor);
+        this.nFactor = parseFloat(json.Factor ? json.Factor[0] : this.nFactor);
     },
 
     /**
