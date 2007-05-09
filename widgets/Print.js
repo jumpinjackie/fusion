@@ -75,6 +75,8 @@ Print.prototype = {
 
         this.pageTitle = json.PageTitle ? json.PageTitle[0] : '';
         
+        this.resultsLayer = json.ResultsLayer ? json.ResultsLayer[0] : null;
+
         var showLegend = json.ShowLegend ? json.ShowLegend[0] : 'false';
         this.showLegend = (showLegend.toLowerCase() == 'true' || showLegend == '1');
         
@@ -82,6 +84,9 @@ Print.prototype = {
         this.showNorthArrow = (showNorthArrow.toLowerCase() == 'true' || showNorthArrow == '1');
         
         this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + oCommand.sLocation + '/html/Print.html';
+        
+        this.getMap().registerForEvent(SELECTION_COMPLETE, this.getSelection.bind(this));
+        
     },
     /**
      * load an interface that builds a printable version of
@@ -90,6 +95,8 @@ Print.prototype = {
     execute : function() {
         if (this.showPrintUI) {
             this.openPrintUI();
+        } else if (this.resultsLayer){
+            this.createResultLayer();  
         } else {
             this.openPrintable();
         }
@@ -163,6 +170,49 @@ Print.prototype = {
             
         }
         this.dialog.close();
+    },
+    
+    /* retrieve the results from the attributeQuery widget */
+    /* triggered by a SELECTION_COMPLETE event */
+    getSelection: function() {
+        var widget = Fusion.getWidgetById('AttributeQuery');
+        var count = widget.getNumberOfResults();
+        this.selectionString = '';
+        var sep = '';
+        for (var i=0; i < count; i++) {
+            this.selectionString += '(' + widget.getResult(i) + ')';
+            sep = ' AND ';
+        };
+        
+    },
+    
+    /* call the server to create a layer with search results if needed*/
+    /* the layer to use is specified in the weblayout */ 
+    createResultLayer: function() {
+        if (!this.resultsLayer) {
+            return;
+        }
+        
+        var printFeaturesUrl = 'ext/nanaimo/' + this.getMap().arch + '/' + Fusion.getScriptLanguage() +
+                      '/PrintFeatures.' + Fusion.getScriptLanguage();
+        var session = 'session='+Fusion.getSessionID();
+        var mapname = '&mapname='+this.getMap().getMapName();
+        var layer = '&layer='+ this.resultsLayer;
+        var selection = '&selection=' + this.selectionString;
+        var params = {};
+        params.parameters = session + mapname + layer + selection;
+        params.onComplete = this.resultLayerCB.bind(this);
+        Fusion.ajaxRequest(printFeaturesUrl, params);
+        
+    },
+    
+    resultLayerCB: function( r, json) {
+        if (json) {
+            var o;
+            eval('o=' + r.responseText);
+            //TODO: test result
+            this.openPrintable();
+        }
     },
     
     openPrintable: function() {
