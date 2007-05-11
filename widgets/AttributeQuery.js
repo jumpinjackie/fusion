@@ -247,7 +247,7 @@ AttributeQuery.prototype = {
         this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
     },
     mapSelectionChanged: function() {
-        console.log('map selection changed');
+        // console.log('map selection changed');
         this.getMap().getSelection(this.fetchMapSelection.bind(this));
     },
     fetchMapSelection: function(oSelection) {
