@@ -60,6 +60,30 @@ if (isset($_REQUEST['mapfile'])) {
         if ($fontSet != '') {
             $oMap->setFontSet(realpath($fontSet));
         }
+        /* need to modify all image symbols reference in the map file
+         eg STYLE 
+             SYMBOL "../etc/markers/target-7.gif" : this is relative to the map file
+        */
+        for ($i=0; $i<$oMap->numlayers; $i++)
+        {
+            $oLayer = $oMap->GetLayer($i);
+
+            for ($j=0; $j<$oLayer->numclasses; $j++)
+            {
+                $oClass = $oLayer->GetClass($j);
+                for ($k=0; $k<$oClass->numstyles; $k++)
+                {
+                    $oStyle = $oClass->getStyle($k);
+                    if ($oStyle->symbolname != "")
+                    {
+                        if (realpath($oStyle->symbolname))
+                        {
+                            $oStyle->set("symbolname", realpath($oStyle->symbolname));
+                        }
+                    }
+                }
+            }
+        }
         $oMap->save($mapId);
         chdir($cwd);
     } else {
@@ -112,7 +136,7 @@ if (isset($_REQUEST['mapfile'])) {
              }
              $layerObj->layerTypes = array($type);
              $layerObj->displayInLegend = true;
-             $layerObj->expandInLegend = true;
+             $layerObj->expandInLegend = false;
              $layerObj->resourceId = $layer->name;
              $layerObj->parentGroup = '';
              $layerObj->legendLabel = $layer->name;
