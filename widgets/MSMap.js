@@ -186,7 +186,8 @@ MSMap.prototype = {
                 this._afCurrentExtents = [].concat(this._afInitialExtents); 
             } 
             this.setExtents(this._afCurrentExtents);
-            this.triggerEvent(MAP_LOADED); 
+            this.triggerEvent(MAP_LOADED);
+            
         }  
         else 
         {
@@ -233,11 +234,13 @@ MSMap.prototype = {
         return this._fScale;
     },
     
-    drawMap: function() {
-        /*if (!this._afCurrentExtents) {
+    drawMap: function() 
+    {
+        if (!this._afCurrentExtents) {
             return;
-        }*/
+        }
         this._addWorker();
+
         var params = [];
         params.push('mode=map');
         params.push('mapext='+this._afCurrentExtents.join(' '));
