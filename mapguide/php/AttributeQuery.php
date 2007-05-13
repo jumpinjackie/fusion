@@ -187,11 +187,19 @@ try {
         echo $sep."[";
         $vSep = '';
         foreach($primaryValues as $key => $values) {
-            echo $vSep."'".$values[$i]."'";
+            if (array_key_exists($i, $values)) {
+               echo $vSep."'".$values[$i]."'";
+            } else {
+               echo $vSep."''";
+            }
             $vSep = ',';
         }
         foreach($foreignValues as $key => $values) {
-            echo $vSep."'".$values[$i]."'";
+            if (array_key_exists($i, $values)) {
+               echo $vSep."'".$values[$i]."'";
+            } else {
+               echo $vSep."''";
+            }
             $vSep = ',';
         }
         echo "]";
