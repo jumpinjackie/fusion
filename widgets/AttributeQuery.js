@@ -95,6 +95,8 @@ AttributeQuery.prototype = {
             this.spatialFilter = new MGSpatialFilter(oSpatialFilter);
         }
         
+        this.errorId = json.ErrorId ? json.ErrorId[0] : '';
+        
         this.filters = [];
         if (json.Filter instanceof Array) {
             for (var i=0; i<json.Filter.length; i++) {
@@ -134,6 +136,13 @@ AttributeQuery.prototype = {
             this.currentSearchDefinition = defn;
             var layer = '&layer=' + defn.category.layer;
             var filter = defn.getFilterUrl(searchParams);
+            //TODO create a "meta" filter type to handle overall constraints
+            if (filter == '&filter=()') {
+                if ($(this.errorId)) {
+                    $(this.errorId).style.display = 'block';
+                }
+                return;
+            }
             var join = defn.getJoinUrl();
             
             var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
@@ -148,7 +157,11 @@ AttributeQuery.prototype = {
     
     queryComplete: function(r) {
         var result = '';
-        eval ('result='+r.responseText);
+        try {
+            eval ('result='+r.responseText);
+        } catch (error){
+            result = {};
+        }
         this.lastResult = result;
         this.triggerEvent(SELECTION_COMPLETE);
     },
@@ -202,7 +215,7 @@ AttributeQuery.prototype = {
     
     zoomToResult: function(condition) {
         //console.log('zoomTo ' + filter);
-        var filter = '&filter='+encodeURIComponent(condition);
+        var filter = '&filter='+condition;
         var sd = Fusion.getSearchDefinitions();
         var defn = sd[this.searchCategory];
         var joinLayer = defn.join.layer;
@@ -211,9 +224,10 @@ AttributeQuery.prototype = {
         
         var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/Query." + Fusion.getScriptLanguage() ;
         var params = {};
-        params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
-                         layer+filter; 
         params.onComplete = this.selectComplete.bind(this);
+        params.method = 'post';
+        params.postBody = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+
+                         layer+filter;
         Fusion.ajaxRequest(s, params);
     },
     selectComplete: function(r) {
@@ -273,13 +287,14 @@ AttributeQuery.prototype = {
             }
             if (a.length > 0) {
                 var layer = '&layer=' + defn.category.layer;
-                var filter = '&filter='+encodeURIComponent(a.join(' OR '));
+                var filter = '&filter='+(a.join(' OR '));
                 var join = defn.getJoinUrl();
 
                 var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
                 var params = {};
-                params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
                 params.onComplete = this.fpQueryComplete;
+                params.method = 'post';
+                params.postBody = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join;
                 Fusion.ajaxRequest(s, params);
                 this.triggerEvent(SELECTION_STARTED);
             }
