@@ -38,10 +38,10 @@ try {
         $layers = array();
     }
     
-    echo "<!--";
-    print_r($_REQUEST);
-    echo "-->";
-
+    // echo "<!--";
+    //     print_r($_REQUEST);
+    //     echo "-->";
+    
     /* selection variant if set */
     $variant = MgFeatureSpatialOperations::Intersects;
     if (isset($_REQUEST['variant'])) {
@@ -53,7 +53,7 @@ try {
     }
     /* a filter expression to apply, in the form of an FDO SQL statement */
     $filter = isset($_REQUEST['filter']) ? str_replace(array('*', '"'), array('%', "'"),html_entity_decode(urldecode( $_REQUEST['filter']))) : false;
-    echo "<!-- filter: $filter -->\n";
+    //echo "<!-- filter: $filter -->\n";
     /* a spatial filter in the form on a WKT geometry */
     $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
     //echo "spatial filter is $spatialFilter<BR>";
@@ -68,7 +68,7 @@ try {
     /* add the attribute query if provided */
     $queryOptions = new MgFeatureQueryOptions();
     if ($filter !== false) {
-        echo "<!-- setting filter $filter -->\n";
+        //echo "<!-- setting filter $filter -->\n";
         $queryOptions->SetFilter($filter);
     }
 
