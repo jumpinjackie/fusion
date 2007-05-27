@@ -59,6 +59,10 @@ ZoomToSelection.prototype = {
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
 
+        var json = oCommand.jsonNode;
+        this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
+        this.zoomFactor = json.ZoomFactor ? json.ZoomFactor[0] : 2;
+ 
         this.enable = ZoomToSelection.prototype.enable;
         
         this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
@@ -82,13 +86,13 @@ ZoomToSelection.prototype = {
     zoomToSelection : function(selection) {
         var ll = selection.getLowerLeftCoord();
         var ur = selection.getUpperRightCoord();
-        //buffer extents (zoom out by factor of two)
-        var dX = ur.x - ll.x;
-        var dY = ur.y - ll.y;
-        ll.x = ll.x - dX;
-        ur.x = ur.x + dX;
-        ll.y = ll.y - dY;
-        ur.y = ur.y + dY;
+        var zoom_size = Math.min( this.maxDimension, this.zoomFactor * Math.max( Math.abs(ur.x - ll.x), Math.abs(ur.y - ll.y))) / 2;
+        var cX = (ur.x + ll.x)/2;
+        var cY = (ur.y + ll.y)/2;
+        ll.x = cX - zoom_size;
+        ur.x = cX + zoom_size;
+        ll.y = cY - zoom_size;
+        ur.y = cY + zoom_size;
         this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
     },
     
