@@ -18,55 +18,7 @@
  * 
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software. ********************************************************************
- *
- * Legend and layer control
- *
- * To put a Legend control in your application, you first need to add a
- * widget to your WebLayout as follows:
- *
- * <Command xsi:type="LegendCommandType">
- *   <Name>MyLegend</Name>
- *   <Label>Legend</Label>
- *   <TargetViewer>All</TargetViewer>
- *   <Action>Legend</Action>
- *   <ShowRootFolder>false</ShowRootFolder>
- *   <LayerThemeIcon>images/tree_map.png</LayerThemeIcon>
- *   <DisabledLayerIcon>images/tree_layer.png</DisabledLayerIcon>
- *   <RootFolderIcon>images/tree_map.png</RootFolderIcon>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (string, mandatory) 
- * 
- * an element with an id that is the same as this name must be in
- * the application.  For instance:
- *
- * <div id="MyLegend"></div>
- *
- * The legend will appear inside the element you provide.
- *
- * ShowRootFolder (boolean, optional)
- *
- * This controls whether the tree will have a single root node that
- * contains the name of the map as its label.  By default, the root
- * node does not appear.  Set to "true" or "1" to make the root node
- * appear.
- *
- * RootFolderIcon: (string, optional)
- *
- * The url to an image to use for the root folder.  This only has an
- * affect if ShowRootFolder is set to show the root folder.
- *
- * LayerThemeIcon: (string, optional)
- *
- * The url to an image to use for layers that are currently themed.
- * 
- * DisabledLayerIcon: (string, optional)
- *
- * The url to an image to use for layers that are out of scale.
- *
- * **********************************************************************/
+* **********************************************************************/
  
 var SELECTION_STARTED = 1;
 var SELECTION_COMPLETE = 2;
@@ -85,6 +37,9 @@ AttributeQuery.prototype = {
         
         this.layerName = json.LayerName ? json.LayerName[0] : '';
         
+        //result limiter defaults to 0 which returns all results.
+        this.resultLimit = json.ResultLimit ? json.ResultLimit[0] : 0;
+
         this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
         this.zoomFactor = json.ZoomFactor ? json.ZoomFactor[0] : 2;
 
@@ -136,6 +91,7 @@ AttributeQuery.prototype = {
             this.currentSearchDefinition = defn;
             var layer = '&layer=' + defn.category.layer;
             var filter = defn.getFilterUrl(searchParams);
+            var limit = '&limit='+this.resultLimit;
             //TODO create a "meta" filter type to handle overall constraints
             if (filter == '&filter=()') {
                 if ($(this.errorId)) {
@@ -147,7 +103,7 @@ AttributeQuery.prototype = {
             
             var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
             var params = {};
-            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join; 
+            params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join+limit; 
             params.onComplete = this.fpQueryComplete;
             Fusion.ajaxRequest(s, params);
             this.triggerEvent(SELECTION_STARTED);
@@ -198,6 +154,14 @@ AttributeQuery.prototype = {
         result = 0;
         if (this.lastResult && this.lastResult.values) {
             result = this.lastResult.values.length;
+        }
+        return result;
+    },
+    /*this is the number of results found assuming no limit was imposed*/
+    getTotalNumberOfResults: function() {
+        result = 0;
+        if (this.lastResult && this.lastResult.total_count) {
+            result = this.lastResult.total_count;
         }
         return result;
     },
@@ -288,13 +252,14 @@ AttributeQuery.prototype = {
             if (a.length > 0) {
                 var layer = '&layer=' + defn.category.layer;
                 var filter = '&filter='+(a.join(' OR '));
+                var limit = '&limit='+this.resultLimit;
                 var join = defn.getJoinUrl();
 
                 var s = this.getMap().arch + '/' + Fusion.getScriptLanguage() + "/AttributeQuery." + Fusion.getScriptLanguage() ;
                 var params = {};
                 params.onComplete = this.fpQueryComplete;
                 params.method = 'post';
-                params.postBody = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join;
+                params.postBody = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join+limit;
                 Fusion.ajaxRequest(s, params);
                 this.triggerEvent(SELECTION_STARTED);
             }

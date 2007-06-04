@@ -37,6 +37,9 @@ try {
     $joinForeignKey = isset($_REQUEST['joinfk']) ? $_REQUEST['joinfk'] : false;
     $joinPrimaryKey = isset($_REQUEST['joinpk']) ? $_REQUEST['joinpk'] : false;
 
+    /* limit number of results */
+    $resultLimit = isset($_REQUEST['limit']) ? $_REQUEST['limit'] : 0;
+    
     /* the name of the layer in the map to query */
     $layer = $_REQUEST['layer'];
 
@@ -180,9 +183,12 @@ try {
     echo "property_keys:['".implode("','", array_keys($mappings))."','".implode("','", array_keys($joinMappings))."'],\n";
     echo "geometries:[".implode(",", $geometries)."],\n";
     echo "join_values:[".implode(",", $joinValues)."],\n";
+    $nTotalElements = count($geometries);
+    echo "total_count:$nTotalElements,\n";
     echo "values:[";
     $sep = '';
-    $nElements = count($geometries);
+    $nElements = ($resultLimit > 0)?min($resultLimit, $nTotalElements):$nTotalElements;
+    echo "/*$resultLimit   $nElements*/";
     for ($i=0; $i<$nElements; $i++) {
         echo $sep."[";
         $vSep = '';
