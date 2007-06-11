@@ -91,6 +91,7 @@ if (isset($_REQUEST['mapfile'])) {
     }
 } elseif (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
+    $mapId = getSessionSavePath().($oMap->name).".map";
 }
 
 $mapObj = NULL;
@@ -106,7 +107,7 @@ if ($oMap) {
         $_SESSION['maps'] = array();
     }
     if (!isset($_SESSION['maps'][$mapObj->mapName])) {
-        $_SESSION['maps'][$mapObj->mapName] = getSessionSavePath().($oMap->name).".map";
+        $_SESSION['maps'][$mapObj->mapName] = $mapId;
     }
     $mapObj->extent = array( $oMap->extent->minx, $oMap->extent->miny, 
                              $oMap->extent->maxx, $oMap->extent->maxy );
