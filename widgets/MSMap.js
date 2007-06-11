@@ -196,6 +196,39 @@ MSMap.prototype = {
         this._removeWorker();
     },
     
+    reloadMap: function() {
+        this._addWorker();
+        this.aShowLayers = [];
+        this.aHideLayers = [];
+        this.aShowGroups = [];
+        this.aHideGroups = [];
+        this.aRefreshLayers = [];
+        this.layerRoot = new GxGroup();
+        this.aLayers = [];
+        
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
+        
+        var sessionid = this.getSessionID();
+        
+        var params = 'mapname='+this._sMapname+"&session="+sessionid;
+        var options = {onSuccess: this.mapReloaded.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+    mapReloaded: function(r,json) {
+        if (json) {
+            var o;
+            eval('o='+r.responseText);
+            this.parseMapLayersAndGroups(o);
+            this.triggerEvent(MAP_LOADED);
+        } else {
+            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+        }
+        this._removeWorker();
+    },
+    
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
             var group = new MSGroup(o.groups[i], this);
