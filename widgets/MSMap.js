@@ -222,6 +222,7 @@ MSMap.prototype = {
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
+            this.drawMap();
             this.triggerEvent(MAP_LOADED);
         } else {
             Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
