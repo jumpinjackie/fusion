@@ -106,7 +106,7 @@ if ($oMap) {
         $_SESSION['maps'] = array();
     }
     if (!isset($_SESSION['maps'][$mapObj->mapName])) {
-        $_SESSION['maps'][$mapObj->mapName] = $_REQUEST['mapfile'];
+        $_SESSION['maps'][$mapObj->mapName] = getSessionSavePath().($oMap->name).".map";
     }
     $mapObj->extent = array( $oMap->extent->minx, $oMap->extent->miny, 
                              $oMap->extent->maxx, $oMap->extent->maxy );
