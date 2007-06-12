@@ -42,7 +42,7 @@ function var2json($var) {
         }
         $result .= "]";
     } else if (is_string($var)) {
-        $result = "'".$var."'";
+        $result = "'".str_replace("\n", '\n', $var)."'";
     } else if (is_bool($var)) {
         $result = $var ? 'true' : 'false';
     } else {
