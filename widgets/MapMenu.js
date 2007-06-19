@@ -73,7 +73,7 @@ MapMenu.prototype =
         this._sImageURL = json.ImageURL ? json.ImageURL[0] : '';
         
         //set up the root menu
-        this.oMenu = new JxButtonMenu(this._sLabel);
+        this.oMenu = new Jx.Menu(this._sLabel);
         this._oButton._oDomObj.appendChild(this.oMenu.domObj);
         Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
         
@@ -101,8 +101,8 @@ MapMenu.prototype =
                 var opt = {};
                 opt.label = mapNode.getNodeText('Name');
                 var data = mapNode.getNodeText('ResourceId');
-                var action = new JxAction(this.switchMap.bind(this, data));
-                var menuItem = new JxMenuItem(action,opt);
+                var action = new Jx.Action(this.switchMap.bind(this, data));
+                var menuItem = new Jx.MenuItem(action,opt);
                 
                 if (sPath == '') {
                     this.oMenu.add(menuItem);
@@ -125,7 +125,7 @@ MapMenu.prototype =
         for (var i=0; i < aPath.length; i++) {
             if (!this.aMenus[sParent + sSep + aPath[i]]){
                 var opt = {label:aPath[i]};
-                var menu = new JxMenu(opt);
+                var menu = new Jx.Menu(opt);
                 //console.log('MapMenu::createFolders -'+sParent);
                 if (sParent == '') {
                     this.oMenu.add(menu);

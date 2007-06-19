@@ -43,7 +43,7 @@ ScaleEntry.prototype = {
             Element.addClassName(d, c);
         }
         
-        this.picker = new JxPicker(d, true);
+        this.picker = new Jx.Picker(d, true);
         this.picker.addSelectionListener(this);
         
         $(oCommand.getName()).appendChild(d);

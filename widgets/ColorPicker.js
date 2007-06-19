@@ -40,11 +40,7 @@ ColorPicker.prototype =
        user, in RRGGBB format */
     color: '#000000',
     
-    /* shared reference to the color picker object */
-    picker: [null],
-    
-    /* shared reference to the current instance of this widget that is using the color picker */
-    currentPicker: [null],
+    picker: null,
     
     initialize : function(oCommand) {
         Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false, oCommand]);
@@ -62,20 +58,16 @@ ColorPicker.prototype =
         if (this.colorInput) {
             this.alpha = 100 * parseInt('0x'+this.colorInput.value.substring(0,2))/255;
             this.color = '#'+this.colorInput.value.substring(2);
-            //Event.observe(this.colorInput, 'change', this.inputChanged.bind(this));
             this.colorInput.widget = this;
         }
         
-        if(!this.picker[0]) {
-            this.picker[0] = new JxColorPicker({color: this.color, alpha: this.alpha});
-        }
+        this.picker = new Jx.ColorPicker({color: this.color, alpha: this.alpha});
+        this.picker.addColorChangeListener(this);
         
-        this._oButton._oButton.domImg.style.backgroundColor = this.color;
-        Element.addClassName(this._oButton._oButton.domImg, "jxButtonSwatch");
+        this._oButton._oButton.domObj.parentNode.replaceChild(this.picker.domObj, this._oButton._oButton.domObj);
     },
     
     colorChanged: function(picker) {
-        this._oButton._oButton.domImg.style.backgroundColor = this.picker[0].color;
         var a = parseInt(this.picker[0].alpha*255).toString(16);
         var c = a + this.picker[0].color.substring(1);
         if (this.colorInput) {
@@ -83,27 +75,10 @@ ColorPicker.prototype =
         }
     },
     
-    inputChanged: function() {
-        var value = this.colorInput.value.toUpperCase();
-        var alpha = value.substring(0,2);
-        var color = value.substring(2);
-        this.alpha = 100 * parseInt('0x'+alpha)/255;
-        this.color = '#'+color;
-        this.picker[0].setAlpha(this.alpha);
-        this.picker[0].setColor(this.color);
-    },
-    
     execute: function() {
-        if (this.currentPicker[0] != this) {
-            if (this.currentPicker[0]) {
-                this.picker[0].removeColorChangeListener(this.currentPicker[0]);
-            }
-            this.currentPicker[0] = this;
-            this.picker[0].addColorChangeListener(this);
-            this._oDomObj.appendChild(this.picker[0].domObj);
-            this.picker[0].setAlpha(this.alpha);
-            this.picker[0].setColor(this.color);
-        }
-        this.picker[0].show();
+        this.picker.addColorChangeListener(this);
+        this.picker.setAlpha(this.alpha);
+        this.picker.setColor(this.color);
+        this.picker.show();
     }
 };

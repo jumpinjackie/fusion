@@ -68,7 +68,7 @@ SaveMap.prototype = {
         if (this.format == 'DWF' && oCommand.jsonNode.PrintLayout.length) {
             var opt = {label:this._oButton._sLabel};
             this.isMenuWidget = true;
-            this.oMenu = new JxMenu(opt);
+            this.oMenu = new Jx.Menu(opt);
             
             var layouts = oCommand.jsonNode.PrintLayout;
             for (var i = 0; i < layouts.length; i++) {
@@ -79,22 +79,22 @@ SaveMap.prototype = {
                 var menuItem = null;
                 if (layout.Scale) {
                     //create entries for weblayout specified scales
-                    menuItem = new JxMenu(opt);
+                    menuItem = new Jx.Menu(opt);
                     for (var j=0; j < layout.Scale.length; j++) {
                         var scale = layout.Scale[j];
-                        var scaleAction = new JxAction(this.setLayout.bind(this, data, scale));
-                        var subMenuItem = new JxMenuItem(scaleAction,{label:scale});
+                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data, scale));
+                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:scale});
                         menuItem.add(subMenuItem);
                     }
                     //add an entry for current scale
-                    var currentScaleAction = new JxAction(this.setLayout.bind(this, data));
-                    var currentScaleItem = new JxMenuItem(currentScaleAction,
+                    var currentScaleAction = new Jx.Action(this.setLayout.bind(this, data));
+                    var currentScaleItem = new Jx.MenuItem(currentScaleAction,
                                                          {label:'Current Scale'});
                     menuItem.add(currentScaleItem);
                 } else {
                     //if there are no scales, the layout is used with current scale
-                    var action = new JxAction(this.setLayout.bind(this, data));
-                    menuItem = new JxMenuItem(action,opt);
+                    var action = new Jx.Action(this.setLayout.bind(this, data));
+                    menuItem = new Jx.MenuItem(action,opt);
                 }
                 this.oMenu.add(menuItem);
             }

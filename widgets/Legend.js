@@ -107,7 +107,7 @@ Legend.prototype =
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
        
-        this.oTree = new JxTree(this._oDomObj);
+        this.oTree = new Jx.Tree(this._oDomObj);
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
@@ -119,7 +119,7 @@ Legend.prototype =
             opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
             opt.isOpen = true;
-            this.oRoot = new JxTreeFolder(opt);
+            this.oRoot = new Jx.TreeFolder(opt);
             this.oTree.append(this.oRoot);
         } else {
             this.oRoot = this.oTree;
@@ -190,7 +190,7 @@ Legend.prototype =
             opt.label = group.legendLabel;
             opt.data = group;
             opt.isOpen = group.expandInLegend;
-            group.legend.treeItem = new JxTreeFolder(opt);
+            group.legend.treeItem = new Jx.TreeFolder(opt);
             folder.append(group.legend.treeItem);
             group.legend.checkBox = document.createElement('input');
             group.legend.checkBox.type = 'checkbox';
@@ -303,7 +303,7 @@ Legend.prototype =
                     bFirstDisplay = true;
                     layer.legend.treeItem = this.createFolderItem(layer);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else if (layer.legend.treeItem instanceof JxTreeItem) {
+                } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
                     this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createFolderItem(layer);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
@@ -330,7 +330,7 @@ Legend.prototype =
                     }
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
-                } else if (layer.legend.treeItem instanceof JxTreeFolder) {
+                } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
                     this.clearTreeItem(layer);
                     var style;
                     if (layer.supportsType(4)) {
@@ -376,7 +376,7 @@ Legend.prototype =
         opt.isOpen = layer.expandInLegend;
         opt.imgTreeFolderOpen = layer.themeIcon;
         opt.imgTreeFolder = layer.themeIcon;
-        var folder = new JxTreeFolder(opt);
+        var folder = new Jx.TreeFolder(opt);
         folder.domObj.insertBefore(layer.legend.checkBox, folder.domObj.childNodes[1]);
         var layerInfo = this.getLayerInfoUrl(layer.layerName);
         if (layerInfo) {
@@ -410,7 +410,7 @@ Legend.prototype =
             opt.imgIcon = style.getLegendImageURL(scale, layer, this.getMap());
         }
        
-        var item = new JxTreeItem(opt);
+        var item = new Jx.TreeItem(opt);
         if (bCheckBox) {
             item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */

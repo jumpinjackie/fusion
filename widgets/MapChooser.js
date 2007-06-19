@@ -59,13 +59,13 @@ MapChooser.prototype =
         this._oDomObj = $(oCommand.getName());
         this.defIcon = Fusion.getFusionURL() + 'images/tree_map.png';
         
-        this.oTree = new JxTree(this._oDomObj);
+        this.oTree = new Jx.Tree(this._oDomObj);
         
         var opt = {};
         opt.label = 'Maps';
         opt.data = null;
         opt.isOpen = true;
-        this.oRoot = new JxTreeFolder(opt);
+        this.oRoot = new Jx.TreeFolder(opt);
         this.oTree.append(this.oRoot);
         if (json.Group) {
             for (var i=0; i<json.Group.length; i++) {
@@ -78,7 +78,7 @@ MapChooser.prototype =
         opt = {};
         opt.label = json.Name ? json.Name[0] : '';
         opt.isOpen = true;
-        var folder = new JxTreeFolder(opt)
+        var folder = new Jx.TreeFolder(opt)
         oParent.append(folder);
     
         //there is a bug in DomNode that is not easily fixed
@@ -95,7 +95,7 @@ MapChooser.prototype =
                 opt.label = json.Name ? json.Name[0] : '';
                 opt.data = json.ResourceId ? json.ResourceId[0] : '';
                 opt.imgIcon = this.defIcon;
-                var item = new JxTreeItem(opt);
+                var item = new Jx.TreeItem(opt);
                 item.addSelectionListener(this);
                 folder.append(item);
             }
