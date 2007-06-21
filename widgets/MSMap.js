@@ -398,10 +398,14 @@ MSMap.prototype = {
     /**
        Utility function to clear current selection
     */
-    clearSelection : function() {
-        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
-        var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
-        Fusion.ajaxRequest(s, params);
+    clearSelection : function() 
+    {
+        
+        this.bSelectionOn = false;
+        this._sQueryfile = "";
+        this.triggerEvent(MAP_SELECTION_OFF);
+        this.drawMap();
+        this.oSelection = null;
     },
 
 
