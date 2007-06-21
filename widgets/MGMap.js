@@ -303,7 +303,6 @@ MGMap.prototype = {
     },
     
     drawMap: function() {
-        //console.log('MGMap.drawMap');
         this._addWorker();
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
@@ -337,7 +336,6 @@ MGMap.prototype = {
     },
 
     _requestMapImage : function(r) {
-        //console.log("MGMap:: _requestMapImage");
         var nWidth = this._nWidth;
         var nHeight = this._nHeight;
 
@@ -367,7 +365,6 @@ MGMap.prototype = {
 
         url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl') + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
 
-        //console.log('MGURL ' + url);
         this.setMapImageURL(url);
     },
     
@@ -376,7 +373,7 @@ MGMap.prototype = {
     getSelectionCB : function(userFunc, r) {
         this._bSelectionIsLoading = false;
         if (r.responseXML) {
-            this.oSelection = new MGSelectionObject(r.responseXML);
+            this.oSelection = new GxSelectionObject(r.responseXML);
             for (var i=0; i<this.aSelectionCallbacks.length; i++) {
                 this.aSelectionCallbacks[i](this.oSelection);
             }
@@ -551,216 +548,6 @@ MGMap.prototype = {
 };
 
 
-/**
- * SelectionObject
- *
- * Utility class to hold slection information
- *
- */
-var MGSelectionObject = Class.create();
-MGSelectionObject.prototype = 
-{
-    aLayers : null,
-
-    initialize: function(oXML) 
-    {
-        this.aLayers = [];
-        this.nTotalElements =0;
-
-        var root = new DomNode(oXML);
-        
-        var node  = root.getNodeText('minx');
-        if (node)
-        {
-            this.fMinX =  parseFloat(root.getNodeText('minx'));
-            this.fMinY =  parseFloat(root.getNodeText('miny'));
-            this.fMaxX =  parseFloat(root.getNodeText('maxx'));
-            this.fMaxY =  parseFloat(root.getNodeText('maxy'));
-        }
-    
-        //this is only available when the property mapping is set
-        //on the layer. TODO : review
-        var oTmpNode = root.findFirstNode('TotalElementsSelected');
-        if (oTmpNode)
-        {
-            this.nTotalElements = parseInt(oTmpNode.textContent);
-            if (this.nTotalElements > 0)
-            {
-                this.nLayers =  root.getNodeText('NumberOfLayers');
-                var layerNode = root.findFirstNode('Layer');
-                var iLayer=0;             
-                while(layerNode) 
-                {
-                    this.aLayers[iLayer++] = new MGSelectionObjectLayer(layerNode);
-                
-                    layerNode =  root.findNextNode('Layer');
-                }
-            }
-        }
-    },
-
-    getNumElements : function()
-    {
-        return this.nTotalElements;
-    },
-
-    getLowerLeftCoord : function()
-    {
-        return {x:this.fMinX, y:this.fMinY};
-    },
-
-    getUpperRightCoord : function()
-    {
-        return {x:this.fMaxX, y:this.fMaxY};
-    },
-
-    getNumLayers : function()
-    {
-        return this.nLayers;
-    },
-    
-    getLayerByName : function(name)
-    {
-        var oLayer = null;
-        for (var i=0; i<this.nLayers; i++)
-        {
-            if (this.aLayers[i].getName() == name)
-            {
-                oLayer = this.aLayers[i];
-                break;
-            }
-        }
-        return oLayer;
-    },
-
-    getLayer : function(iIndice)
-    {
-        if (iIndice >=0 && iIndice < this.nLayers)
-        {
-            return this.aLayers[iIndice];
-        }
-        else
-        {
-            return null;
-        }
-            
-    }
-};
-
-
-var MGSelectionObjectLayer = Class.create();
-MGSelectionObjectLayer.prototype = {
-
-    sName: null,
-    nElements: null,
-    aElements: null,
-    nProperties: null,
-    aPropertiesName: null,
-    aPropertiesTypes: null,
-
-    type: null,
-    area: null,
-    distance: null,
-    bbox: null,
-    center: null,
-    
-    initialize: function(oNode) 
-    {
-        this.sName =  oNode.getNodeText('Name');
-        this.nElements =  oNode.getNodeText('ElementsSelected');
-
-        this.aElements = [];
-
-        this.nProperties = oNode.getNodeText('PropertiesNumber');
-
-        this.aPropertiesName = [];
-        var oTmp = oNode.getNodeText('PropertiesNames');
-        this.aPropertiesName = oTmp.split(",");
-
-        this.aPropertiesTypes = [];
-        oTmp = oNode.getNodeText('PropertiesTypes');
-        this.aPropertiesTypes = oTmp.split(",");
-        
-        var oValueCollection = oNode.findNextNode('ValueCollection');
-        
-        this.area = 0;
-        this.distance = 0;
-        
-        var iElement=0;
-        while(oValueCollection) 
-        {
-            this.aElements[iElement] = [];
-            for (var i=0; i<oValueCollection.childNodes.length; i++)
-            {
-                oTmp = oValueCollection.childNodes[i].findFirstNode('v');
-                this.aElements[iElement][i] = oTmp.textContent;
-                
-            }
-            var type = oValueCollection.attributes['type'];
-            var area = oValueCollection.attributes['area'];
-            var distance = oValueCollection.attributes['distance'];
-            var bbox = oValueCollection.attributes['bbox'];
-            var center = oValueCollection.attributes['center'];
-            
-            this.aElements[iElement]['attributes'] = {};
-            this.aElements[iElement]['attributes'].type = type;
-            this.aElements[iElement]['attributes'].bbox = bbox;
-            this.aElements[iElement]['attributes'].center = bbox;
-            //console.log('type is ' + type);
-            if (type > 1) {
-                this.area += parseFloat(area);
-                this.aElements[iElement]['attributes'].area = area;
-            }
-            if (type > 0) {
-                this.aElements[iElement]['attributes'].distance = distance;
-                this.distance += parseFloat(distance);
-            }
-            oValueCollection = oNode.findNextNode('ValueCollection');
-            iElement++;
-        }
-        //console.log( 'final area is ' + this.area);
-        //console.log( 'final distance is ' + this.distance);
-        
-    },
-
-    getName : function()
-    {
-        return this.sName;
-    },
-
-    getNumElements : function()
-    {
-        return this.nElements;
-    },
-
-    getNumProperties : function()
-    {
-        return this.nProperties;
-    },
-
-    getPropertyNames : function()
-    {
-        return this.aPropertiesName;
-    },
-
-    getPropertyTypes : function()
-    {
-        return this.aPropertiesTypes;
-    },
-
-    getElementValue : function(iElement, iProperty)
-    {
-        if (iElement >=0 && iElement < this.nElements &&
-            iProperty >=0 && iProperty < this.nProperties)
-        {
-            return this.aElements[iElement][iProperty];
-        }
-        else
-        {
-            return null;
-        }
-    }
-};
     
 var MGGroup = Class.create();
 MGGroup.prototype = {
