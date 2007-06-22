@@ -45,7 +45,9 @@ function var2json($var) {
         $result = "'".str_replace("\n", '\n', $var)."'";
     } else if (is_bool($var)) {
         $result = $var ? 'true' : 'false';
-    } else {
+    } else if (is_null($var)) {
+        $result = 'null';
+    }else {
         $result = $var;
     }
     return $result;
