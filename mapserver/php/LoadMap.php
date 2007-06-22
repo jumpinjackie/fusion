@@ -76,7 +76,7 @@ if (isset($_REQUEST['mapfile'])) {
                     $oStyle = $oClass->getStyle($k);
                     if ($oStyle->symbolname != "")
                     {
-                        if (realpath($oStyle->symbolname))
+                        if (file_exists(realpath($oStyle->symbolname)))
                         {
                             $oStyle->set("symbolname", realpath($oStyle->symbolname));
                         }
