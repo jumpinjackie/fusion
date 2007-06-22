@@ -278,7 +278,11 @@ MSMap.prototype = {
         var params = [];
         params.push('mode=map');
         params.push('mapext='+this._afCurrentExtents.join(' '));
-        params.push('layers='+this.aVisibleLayers.join(' '));
+        //params.push('layers='+this.aVisibleLayers.join(' '));
+        for (i=0; i<this.aVisibleLayers.length; i++)
+        {
+            params.push('layer='+this.aVisibleLayers[i]);
+        }
         params.push('mapsize='+ this._nWidth + ' ' + this._nHeight);
         params.push('session='+this.getSessionID());
         params.push('map='+this._sMapFile);
