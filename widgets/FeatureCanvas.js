@@ -24,7 +24,7 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxCanvasTool.js');
+
 
 var FeatureCanvas = Class.create();
 FeatureCanvas.prototype = {

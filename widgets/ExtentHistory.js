@@ -24,7 +24,7 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var HISTORY_CHANGED = 0;
 

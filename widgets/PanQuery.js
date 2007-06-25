@@ -23,8 +23,8 @@
  * extended description
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
-Fusion.require('widgets/GxRectTool.js');
+
+
 
 var PanQuery = Class.create();
 PanQuery.prototype = {

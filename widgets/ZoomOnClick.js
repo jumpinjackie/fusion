@@ -24,7 +24,7 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var ZoomOnClick = Class.create();
 ZoomOnClick.prototype = 

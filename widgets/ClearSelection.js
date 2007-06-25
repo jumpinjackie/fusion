@@ -20,7 +20,7 @@
  * in all copies or substantial portions of the Software.
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var ClearSelection = Class.create();
 ClearSelection.prototype = 

@@ -27,8 +27,8 @@
  * through the RULER_DISTANCE_CHANGED event.
  * 
  * **********************************************************************/
-Fusion.require('widgets/GxButtonBase.js');
-Fusion.require('widgets/GxCanvasTool.js');
+
+
 
 var RULER_DISTANCE_CHANGED;
 

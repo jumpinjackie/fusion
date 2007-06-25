@@ -24,8 +24,8 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
-Fusion.require('widgets/GxRectTool.js');
+
+
 
 var Zoom = Class.create();
 Zoom.prototype = 

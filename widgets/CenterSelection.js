@@ -48,7 +48,7 @@
  * element you provide.
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var CenterSelection = Class.create();
 CenterSelection.prototype = {

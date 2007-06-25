@@ -24,8 +24,8 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
-Fusion.require('widgets/GxCanvasTool.js');
+
+
 
 var SelectPolygon = Class.create();
 SelectPolygon.prototype = {

@@ -46,7 +46,7 @@
  *
 
  * **********************************************************************/
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var SaveMap = Class.create();
 SaveMap.prototype = {

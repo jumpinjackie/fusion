@@ -49,7 +49,7 @@
  * The repository folder to enumerate maps below. If this is not set,
  * the entire repository is enumerated.
  * **********************************************************************/
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var MapMenu = Class.create();
 MapMenu.prototype = 

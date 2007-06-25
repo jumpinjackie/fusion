@@ -49,7 +49,7 @@
  * element you provide.
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var ZoomToSelection = Class.create();
 ZoomToSelection.prototype = {

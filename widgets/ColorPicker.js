@@ -23,7 +23,7 @@
  * The user can pick from a palette of web-safe colors or enter a hex value
  *
  * **********************************************************************/
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var ColorPicker = Class.create();
 ColorPicker.prototype = 

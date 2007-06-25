@@ -24,7 +24,7 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var ExecuteJS = Class.create();
 ExecuteJS.prototype = 

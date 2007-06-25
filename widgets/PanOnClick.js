@@ -24,7 +24,7 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/GxButtonBase.js');
+
 
 var PanOnClick = Class.create();
 PanOnClick.prototype = 

@@ -23,7 +23,7 @@
  * 
  *
  * **********************************************************************/
-Fusion.require('widgets/GxButtonBase.js');
+
  
 var Buffer = Class.create();
 Buffer.prototype = {
