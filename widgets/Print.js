@@ -59,7 +59,7 @@ var Print = Class.create();
 Print.prototype = {
     initialize : function(oCommand) {
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Print', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;

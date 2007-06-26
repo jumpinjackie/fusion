@@ -50,8 +50,8 @@ Ruler.prototype = {
     initialize : function(oCommand) {
         /*console.log('Ruler.initialize');*/
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Ruler', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
-        Object.inheritFrom(this, GxCanvasTool.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
         this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];

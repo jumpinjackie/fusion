@@ -31,8 +31,8 @@ Pan.prototype = {
     initialize : function(oCommand) {
         //console.log('Pan.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Pan', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
-        Object.inheritFrom(this, GxRectTool.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
         this.setMap(oCommand.getMap());
         
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
@@ -40,7 +40,7 @@ Pan.prototype = {
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     activateTool : function() {
         /*console.log('Pan.activateTool');*/

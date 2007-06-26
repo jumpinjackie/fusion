@@ -35,8 +35,8 @@ Select.prototype =  {
     initialize : function(oCommand) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Select', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxRectTool.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
         
@@ -64,12 +64,12 @@ Select.prototype =  {
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
             if (layer && layer.selectable) { 
-                GxButtonBase.prototype.enable.apply(this, []);
+                Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
             } else {
                 this.disable();
             }
         } else {
-            GxButtonBase.prototype.enable.apply(this,[]);
+            Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
         }
     },
     

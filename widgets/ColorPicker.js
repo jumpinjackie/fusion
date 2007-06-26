@@ -48,7 +48,7 @@ ColorPicker.prototype =
         oCommand.jsonNode.DisabledImageURL = ['images/a_pixel.png'];
         oCommand.jsonNode.ImageURL = ['images/a_pixel.png'];
         
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         if (oCommand.jsonNode.ColorInputId) {

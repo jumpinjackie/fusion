@@ -32,7 +32,7 @@ FeatureCanvas.prototype = {
     initialize : function(oCommand) {
         //console.log('FeatureCanvas.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['FeatureCanvas', true, oCommand]);
-        Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, [this.getMap()]);
         this.setMap(oCommand.getMap());
         var json = oCommand.jsonNode;
         this.activateCanvas();
@@ -82,7 +82,7 @@ FeatureCanvas.prototype = {
     },
     
     resizeCanvas: function() {
-        GxCanvasTool.prototype.resizeCanvas.apply(this, []);
+        Fusion.Tool.Canvas.prototype.resizeCanvas.apply(this, []);
         this.update();
     }
 };

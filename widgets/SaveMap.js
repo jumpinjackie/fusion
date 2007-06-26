@@ -59,7 +59,7 @@ SaveMap.prototype = {
     {
         this.oCommand = oCommand;
         Object.inheritFrom(this, Fusion.Widget.prototype, ['SaveMap', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         this.format = (oCommand.jsonNode.Format && oCommand.jsonNode.Format[0] != '')?
                        oCommand.jsonNode.Format[0] : 'png';
@@ -115,11 +115,11 @@ SaveMap.prototype = {
     },
     
     enable: function() {
-        GxButtonBase.prototype.enable.apply(this, []);
+        Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
     },
     
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      * prompts user to save the map.
      */
     activateTool : function()

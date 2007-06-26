@@ -34,14 +34,14 @@ ExecuteJS.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ExecuteJS', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         this.sScript = oCommand.jsonNode.Script ? oCommand.jsonNode.Script[0] : '';
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     execute : function()
     {

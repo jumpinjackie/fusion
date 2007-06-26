@@ -37,8 +37,8 @@ Zoom.prototype =
     {
         //console.log('Zoom.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Zoom', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxRectTool.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
         this.setMap(oCommand.getMap());
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         var json = oCommand.jsonNode;
@@ -53,7 +53,7 @@ Zoom.prototype =
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     activateTool : function()
     {

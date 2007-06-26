@@ -40,7 +40,7 @@ Buffer.prototype = {
     initialize: function(oCommand) {
         //console.log('Buffer.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Buffer', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
@@ -153,7 +153,7 @@ Buffer.prototype = {
     
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            GxButtonBase.prototype.enable.apply(this, []);
+            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }

@@ -34,8 +34,8 @@ SelectPolygon.prototype = {
     initialize : function(oCommand) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['SelectPolygon', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, [this.getMap()]);
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
 

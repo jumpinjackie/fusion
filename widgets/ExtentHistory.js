@@ -38,7 +38,7 @@ ExtentHistory.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ExtentHistory', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         
         this.setMap(oCommand.getMap());
         
@@ -104,15 +104,15 @@ ExtentHistory.prototype =
     historyChanged: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
-                GxButtonBase.prototype.enable.apply(this,[]);
+                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
             } else {
-                GxButtonBase.prototype.disable.apply(this,[]);
+                Fusion.Tool.ButtonBase.prototype.disable.apply(this,[]);
             }
         } else {
             if (this.aHistory['index'] < (this.aHistory['history'].length - 1)) {
-                GxButtonBase.prototype.enable.apply(this,[]);
+                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
             } else {
-                GxButtonBase.prototype.disable.apply(this,[]);
+                Fusion.Tool.ButtonBase.prototype.disable.apply(this,[]);
             }
         }
     },

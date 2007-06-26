@@ -34,8 +34,8 @@ ZoomOut.prototype =
     {
         //console.log('ZoomOut.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomOut', true, oCommand]);
-        Object.inheritFrom(this, GxClickTool.prototype, []);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.Click.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         this.asCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
     },

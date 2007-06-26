@@ -36,7 +36,7 @@ PanOnClick.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['PanOnClick', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
@@ -70,7 +70,7 @@ PanOnClick.prototype =
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     execute : function()
     {

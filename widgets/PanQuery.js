@@ -34,8 +34,8 @@ PanQuery.prototype = {
     initialize : function(oCommand) {
         //console.log('PanQuery.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['PanQuery', true, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
-        Object.inheritFrom(this, GxRectTool.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
@@ -53,7 +53,7 @@ PanQuery.prototype = {
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     activateTool : function() {
         //console.log('PanQuery.activateTool');

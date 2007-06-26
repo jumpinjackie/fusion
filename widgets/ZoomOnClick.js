@@ -34,7 +34,7 @@ ZoomOnClick.prototype =
     {
         //console.log('ZoomOnClick.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomOnClick', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;
@@ -42,7 +42,7 @@ ZoomOnClick.prototype =
     },
 
     /**
-     * called when the button is clicked by the GxButtonBase widget
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
     execute : function()
     {

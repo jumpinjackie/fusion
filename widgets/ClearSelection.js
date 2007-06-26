@@ -29,7 +29,7 @@ ClearSelection.prototype =
     {
         //console.log('ClearSelection.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ClearSelection', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(this._oCommand.getMap());
         
         this.enable = ClearSelection.prototype.enable;
@@ -49,7 +49,7 @@ ClearSelection.prototype =
     
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            GxButtonBase.prototype.enable.apply(this, []);
+            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }

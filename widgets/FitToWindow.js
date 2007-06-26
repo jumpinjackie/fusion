@@ -33,7 +33,7 @@ FitToWindow.prototype =
     {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['FitToWindow', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         
 

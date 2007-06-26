@@ -56,7 +56,7 @@ ZoomToSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomToSelection', false, oCommand]);
-        Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
 
         var json = oCommand.jsonNode;
@@ -98,7 +98,7 @@ ZoomToSelection.prototype = {
     
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            GxButtonBase.prototype.enable.apply(this, []);
+            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }
