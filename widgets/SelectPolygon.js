@@ -33,7 +33,7 @@ SelectPolygon.prototype = {
     nTolerance : 3, //default pixel tolernace for a point click
     initialize : function(oCommand) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['SelectPolygon', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['SelectPolygon', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxCanvasTool.prototype, [this.getMap()]);
         this.setMap(oCommand.getMap());

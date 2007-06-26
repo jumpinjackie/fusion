@@ -54,7 +54,7 @@ var CenterSelection = Class.create();
 CenterSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['CenterSelection', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['CenterSelection', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(this._oCommand.getMap());
 

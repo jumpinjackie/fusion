@@ -37,7 +37,7 @@ ExtentHistory.prototype =
     initialize : function(oCommand)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ExtentHistory', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ExtentHistory', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         
         this.setMap(oCommand.getMap());

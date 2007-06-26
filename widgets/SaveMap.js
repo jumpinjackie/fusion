@@ -58,7 +58,7 @@ SaveMap.prototype = {
     initialize : function(oCommand)
     {
         this.oCommand = oCommand;
-        Object.inheritFrom(this, GxWidget.prototype, ['SaveMap', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['SaveMap', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         this.format = (oCommand.jsonNode.Format && oCommand.jsonNode.Format[0] != '')?

@@ -53,7 +53,7 @@ MapChooser.prototype =
     initialize : function(oCommand)
     {
         //console.log('MapChooser.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['MapChooser', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['MapChooser', true, oCommand]);
         this.setMap(oCommand.getMap());
         
         this._oDomObj = $(oCommand.getName());

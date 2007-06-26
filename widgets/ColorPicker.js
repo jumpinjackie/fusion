@@ -43,7 +43,7 @@ ColorPicker.prototype =
     picker: null,
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['ColorPicker', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ColorPicker', false, oCommand]);
         /* override the image !!! */
         oCommand.jsonNode.DisabledImageURL = ['images/a_pixel.png'];
         oCommand.jsonNode.ImageURL = ['images/a_pixel.png'];

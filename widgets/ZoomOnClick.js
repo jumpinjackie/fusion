@@ -33,7 +33,7 @@ ZoomOnClick.prototype =
     initialize : function(oCommand)
     {
         //console.log('ZoomOnClick.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ZoomOnClick', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomOnClick', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         

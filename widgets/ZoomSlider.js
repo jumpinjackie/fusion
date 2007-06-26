@@ -35,7 +35,7 @@ ZoomSlider.prototype =
 
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxWidget.prototype, ['ZoomSlider', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomSlider', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;

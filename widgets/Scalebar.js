@@ -40,7 +40,7 @@ Scalebar.prototype = {
     singleLine: false,
     initialize : function(oCommand) {
         //console.log('Scalebar.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Scalebar', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Scalebar', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.oCommand = oCommand;

@@ -61,7 +61,7 @@ MapMenu.prototype =
     initialize : function(oCommand)
     {
         //console.log('MapMenu.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['MapMenu', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['MapMenu', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         this.enable();

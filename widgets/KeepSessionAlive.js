@@ -49,7 +49,7 @@ var KeepSessionAlive = Class.create();
 KeepSessionAlive.prototype = {
     initialize : function(oCommand) {
         //console.log('KeepSessionAlive.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['KeepSessionAlive', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['KeepSessionAlive', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         this.delay = parseInt(oCommand.jsonNode.RefreshInterval ? oCommand.jsonNode.RefreshInterval[0] : 300);

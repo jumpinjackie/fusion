@@ -28,7 +28,7 @@ ClearSelection.prototype =
     initialize : function(oCommand)
     {
         //console.log('ClearSelection.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ClearSelection', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ClearSelection', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(this._oCommand.getMap());
         

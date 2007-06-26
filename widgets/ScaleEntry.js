@@ -31,7 +31,7 @@ ScaleEntry.prototype = {
     history: null,
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['ScaleEntry', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ScaleEntry', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         var json = oCommand.jsonNode;

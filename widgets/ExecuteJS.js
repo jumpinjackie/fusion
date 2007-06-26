@@ -33,7 +33,7 @@ ExecuteJS.prototype =
     initialize : function(oCommand)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['ExecuteJS', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ExecuteJS', false, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         

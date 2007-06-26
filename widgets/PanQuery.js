@@ -33,7 +33,7 @@ PanQuery.prototype = {
     bActiveOnly: false,
     initialize : function(oCommand) {
         //console.log('PanQuery.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['PanQuery', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['PanQuery', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());

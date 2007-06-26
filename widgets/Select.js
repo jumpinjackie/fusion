@@ -34,7 +34,7 @@ Select.prototype =  {
     bActiveOnly: false, //only select feature(s) on the active layer?
     initialize : function(oCommand) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Select', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Select', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, [oCommand]);
         Object.inheritFrom(this, GxRectTool.prototype, []);
         this.setMap(oCommand.getMap());

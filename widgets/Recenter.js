@@ -30,7 +30,7 @@ Recenter.prototype =
 {
     initialize : function(oCommand)
     {
-        Object.inheritFrom(this, GxWidget.prototype, ['Recenter', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Recenter', true, oCommand]);
         Object.inheritFrom(this, ZoomOut.prototype, []);
         this.setMap(oCommand.getMap());
         this.nFactor = 1;

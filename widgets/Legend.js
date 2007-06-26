@@ -86,7 +86,7 @@ Legend.prototype =
         this.defGroupInfoIcon = Fusion.getFusionURL() + 'images/tree_group_info.png';
        
         //console.log('Legend.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Legend', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Legend', true, oCommand]);
         this.setMap(oCommand.getMap());
        
         this._oDomObj = $(oCommand.getName());

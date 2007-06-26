@@ -30,7 +30,7 @@ AttributeQuery.prototype = {
     layerName: null,
     initialize: function(oCommand) {
         //console.log('AttributeQuery.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['AttributeQuery', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['AttributeQuery', true, oCommand]);
         this.setMap(oCommand.getMap());
 
         var json = oCommand.jsonNode;

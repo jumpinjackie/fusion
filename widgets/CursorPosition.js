@@ -90,7 +90,7 @@ CursorPosition.prototype = {
 
     initialize : function(oCommand) {
         //console.log('CursorPosition.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['CursorPosition', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['CursorPosition', true, oCommand]);
         this.setMap(oCommand.getMap());
         
         this._oCommand = oCommand;

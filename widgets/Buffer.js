@@ -39,7 +39,7 @@ Buffer.prototype = {
     fillColorInput: null,
     initialize: function(oCommand) {
         //console.log('Buffer.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Buffer', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Buffer', true, oCommand]);
         Object.inheritFrom(this, GxButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
         

@@ -31,7 +31,7 @@ SelectRadiusValue.prototype =  {
     className: '',
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, GxWidget.prototype, ['SelectRadiusValue', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['SelectRadiusValue', false, oCommand]);
         this.setMap(oCommand.getMap());
         
         /* parse widget properties */

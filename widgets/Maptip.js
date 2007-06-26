@@ -87,7 +87,7 @@ Maptip.prototype =
     initialize : function(oCommand)
     {
         //console.log('Maptip.initialize');
-        Object.inheritFrom(this, GxWidget.prototype, ['Maptip', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['Maptip', true, oCommand]);
         this.setMap(oCommand.getMap());
         var json = oCommand.jsonNode;
         
