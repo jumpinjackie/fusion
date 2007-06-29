@@ -24,7 +24,7 @@
  * **********************************************************************/
 
 /**
- * MGMap : MapGuide map widget Based on generic class GxMap
+ * MGMap : MapGuide map widget Based on generic class Fusion.Widget.Map
 */
 
 
@@ -55,7 +55,7 @@ MGMap.prototype = {
     
     initialize : function(oCommand, sid) {
         // console.log('MGMap.initialize');
-        Object.inheritFrom(this, GxMap.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
         
         this.registerEventID(MAP_SELECTION_ON);
         this.registerEventID(MAP_SELECTION_OFF);
@@ -294,7 +294,7 @@ MGMap.prototype = {
     },
 
     setExtents : function(aExtents) {
-        this.setExtentsGxMap(aExtents);
+        Fusion.Widget.Map.prototype.setExtents.apply(this, [aExtents]);
         this.drawMap();
     },
 

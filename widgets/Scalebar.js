@@ -88,7 +88,7 @@ Scalebar.prototype = {
         this.oScaleBar.singleLine = this.singleLine;
         this.oScaleBar.place(oCommand.getName());
 
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
         this.getMap().registerForEvent(MAP_LOADED, this.extentsChangedCB.bind(this));
     },
 

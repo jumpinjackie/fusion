@@ -38,7 +38,7 @@ FeatureCanvas.prototype = {
         this.activateCanvas();
         this.features = [];
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.update.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.update.bind(this));
     },
     
     newPoint: function(x,y) {

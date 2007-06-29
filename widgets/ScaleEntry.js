@@ -54,7 +54,7 @@ ScaleEntry.prototype = {
         
         this.history = [];
         
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.scaleChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.scaleChanged.bind(this));
         
     },
     

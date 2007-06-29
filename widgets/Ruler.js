@@ -80,7 +80,7 @@ Ruler.prototype = {
         }
         
         this.registerEventID(RULER_DISTANCE_CHANGED);
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         this.keyHandler = this.onKeyPress.bind(this);
     },
     

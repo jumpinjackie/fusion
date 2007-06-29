@@ -133,12 +133,12 @@ Legend.prototype =
     },
    
     mapLoading: function() {
-        this.getMap().deregisterForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.getMap().deregisterForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
     },
    
     mapLoaded: function() {
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.draw();
     },
    

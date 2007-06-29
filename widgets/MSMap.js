@@ -56,7 +56,7 @@ MSMap.prototype = {
     
     initialize : function(oCommand, sid) {
         //console.log('MSMap.initialize');
-        Object.inheritFrom(this, GxMap.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
         
         this.registerEventID(MAP_SELECTION_ON);
         this.registerEventID(MAP_SELECTION_OFF);
@@ -260,7 +260,7 @@ MSMap.prototype = {
     },
 
     setExtents : function(aExtents) {
-        this.setExtentsGxMap(aExtents);
+        Fusion.Widget.Map.prototype.setExtents.apply(this, [aExtents]);
         this.drawMap();
     },
 

@@ -52,7 +52,7 @@ ExtentHistory.prototype =
         if (!this.aHistory['history']) {
             this.aHistory['history'] = [];
             this.aHistory['index'] = -1;
-            this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
             this.getMap().registerForEvent(MAP_LOADED, this.reset.bind(this));
             
         }

@@ -62,7 +62,7 @@ SelectRadiusValue.prototype =  {
         }
         Event.observe(this.input, 'blur', this.onBlur.bind(this));
         this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
-        this.getMap().registerForEvent(MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
         
     },
     
