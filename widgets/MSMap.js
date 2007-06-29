@@ -24,7 +24,7 @@
  * **********************************************************************/
 
 /**
- * MSMap : MapServer map widget Based on generic class GxMap
+ * MSMap : MapServer map widget Based on generic class Fusion.Widget.Map
 */
 
 
