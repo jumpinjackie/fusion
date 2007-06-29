@@ -24,11 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-
-var Select = Class.create();
-Select.prototype =  {       
+Fusion.Widget.Select = Class.create();
+Fusion.Widget.Select.prototype =  {       
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
@@ -40,7 +37,7 @@ Select.prototype =  {
         this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
         
-        this.enable = Select.prototype.enable;
+        this.enable = Fusion.Widget.Select.prototype.enable;
 
         var json = oCommand.jsonNode;
         
@@ -55,7 +52,7 @@ Select.prototype =  {
                             json.QueryActiveLayer[0] == '1')) ? true : false;
         
         if (this.bActiveOnly) {
-            this.getMap().registerForEvent(MAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
         }
         
     },

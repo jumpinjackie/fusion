@@ -21,9 +21,8 @@
  * **********************************************************************/
 
 
-
-var ClearSelection = Class.create();
-ClearSelection.prototype = 
+Fusion.Widget.ClearSelection = Class.create();
+Fusion.Widget.ClearSelection.prototype = 
 {
     initialize : function(oCommand)
     {
@@ -32,10 +31,10 @@ ClearSelection.prototype =
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(this._oCommand.getMap());
         
-        this.enable = ClearSelection.prototype.enable;
+        this.enable = Fusion.Widget.ClearSelection.prototype.enable;
         
-        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
     },
     
     /**

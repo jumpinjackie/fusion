@@ -24,8 +24,9 @@
  * scale from a drop-down list.
  *
  * **********************************************************************/
-var ScaleEntry = Class.create();
-ScaleEntry.prototype = {
+
+Fusion.Widget.ScaleEntry = Class.create();
+Fusion.Widget.ScaleEntry.prototype = {
     precision: 4,
     historyLength: 10,
     history: null,

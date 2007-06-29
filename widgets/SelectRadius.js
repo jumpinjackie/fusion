@@ -24,11 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-
-var SelectRadius = Class.create();
-SelectRadius.prototype = {
+Fusion.Widget.SelectRadius = Class.create();
+Fusion.Widget.SelectRadius.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     defaultRadius: 20,

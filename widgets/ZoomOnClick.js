@@ -24,10 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-var ZoomOnClick = Class.create();
-ZoomOnClick.prototype = 
+Fusion.Widget.ZoomOnClick = Class.create();
+Fusion.Widget.ZoomOnClick.prototype = 
 {
     nFactor: 2,
     initialize : function(oCommand)

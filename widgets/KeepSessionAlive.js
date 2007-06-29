@@ -45,8 +45,8 @@
  * element you provide.
  * **********************************************************************/
 
-var KeepSessionAlive = Class.create();
-KeepSessionAlive.prototype = {
+Fusion.Widget.KeepSessionAlive = Class.create();
+Fusion.Widget.KeepSessionAlive.prototype = {
     initialize : function(oCommand) {
         //console.log('KeepSessionAlive.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['KeepSessionAlive', false, oCommand]);

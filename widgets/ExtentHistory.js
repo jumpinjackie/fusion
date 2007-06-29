@@ -24,19 +24,14 @@
  * 
  * **********************************************************************/
 
+Fusion.Event.HISTORY_CHANGED = Fusion.Event.lastEventId++;
 
-
-var HISTORY_CHANGED = 0;
-
-var ExtentHistory = Class.create();
-ExtentHistory.prototype = 
-{
+Fusion.Widget.ExtentHistory = Class.create();
+Fusion.Widget.ExtentHistory.prototype = {
     events: [],
     aHistory: [],
     sDirection: null,
-    initialize : function(oCommand)
-    {
-        //console.log('FitToWindow.initialize');
+    initialize : function(oCommand) {
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ExtentHistory', false, oCommand]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         
@@ -53,17 +48,17 @@ ExtentHistory.prototype =
             this.aHistory['history'] = [];
             this.aHistory['index'] = -1;
             this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
-            this.getMap().registerForEvent(MAP_LOADED, this.reset.bind(this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.reset.bind(this));
             
         }
-        this.enable = ExtentHistory.prototype.historyChanged;
+        this.enable = Fusion.Widget.ExtentHistory.prototype.historyChanged;
         
-        this.disable = ExtentHistory.prototype.historyChanged;
+        this.disable = Fusion.Widget.ExtentHistory.prototype.historyChanged;
         
-        this.registerEventID(HISTORY_CHANGED);
+        this.registerEventID(Fusion.Event.HISTORY_CHANGED);
         
-        this.registerForEvent(HISTORY_CHANGED, this.historyChanged.bind(this));
-        //console.log(this.events[HISTORY_CHANGED].length);
+        this.registerForEvent(Fusion.Event.HISTORY_CHANGED, this.historyChanged.bind(this));
+        //console.log(this.events[Fusion.Event.HISTORY_CHANGED].length);
         this.disable();
     },
     
@@ -98,7 +93,7 @@ ExtentHistory.prototype =
             this.aHistory['history'].push(extents);
             this.aHistory['index'] = this.aHistory['history'].length - 1;
         }
-        this.triggerEvent(HISTORY_CHANGED);
+        this.triggerEvent(Fusion.Event.HISTORY_CHANGED);
     },
     
     historyChanged: function() {
@@ -122,13 +117,13 @@ ExtentHistory.prototype =
             if (this.aHistory['index'] > 0) {
                 this.aHistory['index'] --;
                 this.getMap().setExtents(this.aHistory['history'][this.aHistory['index']]);
-                this.triggerEvent(HISTORY_CHANGED);
+                this.triggerEvent(Fusion.Event.HISTORY_CHANGED);
             }
         } else {
             if (this.aHistory['index'] < (this.aHistory['history'].length - 1)) {
                 this.aHistory['index'] ++;
                 this.getMap().setExtents(this.aHistory['history'][this.aHistory['index']]);
-                this.triggerEvent(HISTORY_CHANGED);
+                this.triggerEvent(Fusion.Event.HISTORY_CHANGED);
             }
         }
     }

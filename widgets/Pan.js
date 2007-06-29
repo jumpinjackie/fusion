@@ -23,11 +23,8 @@
  * extended description
  * **********************************************************************/
 
-
-
-
-var Pan = Class.create();
-Pan.prototype = {
+Fusion.Widget.Pan = Class.create();
+Fusion.Widget.Pan.prototype = {
     initialize : function(oCommand) {
         //console.log('Pan.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Pan', true, oCommand]);

@@ -81,8 +81,8 @@
  * x: {x}&lt;br/&gt;y: {y}
  * **********************************************************************/
 
-var CursorPosition = Class.create();
-CursorPosition.prototype = {
+Fusion.Widget.CursorPosition = Class.create();
+Fusion.Widget.CursorPosition.prototype = {
     defaultTemplate: 'x: {x}, y: {y}',
     
     /* the units to display distances in */
@@ -104,8 +104,8 @@ CursorPosition.prototype = {
         this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;
         this.units = json.Units ? Fusion.unitFromName(json.Units[0]) : Fusion.UNKOWN;
 
-        this.enable = CursorPosition.prototype.enable;
-        this.disable = CursorPosition.prototype.enable;
+        this.enable = Fusion.Widget.CursorPosition.prototype.enable;
+        this.disable = Fusion.Widget.CursorPosition.prototype.enable;
         
         this.mouseMoveWatcher = this.mouseMove.bind(this);
         this.mouseOutWatcher = this.mouseOut.bind(this);

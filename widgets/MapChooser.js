@@ -44,8 +44,8 @@
  * The MapChooser will appear inside the element you provide.
  * **********************************************************************/
 
-var MapChooser = Class.create();
-MapChooser.prototype = 
+Fusion.Widget.MapChooser = Class.create();
+Fusion.Widget.MapChooser.prototype = 
 {
     currentNode: null,
     _oDomObj: null,

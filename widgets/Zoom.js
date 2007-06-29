@@ -24,11 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-
-var Zoom = Class.create();
-Zoom.prototype = 
+Fusion.Widget.Zoom = Class.create();
+Fusion.Widget.Zoom.prototype = 
 {
     nTolerance : 5,
     nFactor : 2,

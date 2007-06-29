@@ -47,9 +47,8 @@
 
  * **********************************************************************/
 
-
-var SaveMap = Class.create();
-SaveMap.prototype = {
+Fusion.Widget.SaveMap = Class.create();
+Fusion.Widget.SaveMap.prototype = {
     iframe : null,
     oMenu : null,
     isMenuWidget : false,
@@ -100,7 +99,7 @@ SaveMap.prototype = {
             }
         }
 
-        this.enable = SaveMap.prototype.enable;
+        this.enable = Fusion.Widget.SaveMap.prototype.enable;
     },
     
     getMenu: function() {

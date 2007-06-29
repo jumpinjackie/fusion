@@ -20,11 +20,11 @@
  * in all copies or substantial portions of the Software. ********************************************************************
 * **********************************************************************/
  
-var SELECTION_STARTED = 1;
-var SELECTION_COMPLETE = 2;
+Fusion.Event.SELECTION_STARTED = Fusion.Event.lastEventId++;
+Fusion.Event.SELECTION_COMPLETE = Fusion.Event.lastEventId++;
  
-var AttributeQuery = Class.create();
-AttributeQuery.prototype = {
+Fusion.Widget.AttributeQuery = Class.create();
+Fusion.Widget.AttributeQuery.prototype = {
     spatialFilter: null,
     filters: null,
     layerName: null,
@@ -47,7 +47,7 @@ AttributeQuery.prototype = {
 
         var oSpatialFilter = json.SpatialFilter ? json.SpatialFilter[0] : '';
         if (oSpatialFilter) {
-            this.spatialFilter = new MGSpatialFilter(oSpatialFilter);
+            this.spatialFilter = new Fusion.Widget.AttributeQuery.SpatialFilter(oSpatialFilter);
         }
         
         this.errorId = json.ErrorId ? json.ErrorId[0] : '';
@@ -55,19 +55,19 @@ AttributeQuery.prototype = {
         this.filters = [];
         if (json.Filter instanceof Array) {
             for (var i=0; i<json.Filter.length; i++) {
-                this.filters.push(new MGFilter(json.Filter[i]));
+                this.filters.push(new Fusion.Widget.AttributeQuery.Filter(json.Filter[i]));
             }
         }
         this.fpQueryComplete = this.queryComplete.bind(this);
         
         this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
-        this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.fpMapSelectionChanged);
         
         this._oDomObj = $(oCommand.getName());
         Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
         
-        this.registerEventID(SELECTION_STARTED);
-        this.registerEventID(SELECTION_COMPLETE);
+        this.registerEventID(Fusion.Event.SELECTION_STARTED);
+        this.registerEventID(Fusion.Event.SELECTION_COMPLETE);
         
     },
     
@@ -106,7 +106,7 @@ AttributeQuery.prototype = {
             params.parameters = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join+limit; 
             params.onComplete = this.fpQueryComplete;
             Fusion.ajaxRequest(s, params);
-            this.triggerEvent(SELECTION_STARTED);
+            this.triggerEvent(Fusion.Event.SELECTION_STARTED);
             
         }
     },
@@ -119,7 +119,7 @@ AttributeQuery.prototype = {
             result = {};
         }
         this.lastResult = result;
-        this.triggerEvent(SELECTION_COMPLETE);
+        this.triggerEvent(Fusion.Event.SELECTION_COMPLETE);
     },
     
     getProperties: function() {
@@ -198,10 +198,10 @@ AttributeQuery.prototype = {
         var node = new DomNode(r.responseXML);
         var success = node.getNodeText('Selection');
         if (success == 'true') {
-            this.getMap().deregisterForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
+            this.getMap().deregisterForEvent(Fusion.Event.MAP_SELECTION_ON, this.fpMapSelectionChanged);
             this.getMap().newSelection();
             this.getMap().getSelection(this.zoomToSelection.bind(this));
-            this.getMap().registerForEvent(MAP_SELECTION_ON, this.fpMapSelectionChanged);
+            this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.fpMapSelectionChanged);
         } else {
             this.getMap().clearSelection();
         }    
@@ -261,14 +261,14 @@ AttributeQuery.prototype = {
                 params.method = 'post';
                 params.postBody = 'session='+this.getMap().getSessionID()+'&mapname='+ this.getMap().getMapName()+layer+filter+join+limit;
                 Fusion.ajaxRequest(s, params);
-                this.triggerEvent(SELECTION_STARTED);
+                this.triggerEvent(Fusion.Event.SELECTION_STARTED);
             }
         }
     }
 };
 
-var MGFilterBase = Class.create();
-MGFilterBase.prototype = {
+Fusion.Widget.AttributeQuery.FilterBase = Class.create();
+Fusion.Widget.AttributeQuery.FilterBase.prototype = {
     valueId: null,
     valueInput: null,
     parameter: null,
@@ -281,7 +281,7 @@ MGFilterBase.prototype = {
         this.validators = [];
         if (json.Validator) {
             for (var i=0; i<json.Validator.length; i++) {
-                this.validators.push(new MGValidator(json.Validator[i]));
+                this.validators.push(new Fusion.Widget.AttributeQuery.Validator(json.Validator[i]));
             }
         }
     },
@@ -322,8 +322,8 @@ MGFilterBase.prototype = {
     }
 };
 
-var MGValidator = Class.create();
-MGValidator.prototype = {
+Fusion.Widget.AttributeQuery.Validator = Class.create();
+Fusion.Widget.AttributeQuery.Validator.prototype = {
     domNode: null,
     message: 'validation failed',
     type: '',
@@ -390,12 +390,12 @@ MGValidator.prototype = {
     }
 };
 
-var MGFilter = Class.create();
-MGFilter.prototype = {
+Fusion.Widget.AttributeQuery.Filter = Class.create();
+Fusion.Widget.AttributeQuery.Filter.prototype = {
     unaryNot: null,
     validOperators: ['=', '<>', '<=', '<', '>=', '>', 'LIKE'],
     initialize: function( json ) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
+        Object.inheritFrom(this, Fusion.Widget.AttributeQuery.FilterBase.prototype, [json]);
         
         var b  = json.AllowEmptyValue ? json.AllowEmptyValue[0] : 'false';
         this.allowEmptyValue = (b == '1' || b == 'true') ? true : false ;
@@ -409,14 +409,14 @@ MGFilter.prototype = {
 
 };
 
-var MGSpatialFilter = Class.create();
-MGSpatialFilter.prototype = {
+Fusion.Widget.AttributeQuery.SpatialFilter = Class.create();
+Fusion.Widget.AttributeQuery.SpatialFilter.prototype = {
     validOperators: ['CONTAINS', 'CROSSES', 'DISJOINT', 'EQUALS',
                      'INSIDE', 'INTERSECTS', 'OVERLAPS', 'TOUCHES',
                      'WITHIN', 'COVEREDBY'],
 
     initialize: function(json) {
-        Object.inheritFrom(this, MGFilterBase.prototype, [json]);
+        Object.inheritFrom(this, Fusion.Widget.AttributeQuery.FilterBase.prototype, [json]);
     },
     getFilterText: function() {
         var result = '';

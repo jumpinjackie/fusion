@@ -28,16 +28,15 @@
 */
 
 
-var gnLastEventId = 10;
-var MAP_SELECTION_ON = gnLastEventId++;
-var MAP_SELECTION_OFF = gnLastEventId++;
-var MAP_ACTIVE_LAYER_CHANGED = gnLastEventId++;
-var MAP_LOADED = gnLastEventId++;
-var MAP_LOADING = gnLastEventId++;
-var MAP_SESSION_CREATED = gnLastEventId++;
+Fusion.Event.MAP_SELECTION_ON = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_SELECTION_OFF = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_ACTIVE_LAYER_CHANGED = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_LOADED = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_LOADING = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_SESSION_CREATED = Fusion.Event.lastEventId++;
 
-var MSMap = Class.create();
-MSMap.prototype = {
+Fusion.Widget.MSMap = Class.create();
+Fusion.Widget.MSMap.prototype = {
     arch: 'mapserver',
     session: [null],
     aShowLayers: null,
@@ -58,12 +57,12 @@ MSMap.prototype = {
         //console.log('MSMap.initialize');
         Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
         
-        this.registerEventID(MAP_SELECTION_ON);
-        this.registerEventID(MAP_SELECTION_OFF);
-        this.registerEventID(MAP_ACTIVE_LAYER_CHANGED);
-        this.registerEventID(MAP_LOADED);
-        this.registerEventID(MAP_LOADING);
-        this.registerEventID(MAP_SESSION_CREATED);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
+        this.registerEventID(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED);
+        this.registerEventID(Fusion.Event.MAP_LOADED);
+        this.registerEventID(Fusion.Event.MAP_LOADING);
+        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
         
         
         this._oConfigObj = Fusion.oConfigMgr;
@@ -90,8 +89,8 @@ MSMap.prototype = {
             var options = {onComplete: this.createSessionCB.bind(this)};
             Fusion.ajaxRequest(scriptURL,options);  
         }
-        if (this.session[0] instanceof MSMap) {
-            this.session[0].registerForEvent(MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
+        if (this.session[0] instanceof Fusion.Widget.MSMap) {
+            this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
         }
     },
     
@@ -100,7 +99,7 @@ MSMap.prototype = {
             if (r.responseXML) {
                 var node = new DomNode(r.responseXML);
                 this.session[0] = node.getNodeText('sessionid');
-                this.triggerEvent(MAP_SESSION_CREATED);
+                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
             }
         }
     },
@@ -131,7 +130,7 @@ MSMap.prototype = {
             return;
         }
         
-        this.triggerEvent(MAP_LOADING);
+        this.triggerEvent(Fusion.Event.MAP_LOADING);
         this._addWorker();
         
         this._fScale = -1;
@@ -186,7 +185,7 @@ MSMap.prototype = {
                 this._afCurrentExtents = [].concat(this._afInitialExtents); 
             } 
             this.setExtents(this._afCurrentExtents);
-            this.triggerEvent(MAP_LOADED);
+            this.triggerEvent(Fusion.Event.MAP_LOADED);
             
         }  
         else 
@@ -223,7 +222,7 @@ MSMap.prototype = {
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
             this.drawMap();
-            this.triggerEvent(MAP_LOADED);
+            this.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
@@ -325,7 +324,7 @@ MSMap.prototype = {
     },
     setActiveLayer: function( oLayer ) {
         this.oActiveLayer = oLayer;
-        this.triggerEvent(MAP_ACTIVE_LAYER_CHANGED, oLayer);
+        this.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
     getActiveLayer: function() {
         return this.oActiveLayer;
@@ -355,7 +354,7 @@ MSMap.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(MAP_SELECTION_ON);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -394,7 +393,7 @@ MSMap.prototype = {
     selectionCleared : function()
     {
         this.bSelectionOn = true;
-        this.triggerEvent(MAP_SELECTION_OFF);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
@@ -407,7 +406,7 @@ MSMap.prototype = {
         
         this.bSelectionOn = false;
         this._sQueryfile = "";
-        this.triggerEvent(MAP_SELECTION_OFF);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },

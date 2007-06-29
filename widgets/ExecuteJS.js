@@ -26,8 +26,8 @@
 
 
 
-var ExecuteJS = Class.create();
-ExecuteJS.prototype = 
+Fusion.Widget.ExecuteJS = Class.create();
+Fusion.Widget.ExecuteJS.prototype = 
 {
     sScript: null,
     initialize : function(oCommand)

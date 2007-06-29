@@ -23,11 +23,8 @@
  * extended description
  * **********************************************************************/
 
-
-
- 
-var ZoomOut = Class.create();
-ZoomOut.prototype = 
+Fusion.Widget.ZoomOut = Class.create();
+Fusion.Widget.ZoomOut.prototype = 
 {
     nFactor: -2,
     initialize : function(oCommand)

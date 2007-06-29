@@ -49,10 +49,8 @@
  * element you provide.
  * **********************************************************************/
 
-
-
-var ZoomToSelection = Class.create();
-ZoomToSelection.prototype = {
+Fusion.Widget.ZoomToSelection = Class.create();
+Fusion.Widget.ZoomToSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomToSelection', false, oCommand]);
@@ -63,10 +61,10 @@ ZoomToSelection.prototype = {
         this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
         this.zoomFactor = json.ZoomFactor ? json.ZoomFactor[0] : 2;
  
-        this.enable = ZoomToSelection.prototype.enable;
+        this.enable = Fusion.Widget.ZoomToSelection.prototype.enable;
         
-        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
     },
 
     /**

@@ -27,8 +27,8 @@
 
 Fusion.require('widgets/scalebar/scalebartool.js');
 
-var Scalebar = Class.create();
-Scalebar.prototype = {
+Fusion.Widget.Scalebar = Class.create();
+Fusion.Widget.Scalebar.prototype = {
     style: 'thin',
     displaySystem: 'metric',
     minWidth: 100,
@@ -89,7 +89,7 @@ Scalebar.prototype = {
         this.oScaleBar.place(oCommand.getName());
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
-        this.getMap().registerForEvent(MAP_LOADED, this.extentsChangedCB.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.extentsChangedCB.bind(this));
     },
 
     extentsChangedCB : function() {

@@ -23,11 +23,8 @@
  * extended description
  * **********************************************************************/
 
-
-
-
-var PanQuery = Class.create();
-PanQuery.prototype = {
+Fusion.Widget.PanQuery = Class.create();
+Fusion.Widget.PanQuery.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance: 3,
     bActiveOnly: false,

@@ -25,11 +25,9 @@
 
 Fusion.require('widgets/ZoomOut.js');
 
-var Recenter = Class.create();
-Recenter.prototype = 
-{
-    initialize : function(oCommand)
-    {
+Fusion.Widget.Recenter = Class.create();
+Fusion.Widget.Recenter.prototype ={
+    initialize : function(oCommand) {
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Recenter', true, oCommand]);
         Object.inheritFrom(this, ZoomOut.prototype, []);
         this.setMap(oCommand.getMap());

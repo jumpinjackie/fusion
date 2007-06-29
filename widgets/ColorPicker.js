@@ -25,8 +25,8 @@
  * **********************************************************************/
 
 
-var ColorPicker = Class.create();
-ColorPicker.prototype = 
+Fusion.Widget.ColorPicker = Class.create();
+Fusion.Widget.ColorPicker.prototype = 
 {
     /* HTML input element that is used to store both the initial
        value for this widget and receives the color value as the

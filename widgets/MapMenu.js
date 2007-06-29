@@ -51,8 +51,8 @@
  * **********************************************************************/
 
 
-var MapMenu = Class.create();
-MapMenu.prototype = 
+Fusion.Widget.MapMenu = Class.create();
+Fusion.Widget.MapMenu.prototype = 
 {
     _oDomObj: null,
     oMenu: null,

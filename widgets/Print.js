@@ -53,10 +53,8 @@
  * element you provide.
  * **********************************************************************/
 
-
-
-var Print = Class.create();
-Print.prototype = {
+Fusion.Widget.Print = Class.create();
+Fusion.Widget.Print.prototype = {
     initialize : function(oCommand) {
         Object.inheritFrom(this, Fusion.Widget.prototype, ['Print', false, oCommand]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
@@ -82,7 +80,7 @@ Print.prototype = {
         
         this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + oCommand.sLocation + '/html/Print.html';
         
-        this.getMap().registerForEvent(SELECTION_COMPLETE, this.getSelection.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.SELECTION_COMPLETE, this.getSelection.bind(this));
         
     },
     /**
@@ -170,7 +168,7 @@ Print.prototype = {
     },
     
     /* retrieve the results from the attributeQuery widget */
-    /* triggered by a SELECTION_COMPLETE event */
+    /* triggered by a Fusion.Event.SELECTION_COMPLETE event */
     getSelection: function() {
         var widget = Fusion.getWidgetById('AttributeQuery');
         var count = widget.getNumberOfResults();

@@ -24,10 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-var PanOnClick = Class.create();
-PanOnClick.prototype = 
+Fusion.Widget.PanOnClick = Class.create();
+Fusion.Widget.PanOnClick.prototype = 
 {
     fPercent: null,
     nDeltaX: null,

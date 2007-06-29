@@ -24,16 +24,16 @@
  * one or more segments.
  *
  * Distances for the current segment and the total distance are advertised
- * through the RULER_DISTANCE_CHANGED event.
+ * through the Fusion.Event.RULER_DISTANCE_CHANGED event.
  * 
  * **********************************************************************/
 
 
 
-var RULER_DISTANCE_CHANGED;
+Fusion.Event.RULER_DISTANCE_CHANGED = Fusion.Event.lastEventId++;
 
-var Ruler = Class.create();
-Ruler.prototype = {
+Fusion.Widget.Ruler = Class.create();
+Fusion.Widget.Ruler.prototype = {
     isDigitizing: false,
     //distance of each segment
     aDistances: [],
@@ -79,7 +79,7 @@ Ruler.prototype = {
             }
         }
         
-        this.registerEventID(RULER_DISTANCE_CHANGED);
+        this.registerEventID(Fusion.Event.RULER_DISTANCE_CHANGED);
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         this.keyHandler = this.onKeyPress.bind(this);
     },
@@ -109,7 +109,7 @@ Ruler.prototype = {
         this.aDistances = [];
         this.cumulativeDistance = 0;
         this.lastDistance = 0;
-        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        this.triggerEvent(Fusion.Event.RULER_DISTANCE_CHANGED, this);
         Event.observe(document,"keypress",this.keyHandler);
     },
     
@@ -134,7 +134,7 @@ Ruler.prototype = {
         this.aDistances = [];
         this.cumulativeDistance = 0;
         this.lastDistance = 0;
-        this.triggerEvent(RULER_DISTANCE_CHANGED, this);
+        this.triggerEvent(Fusion.Event.RULER_DISTANCE_CHANGED, this);
         if (this.rulerTip) {
             this.updateTip(null);
         }
@@ -172,7 +172,7 @@ Ruler.prototype = {
                 this.aDistances.push(d);
                 this.cumulativeDistance += d;
                 this.lastDistance = 0;
-                this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
+                this.triggerEvent(Fusion.Event.RULER_DISTANCE_CHANGED, this, this.getDistance());
                 if (this.rulerTip) {
                     this.updateTip(e);
                 }
@@ -247,7 +247,7 @@ Ruler.prototype = {
     
     updateDistance: function(seg, e) {
         this.lastDistance = this.measureSegment(seg);
-        this.triggerEvent(RULER_DISTANCE_CHANGED, this, this.getDistance());
+        this.triggerEvent(Fusion.Event.RULER_DISTANCE_CHANGED, this, this.getDistance());
         if (this.rulerTip) {
             this.updateTip(e);
         }

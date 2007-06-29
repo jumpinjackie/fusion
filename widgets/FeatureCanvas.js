@@ -26,8 +26,8 @@
 
 
 
-var FeatureCanvas = Class.create();
-FeatureCanvas.prototype = {
+Fusion.Widget.FeatureCanvas = Class.create();
+Fusion.Widget.FeatureCanvas.prototype = {
     features: null,
     initialize : function(oCommand) {
         //console.log('FeatureCanvas.initialize');

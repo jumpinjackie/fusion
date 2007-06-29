@@ -21,8 +21,8 @@
  ********************************************************************
  *
  * **********************************************************************/
-var KeyMap = Class.create();
-KeyMap.prototype =   {
+Fusion.Widget.KeyMap = Class.create();
+Fusion.Widget.KeyMap.prototype =   {
     fMinX : -1,  
     oDomImgObj : null,
   
@@ -50,7 +50,7 @@ KeyMap.prototype =   {
         this.fCellHeight = (this.fMaxY - this.fMinY)/this.nHeight;
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
-        this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
     },
     
     mapLoaded: function() 

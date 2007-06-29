@@ -24,11 +24,8 @@
  * 
  * **********************************************************************/
 
-
-
-
-var SelectPolygon = Class.create();
-SelectPolygon.prototype = {
+Fusion.Widget.SelectPolygon = Class.create();
+Fusion.Widget.SelectPolygon.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     initialize : function(oCommand) {

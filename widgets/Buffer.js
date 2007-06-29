@@ -25,8 +25,8 @@
  * **********************************************************************/
 
  
-var Buffer = Class.create();
-Buffer.prototype = {
+Fusion.Widget.Buffer = Class.create();
+Fusion.Widget.Buffer.prototype = {
     layerName: null,
     layerNameInput: null,
     bufferDistance: null,
@@ -81,8 +81,8 @@ Buffer.prototype = {
         
         /* override selection behaviour */
         this.enable = Buffer.prototype.enable;
-        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
     },
     
     setValue: function(input, value) {

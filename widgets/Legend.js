@@ -70,8 +70,8 @@
  * **********************************************************************/
 //Fusion.require('jx/tree/jxtree.js');
 
-var Legend = Class.create();
-Legend.prototype =
+Fusion.Widget.Legend = Class.create();
+Fusion.Widget.Legend.prototype =
 {
     currentNode: null,
     bIsDrawn: false,
@@ -126,8 +126,8 @@ Legend.prototype =
         }
         this.extentsChangedWatcher = this.update.bind(this);
        
-        this.getMap().registerForEvent(MAP_LOADED, this.mapLoaded.bind(this));
-        this.getMap().registerForEvent(MAP_LOADING, this.mapLoading.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, this.mapLoading.bind(this));
        
         //this.getLayers();
     },

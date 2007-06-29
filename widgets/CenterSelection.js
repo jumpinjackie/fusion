@@ -50,18 +50,18 @@
 
 
 
-var CenterSelection = Class.create();
-CenterSelection.prototype = {
+Fusion.Widget.CenterSelection = Class.create();
+Fusion.Widget.CenterSelection.prototype = {
     initialize : function(oCommand) {
         //console.log('ZoomToSelection.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['CenterSelection', false, oCommand]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(this._oCommand.getMap());
 
-        this.enable = CenterSelection.prototype.enable;
+        this.enable = Fusion.Widget.CenterSelection.prototype.enable;
         
-        this.getMap().registerForEvent(MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
     },
 
     /**

@@ -24,10 +24,5 @@
  * 
  * **********************************************************************/
 
-Fusion.require('jx/toolbar/jxtoolbar.js');
-
-var Toolbar = Class.create();
-Toolbar.prototype = 
-{
-    initialize : function(oCommand){}
-};
+Fusion.Widget.Toolbar = Class.create();
+Fusion.Widget.Toolbar.prototype = { initialize : function(oCommand){} };

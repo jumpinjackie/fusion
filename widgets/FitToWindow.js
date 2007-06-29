@@ -26,17 +26,13 @@
 
 
 
-var FitToWindow = Class.create();
-FitToWindow.prototype = 
-{
-    initialize : function(oCommand)
-    {
+Fusion.Widget.FitToWindow = Class.create();
+Fusion.Widget.FitToWindow.prototype = {
+    initialize : function(oCommand) {
         //console.log('FitToWindow.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['FitToWindow', false, oCommand]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.setMap(oCommand.getMap());
-        
-
     },
 
     execute: function() {

@@ -74,8 +74,8 @@
  *
  * **********************************************************************/
 
-var Maptip = Class.create();
-Maptip.prototype = 
+Fusion.Widget.Maptip = Class.create();
+Fusion.Widget.Maptip.prototype = 
 {
     oCurrentPosition: null,
     oMapTipPosition: null,
