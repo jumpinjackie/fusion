@@ -148,7 +148,6 @@ Ruler.prototype = {
      * @param e Event the event that happened on the mapObj
      */
     mouseDown: function(e) {
-        //console.log('Ruler.mouseDown');
         if (Event.isLeftClick(e)) {
             var map = this.getMap();
             var p = map.getEventPosition(e);
@@ -194,10 +193,11 @@ Ruler.prototype = {
      * @param e Event the event that happened on the mapObj
      */
     mouseMove: function(e) {
-        //console.log('Digitizer.mouseMove');
-        if (!this.isDigitizing) return;
+        if (!this.isDigitizing) {
+            return;
+        }
         var target = e.target || e.srcElement;
-        if (target.id != '_oEventDiv_mapContainer') {
+        if (target.id != '_oEventDiv_Map') {
             return;
         }
         var p = this.getMap().getEventPosition(e);
