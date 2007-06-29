@@ -22,10 +22,8 @@
 
 
 Fusion.Widget.ClearSelection = Class.create();
-Fusion.Widget.ClearSelection.prototype = 
-{
-    initialize : function(oCommand)
-    {
+Fusion.Widget.ClearSelection.prototype = {
+    initialize : function(oCommand) {
         //console.log('ClearSelection.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['ClearSelection', false, oCommand]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
@@ -40,8 +38,7 @@ Fusion.Widget.ClearSelection.prototype =
     /**
      * clears slection on map.
      */
-    execute : function()
-    {
+    execute : function() {
         this.getMap().clearSelection();
         
     },

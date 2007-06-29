@@ -154,13 +154,13 @@ Fusion.Widget.Ruler.prototype = {
             var gp = map.pixToGeo(p.x, p.y);
 
             if (!this.isDigitizing) {
-                this.currentFeature = new FeatureLine(map);
+                this.currentFeature = new Fusion.Tool.Canvas.Line(map);
                 this.lastDistance = 0;
                 this.cumulativeDistance = 0;
                 this.aDistances = [];
                 var from = new Node(gp.x,gp.y, map);
                 var to = new Node(gp.x,gp.y, map);
-                var seg = new Segment(from,to);
+                var seg = new Fusion.Tool.Canvas.Segment(from,to);
                 seg.setEditing(true);
                 this.currentFeature.addSegment(seg);
                 this.clearContext();

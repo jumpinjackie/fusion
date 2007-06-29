@@ -42,7 +42,7 @@ Fusion.Widget.FeatureCanvas.prototype = {
     },
     
     newPoint: function(x,y) {
-        var p = new FeaturePoint(this.getMap());
+        var p = new Fusion.Tool.Canvas.Point(this.getMap());
         p.setPoint(x,y);
         this.features.push(p);
         this.draw();
@@ -58,7 +58,7 @@ Fusion.Widget.FeatureCanvas.prototype = {
     },
     
     newCircle: function(x, y, r) {
-        var p = new FeatureCircle(this.getMap());
+        var p = new Fusion.Tool.Canvas.Circle(this.getMap());
         p.setCenter(x,y);
         p.setRadius(r);
         this.features.push(p);

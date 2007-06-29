@@ -143,7 +143,7 @@ Fusion.Widget.MSMap.prototype = {
         this.aVisibleLayers = options.showlayers || [];
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
-        this.layerRoot = new GxGroup();
+        this.layerRoot = new Fusion.Widget.Map.Group();
         
         this.oSelection = null;
         this.aSelectionCallbacks = [];
@@ -202,7 +202,7 @@ Fusion.Widget.MSMap.prototype = {
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
-        this.layerRoot = new GxGroup();
+        this.layerRoot = new Fusion.Widget.Map.Group();
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
@@ -467,7 +467,7 @@ MSGroup.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxGroup.prototype, [this.uniqueId]);
+        Object.inheritFrom(this, Fusion.Widget.Map.Group.prototype, [this.uniqueId]);
         this.oMap = oMap;
         this.groupName = o.groupName;
         this.legendLabel = o.legendLabel;
@@ -509,7 +509,7 @@ MSLayer.prototype = {
     
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxLayer.prototype, [this.uniqueId]);
+        Object.inheritFrom(this, Fusion.Widget.Map.Layer.prototype, [this.uniqueId]);
         this.oMap = oMap;
         this.layerName = o.layerName;
         this.uniqueId = o.uniqueId;

@@ -98,7 +98,7 @@ Fusion.Widget.SelectRadius.prototype = {
         /*icon button*/
         this._oButton.activateTool();
         if (!this.circle) {
-            this.circle = new FeatureCircle(this.getMap());
+            this.circle = new Fusion.Tool.Canvas.Circle(this.getMap());
             this.circle.setCenter(0);
         }
     },

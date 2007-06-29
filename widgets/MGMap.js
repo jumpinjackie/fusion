@@ -146,7 +146,7 @@ Fusion.Widget.MGMap.prototype = {
         this.aHideGroups = options.hidegroups || [];
         this.aRefreshLayers = options.refreshlayers || [];
         this.aLayers = [];
-        this.layerRoot = new GxGroup();
+        this.layerRoot = new Fusion.Widget.Map.Group();
         
         this.oSelection = null;
         this.aSelectionCallbacks = [];
@@ -236,7 +236,7 @@ Fusion.Widget.MGMap.prototype = {
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
-        this.layerRoot = new GxGroup();
+        this.layerRoot = new Fusion.Widget.Map.Group();
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
@@ -324,7 +324,7 @@ Fusion.Widget.MGMap.prototype = {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        var r = new MGGetVisibleMapExtent(this.getSessionID(),
+        var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.getSessionID(),
                                this._sMapname, cx, cy,
                                this._fScale, null, this._nDpi, nWidth, 
                                nHeight, showLayers, hideLayers, 
@@ -552,7 +552,7 @@ MGGroup.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxGroup.prototype, [o.groupName]);
+        Object.inheritFrom(this, Fusion.Widget.Map.Group.prototype, [o.groupName]);
         this.oMap = oMap;
         this.groupName = o.groupName;
         this.legendLabel = o.legendLabel;
@@ -606,7 +606,7 @@ MGLayer.prototype = {
     
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
-        Object.inheritFrom(this, GxLayer.prototype, [o.layerName]);
+        Object.inheritFrom(this, Fusion.Widget.Map.Layer.prototype, [o.layerName]);
         this.oMap = oMap;
         this.layerName = o.layerName;
         this.uniqueId = o.uniqueId;

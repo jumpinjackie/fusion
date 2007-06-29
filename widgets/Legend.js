@@ -228,7 +228,7 @@ Fusion.Widget.Legend.prototype =
         layer.legend.checkBox.type = 'checkbox';
         Event.observe(layer.legend.checkBox, 'click', this.stateChanged.bind(this, layer));
         layer.legend.currentRange = null;
-        layer.registerForEvent(LAYER_PROPERTY_CHANGED, this.layerPropertyChanged.bind(this));
+        layer.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this.layerPropertyChanged.bind(this));
     },
    
     layerPropertyChanged: function(eventID, layer) {
@@ -270,7 +270,7 @@ Fusion.Widget.Legend.prototype =
         this.currentNode = o;
         Element.addClassName(this.currentNode.domObj.childNodes[3], 'jxTreeSelectedNode');
        
-        if (o.data instanceof GxGroup) {
+        if (o.data instanceof Fusion.Widget.Map.Group) {
             this.getMap().setActiveLayer(null);
         } else {
             this.getMap().setActiveLayer(o.data);
