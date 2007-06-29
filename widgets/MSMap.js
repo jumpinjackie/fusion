@@ -191,7 +191,7 @@ MSMap.prototype = {
         }  
         else 
         {
-            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
         this._removeWorker();
     },
@@ -225,7 +225,7 @@ MSMap.prototype = {
             this.drawMap();
             this.triggerEvent(MAP_LOADED);
         } else {
-            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
         this._removeWorker();
     },

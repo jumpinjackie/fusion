@@ -224,7 +224,7 @@ MGMap.prototype = {
             //this._calculateScale();
             this.triggerEvent(MAP_LOADED);
         } else {
-            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
         this._removeWorker();
     },
@@ -259,7 +259,7 @@ MGMap.prototype = {
             this.parseMapLayersAndGroups(o);
             this.triggerEvent(MAP_LOADED);
         } else {
-            Fusion.error( new GxError(FUSION_ERROR_FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
         this._removeWorker();
     },
