@@ -61,7 +61,7 @@ Fusion.Widget.SelectRadiusValue.prototype =  {
             $(oCommand.getName()).appendChild(this.domObj);
         }
         Event.observe(this.input, 'blur', this.onBlur.bind(this));
-        this.getMap().registerForEvent(Fusion.Widget.MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
         
     },

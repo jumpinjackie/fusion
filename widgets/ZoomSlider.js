@@ -57,7 +57,7 @@ Fusion.Widget.ZoomSlider.prototype =
         this._oSlider = new Control.Slider(this._oHandle, this._oTrack, options);
         
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
-        this.getMap().registerForEvent(Fusion.Widget.MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
         
     },
     
