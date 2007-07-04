@@ -80,7 +80,7 @@ Fusion.Widget.Buffer.prototype = {
         }
         
         /* override selection behaviour */
-        this.enable = Buffer.prototype.enable;
+        this.enable = Fusion.Widget.Buffer.prototype.enable;
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
     },
