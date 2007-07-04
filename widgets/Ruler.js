@@ -158,8 +158,8 @@ Fusion.Widget.Ruler.prototype = {
                 this.lastDistance = 0;
                 this.cumulativeDistance = 0;
                 this.aDistances = [];
-                var from = new Node(gp.x,gp.y, map);
-                var to = new Node(gp.x,gp.y, map);
+                var from = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
+                var to = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
                 var seg = new Fusion.Tool.Canvas.Segment(from,to);
                 seg.setEditing(true);
                 this.currentFeature.addSegment(seg);
