@@ -196,10 +196,13 @@ Fusion.Widget.Ruler.prototype = {
         if (!this.isDigitizing) {
             return;
         }
+        
+        var oElement = this.getMap().getDomObj();
         var target = e.target || e.srcElement;
-        if (target.id != '_oEventDiv_Map') {
+        if (target.id != '_oEventDiv_'+oElement.id) {
             return;
         }
+
         var p = this.getMap().getEventPosition(e);
         var gp = this.getMap().pixToGeo(p.x, p.y);
         var seg = this.currentFeature.lastSegment();
