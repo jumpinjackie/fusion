@@ -40,15 +40,10 @@ Fusion.Widget.ColorPicker.prototype =
        user, in RRGGBB format */
     color: '#000000',
     
-    picker: null,
+    colorButton: null,
     
     initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ColorPicker', false, oCommand]);
-        /* override the image !!! */
-        oCommand.jsonNode.DisabledImageURL = ['images/a_pixel.png'];
-        oCommand.jsonNode.ImageURL = ['images/a_pixel.png'];
-        
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['ColorPicker', false, oCommand]);        
         this.setMap(oCommand.getMap());
         
         if (oCommand.jsonNode.ColorInputId) {
@@ -61,24 +56,21 @@ Fusion.Widget.ColorPicker.prototype =
             this.colorInput.widget = this;
         }
         
-        this.picker = new Jx.ColorPicker({color: this.color, alpha: this.alpha});
-        this.picker.addColorChangeListener(this);
+        this.colorButton = new Jx.Button.Color({color: this.color, alpha: this.alpha});
+        this.colorButton.addColorChangeListener(this);
         
-        this._oButton._oButton.domObj.parentNode.replaceChild(this.picker.domObj, this._oButton._oButton.domObj);
-    },
-    
-    colorChanged: function(picker) {
-        var a = parseInt(this.picker[0].alpha*255).toString(16);
-        var c = a + this.picker[0].color.substring(1);
-        if (this.colorInput) {
-            this.colorInput.value = c;
+        var parent = $(oCommand.getName());
+        if (parent) {
+            parent.appendChild(this.colorButton.domObj);
         }
     },
     
-    execute: function() {
-        this.picker.addColorChangeListener(this);
-        this.picker.setAlpha(this.alpha);
-        this.picker.setColor(this.color);
-        this.picker.show();
+    colorChanged: function(button) {
+        var a = parseInt(this.colorButton.alpha*255/100).toString(16);
+        var c = a + this.colorButton.color.substring(1);
+        console.log('colorChanged: '+c);
+        if (this.colorInput) {
+            this.colorInput.value = c;
+        }
     }
 };
