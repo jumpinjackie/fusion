@@ -96,8 +96,8 @@ Fusion.Widget.SelectPolygon.prototype = {
             if (!this.isDigitizing) {
                 this.polygon = new Fusion.Tool.Canvas.Polygon(this.getMap());
                 var point = this.getMap().pixToGeo(p.x, p.y);
-                var from = new Node(point.x,point.y, this.getMap());
-                var to = new Node(point.x,point.y, this.getMap());
+                var from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
+                var to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
                 var seg = new Fusion.Tool.Canvas.Segment(from,to);
                 seg.setEditing(true);
                 this.polygon.addSegment(seg);
