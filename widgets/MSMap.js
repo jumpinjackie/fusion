@@ -221,6 +221,12 @@ Fusion.Widget.MSMap.prototype = {
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
+            this.aVisibleLayers = [];
+            for (var i=0; i<this.aLayers.length; i++) {
+                if (this.aLayers[i].visible) {
+                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+                }
+            }
             this.drawMap();
             this.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
