@@ -62,7 +62,6 @@ Fusion.Widget.MapMenu.prototype =
     {
         //console.log('MapMenu.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, ['MapMenu', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
         this.setMap(oCommand.getMap());
         this.enable();
         
@@ -74,10 +73,11 @@ Fusion.Widget.MapMenu.prototype =
         
         //set up the root menu
         this.oMenu = new Jx.Menu(this._sLabel);
-        this._oButton._oDomObj.appendChild(this.oMenu.domObj);
-        Element.addClassName(this._oButton._oButton.domObj, 'jxButtonMenu');
+        this._oDomObj.appendChild(this.oMenu.domObj);
         
         //get the mapdefinitions as xml
+        //FIXME: this should be platform agnostic, Library:// isn't!
+        //FIXME: use JSON rather than XML
         this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
         var s =        this.getMap().arch + '/' + Fusion.getScriptLanguage() +
                       '/MapMenu.' + Fusion.getScriptLanguage();
@@ -125,7 +125,7 @@ Fusion.Widget.MapMenu.prototype =
         for (var i=0; i < aPath.length; i++) {
             if (!this.aMenus[sParent + sSep + aPath[i]]){
                 var opt = {label:aPath[i]};
-                var menu = new Jx.Menu(opt);
+                var menu = new Jx.SubMenu(opt);
                 //console.log('MapMenu::createFolders -'+sParent);
                 if (sParent == '') {
                     this.oMenu.add(menu);
