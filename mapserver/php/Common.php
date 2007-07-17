@@ -41,7 +41,6 @@ $szGDModule = 'php_gd2.'.PHP_SHLIB_SUFFIX;
  * The remainder of this file just sets up a common environment for server-side
  * scripts.
  */
- 
 include(dirname(__FILE__).'/Session.php');
 installSessionDirectoryHandler();
 

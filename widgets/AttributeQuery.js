@@ -19,10 +19,11 @@
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software. ********************************************************************
 * **********************************************************************/
- 
+
+
 Fusion.Event.SELECTION_STARTED = Fusion.Event.lastEventId++;
 Fusion.Event.SELECTION_COMPLETE = Fusion.Event.lastEventId++;
- 
+
 Fusion.Widget.AttributeQuery = Class.create();
 Fusion.Widget.AttributeQuery.prototype = {
     spatialFilter: null,
@@ -68,7 +69,6 @@ Fusion.Widget.AttributeQuery.prototype = {
         
         this.registerEventID(Fusion.Event.SELECTION_STARTED);
         this.registerEventID(Fusion.Event.SELECTION_COMPLETE);
-        
     },
     
     submitQuery: function() {
