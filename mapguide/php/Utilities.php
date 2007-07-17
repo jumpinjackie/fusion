@@ -405,6 +405,7 @@ function GetFeatureSourceAttributes($map, $layerResourceId, $featureService) {
     $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
     //MgPropertyDefinition classProps
     $classProps = $classDefinition->GetProperties();
+    $identProps = $classDefinition->GetIdentityProperties();
     $featureGeometryName = $layer->GetFeatureGeometryName();
     $drawProps = new MgPropertyCollection();
     for ($i=0; $i< $classProps->GetCount(); $i++)
@@ -434,7 +435,8 @@ function GetFeatureSourceAttributes($map, $layerResourceId, $featureService) {
                                      'default' => $prop->GetDefaultValue(),
                                      'precision' => $prop->GetPrecision(),
                                      'scale' => $prop->GetScale(),
-                                     'nullable' => $prop->GetNullable()
+                                     'nullable' => $prop->GetNullable(),
+                                     'identity' => $identProps->IndexOf($prop->GetName()) != -1
                                     );
         } else {
             echo 'Found Other Property:';
