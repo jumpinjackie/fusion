@@ -591,12 +591,6 @@ MGGroup.prototype = {
     }
 };
 
-var MGLAYER_POINT_TYPE = 0;
-var MGLAYER_LINE_TYPE = 1;
-var MGLAYER_POLYGON_TYPE = 2;
-var MGLAYER_SOLID_TYPE = 3;
-var MGLAYER_RASTER_TYPE = 4;
-
 var MGLayer = Class.create();
 MGLayer.prototype = {
     
