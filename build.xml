@@ -74,6 +74,7 @@ $Id$
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
   <property name="app.version" value="1.0-preview"/>
+  <property name="app.flavour" value="mapguide"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
@@ -103,23 +104,69 @@ $Id$
 
 -->
 
-  <target name="prepare" description="creates uncompressed build">
+  <target name="prepare" description="preparing core files">
     <echo message="os name=${os.name}"/>
     <echo message="Preparing uncompressed build"/>
     <!-- Create build directories as needed -->
     <mkdir dir="${build.home}"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
-      <fileset dir="${basedir}" includes="config.xml common/** docs/** ext/** lib/** mapguide/** mapserver/** redist/** samples/** selenium/** widgets/**"/>
+      <fileset dir="${basedir}" 
+            includes="config.xml common/** docs/** ext/** lib/** redist/**"
+            excludes="selenium/**"
+       />
     </copy>
     
     <!-- Create jx directories -->
     <mkdir dir="${build.home}/jx"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}/jx">
-      <fileset dir="${jx-lib}"/>
+      <fileset dir="${jx-lib}" excludes="nbproject/** build.sh build.xml"/>
     </copy>
     
+  </target>
+
+  <target name="prepare-mapguide" depends="clean,prepare" description="creates uncompressed build for mapguide">
+    <echo message="Preparing mapguide files"/>
+    <!-- Copy static content of the mapbuilder project  -->
+    <copy todir="${build.home}">
+      <fileset dir="${basedir}" includes="mapguide/** samples/mapguide/**"/>
+    </copy>
+    <copy todir="${build.home}/widgets">
+      <fileset dir="${basedir}/widgets" 
+            includes="MGMap.js
+                      Zoom.js
+                      ZoomOut.js
+                      ExtentHistory.js
+                      Pan.js
+                      FitToWindow.js
+                      ScaleEntry.js
+                      Ruler.js
+                      Select.js
+                      ClearSelection.js
+                      Buffer.js
+                      SaveMap.js
+                      Legend.js
+                      MapMenu.js
+                      ExecuteJS.js
+                      Maptip.js
+                      Toolbar.js
+                      html/**
+                      scalebar/**"/>
+    <!--                  Print
+                      Info
+                      Help
+                      Context Menu-->
+
+    </copy>
+  </target>
+
+  <target name="prepare-mapserver" depends="prepare" description="creates uncompressed build for mapserver">
+    <echo message="Preparing mapserver files"/>
+    <!-- Copy static content of the mapbuilder project  -->
+    <copy todir="${build.home}">
+      <fileset dir="${basedir}" includes="mapserver/** samples/mapserver/** widgets/**"/>
+    </copy>
   </target>
 
 
@@ -141,7 +188,7 @@ $Id$
         <arg value="-xi ./scriptaculous"/>
         <arg value="-xi ./lib"/>
         <arg value="-r"/-->
-        <arg line="/c perl C:\Progra~1\NaturalDocs\NaturalDocs -i ./ -o html ./docs -p ./docs/NaturalDocs -xi ./scriptaculous -xi ./lib -r"/>
+        <arg line="/c perl C:\Progra~1\NaturalDocs\NaturalDocs -i ./lib -i ./widgets -o html ./docs/NaturalDocs -p ./docs/NaturalDocs -r"/>
     </exec>
   </target>
 
@@ -202,7 +249,7 @@ $Id$
     dependencies) will have been assembled
 -->
 
-  <target name="dist" description="Create binary distribution" depends="clean,docs,compress">
+  <target name="dist" description="Create binary distribution" depends="docs,compress">
     
     <echo message="Creating distribution archive"/>
     <mkdir dir="${dist.home}"/>
@@ -213,9 +260,26 @@ $Id$
     </zip>
     
     <!-- create tar file -->
+    <tar destfile="${dist.home}/${app.name}-${app.version}.tar">
+      <tarfileset dir="${build.home}" prefix="${app.name}"/>
+    </tar>
+    <gzip src="${dist.home}/${app.name}-${app.version}.tar" destfile="${dist.home}/${app.name}-${app.version}.tar.gz"/>
+    
     <!--tar destfile=""/-->
     
   </target>
+
+  <target name="dist-mapguide" description="Create binary distribution for MapGuide" depends="prepare-mapguide,dist">
+    <move file="${dist.home}/${app.name}-${app.version}.zip" tofile="${dist.home}/${app.name}-mapguide-${app.version}.zip"/>
+    <move file="${dist.home}/${app.name}-${app.version}.tar" tofile="${dist.home}/${app.name}-mapguide-${app.version}.tar"/>
+    <move file="${dist.home}/${app.name}-${app.version}.tar.gz" tofile="${dist.home}/${app.name}-mapguide-${app.version}.tar.gz"/>
+  </target>
+  <target name="dist-mapserver" description="Create binary distribution for MapServer" depends="prepare-mapserver,dist">
+    <move file="${dist.home}/${app.name}-${app.version}.zip" tofile="${dist.home}/${app.name}-mapserver-${app.version}.zip"/>
+    <move file="${dist.home}/${app.name}-${app.version}.tar" tofile="${dist.home}/${app.name}-mapserver-${app.version}.tar"/>
+    <move file="${dist.home}/${app.name}-${app.version}.tar.gz" tofile="${dist.home}/${app.name}-mapserver-${app.version}.tar.gz"/>
+  </target>
+    
 
 <!-- ==================== Clean Target ==================================== -->
 <!--
