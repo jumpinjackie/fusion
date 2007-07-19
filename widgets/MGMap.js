@@ -301,6 +301,7 @@ Fusion.Widget.MGMap.prototype = {
     },
     
     drawMap: function() {
+        if (!this._afCurrentExtents) return;
         this._addWorker();
         var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
         var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
