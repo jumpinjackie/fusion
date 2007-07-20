@@ -72,8 +72,7 @@ Fusion.Widget.MapMenu.prototype =
         this._sImageURL = json.ImageURL ? json.ImageURL[0] : '';
         
         //set up the root menu
-        this.oMenu = new Jx.Menu(this._sLabel);
-        this._oDomObj.appendChild(this.oMenu.domObj);
+        this.oMenu = new Jx.Menu({label:this._sLabel, image:this._sImageURL});        this._oDomObj.appendChild(this.oMenu.domObj);
         
         //get the mapdefinitions as xml
         //FIXME: this should be platform agnostic, Library:// isn't!
