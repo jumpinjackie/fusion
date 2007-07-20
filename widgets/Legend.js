@@ -285,7 +285,7 @@ Fusion.Widget.Legend.prototype =
         }   
     },
     updateLayer: function(layer, fScale) {
-        var bFirstDisplay = false;
+        //var bFirstDisplay = false;  //removed for bug#5170
         if (!layer.displayInLegend) {
             return;
         }
@@ -300,7 +300,7 @@ Fusion.Widget.Legend.prototype =
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
                 if (!layer.legend.treeItem) {
-                    bFirstDisplay = true;
+                    //bFirstDisplay = true;
                     layer.legend.treeItem = this.createFolderItem(layer);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
@@ -321,7 +321,7 @@ Fusion.Widget.Legend.prototype =
                
                 //tree item is really a tree item
                 if (!layer.legend.treeItem) {
-                    bFirstDisplay = true;
+                    //bFirstDisplay = true;
                     var style;
                     if (layer.supportsType(4)) {
                         style = true;
@@ -365,9 +365,9 @@ Fusion.Widget.Legend.prototype =
                 layer.legend.treeItem = newTreeItem;
             }
         }
-        if (bFirstDisplay) {
+        //if (bFirstDisplay) {
             layer.legend.checkBox.checked = layer.visible?true:false;
-        }
+        //}
     },
     createFolderItem: function(layer) {
         var opt = {};
