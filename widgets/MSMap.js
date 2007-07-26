@@ -27,7 +27,6 @@
  * MSMap : MapServer map widget Based on generic class Fusion.Widget.Map
 */
 
-
 Fusion.Event.MAP_SELECTION_ON = Fusion.Event.lastEventId++;
 Fusion.Event.MAP_SELECTION_OFF = Fusion.Event.lastEventId++;
 Fusion.Event.MAP_ACTIVE_LAYER_CHANGED = Fusion.Event.lastEventId++;
