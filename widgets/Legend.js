@@ -127,6 +127,7 @@ Fusion.Widget.Legend.prototype =
         this.extentsChangedWatcher = this.update.bind(this);
        
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.draw.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, this.mapLoading.bind(this));
        
         //this.getLayers();
@@ -141,7 +142,7 @@ Fusion.Widget.Legend.prototype =
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.draw();
     },
-   
+    
     /**
      * the map state has become invalid in some way (layer added, removed,
      * ect).  For now, we just re-request the map state from the server
