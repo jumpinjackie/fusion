@@ -27,13 +27,6 @@
  * MGMap : MapGuide map widget Based on generic class Fusion.Widget.Map
 */
 
-Fusion.Event.MAP_SELECTION_ON = Fusion.Event.lastEventId++;
-Fusion.Event.MAP_SELECTION_OFF = Fusion.Event.lastEventId++;
-Fusion.Event.MAP_ACTIVE_LAYER_CHANGED = Fusion.Event.lastEventId++;
-Fusion.Event.MAP_LOADED = Fusion.Event.lastEventId++;
-Fusion.Event.MAP_LOADING = Fusion.Event.lastEventId++;
-Fusion.Event.MAP_SESSION_CREATED = Fusion.Event.lastEventId++;
-
 Fusion.Widget.MGMap = Class.create();
 Fusion.Widget.MGMap.prototype = {
     arch: 'mapguide',
@@ -54,14 +47,7 @@ Fusion.Widget.MGMap.prototype = {
     initialize : function(oCommand, sid) {
         // console.log('MGMap.initialize');
         Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
-        
-        this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
-        this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
-        this.registerEventID(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED);
-        this.registerEventID(Fusion.Event.MAP_LOADED);
-        this.registerEventID(Fusion.Event.MAP_LOADING);
-        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
-        
+                
         //this.registerForEvent(SESSION_CREATED, this.historyChanged.bind(this));
         
         this._oConfigObj = Fusion.oConfigMgr;
@@ -255,7 +241,7 @@ Fusion.Widget.MGMap.prototype = {
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
-            this.triggerEvent(Fusion.Event.MAP_LOADED);
+            this.triggerEvent(Fusion.Event.MAP_RELOADED);
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
