@@ -31,3 +31,4 @@ docs      - automatically generates class documentation from the source code
 
 
 $Id$
+$Copyright$
