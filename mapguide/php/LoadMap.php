@@ -104,48 +104,15 @@ try
     for($i=0;$i<$layers->GetCount();$i++) 
     { 
         $layer=$layers->GetItem($i);
-        $mappings = GetLayerPropertyMappings($resourceService, $layer);
-        if (!isset($_SESSION['property_mappings'])) {
-            $_SESSION['property_mappings'] = array();
-        }
-        $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
-        $layerDefinition = $layer->GetLayerDefinition();
-        $aLayerTypes = GetLayerTypes($featureService, $layer);
-        //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
-        
+
+        //only output layers that are part of the 'Normal Group' and 
+        //not the base map group used for tile maps.
+        $oGroup = $layer->GetGroup();
+        if ($oGroup &&  $oGroup->GetLayerGroupType() == 2)
+          continue;
+
         echo $layerSep.'{';
-        echo "propertyMappings:{";
-        $sep = '';
-        foreach($mappings as $name => $value) {
-            echo $sep."$name:'$value'";
-            $sep = ',';
-        }
-        echo "},";
-        echo "uniqueId:'".$layer->GetObjectId()."',";
-        echo "layerName:'".addslashes(htmlentities($layer->GetName()))."',";
-        echo 'layerTypes:[';
-        $sep = '';
-        for ( $j=0; $j < count($aLayerTypes); $j++ )
-        { 
-            echo $sep . $aLayerTypes[$j];
-            $sep = ',';
-        }
-        echo '],';
-        echo "displayInLegend:".BooleanToString($layer->GetDisplayInLegend()).",";
-        echo "expandInLegend:".BooleanToString($layer->GetExpandInLegend()).",";
-        echo "resourceId:'".$layerDefinition->ToString()."',";
-        echo "parentGroup:";
-        echo $layer->GetGroup() ? "'".$layer->GetGroup()->GetObjectId()."'," : 'null,';
-        echo "legendLabel:'".addslashes(htmlentities($layer->GetLegendLabel()))."',";
-        echo "selectable:".BooleanToString($layer->GetSelectable()).",";
-        echo "visible:".BooleanToString($layer->GetVisible()).",";
-        echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
-        if (IsLayerEditable($resourceService, $layer)) {
-            echo "editable:true,";
-        } else {
-            echo "editable:false,";
-        }
-        echo buildScaleRanges($layer);
+        OutputLayerInfo($layer, $resourceService, $featureService);
         echo '}';
         $layerSep = ',';
     } 
@@ -158,24 +125,62 @@ try
     for($i=0;$i<$groups->GetCount();$i++) 
     { 
         $group=$groups->GetItem($i);
+        if ($group->GetLayerGroupType() == 2)
+          continue;
+
         $layerDefinition = $layer->GetLayerDefinition();
         echo $groupSep.'{';
-        echo "groupName:'".addslashes(htmlentities($group->GetName()))."',";
-        echo "legendLabel:'".addslashes(htmlentities($group->GetLegendLabel()))."',";
-        echo "uniqueId:'".$group->GetObjectId()."',";
-        echo "displayInLegend:".BooleanToString($group->GetDisplayInLegend()).",";
-        echo "expandInLegend:".BooleanToString($group->GetExpandInLegend()).",";
-        echo "layerGroupType:'".$group->GetLayerGroupType()."',";
-        $parent = $group->GetGroup();
-        echo "parentUniqueId:";
-        echo $parent != null ? "'".$parent->GetObjectId()."," : "null,";
-        echo "visible:".BooleanToString($group->GetVisible()).",";
-        echo "actuallyVisible:".BooleanToString($group->isVisible());
+        OutputGroupInfo($group);
         echo '}';
         $groupSep = ',';
     } 
-    echo"]"; 
+    echo"],"; 
+
+    //FiniteDisplayScales for tiled maps
+    echo "FiniteDisplayScales:[";
+    for ($i=0; $i<$map->GetFiniteDisplayScaleCount(); $i++)
+    {
+        if ($i>0)
+          echo ",";
+        echo $map->GetFiniteDisplayScaleAt($i);
+    }
+    echo"],";
     
+    echo "BaseMapLayerGroups:[";
+
+    $groupSep = '';
+    for($i=0;$i<$groups->GetCount();$i++) 
+    { 
+        $group=$groups->GetItem($i);
+        if ($group->GetLayerGroupType() == 2)
+        {
+            echo $groupSep.'{';
+            OutputGroupInfo($group);
+            echo '}';
+            $groupSep = ',';
+        }
+    }
+    echo"],";
+
+    echo "BaseMapLayers:[";
+    $layerSep = '';
+    for($i=0;$i<$layers->GetCount();$i++) 
+    { 
+        $layer=$layers->GetItem($i);
+
+        //only output layers that are part of the tile map group
+        $oGroup = $layer->GetGroup();
+        if ($oGroup &&  $oGroup->GetLayerGroupType() != 2)
+          continue;
+
+        echo $layerSep.'{';
+        OutputLayerInfo($layer, $resourceService, $featureService);
+        echo '}';
+        $layerSep = ',';
+    } 
+    echo "]"; 
+    
+   
     echo "}";
 }
 catch (MgException $e)
@@ -277,4 +282,66 @@ function BooleanToString($boolean)
     else
         return "'ERROR in BooleanToString.'";
 }
+
+function OutputGroupInfo($group)
+{
+    echo "groupName:'".addslashes(htmlentities($group->GetName()))."',";
+    echo "legendLabel:'".addslashes(htmlentities($group->GetLegendLabel()))."',";
+    echo "uniqueId:'".$group->GetObjectId()."',";
+    echo "displayInLegend:".BooleanToString($group->GetDisplayInLegend()).",";
+    echo "expandInLegend:".BooleanToString($group->GetExpandInLegend()).",";
+    echo "layerGroupType:'".$group->GetLayerGroupType()."',";
+    $parent = $group->GetGroup();
+    echo "parentUniqueId:";
+    echo $parent != null ? "'".$parent->GetObjectId()."," : "null,";
+    echo "visible:".BooleanToString($group->GetVisible()).",";
+    echo "actuallyVisible:".BooleanToString($group->isVisible());
+}
+
+function OutputLayerInfo($layer, $resourceService, $featureService)
+{
+    $mappings = GetLayerPropertyMappings($resourceService, $layer);
+    if (!isset($_SESSION['property_mappings'])) {
+        $_SESSION['property_mappings'] = array();
+    }
+    $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
+    $layerDefinition = $layer->GetLayerDefinition();
+    $aLayerTypes = GetLayerTypes($featureService, $layer);
+    //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
+        
+    echo "propertyMappings:{";
+    $sep = '';
+    foreach($mappings as $name => $value) {
+        echo $sep."$name:'$value'";
+        $sep = ',';
+    }
+    echo "},";
+    echo "uniqueId:'".$layer->GetObjectId()."',";
+    echo "layerName:'".addslashes(htmlentities($layer->GetName()))."',";
+    echo 'layerTypes:[';
+    $sep = '';
+    for ( $j=0; $j < count($aLayerTypes); $j++ )
+    { 
+        echo $sep . $aLayerTypes[$j];
+        $sep = ',';
+    }
+    echo '],';
+    echo "displayInLegend:".BooleanToString($layer->GetDisplayInLegend()).",";
+    echo "expandInLegend:".BooleanToString($layer->GetExpandInLegend()).",";
+    echo "resourceId:'".$layerDefinition->ToString()."',";
+    echo "parentGroup:";
+    echo $layer->GetGroup() ? "'".$layer->GetGroup()->GetObjectId()."'," : 'null,';
+    echo "legendLabel:'".addslashes(htmlentities($layer->GetLegendLabel()))."',";
+    echo "selectable:".BooleanToString($layer->GetSelectable()).",";
+    echo "visible:".BooleanToString($layer->GetVisible()).",";
+    echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
+    if (IsLayerEditable($resourceService, $layer)) {
+        echo "editable:true,";
+    } else {
+        echo "editable:false,";
+    }
+    echo buildScaleRanges($layer);
+
+}
+
 ?>
