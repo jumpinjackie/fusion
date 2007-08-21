@@ -91,7 +91,7 @@ Fusion.Widget.ZoomToSelection.prototype = {
         ur.x = cX + zoom_size;
         ll.y = cY - zoom_size;
         ur.y = cY + zoom_size;
-        this.getMap().setExtents([ll.x,ll.y,ur.x,ur.y]);
+        this.getMap().setExtents(new OpenLayers.Bounds(ll.x,ll.y,ur.x,ur.y));
     },
     
     enable: function() {

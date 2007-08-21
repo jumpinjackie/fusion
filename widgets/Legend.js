@@ -246,7 +246,7 @@ Fusion.Widget.Legend.prototype =
      * update the tree when the map scale changes
      */
     _update: function() {
-        var currentScale = this.getMap().getScale();
+        var currentScale = this.getMap().oMapOL.getScale();
         var map = this.getMap();
         for (var i=0; i<map.layerRoot.groups.length; i++) {
             this.updateGroupLayers(map.layerRoot.groups[i], currentScale);

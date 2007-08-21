@@ -119,19 +119,7 @@ Fusion.Widget.Zoom.prototype =
         }
         var gMin = map.pixToGeo(nLeft,nBottom);
         var gMax = map.pixToGeo(nRight,nTop);
-        var gCenter = {x:(gMin.x+gMax.x)/2,y:(gMin.y+gMax.y)/2};
-        var ratio = this.nFactor;
-        var pWidth = Math.abs(nRight-nLeft);
-        var pHeight = Math.abs(nBottom-nTop);
-        //console.log('pWidth: ' + pWidth + ', pHeight: ' + pHeight);
-        if (pWidth > this.nTolerance ||
-            pHeight > this.nTolerance) {
-            ratio = Math.min(map._nWidth/pWidth,map._nHeight/pHeight);
-        }
-        if (!zoomIn) {
-            ratio = ratio * -1;
-        }
-        map.zoom(gCenter.x,gCenter.y,ratio);
+        map.setExtents(new OpenLayers.Bounds(gMin.x,gMin.y,gMax.x,gMax.y));
     },
 
     setParameter : function(param, value)

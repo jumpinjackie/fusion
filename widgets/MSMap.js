@@ -40,7 +40,7 @@ Fusion.Widget.MSMap.prototype = {
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
     oSelection: null,
-    _afCurrentExtents : null,
+    _oCurrentExtents : null,
 
     //the map file
     sMapFile: null,
@@ -122,8 +122,8 @@ Fusion.Widget.MSMap.prototype = {
         
         options = options || {};
         
-        this._afInitialExtents = null;
-        this._afCurrentExtents = options.extents ? [].concat(options.extents) : null;
+        this._oInitialExtents = null;
+        this._oCurrentExtents = options.extents ? OpenLayers.Bounds.fromArray(options.extents) : null;
         this.aVisibleLayers = options.showlayers || [];
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
@@ -153,8 +153,8 @@ Fusion.Widget.MSMap.prototype = {
             this._sMapname = o.mapName; 
             this._fMetersperunit = o.metersPerUnit; 
 
-            if (!this._afInitialExtents) { 
-              this._afInitialExtents = [].concat(o.extent); 
+            if (!this._oInitialExtents) { 
+              this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent); 
             } 
             
             this.parseMapLayersAndGroups(o);
@@ -164,11 +164,45 @@ Fusion.Widget.MSMap.prototype = {
                 }
             }
             
-            if (!this._afCurrentExtents) 
+            if (o.dpi) OpenLayers.DOTS_PER_INCH = o.dpi;
+
+            var oMapOptions = {};
+            if ( !this.oMapOL.getMaxExtent() ) {  //setting up the baselayer for OpenLayers
+              oMapOptions.maxExtent = this._oInitialExtents;
+              oMapOptions.maxResolution = 'auto';
+            }
+
+            //set projection units and code if supplied
+            if (o.metersPerUnit == 1) {
+              oMapOptions.units = 'm';
+              //oMapOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
+            } else {
+              //TBD need to do anything here? OL defaults to degrees
+            }
+
+            //add in scales array if supplied
+            oMapOptions.maxScale = 1;     //TBD Do a better job of seetting scale ranges, 
+                                          //perhaps from layer scale ranges min and max
+
+            this.oMapOL.setOptions(oMapOptions);
+
+            //create the OL layer for this Map layer
+            var params = {
+              layers: this.aVisibleLayers.join(' '),
+              session : this.getSessionID(),
+              map : this._sMapFile,
+              seq : Math.random()
+            }
+            var url = Fusion.getConfigurationItem('mapserver', 'cgi');
+            this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
+            this.oMapOL.addLayer(this.oLayerOL);
+
+            if (!this._oCurrentExtents) 
             { 
-                this._afCurrentExtents = [].concat(this._afInitialExtents); 
+                this._oCurrentExtents = this._oInitialExtents;
             } 
-            this.setExtents(this._afCurrentExtents);
+
+            this.setExtents(this._oCurrentExtents);
             this.triggerEvent(Fusion.Event.MAP_LOADED);
             
         }  
@@ -200,7 +234,7 @@ Fusion.Widget.MSMap.prototype = {
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapReloaded: function(r,json) {
+    mapReloaded: function(r,json) {  /* update this with OL code */
         if (json) {
             var o;
             eval('o='+r.responseText);
@@ -245,48 +279,34 @@ Fusion.Widget.MSMap.prototype = {
     },
      
     isMapLoaded: function() {
-        return (this._afCurrentExtents) ? true : false;
-    },
-
-    setExtents : function(aExtents) {
-        Fusion.Widget.Map.prototype.setExtents.apply(this, [aExtents]);
-        this.drawMap();
+        return (this._oCurrentExtents) ? true : false;
     },
 
     getScale : function() {
-        return this._fScale;
+        return this.oMapOL.getScale();
     },
     
-    drawMap: function() 
-    {
-        if (!this._afCurrentExtents) {
-            return;
-        }
-        this._addWorker();
+    updateLayer: function() {   //to be fleshed out, add query file to layer if selection, call this before draw
+      if (this.hasSelection()) {
+          this.oLayerOL.addOptions({queryfile: this._sQueryfile});
+      }
+    },
+    
+    drawMap: function() {
+        if (!this._oCurrentExtents) return;
 
-        var params = [];
-        params.push('mode=map');
-        params.push('mapext='+this._afCurrentExtents.join(' '));
-        //params.push('layers='+this.aVisibleLayers.join(' '));
-        for (i=0; i<this.aVisibleLayers.length; i++)
-        {
-            params.push('layer='+this.aVisibleLayers[i]);
-        }
-        params.push('mapsize='+ this._nWidth + ' ' + this._nHeight);
-        params.push('session='+this.getSessionID());
-        params.push('map='+this._sMapFile);
-        params.push('seq='+Math.random());
+        var params = { layers: this.aVisibleLayers.join(' ') }
         if (this.hasSelection()) {
-            params.push('queryfile='+this._sQueryfile);
+            params['queryfile']=this._sQueryfile;
         }
-        var url = Fusion.getConfigurationItem('mapserver', 'cgi') + "?" + params.join('&');
-        this.setMapImageURL(url);
+        this.oLayerOL.mergeNewParams(params);
     },
     
     showLayer: function( sLayer ) {
         this.aVisibleLayers.push(sLayer);
         this.drawMap();
     },
+
     hideLayer: function( sLayer ) {
         for (var i=0; i<this.aLayers.length; i++) {
             if (this.aVisibleLayers[i] == sLayer) {
@@ -296,10 +316,12 @@ Fusion.Widget.MSMap.prototype = {
         }
         this.drawMap();
     },
+
     showGroup: function( sGroup ) {
         this.aVisibleGroups.push(sGroup);
         this.drawMap();
     },
+
     hideGroup: function( sGroup ) {
         for (var i=0; i<this.aVisibleGroups.length; i++) {
             if (this.aVisibleGroups[i] == sGroup) {
@@ -309,13 +331,16 @@ Fusion.Widget.MSMap.prototype = {
         }        
         this.drawMap();
     },
+
     refreshLayer: function( sLayer ) {
         this.drawMap();
     },
+
     setActiveLayer: function( oLayer ) {
         this.oActiveLayer = oLayer;
         this.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
+
     getActiveLayer: function() {
         return this.oActiveLayer;
     },
@@ -443,13 +468,6 @@ Fusion.Widget.MSMap.prototype = {
         Fusion.ajaxRequest(loadmapScript, options);
     }
 };
-
-
-
-
-
-
-
 
     
 var MSGroup = Class.create();

@@ -1,6 +1,5 @@
 /********************************************************************** * 
  * @project Fusion
- * @revision $Id$
  * @purpose this file contains the map widget
  * @author yassefa@dmsolutions.ca
  * Copyright (c) 2007 DM Solutions Group Inc.
@@ -31,6 +30,7 @@ Fusion.Widget.MGMap = Class.create();
 Fusion.Widget.MGMap.prototype = {
     arch: 'mapguide',
     session: [null],
+    bSingleTile: null,
     aShowLayers: null,
     aHideLayers: null,
     aShowGroups: null,
@@ -48,7 +48,8 @@ Fusion.Widget.MGMap.prototype = {
         // console.log('MGMap.initialize');
         Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
                 
-        //this.registerForEvent(SESSION_CREATED, this.historyChanged.bind(this));
+        //this.registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.historyChanged.bind(this));
+        //Fusion.registerForEvent(Fusion.Event.FUSION_ERROR, this.ajaxError.bind(this));
         
         this._oConfigObj = Fusion.oConfigMgr;
         
@@ -58,6 +59,8 @@ Fusion.Widget.MGMap.prototype = {
         
         this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
 
+        this.bSingleTile = oCommand.jsonNode.SingleTile ? new Boolean(oCommand.jsonNode.SingleTile) : null;
+
         if (sid) {
             this.session[0] = sid;
             this.mapSessionCreated();
@@ -66,6 +69,10 @@ Fusion.Widget.MGMap.prototype = {
         }
     },
 
+    ajaxError: function(o) {
+      alert(o);
+    },
+    
     createSession: function() {
         if (!this.session[0]) {
             this.session[0] = this;
@@ -85,8 +92,12 @@ Fusion.Widget.MGMap.prototype = {
             if (r.responseXML) {
                 // console.log('setting session id');
                 var node = new DomNode(r.responseXML);
-                this.session[0] = node.getNodeText('sessionid');
-                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+                if ( node.findFirstNode('Exception') ) {
+                  alert("Error creating MapGuide session:" + r.responseText);
+                } else {
+                  this.session[0] = node.getNodeText('sessionid');
+                  this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+                }
             }
         }
     },
@@ -124,8 +135,8 @@ Fusion.Widget.MGMap.prototype = {
         
         options = options || {};
         
-        this._afInitialExtents = null;
-        this._afCurrentExtents = options.extents ? [].concat(options.extents) : null;
+        this._oInitialExtents = null;
+        this._oCurrentExtents = options.extents ? OpenLayers.Bounds.fromArray(options.extents) : null;
         this.aShowLayers = options.showlayers || [];
         this.aHideLayers = options.hidelayers || [];
         this.aShowGroups = options.showgroups || [];
@@ -144,8 +155,7 @@ Fusion.Widget.MGMap.prototype = {
         var sessionid = this.getSessionID();
         
         var params = 'mapid='+resourceId+"&session="+sessionid;
-        var options = {onSuccess: this.mapLoaded.bind(this), 
-                                     parameters: params};
+        var options = {onSuccess: this.mapLoaded.bind(this), parameters:params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
@@ -157,8 +167,8 @@ Fusion.Widget.MGMap.prototype = {
             this._sMapname = o.mapName;
             this._fMetersperunit = o.metersPerUnit;
 
-            if (!this._afInitialExtents) {
-                this._afInitialExtents = [].concat(o.extent);
+            if (!this._oInitialExtents) {
+                this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent);
             }
             
             this.parseMapLayersAndGroups(o);
@@ -199,20 +209,82 @@ Fusion.Widget.MGMap.prototype = {
             }
             
             this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
-            
-            if (!this._afCurrentExtents) {
-                this._afCurrentExtents = [].concat(this._afInitialExtents);
+
+            var oMapOptions = {};
+            if ( !this.oMapOL.getMaxExtent() ) {  //setting up the baselayer for OpenLayers
+              oMapOptions.maxExtent = this._oInitialExtents
             }
-            this.setExtents(this._afCurrentExtents);
+
+            //set projection units and code if supplied
+            if (o.metersPerUnit == 1) {
+              oMapOptions.units = 'm';
+              //oMapOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
+            } else {
+              //TBD need to do anything here? OL defaults to degrees
+            }
+
+            //add in scales array if supplied
+            if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
+              oMapOptions.scales = o.FiniteDisplayScales;
+            } else {
+              oMapOptions.maxScale = 1;     //TBD Get these values form the Map info
+            }
+            this.oMapOL.setOptions(oMapOptions);
+
+            if (!this.bSingleTile) {
+              if (o.BaseMapLayerGroups.length >0) {
+                this.bSingleTile = false;
+              } else {
+                this.bSingleTile = true;
+              }
+            }
+
+            //create the OL layer for this Map layer
+            var params = {};
+            var options = {};
+            if ( this.bSingleTile ) {
+              params = {        //single tile params
+                session : this.getSessionID(),
+                mapname : this._sMapname,
+              };
+              options = {
+                singleTile: true,   
+                showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
+                hideLayers : this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
+                showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
+                hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
+                refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
+              }
+
+            } else {
+              params = {      //tiled version
+                mapdefinition: this._sResourceId,
+                basemaplayergroupname: o.BaseMapLayerGroups[0].groupName  //assumes only one group for now
+              };
+              options = {
+                singleTile: false,   
+              }
+            }
+            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
+            this.oMapOL.addLayer(this.oLayerOL);
+
+            if (!this._oCurrentExtents) {
+                this._oCurrentExtents = this._oInitialExtents;
+            }
+            this.setExtents(this._oCurrentExtents);
             
             //this._calculateScale();
             this.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
-            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
+            //TBD: something funky going on with Fusion.Error object
+            //Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
+            alert( 'Failed to load requested map:\n'+r.responseText );
         }
         this._removeWorker();
     },
-    
+
+//TBD: this function not yet converted for OL    
     reloadMap: function() {
         
         this._addWorker();
@@ -235,7 +307,8 @@ Fusion.Widget.MGMap.prototype = {
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
-    
+
+//TBD: this function not yet converted for OL    
     mapReloaded: function(r,json) {
         if (json) {
             var o;
@@ -274,84 +347,33 @@ Fusion.Widget.MGMap.prototype = {
     },
     
     isMapLoaded: function() {
-        return (this._afCurrentExtents) ? true : false;
-    },
-
-    setExtents : function(aExtents) {
-        Fusion.Widget.Map.prototype.setExtents.apply(this, [aExtents]);
-        this.drawMap();
+        return (this._oCurrentExtents) ? true : false;
     },
 
     getScale : function() {
-        return this._fScale;
+        return this.oMapOL.getScale();
     },
     
     drawMap: function() {
-        if (!this._afCurrentExtents) return;
-        this._addWorker();
-        var cx = (this._afCurrentExtents[0] + this._afCurrentExtents[2])/2;
-        var cy = (this._afCurrentExtents[1] + this._afCurrentExtents[3])/2;   
-
-        var nWidth = this._nWidth;
-        var nHeight = this._nHeight;
+        if (!this._oCurrentExtents) return;
         
-        var showLayers = this.aShowLayers.length > 0 ? 
-                              this.aShowLayers.toString() : null;
-        var hideLayers = this.aHideLayers.length > 0 ? 
-                              this.aHideLayers.toString() : null;
-        var showGroups = this.aShowGroups.length > 0 ? 
-                              this.aShowGroups.toString() : null;
-        var hideGroups = this.aHideGroups.length > 0 ? 
-                              this.aHideGroups.toString() : null;
-        var refreshLayers = this.aRefreshLayers.length > 0 ? 
-                              this.aRefreshLayers.toString() : null;
+        var options = {
+          showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
+          hideLayers : this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
+          showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
+          hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
+          refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
+        }
         this.aShowLayers = [];
         this.aHideLayers = [];
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.getSessionID(),
-                               this._sMapname, cx, cy,
-                               this._fScale, null, this._nDpi, nWidth, 
-                               nHeight, showLayers, hideLayers, 
-                               showGroups, hideGroups, refreshLayers);
-        var oBroker = Fusion.getBroker();
-        oBroker.dispatchRequest(r, this._requestMapImage.bind(this));
+        this.oLayerOL.addOptions(options);
+        this.oLayerOL.redraw();
     },
 
-    _requestMapImage : function(r) {
-        var nWidth = this._nWidth;
-        var nHeight = this._nHeight;
-
-        if (r.responseXML) {
-              //parse the new extent
-            var newExtents = [];
-
-            var xmlroot = r.responseXML.documentElement;
-            var xs = xmlroot.getElementsByTagName("X");
-            var ys = xmlroot.getElementsByTagName("Y");
-            newExtents[0] = parseFloat(xs[0].childNodes[0].nodeValue);
-            newExtents[1] = parseFloat(ys[0].childNodes[0].nodeValue);
-            newExtents[2] = parseFloat(xs[1].childNodes[0].nodeValue);
-            newExtents[3] = parseFloat(ys[1].childNodes[0].nodeValue);
-            
-
-            this._afCurrentExtents = newExtents;
-
-            this._nCellSize  =  Math.max( 
-                Math.abs((newExtents[2] - newExtents[0])/parseInt(nWidth)),
-                Math.abs((newExtents[3] - newExtents[1])/parseInt(nHeight))
-                );
-        } else {
-            //console.log('error');
-            return;
-        }
-
-        url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl') + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getSessionID() + "&MAPNAME=" + this._sMapname + "&SEQ=" + Math.random();
-
-        this.setMapImageURL(url);
-    },
     
     hasSelection: function() { return this.bSelectionOn; },
     
