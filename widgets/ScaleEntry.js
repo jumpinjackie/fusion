@@ -60,7 +60,7 @@ Fusion.Widget.ScaleEntry.prototype = {
     },
     
     scaleChanged: function() {
-        this.picker.setValue(this.scaleToString(this.getMap().getCurrentScale()));
+        this.picker.setValue(this.scaleToString(this.getMap().oMapOL.getScale()));
     },
     
     selectionChanged: function(obj) {

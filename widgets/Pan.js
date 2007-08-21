@@ -101,25 +101,20 @@ Fusion.Widget.Pan.prototype = {
 
             var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
             
-            var dx = p.x - this.startPos.x;
-            var dy = p.y - this.startPos.y;
+            var dx = this.startPos.x - p.x;
+            var dy = this.startPos.y - p.y;
 
-            var size = this.getMap().getPixelSize();
-
-            var t = -dy;
-            var l = -dx;
-            var r = l + size.width;
-            var b = t + size.height; 
-
-            var min = this.getMap().pixToGeo(l,b);
-            var max = this.getMap().pixToGeo(r,t);
+            var olMap = this.getMap().oMapOL;
+            var size = olMap.getSize();
+            var newXY = new OpenLayers.Pixel(size.w / 2 + dx, size.h / 2 + dy);
+            var newCenter = olMap.getLonLatFromPixel( newXY ); 
+            olMap.setCenter(newCenter, null, false);
             this.startPos = null;
-            this.getMap().setExtents([min.x,min.y,max.x,max.y]);
-            Event.stop(e);
+             Event.stop(e);
         }
-        Event.stopObserving(document, 'mouseup', this.mouseUpCB);
-        Event.stopObserving(document, 'mousemove', this.mouseMoveCB);
-        Event.stopObserving(document, 'mouseout', this.mouseOutCB);
+        OpenLayers.Event.stopObserving(document, 'mouseup', this.mouseUpCB);
+        OpenLayers.Event.stopObserving(document, 'mousemove', this.mouseMoveCB);
+        OpenLayers.Event.stopObserving(document, 'mouseout', this.mouseOutCB);
         
     },
 
@@ -137,11 +132,15 @@ Fusion.Widget.Pan.prototype = {
         }
         var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
 
-        var dx = p.x - this.startPos.x;
-        var dy = p.y - this.startPos.y;
+        var dx = this.startPos.x - p.x;
+        var dy = this.startPos.y - p.y;
 
-        this.getMap()._oImg.style.top = dy + 'px';
-        this.getMap()._oImg.style.left = dx + 'px';
+        var olMap = this.getMap().oMapOL;
+        var size = olMap.getSize();
+        var newXY = new OpenLayers.Pixel(size.w / 2 + dx, size.h / 2 + dy);
+        var newCenter = olMap.getLonLatFromViewPortPx( newXY ); 
+        olMap.setCenter(newCenter, null, true);
+        this.startPos = p;
 
         Event.stop(e);
     }

@@ -121,7 +121,7 @@ Fusion.Widget.PanQuery.prototype = {
 
                 var min = this.getMap().pixToGeo(l,b); 
                 var max = this.getMap().pixToGeo(r,t); 
-                this.getMap().setExtents([min.x,min.y,max.x,max.y]); 
+                this.getMap().setExtents(new OpenLayers.Bounds(min.x,min.y,max.x,max.y)); 
                 
             } else { 
                 p = this.getMap().getEventPosition(e);

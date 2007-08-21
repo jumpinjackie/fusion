@@ -80,10 +80,10 @@ Fusion.Widget.ExtentHistory.prototype = {
             this.aHistory['index'] = 0;
         } else {
             var aExtents = this.aHistory['history'][this.aHistory['index']];
-            if (aExtents[0] == extents[0] &&
-                aExtents[1] == extents[1] &&
-                aExtents[2] == extents[2] &&
-                aExtents[3] == extents[3]) {
+            if (aExtents.top == extents.top &&
+                aExtents.bottom == extents.bottom &&
+                aExtents.left == extents.left &&
+                aExtents.right == extents.right) {
                 return;
             }
             //clear forward history if we have gone backwards at some point

@@ -99,7 +99,7 @@ Fusion.Widget.CenterSelection.prototype = {
             var miny = ll.y-newHeight*buffer;
             var maxx = ur.x+newWidth*buffer;
             var maxy = ur.y+newHeight*buffer;
-            this.getMap().setExtents([minx,miny,maxx,maxy]);
+            this.getMap().setExtents(new OpenLayers.Bounds(minx,miny,maxx,maxy));
         }
     },
 

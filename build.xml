@@ -88,7 +88,7 @@ $Id$
   your application will depend.  
   -->
 
-  <property name="jx-lib"  value="../jx"/>
+  <property name="jx-lib"  value="../../jx/trunk"/>
 
 
 <!-- ==================== Prepare Target ================================== -->
@@ -121,12 +121,12 @@ $Id$
     <mkdir dir="${build.home}/jx"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}/jx">
-      <fileset dir="${jx-lib}" excludes="nbproject/** build.sh build.xml"/>
+      <fileset dir="${jx-lib}" excludes="nbproject/** build.sh build.xml build/** dist/**"/>
     </copy>
     
   </target>
 
-  <target name="prepare-mapguide" depends="clean,prepare" description="creates uncompressed build for mapguide">
+  <target name="prepare-mapguide" depends="prepare" description="creates uncompressed build for mapguide">
     <echo message="Preparing mapguide files"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
@@ -151,6 +151,8 @@ $Id$
                       ExecuteJS.js
                       Maptip.js
                       Toolbar.js
+                      KeepSessionAlive.js
+                      About.js
                       html/**
                       scalebar/**"/>
     <!--                  Print
@@ -173,8 +175,9 @@ $Id$
 
 <!-- ==================== Documentation =================================== -->
 
-  <target description="Create documentation" name="docs" depends="prepare">
+  <target description="Create documentation" name="docs" depends="prepare-mapguide">
   
+    <delete dir="${build.home}/docs/NaturalDocs"/>
     <mkdir dir="${build.home}/docs"/>
     <mkdir dir="${build.home}/docs/NaturalDocs"/>
     
@@ -195,7 +198,7 @@ $Id$
   
 <!-- =================== Compress Target ================================== -->
 
-  <target description="Compress JS files" name="compress" depends="prepare">
+  <target description="Compress JS files" name="compress" depends="prepare-mapguide">
     <echo message="Concatenating into -lib version"/>
     <concat destfile="${build.home}/lib/fusion-lib-full.js">
         <filelist dir="${build.home}/lib" 
@@ -227,7 +230,7 @@ $Id$
   The "deploy" target synchronizes the build directory with the Java Servlet
   container directory.  This could also be done by copying in the war file.
 -->
-  <target name="deploy" description="Copy build directory to web server" depends="compress">
+  <target name="deploy" description="Copy build directory to web server" depends="prepare-mapserver,prepare-mapguide">
     <echo message="Deploying to web server"/>
     <mkdir dir="${deploy.home}"/>
     <copy todir="${deploy.home}">
