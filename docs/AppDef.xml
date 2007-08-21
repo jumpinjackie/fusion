@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ApplicationDefinition>
+  
+  <MapSet>           0..1
+    <Map id="xyz">   1..*
+      <Layer>        1..*
+        <Type>MapGuide</Type>
+        <ResourceId>...</ResourceId>
+        ...
+      </Layer>
+      <Layer>
+        <Type>WMS</Type>
+        <ResourceUrl>...</ResourceUrl>
+        ...
+      </Layer>
+    </Map>
+  </MapSet>
+  
+  <WidgetSet>             1..*
+    <Widget>              0..1
+      <Name>Map</Name>   (Corresponds to map container id)
+      <Type>MGMap</Type>
+      <MapId>xyz</MapId>
+    </Widget>
+
+    <Widget>    0..*
+      <Name></Name>
+      <Type></Type>
+    </Widget>     
+    
+    <Container>       0..*
+      <Name>ContextMenu</Name>
+      <Type>ContextMenu</Type>
+      ...menu items defined here...
+    </Container>
+
+    <Container>
+      <Name>Toolbar</Name>
+      <Type>Toolbar</Type>
+      ...buttons defined here...
+    </Container>
+
+    <Container>
+      <Name>StatusBar</Name>
+      <Type>Toolbar<Type>
+      ...status items defined here... (I'm not sure how we would allow a
+      cursor posn here but not in the main toolbar, perhaps we need a
+      different type value or a way to specify the restriction)
+    </Container>
+
+    <Container>
+      <Name>MyCustomContainer</Name>
+      <Type>MyCustomType<Type>
+      ...custom content displayed in XML editor in Studio...
+    </Container>
+    
+  </WidgetSet>
+
+</ApplicationDefinition>
