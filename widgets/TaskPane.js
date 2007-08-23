@@ -174,6 +174,6 @@ Fusion.Widget.TaskPane.prototype =
           this.taskMenu.add( new Jx.MenuItem(taskAction, {label: task.sLabel, image: task.sImageURL}));
         }
       }
-    },
+    }
    
 };
