@@ -101,8 +101,11 @@ if ($oMap) {
     header('X-JSON: true');
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapId;
-    $mapObj->metersPerUnit = 1;
+
+    $mapObj->metersPerUnit = GetMetersPerUnit($oMap->units);
+
     $mapObj->dpi = $oMap->resolution;
+    $mapObj->imagetype = $oMap->imagetype;
     $mapObj->mapName = $oMap->name;
     if (!isset($_SESSION['maps'])) {
         $_SESSION['maps'] = array();
@@ -211,5 +214,24 @@ if ($oMap) {
     } 
     $mapObj->groups = array();
     echo var2json($mapObj);
+}
+
+function GetMetersPerUnit($unit)
+{
+    if ($unit == MS_INCHES)
+      return 0.0254;
+    else if ($unit == MS_FEET)
+      return 0.3048;
+    else if ($unit == MS_MILES)
+      return 1609.344;
+    else if ($unit == MS_METERS)
+      return 1;
+    else if ($unit == MS_KILOMETERS)
+      return 1000;
+    else if ($unit == MS_DD)
+      return 111118.7516;
+    else if ($unit == MS_PIXELS)
+      return 1;
+
 }
 ?>

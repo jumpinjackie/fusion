@@ -22,7 +22,6 @@
  *
  * extended description
  * **********************************************************************/
-
 /**
  * MSMap : MapServer map widget Based on generic class Fusion.Widget.Map
 */
@@ -45,6 +44,9 @@ Fusion.Widget.MSMap.prototype = {
     //the map file
     sMapFile: null,
     
+    //imagetype
+    _sImageType : 'png',
+
     initialize : function(oCommand, sid) {
         //console.log('MSMap.initialize');
         Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
@@ -152,6 +154,7 @@ Fusion.Widget.MSMap.prototype = {
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName; 
             this._fMetersperunit = o.metersPerUnit; 
+            this._sImageType = o.imagetype; 
 
             if (!this._oInitialExtents) { 
               this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent); 
@@ -191,7 +194,8 @@ Fusion.Widget.MSMap.prototype = {
               layers: this.aVisibleLayers.join(' '),
               session : this.getSessionID(),
               map : this._sMapFile,
-              seq : Math.random()
+              seq : Math.random(),
+              map_imagetype : this._sImageType
             }
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
