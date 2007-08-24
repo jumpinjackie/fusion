@@ -1,0 +1,11 @@
+.taskPanePanel ul.jxToolbar {
+	width: auto;
+}
+
+.taskPanePanel li.taskMenu {
+	float: right;
+}
+
+.taskPanePanel .jxPanelContent {
+	overflow: hidden;
+}
