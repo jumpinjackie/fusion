@@ -123,41 +123,47 @@ Fusion.Widget.TaskPane.prototype =
         this.taskMenu = new Jx.Menu({image: this.defTaskListIcon, label: 'Task List', right:0});
         this.toolbar.add(this.taskMenu);
 
-        var sIframeName = this.sName+'_IFRAME';
-        this.oIframe = document.createElement('iframe');
-        new Jx.Layout(this.oIframe);
-        this.oIframe.setAttribute('name', sIframeName);
-        this.oIframe.setAttribute('id', sIframeName);
+        var iframeName = this.sName+'_IFRAME';
+        this.iframe = document.createElement('iframe');
+        new Jx.Layout(this.iframe);
+        this.iframe.setAttribute('name', iframeName);
+        this.iframe.setAttribute('id', iframeName);
+        this.iframe.setAttribute('frameborder', 0);
+        this.iframe.style.border = '0px solid #fff';
         this.oTaskPane = new Jx.Panel({toolbar: tmpDiv, 
                       label: 'Task Pane', 
-                      content: this.oIframe
+                      content: this.iframe
         });
         this._oDomObj.appendChild(this.oTaskPane.domObj);
-
+        //we need to trigger an initial resize after the panel
+        //is added to the DOM
+        this.oTaskPane.domObj.resize();
+        this.iframe.resize();
+        
         Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, this.setTaskMenu.bind(this));
     },
 
     
     gotoPrevTask: function() {
       this.nCurrentTask = this.nCurrentTask>0 ? --this.nCurrentTask : 0;
-      this.oIframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
     },
 
     gotoNextTask: function() {
       this.nCurrentTask = this.nCurrentTask<this.aExecutedTasks.length-1 ? 
                           ++this.nCurrentTask : this.aExecutedTasks.length-1;
-      this.oIframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
     },
 
     gotoFirstTask: function() {
       this.nCurrentTask = 0;
-      this.oIframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
     },
 
     setContent: function(url) {
       this.aExecutedTasks.push(url);
       ++this.nCurrentTask;
-      this.oIframe.src = url;
+      this.iframe.src = url;
     },
 
     /**
