@@ -252,8 +252,7 @@ try
                 
                 $spatialContext = $featureService->GetSpatialContexts($layerFeatureResource, true);
                 $srsLayerWkt = false;
-                if($spatialContext != null) {
-                    $spatialContext->ReadNext();
+                if($spatialContext != null && $spatialContext->ReadNext() != null) {
                     $srsLayerWkt = $spatialContext->GetCoordinateSystemWkt();
                     /* skip this layer if the srs is empty */
                 }
