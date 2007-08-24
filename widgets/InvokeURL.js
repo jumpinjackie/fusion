@@ -61,6 +61,16 @@ Fusion.Widget.InvokeURL.prototype = {
         this.bSelectionOnly = (json.DisableIfSelectionEmpty &&
                            (json.DisableIfSelectionEmpty[0] == 'true' ||
                             json.DisableIfSelectionEmpty[0] == '1')) ? true : false;
+                            
+        this.additionalParameters = [];
+        if (json.AdditionalParameter) {
+            for (var i=0; i<json.AdditionalParameter.length; i++) {
+                var p = json.AdditionalParameter[i];
+                var k = p.Key[0];
+                var v = p.Value[0];
+                this.additionalParameters.push(k+'='+encodeURIComponent(v));
+            }
+        }
         
         this.enable = Fusion.Widget.InvokeURL.prototype.enable;
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
@@ -69,12 +79,9 @@ Fusion.Widget.InvokeURL.prototype = {
     },
 
     enable: function() {
-        console.log('enable');
         var map = this.getMap();
         if (this.bSelectionOnly || !map) {
-            console.log('bSelectionOnly or !map');
             if (map && map.hasSelection()) {
-                console.log('enabling');
                 if (this.action) {
                     this.action.setEnabled(true);
                 } else {
@@ -86,10 +93,8 @@ Fusion.Widget.InvokeURL.prototype = {
                 } else {
                     this.disable();
                 }
-                console.log('disabling');
             }
         } else {
-            console.log('!bSelectionOnly and map - enabling');
             if (this.action) {
                 this.action.setEnabled(true);
             } else {
@@ -99,19 +104,31 @@ Fusion.Widget.InvokeURL.prototype = {
     },
     
     execute : function() {
-      var url = this.sBaseUrl;
-      //add in other parameters to the url here
-
-      var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
-      if ( taskPaneTarget ) {
-        taskPaneTarget.setContent(url);
-      } else {
-        var pageElement = $(this.sTarget);
-        if ( pageElement ) {
-          pageElement.src = url;
-        } else {
-          window.open(url, this.sTarget, this.sWinFeatures);
+        var url = this.sBaseUrl;
+        //add in other parameters to the url here
+        
+        var map = this.getMap();
+        var params = [];
+        params.push('locale=en');
+        params.push('session='+map.getSessionID());
+        params.push('mapname='+map.getMapName());
+        params = params.concat(this.additionalParameters);
+        if (url.indexOf('?') < 0) {
+            url += '?';
+        } else if (url.slice(-1) != '&') {
+            url += '&';
         }
-      }
+        url += params.join('&');
+        var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
+        if ( taskPaneTarget ) {
+            taskPaneTarget.setContent(url);
+        } else {
+            var pageElement = $(this.sTarget);
+            if ( pageElement ) {
+                pageElement.src = url;
+            } else {
+                window.open(url, this.sTarget, this.sWinFeatures);
+            }
+        }
     }
 };
