@@ -73,19 +73,24 @@
 Fusion.Widget.TaskPane = Class.create();
 Fusion.Widget.TaskPane.prototype =
 {
-    aExecutedTasks: [],   //array of URLs for tasks execcuted in the TaskPane
-    nCurrentTask: 0,
-
+    aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
+    nCurrentTask: -1,
+    nTasks: 0,
+    homeAction: null,
+    prevAction: null,
+    nextAction: null,
+    
     initialize : function(oCommand)
     {
-       
+        //console.log('TaskPane.initialize');
+        Object.inheritFrom(this, Fusion.Widget.prototype, ['TaskPane', true, oCommand]);
+        
+        this.aExecutedTasks = [];
         this.defHomeIcon = 'images/icon_home.gif';
         this.defPrevTaskIcon = 'images/icon_back.gif';
         this.defNextTaskIcon = 'images/icon_forward.gif';
         this.defTaskListIcon = 'images/icon_tasks.gif';
        
-        //console.log('TaskPane.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['TaskPane', true, oCommand]);
        
         this._oDomObj = $(oCommand.getName());
        
@@ -96,24 +101,24 @@ Fusion.Widget.TaskPane.prototype =
         tmpDiv.setAttribute('id', divName);
         this.toolbar = new Jx.Toolbar(tmpDiv,{left:0});
 
-        var homeAction = new Jx.Action(this.gotoFirstTask);
-        this.toolbar.add(new Jx.Button(homeAction, 
+        this.homeAction = new Jx.Action(this.gotoFirstTask.bind(this));
+        this.toolbar.add(new Jx.Button(this.homeAction, 
                     {
                     image: this.defHomeIcon, 
                     tooltip: 'return to the task pane home'
                     }
         ));
 
-        var prevAction = new Jx.Action(this.gotoPrevTask);
-        this.toolbar.add(new Jx.Button(prevAction, 
+        this.prevAction = new Jx.Action(this.gotoPrevTask.bind(this));
+        this.toolbar.add(new Jx.Button(this.prevAction, 
                     {
                     image: this.defPrevTaskIcon, 
                     tooltip: 'go to previous task executed'
                     }
         ));
 
-        var nextAction = new Jx.Action(this.gotoNextTask);
-        this.toolbar.add(new Jx.Button(nextAction, 
+        this.nextAction = new Jx.Action(this.gotoNextTask.bind(this));
+        this.toolbar.add(new Jx.Button(this.nextAction, 
                     {
                     image: this.defNextTaskIcon, 
                     tooltip: 'go to next task executed'
@@ -121,8 +126,10 @@ Fusion.Widget.TaskPane.prototype =
         ));
 
         this.taskMenu = new Jx.Menu({image: this.defTaskListIcon, label: 'Task List', right:0});
+        Element.addClassName(this.taskMenu.domObj, 'taskMenu');
+        Element.addClassName(this.taskMenu.button.domObj, 'jxButtonContentLeft');
         this.toolbar.add(this.taskMenu);
-
+        
         var iframeName = this.sName+'_IFRAME';
         this.iframe = document.createElement('iframe');
         new Jx.Layout(this.iframe);
@@ -134,36 +141,47 @@ Fusion.Widget.TaskPane.prototype =
                       label: 'Task Pane', 
                       content: this.iframe
         });
+        Element.addClassName(this._oDomObj, 'taskPanePanel');
+        Fusion.addWidgetStyleSheet(oCommand.sLocation + '/TaskPane/TaskPane.css');
+        
         this._oDomObj.appendChild(this.oTaskPane.domObj);
         //we need to trigger an initial resize after the panel
         //is added to the DOM
         this.oTaskPane.domObj.resize();
-        this.iframe.resize();
         
         Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, this.setTaskMenu.bind(this));
     },
-
+    
+    updateButtons: function() {
+        this.homeAction.setEnabled(this.nTasks > 0);
+        this.prevAction.setEnabled(this.nCurrentTask > 0);
+        this.nextAction.setEnabled(this.nCurrentTask < this.aExecutedTasks.length - 1);
+    },
     
     gotoPrevTask: function() {
       this.nCurrentTask = this.nCurrentTask>0 ? --this.nCurrentTask : 0;
       this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.updateButtons();
     },
 
     gotoNextTask: function() {
       this.nCurrentTask = this.nCurrentTask<this.aExecutedTasks.length-1 ? 
                           ++this.nCurrentTask : this.aExecutedTasks.length-1;
       this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.updateButtons();
     },
 
     gotoFirstTask: function() {
       this.nCurrentTask = 0;
       this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
+      this.updateButtons();
     },
 
     setContent: function(url) {
       this.aExecutedTasks.push(url);
       ++this.nCurrentTask;
       this.iframe.src = url;
+      this.updateButtons();
     },
 
     /**
@@ -178,6 +196,10 @@ Fusion.Widget.TaskPane.prototype =
         if (task.sTarget == this.sName) {
           var taskAction = new Jx.Action(task.execute.bind(task));
           this.taskMenu.add( new Jx.MenuItem(taskAction, {label: task.sLabel, image: task.sImageURL}));
+          this.nTasks ++;
+          if (this.nCurrentTask < 0) {
+              task.execute();
+          }
         }
       }
     }
