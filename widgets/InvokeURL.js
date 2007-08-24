@@ -57,8 +57,47 @@ Fusion.Widget.InvokeURL.prototype = {
         this.sBaseUrl = json.URL[0];  //must be supplied
         this.sLabel = json.Label[0];
         this.sImageURL = json.ImageURL[0];
+        
+        this.bSelectionOnly = (json.DisableIfSelectionEmpty &&
+                           (json.DisableIfSelectionEmpty[0] == 'true' ||
+                            json.DisableIfSelectionEmpty[0] == '1')) ? true : false;
+        
+        this.enable = Fusion.Widget.InvokeURL.prototype.enable;
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.enable.bind(this));
+        this.disable();
     },
 
+    enable: function() {
+        console.log('enable');
+        var map = this.getMap();
+        if (this.bSelectionOnly || !map) {
+            console.log('bSelectionOnly or !map');
+            if (map && map.hasSelection()) {
+                console.log('enabling');
+                if (this.action) {
+                    this.action.setEnabled(true);
+                } else {
+                    Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+                }
+            } else {
+                if (this.action) {
+                    this.action.setEnabled(false);
+                } else {
+                    this.disable();
+                }
+                console.log('disabling');
+            }
+        } else {
+            console.log('!bSelectionOnly and map - enabling');
+            if (this.action) {
+                this.action.setEnabled(true);
+            } else {
+                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+            }
+        }
+    },
+    
     execute : function() {
       var url = this.sBaseUrl;
       //add in other parameters to the url here
