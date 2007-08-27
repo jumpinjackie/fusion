@@ -29,7 +29,9 @@
  * path.  You do not need to modify any other values to configure Fusion.
  */
  
-$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
+//$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
+//$defaultInstallDir = "C:/Program Files/Autodesk/MapGuideEnterprise2008/";
+$defaultInstallDir = "../../../../../";
 $defaultExtensionDir = $defaultInstallDir . "WebServerExtensions/www/";
 
 /**
