@@ -44,23 +44,22 @@ Fusion.Widget.MGMap.prototype = {
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(widgetTag, sid) {
+    initialize : function(layerTag, sid) {
         // console.log('MGMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [widgetTag]);
+        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [layerTag.mapWidgetTag]);
+        //Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
         //this.registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.historyChanged.bind(this));
         //Fusion.registerForEvent(Fusion.Event.FUSION_ERROR, this.ajaxError.bind(this));
         
-        this._oConfigObj = Fusion.oConfigMgr;
-        
         this.oSelection = null;
 
-        var extension = widgetTag.extension;
+        var extension = layerTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
-        this.sMapResourceId = extension.ResourceId ? extension.ResourceId[0] : '';
+        this.sMapResourceId = layerTag.resourceId ? layerTag.resourceId : '';
 
-        this.bSingleTile = extension.SingleTile ? new Boolean(extension.SingleTile) : null;
+        this.bSingleTile = layerTag.singleTile ? layerTag.singleTile : false;
 
         if (sid) {
             this.session[0] = sid;
