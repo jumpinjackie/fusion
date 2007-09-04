@@ -30,15 +30,15 @@ Fusion.Widget.Zoom.prototype =
     nTolerance : 5,
     nFactor : 2,
     zoomIn: true,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('Zoom.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Zoom', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [widgetTag]);
         Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
-        this.setMap(oCommand.getMap());
+        this.setMap(widgetTag.getMap());
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         this.nTolerance = json.Tolerance ? json.Tolerance[0] : this.nTolerance;
         this.nFactor = json.Factor ? json.Factor[0] : this.nFactor;
         this.zoomIn = (json.Direction && json.Direction[0] == 'out') ? false : true;

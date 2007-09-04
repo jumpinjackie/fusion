@@ -44,9 +44,9 @@ Fusion.Widget.MGMap.prototype = {
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(oCommand, sid) {
+    initialize : function(widgetTag, sid) {
         // console.log('MGMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [widgetTag]);
                 
         //this.registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.historyChanged.bind(this));
         //Fusion.registerForEvent(Fusion.Event.FUSION_ERROR, this.ajaxError.bind(this));
@@ -55,11 +55,12 @@ Fusion.Widget.MGMap.prototype = {
         
         this.oSelection = null;
 
-        this.selectionType = oCommand.jsonNode.SelectionType ? oCommand.jsonNode.SelectionType[0] : 'INTERSECTS';
+        var extension = widgetTag.extension;
+        this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
-        this.sMapResourceId = oCommand.jsonNode.ResourceId ? oCommand.jsonNode.ResourceId[0] : '';
+        this.sMapResourceId = extension.ResourceId ? extension.ResourceId[0] : '';
 
-        this.bSingleTile = oCommand.jsonNode.SingleTile ? new Boolean(oCommand.jsonNode.SingleTile) : null;
+        this.bSingleTile = extension.SingleTile ? new Boolean(extension.SingleTile) : null;
 
         if (sid) {
             this.session[0] = sid;

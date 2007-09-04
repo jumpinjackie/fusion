@@ -112,7 +112,7 @@ $Id$
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
-            includes="config.xml common/** docs/** ext/** lib/** redist/**"
+            includes="config.json config.xml common/** docs/** ext/** lib/** redist/**"
             excludes="selenium/**"
        />
     </copy>
