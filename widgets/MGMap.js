@@ -208,7 +208,8 @@ Fusion.Widget.MGMap.prototype = {
                 }
             }
             
-            this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
+            //TODO: get this from the layerTag.extension
+            //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
             var oMapOptions = {};
             if ( !this.oMapOL.getMaxExtent() ) {  //setting up the baselayer for OpenLayers
