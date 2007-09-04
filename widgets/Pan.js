@@ -25,12 +25,12 @@
 
 Fusion.Widget.Pan = Class.create();
 Fusion.Widget.Pan.prototype = {
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('Pan.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Pan', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
-        this.setMap(oCommand.getMap());
+        this.setMap(widgetTag.getMap());
         
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];

@@ -55,12 +55,12 @@
 
 Fusion.Widget.Print = Class.create();
 Fusion.Widget.Print.prototype = {
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Print', false, oCommand]);
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(oCommand.getMap());
+        this.setMap(this.getMap());
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         var showPrintUI = json.ShowPrintUI ? json.ShowPrintUI[0] : 'false';
         this.showPrintUI = (showPrintUI.toLowerCase() == 'true' || showPrintUI == '1');
