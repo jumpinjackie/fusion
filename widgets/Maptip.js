@@ -84,12 +84,11 @@ Fusion.Widget.Maptip.prototype =
     aLayers: null,
     bOverTip: false,
     
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('Maptip.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Maptip', true, oCommand]);
-        this.setMap(oCommand.getMap());
-        var json = oCommand.jsonNode;
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        var json = widgetTag.extension;
         
         this.delay = json.Delay ? parseInt(json.Delay[0]) : 350;
         
@@ -100,8 +99,6 @@ Fusion.Widget.Maptip.prototype =
             }
         }
         
-        this._oCommand = oCommand;
-        this.domObj = $(oCommand.getName());
         this.domObj.parentNode.removeChild(this.domObj);
         this.domObj.style.position = 'absolute';
         this.domObj.style.display = 'none';

@@ -31,11 +31,10 @@ Fusion.Widget.ScaleEntry.prototype = {
     historyLength: 10,
     history: null,
     
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ScaleEntry', false, oCommand]);
-        this.setMap(oCommand.getMap());
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         var c = json['Class'] ? json['Class'][0] : '';
         
@@ -46,9 +45,7 @@ Fusion.Widget.ScaleEntry.prototype = {
         
         this.picker = new Jx.Picker(d, true);
         this.picker.addSelectionListener(this);
-        
-        $(oCommand.getName()).appendChild(d);
-        
+                
         this.precision = json.Precision ? parseInt(json.Precision[0]) : this.precision;
         
         this.historyLength = json.HistoryLength ? parseInt(json.HistoryLength[0]): this.historyLength;

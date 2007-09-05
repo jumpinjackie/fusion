@@ -23,11 +23,10 @@
 
 Fusion.Widget.ClearSelection = Class.create();
 Fusion.Widget.ClearSelection.prototype = {
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('ClearSelection.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ClearSelection', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(this._oCommand.getMap());
         
         this.enable = Fusion.Widget.ClearSelection.prototype.enable;
         

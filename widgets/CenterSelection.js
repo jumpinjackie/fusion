@@ -52,11 +52,10 @@
 
 Fusion.Widget.CenterSelection = Class.create();
 Fusion.Widget.CenterSelection.prototype = {
-    initialize : function(oCommand) {
-        //console.log('ZoomToSelection.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['CenterSelection', false, oCommand]);
+    initialize : function(widgetTag) {
+        //console.log('CenterSelection.initialize');
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(this._oCommand.getMap());
 
         this.enable = Fusion.Widget.CenterSelection.prototype.enable;
         

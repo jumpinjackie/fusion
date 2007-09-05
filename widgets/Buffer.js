@@ -37,13 +37,12 @@ Fusion.Widget.Buffer.prototype = {
     borderColorInput: null,
     fillColor: null,
     fillColorInput: null,
-    initialize: function(oCommand) {
+    initialize: function(widgetTag) {
         //console.log('Buffer.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Buffer', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(oCommand.getMap());
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         /* pick up default values */
         this.layerName = json.LayerName ? json.LayerName[0] : '';

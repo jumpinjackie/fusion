@@ -30,14 +30,13 @@ Fusion.Widget.PanOnClick.prototype =
     fPercent: null,
     nDeltaX: null,
     nDeltaY: null,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['PanOnClick', false, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         var percent = json.Percentage ? json.Percentage[0] : 75;
         this.fPercent = parseFloat(percent)/100;

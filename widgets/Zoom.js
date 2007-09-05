@@ -34,7 +34,7 @@ Fusion.Widget.Zoom.prototype =
     {
         //console.log('Zoom.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [widgetTag]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
 
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];

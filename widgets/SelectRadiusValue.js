@@ -29,13 +29,12 @@ Fusion.Widget.SelectRadiusValue.prototype =  {
     radiusWidgetName: null,
     label: '',
     className: '',
-    
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['SelectRadiusValue', false, oCommand]);
-        this.setMap(oCommand.getMap());
+    domLabel: null,
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         
         /* parse widget properties */
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.radiusWidgetName = json.RadiusName ? json.RadiusName[0] : null;
         this.label = json.Label ? json.Label[0] : '';
@@ -46,20 +45,18 @@ Fusion.Widget.SelectRadiusValue.prototype =  {
         //this.domObj.className = this.className;
         
         /* put in the label */
-        this.domObj = document.createElement('label');
-        this.domObj.className = this.className;
-        this.domObj.innerHTML = this.label;
+        this.domLabel = document.createElement('label');
+        this.domLabel.className = this.className;
+        this.domLabel.innerHTML = this.label;
         //this.domObj.appendChild(label);
         
         /* put in the input */
         this.input = document.createElement('input');
         this.input.type = 'text';
-        this.domObj.appendChild(this.input);
+        this.domLabel.appendChild(this.input);
         
         /* put into page */
-        if (oCommand.getName() != '') {
-            $(oCommand.getName()).appendChild(this.domObj);
-        }
+        this.domObj.appendChild(this.domLabel);
         Event.observe(this.input, 'blur', this.onBlur.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));

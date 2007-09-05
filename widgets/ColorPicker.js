@@ -42,12 +42,12 @@ Fusion.Widget.ColorPicker.prototype =
     
     colorButton: null,
     
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ColorPicker', false, oCommand]);        
-        this.setMap(oCommand.getMap());
-        
-        if (oCommand.jsonNode.ColorInputId) {
-            this.colorInput = $(oCommand.jsonNode.ColorInputId[0]);
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);        
+
+        var json = widgetTag.extension;
+        if (json.ColorInputId) {
+            this.colorInput = $(json.ColorInputId[0]);
         }
         
         if (this.colorInput) {
@@ -59,9 +59,8 @@ Fusion.Widget.ColorPicker.prototype =
         this.colorButton = new Jx.Button.Color({color: this.color, alpha: this.alpha});
         this.colorButton.addColorChangeListener(this);
         
-        var parent = $(oCommand.getName());
-        if (parent) {
-            parent.appendChild(this.colorButton.domObj);
+        if (this.domObj) {
+            this.domObj.appendChild(this.colorButton.domObj);
         }
     },
     

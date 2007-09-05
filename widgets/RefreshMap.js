@@ -25,21 +25,17 @@
  * **********************************************************************/
 
 Fusion.Widget.RefreshMap = Class.create();
-Fusion.Widget.RefreshMap.prototype = 
-{
-    initialize : function(oCommand)
-    {
+Fusion.Widget.RefreshMap.prototype =  {
+    initialize : function(widgetTag) {
         //console.log('RefreshMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['RefreshMap', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this.setMap(oCommand.getMap());        
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
     },
 
     /**
      * 
      */
-    execute : function(nLeft, nBottom, nRight, nTop)
-    {
+    execute : function() {
         var map = this.getMap();
         map.drawMap();
     }

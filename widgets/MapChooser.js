@@ -48,18 +48,16 @@ Fusion.Widget.MapChooser = Class.create();
 Fusion.Widget.MapChooser.prototype = 
 {
     currentNode: null,
-    _oDomObj: null,
+    domObj: null,
     oRoot: null,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('MapChooser.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['MapChooser', true, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         
-        this._oDomObj = $(oCommand.getName());
         this.defIcon = Fusion.getFusionURL() + 'images/tree_map.png';
         
-        this.oTree = new Jx.Tree(this._oDomObj);
+        this.oTree = new Jx.Tree(this.domObj);
         
         var opt = {};
         opt.label = 'Maps';
@@ -78,7 +76,7 @@ Fusion.Widget.MapChooser.prototype =
         opt = {};
         opt.label = json.Name ? json.Name[0] : '';
         opt.isOpen = true;
-        var folder = new Jx.TreeFolder(opt)
+        var folder = new Jx.TreeFolder(opt);
         oParent.append(folder);
     
         //there is a bug in DomNode that is not easily fixed
@@ -116,10 +114,10 @@ Fusion.Widget.MapChooser.prototype =
     },
     selectionChanged: function(o) {
         if (this.currentNode) {
-            Element.removeClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode')
+            Element.removeClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode');
         }
         this.currentNode = o;
-        Element.addClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode')
+        Element.addClassName(this.currentNode.domObj.childNodes[2], 'jxTreeSelectedNode');
         
         this.getMap().loadMap(this.currentNode.data);
     }

@@ -60,7 +60,7 @@ Fusion.Widget.MGMap.prototype = {
         this.sMapResourceId = layerTag.resourceId ? layerTag.resourceId : '';
 
         this.bSingleTile = layerTag.singleTile ? layerTag.singleTile : false;
-
+A
         if (sid) {
             this.session[0] = sid;
             this.mapSessionCreated();

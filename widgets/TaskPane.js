@@ -32,21 +32,19 @@ Fusion.Widget.TaskPane.prototype =
     prevAction: null,
     nextAction: null,
     
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('TaskPane.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['TaskPane', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         
         this.aExecutedTasks = [];
         this.defHomeIcon = 'images/icon_home.gif';
         this.defPrevTaskIcon = 'images/icon_back.gif';
         this.defNextTaskIcon = 'images/icon_forward.gif';
         this.defTaskListIcon = 'images/icon_tasks.gif';
-        this.defInitialTask = oCommand.sLocation + '/TaskPane/TaskPane.html';
-       
-        this._oDomObj = $(oCommand.getName());
-       
-        var json = oCommand.jsonNode;
+        this.defInitialTask = widgetTag.location + '/TaskPane/TaskPane.html';
+              
+        var json = widgetTag.extension;
        
         var taskURL = json.InitialTask ? json.InitialTask[0] : this.defInitialTask;
         
@@ -104,10 +102,10 @@ Fusion.Widget.TaskPane.prototype =
                       label: 'Task Pane', 
                       content: this.iframe
         });
-        Element.addClassName(this._oDomObj, 'taskPanePanel');
-        Fusion.addWidgetStyleSheet(oCommand.sLocation + '/TaskPane/TaskPane.css');
+        Element.addClassName(this.domObj, 'taskPanePanel');
+        Fusion.addWidgetStyleSheet(widgetTag.location + '/TaskPane/TaskPane.css');
         
-        this._oDomObj.appendChild(this.oTaskPane.domObj);
+        this.domObj.appendChild(this.oTaskPane.domObj);
         //we need to trigger an initial resize after the panel
         //is added to the DOM
         this.oTaskPane.domObj.resize();
@@ -142,7 +140,7 @@ Fusion.Widget.TaskPane.prototype =
 
     setContent: function(url) {
         if (this.nCurrentTask < this.aExecutedTasks.length) {
-            this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask)
+            this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
         }
         this.aExecutedTasks.push(url);
         ++this.nCurrentTask;

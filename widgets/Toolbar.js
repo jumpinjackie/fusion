@@ -25,4 +25,4 @@
  * **********************************************************************/
 
 Fusion.Widget.Toolbar = Class.create();
-Fusion.Widget.Toolbar.prototype = { initialize : function(oCommand){} };
+Fusion.Widget.Toolbar.prototype = { initialize : function(widgetTag){} };

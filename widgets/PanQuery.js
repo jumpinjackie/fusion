@@ -28,14 +28,13 @@ Fusion.Widget.PanQuery.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance: 3,
     bActiveOnly: false,
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('PanQuery.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['PanQuery', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
-        this.setMap(oCommand.getMap());
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         /* selection type doesn't make sense?
         this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
         */

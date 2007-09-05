@@ -51,13 +51,12 @@
 
 Fusion.Widget.ZoomToSelection = Class.create();
 Fusion.Widget.ZoomToSelection.prototype = {
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('ZoomToSelection.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomToSelection', false, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
         this.zoomFactor = json.ZoomFactor ? json.ZoomFactor[0] : 2;
  

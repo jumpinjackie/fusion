@@ -71,13 +71,10 @@
 //Fusion.require('jx/tree/jxtree.js');
 
 Fusion.Widget.Legend = Class.create();
-Fusion.Widget.Legend.prototype =
-{
+Fusion.Widget.Legend.prototype = {
     currentNode: null,
     bIsDrawn: false,
-    initialize : function(oCommand)
-    {
-       
+    initialize : function(widgetTag) {
         this.defLayerRasterIcon = Fusion.getFusionURL() + 'images/legend-raster.png';
         this.defLayerThemeIcon = Fusion.getFusionURL() + 'images/legend-theme.png';
         this.defDisabledLayerIcon = Fusion.getFusionURL() + 'images/legend-layer.png';
@@ -86,12 +83,9 @@ Fusion.Widget.Legend.prototype =
         this.defGroupInfoIcon = Fusion.getFusionURL() + 'images/tree_group_info.png';
        
         //console.log('Legend.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Legend', true, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
        
-        this._oDomObj = $(oCommand.getName());
-       
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
        
         this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.defLayerRasterIcon;
        
@@ -107,7 +101,7 @@ Fusion.Widget.Legend.prototype =
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
        
-        this.oTree = new Jx.Tree(this._oDomObj);
+        this.oTree = new Jx.Tree(this.domObj);
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
