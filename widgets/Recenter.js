@@ -27,10 +27,9 @@ Fusion.require('widgets/ZoomOut.js');
 
 Fusion.Widget.Recenter = Class.create();
 Fusion.Widget.Recenter.prototype ={
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Recenter', true, oCommand]);
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, ZoomOut.prototype, []);
-        this.setMap(oCommand.getMap());
         this.nFactor = 1;
         this.asCursor = ['resize'];
     }

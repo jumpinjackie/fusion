@@ -31,13 +31,12 @@ Fusion.Widget.ExtentHistory.prototype = {
     events: [],
     aHistory: [],
     sDirection: null,
-    initialize : function(oCommand) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ExtentHistory', false, oCommand]);
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         
-        this.setMap(oCommand.getMap());
-        
-        var sDirection = oCommand.jsonNode.Direction ? oCommand.jsonNode.Direction[0].toLowerCase() : 'previous';
+        var json = widgetTag.extension;
+        var sDirection = json.Direction ? json.Direction[0].toLowerCase() : 'previous';
         if (sDirection != 'previous' && sDirection != 'next') {
             this.sDirection = 'previous';
         } else {

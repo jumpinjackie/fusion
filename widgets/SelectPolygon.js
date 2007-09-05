@@ -28,15 +28,14 @@ Fusion.Widget.SelectPolygon = Class.create();
 Fusion.Widget.SelectPolygon.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['SelectPolygon', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, [this.getMap()]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
         this.asCursor = ['auto'];
 
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {

@@ -54,25 +54,23 @@
 Fusion.Widget.MapMenu = Class.create();
 Fusion.Widget.MapMenu.prototype = 
 {
-    _oDomObj: null,
+    domObj: null,
     oMenu: null,
     sRootFolder: '',
     aMenus : null,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('MapMenu.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['MapMenu', true, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         this.enable();
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
-        this._oDomObj = $(oCommand.getName());
         this._sLabel = json.Label ? json.Label[0] : '';
         this._sImageURL = json.ImageURL ? json.ImageURL[0] : '';
         
         //set up the root menu
-        this.oMenu = new Jx.Menu({label:this._sLabel, image:this._sImageURL});        this._oDomObj.appendChild(this.oMenu.domObj);
+        this.oMenu = new Jx.Menu({label:this._sLabel, image:this._sImageURL});        this.domObj.appendChild(this.oMenu.domObj);
         
         //get the mapdefinitions as xml
         //FIXME: this should be platform agnostic, Library:// isn't!

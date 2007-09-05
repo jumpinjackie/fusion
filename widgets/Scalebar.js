@@ -38,14 +38,11 @@ Fusion.Widget.Scalebar.prototype = {
     showMinorMeasures: true,
     abbreviateLabel: true,
     singleLine: false,
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('Scalebar.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Scalebar', false, oCommand]);
-        this.setMap(oCommand.getMap());
-        
-        this.oCommand = oCommand;
-        
-        var json = oCommand.jsonNode;
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+
+        var json = widgetTag.extension;
         this.style = json.Style ? json.Style[0].toLowerCase() : this.style;
         if (this.style != 'fancy' && 
             this.style != 'fat' && 
@@ -86,7 +83,7 @@ Fusion.Widget.Scalebar.prototype = {
         this.oScaleBar.showMinorMeasures = this.showMinorMeasures;
         this.oScaleBar.abbreviateLabel = this.abbreviateLabel;
         this.oScaleBar.singleLine = this.singleLine;
-        this.oScaleBar.place(oCommand.getName());
+        this.oScaleBar.place(widgetTag.name);
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.extentsChangedCB.bind(this));

@@ -29,12 +29,11 @@
 Fusion.Widget.FeatureCanvas = Class.create();
 Fusion.Widget.FeatureCanvas.prototype = {
     features: null,
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('FeatureCanvas.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['FeatureCanvas', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, [this.getMap()]);
-        this.setMap(oCommand.getMap());
-        var json = oCommand.jsonNode;
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
+        var json = widgetTag.extension;
         this.activateCanvas();
         this.features = [];
         

@@ -33,12 +33,11 @@ Fusion.Widget.ZoomSlider.prototype =
 {
     bUseMapScale: false,
 
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomSlider', false, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this._oTrack = json.Track ? json.Track[0] : '';
         this._oHandle = json.Handle ? json.Handle[0] : '';

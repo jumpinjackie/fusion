@@ -30,14 +30,13 @@ Fusion.Widget.ExecuteJS = Class.create();
 Fusion.Widget.ExecuteJS.prototype = 
 {
     sScript: null,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ExecuteJS', false, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(oCommand.getMap());
-        
-        this.sScript = oCommand.jsonNode.Script ? oCommand.jsonNode.Script[0] : '';
+        var json = widgetTag.extension;
+        this.sScript = json.Script ? json.Script[0] : '';
     },
 
     /**

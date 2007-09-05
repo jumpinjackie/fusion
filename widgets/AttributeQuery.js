@@ -29,12 +29,11 @@ Fusion.Widget.AttributeQuery.prototype = {
     spatialFilter: null,
     filters: null,
     layerName: null,
-    initialize: function(oCommand) {
+    initialize: function(widgetTag) {
         //console.log('AttributeQuery.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['AttributeQuery', true, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
 
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.layerName = json.LayerName ? json.LayerName[0] : '';
         
@@ -64,8 +63,7 @@ Fusion.Widget.AttributeQuery.prototype = {
         this.fpMapSelectionChanged = this.mapSelectionChanged.bind(this);
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.fpMapSelectionChanged);
         
-        this._oDomObj = $(oCommand.getName());
-        Event.observe(this._oDomObj, 'click', this.submitQuery.bind(this));
+        Event.observe(this.domObj, 'click', this.submitQuery.bind(this));
         
         this.registerEventID(Fusion.Event.SELECTION_STARTED);
         this.registerEventID(Fusion.Event.SELECTION_COMPLETE);

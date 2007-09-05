@@ -56,15 +56,16 @@ Fusion.Widget.About.prototype =
  *
  * Parameters:
  *
- * oCommand - JSON formatted node for this widget from the WebLayout
+ * widgetTag - JSON formatted node for this widget from the WebLayout
  *
  */
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('About.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['About', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this._sAboutUrl = (oCommand.jsonNode.AboutURL) ? 
-                oCommand.jsonNode.AboutURL : this._sDefaultUrl;
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        var json = widgetTag.extension;
+        this._sAboutUrl = (json.AboutURL) ? 
+                json.AboutURL[0] : this._sDefaultUrl;
         this.enable();
     },
 

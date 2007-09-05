@@ -29,17 +29,16 @@ Fusion.Widget.Select.prototype =  {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Select', true, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
-        this.setMap(oCommand.getMap());
         this.asCursor = ['auto'];
         
         this.enable = Fusion.Widget.Select.prototype.enable;
 
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
         

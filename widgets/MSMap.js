@@ -46,18 +46,17 @@ Fusion.Widget.MSMap.prototype = {
     
     //imagetype
     _sImageType : 'png',
-
-    initialize : function(oCommand, sid) {
+    
+    initialize : function(layerTag, sid) {
         //console.log('MSMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [oCommand]);
-        
-        this._oConfigObj = Fusion.oConfigMgr;
-        
+        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [layerTag.mapWidgetTag]);
+                
         this.oSelection = null;
+        var extension = layerTag.extension;
         
-        //this.selectionType = oCommand.jsonNode.SelectionType ? oCommand.jsonNode.SelectionType[0] : 'INTERSECTS';
+        //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
-        this.sMapFile = oCommand.jsonNode.MapFile ? oCommand.jsonNode.MapFile[0] : '';
+        this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
 
         if (sid) {
             this.session[0] = sid;
@@ -196,7 +195,7 @@ Fusion.Widget.MSMap.prototype = {
               map : this._sMapFile,
               seq : Math.random(),
               map_imagetype : this._sImageType
-            }
+            };
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
             this.oMapOL.addLayer(this.oLayerOL);
@@ -299,7 +298,7 @@ Fusion.Widget.MSMap.prototype = {
     drawMap: function() {
         if (!this._oCurrentExtents) return;
 
-        var params = { layers: this.aVisibleLayers.join(' ') }
+        var params = { layers: this.aVisibleLayers.join(' ') };
         if (this.hasSelection()) {
             params['queryfile']=this._sQueryfile;
         }

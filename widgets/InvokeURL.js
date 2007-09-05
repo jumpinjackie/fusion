@@ -46,13 +46,12 @@ Fusion.Widget.InvokeURL = Class.create();
 Fusion.Widget.InvokeURL.prototype = {
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('InvokeURL.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['InvokeURL', false, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false=]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         this.sTarget = json.Target.length>0 ? json.Target[0] : "InvokeUrlWindow";
         this.sBaseUrl = json.URL[0];  //must be supplied
         this.sLabel = json.Label[0];

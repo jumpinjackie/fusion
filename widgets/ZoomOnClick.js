@@ -28,14 +28,13 @@ Fusion.Widget.ZoomOnClick = Class.create();
 Fusion.Widget.ZoomOnClick.prototype = 
 {
     nFactor: 2,
-    initialize : function(oCommand)
+    initialize : function(widgetTag)
     {
         //console.log('ZoomOnClick.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['ZoomOnClick', false, oCommand]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, [oCommand]);
-        this.setMap(oCommand.getMap());
-        
-        var json = oCommand.jsonNode;
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+                
+        var json = widgetTag.extension;
         this.nFactor = parseFloat(json.Factor ? json.Factor[0] : this.nFactor);
     },
 

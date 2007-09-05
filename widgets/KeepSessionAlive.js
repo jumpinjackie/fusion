@@ -47,16 +47,16 @@
 
 Fusion.Widget.KeepSessionAlive = Class.create();
 Fusion.Widget.KeepSessionAlive.prototype = {
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('KeepSessionAlive.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['KeepSessionAlive', false, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+        var json = widgetTag.extension;
         
-        this.delay = parseInt(oCommand.jsonNode.RefreshInterval ? oCommand.jsonNode.RefreshInterval[0] : 300);
+        this.delay = parseInt(json.RefreshInterval ? json.RefreshInterval[0] : 300);
         
         window.setInterval(this.pingServer.bind(this), this.delay * 1000);
         
-        $(oCommand.getName()).style.display = 'none';
+        this.domObj.style.display = 'none';
     },
     
     pingServer: function() {

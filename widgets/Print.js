@@ -58,7 +58,6 @@ Fusion.Widget.Print.prototype = {
     initialize : function(widgetTag) {
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(this.getMap());
         
         var json = widgetTag.extension;
         
@@ -78,9 +77,12 @@ Fusion.Widget.Print.prototype = {
         var showNorthArrow =json.ShowNorthArrow ? json.ShowNorthArrow[0] : 'false';
         this.showNorthArrow = (showNorthArrow.toLowerCase() == 'true' || showNorthArrow == '1');
         
-        this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + oCommand.sLocation + '/html/Print.html';
+        this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + widgetTag.location + '/html/Print.html';
         
-        this.getMap().registerForEvent(Fusion.Event.SELECTION_COMPLETE, this.getSelection.bind(this));
+        /*
+         * TODO: this is bad, why did we do this?
+         this.getMap().registerForEvent(Fusion.Event.SELECTION_COMPLETE, this.getSelection.bind(this));
+         */
         
     },
     /**
@@ -169,6 +171,8 @@ Fusion.Widget.Print.prototype = {
     
     /* retrieve the results from the attributeQuery widget */
     /* triggered by a Fusion.Event.SELECTION_COMPLETE event */
+    /*
+     TODO: this is bad, we are directly dependent on the AttributeQuery widget
     getSelection: function() {
         var widget = Fusion.getWidgetById('AttributeQuery');
         var count = widget.getNumberOfResults();
@@ -180,7 +184,7 @@ Fusion.Widget.Print.prototype = {
         };
         
     },
-    
+    */
     /* call the server to create a layer with search results if needed*/
     /* the layer to use is specified in the weblayout */ 
     createResultLayer: function() {

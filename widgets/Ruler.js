@@ -47,15 +47,14 @@ Fusion.Widget.Ruler.prototype = {
     /* an HTML container to put the current distance in */
     rulerTip: null,
     
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         /*console.log('Ruler.initialize');*/
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['Ruler', true, oCommand]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
-        this.setMap(oCommand.getMap());
         
         this.asCursor = ['crosshair'];
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.units = (json.Units && (json.Units[0] != '')) ?
                       Fusion.unitFromName(json.Units[0]): this.units;

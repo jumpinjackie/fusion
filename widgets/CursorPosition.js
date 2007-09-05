@@ -88,17 +88,13 @@ Fusion.Widget.CursorPosition.prototype = {
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('CursorPosition.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['CursorPosition', true, oCommand]);
-        this.setMap(oCommand.getMap());
-        
-        this._oCommand = oCommand;
-        this.domObj = $(oCommand.getName());
-        
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+                
         this.emptyText = this.domObj.innerHTML;
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
         this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;

@@ -26,15 +26,12 @@ Fusion.Widget.KeyMap.prototype =   {
     fMinX : -1,  
     oDomImgObj : null,
   
-    initialize : function(oCommand) {
+    initialize : function(widgetTag) {
         //console.log('KeyMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['KeyMap', false, oCommand]);
-        this.setMap(oCommand.getMap());
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         
-        var json = oCommand.jsonNode;
+        var json = widgetTag.extension;
         
-        this.oDomObj = $(oCommand.getName());
-
         this.sImageURL = json.KeyMapImageURL[0];
         this.fMinX = json.MinX ? json.MinX[0] : -1;
         this.fMinY = json.MinY ? json.MinY[0] : -1;
@@ -114,8 +111,8 @@ Fusion.Widget.KeyMap.prototype =   {
             return;
         }
 
-        var fDeltaX = (aMapExtents[2] - aMapExtents[0])/(this.fMaxX - this.fMinX)
-        var fDeltaY = (aMapExtents[3] - aMapExtents[1])/(this.fMaxY - this.fMinY)
+        var fDeltaX = (aMapExtents[2] - aMapExtents[0])/(this.fMaxX - this.fMinX);
+        var fDeltaY = (aMapExtents[3] - aMapExtents[1])/(this.fMaxY - this.fMinY);
         
         var width = parseInt(this.nWidth * fDeltaX);
         var height = parseInt(this.nHeight * fDeltaY);

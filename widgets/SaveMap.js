@@ -52,19 +52,18 @@ Fusion.Widget.SaveMap.prototype = {
     iframe : null,
     printLayout : null,
     printScale : null,
-    initialize : function(oCommand)
-    {
-        this.oCommand = oCommand;
-        Object.inheritFrom(this, Fusion.Widget.prototype, ['SaveMap', false, oCommand]);
+    initialize : function(widgetTag) {
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        this.setMap(oCommand.getMap());
-        this.format = (oCommand.jsonNode.Format && oCommand.jsonNode.Format[0] != '')?
-                       oCommand.jsonNode.Format[0] : 'png';
+
+        var json = widgetTag.extension;
+        this.format = (json.Format && json.Format[0] != '')?
+                       json.Format[0] : 'png';
         
         //for DWF, parse printLayouts and build menu
-        if (this.format == 'DWF' && oCommand.jsonNode.PrintLayout.length) {
+        if (this.format == 'DWF' && json.PrintLayout.length) {
             
-            this.printLayout = oCommand.jsonNode.PrintLayout[0];
+            this.printLayout = json.PrintLayout[0];
             this.printScale =  this.printLayout.Scale[0];
         }
 
