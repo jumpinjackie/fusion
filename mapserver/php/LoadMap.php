@@ -144,15 +144,28 @@ if ($oMap) {
                 $type = 0;
          }
          $layerObj->layerTypes = array($type);
-         $layerObj->displayInLegend = true;
-         $layerObj->expandInLegend = false;
+         
+         $displayInLegend = strtolower($layer->getMetaData('displayInLegend'));
+         $layerObj->displayInLegend = $displayInLegend == 'false' ? false : true;
+         
+         $expandInLegend = strtolower($layer->getMetaData('expandInLegend'));
+         $layerObj->expandInLegend = $expandInLegend == 'false' ? false : true;;
          $layerObj->resourceId = $layer->name;
          $layerObj->parentGroup = '';
-         $layerObj->legendLabel = $layer->name;
-         $layerObj->selectable = true;
+         
+         $legendLabel = $layer->getMetaData('legendLabel');
+         if ($legendLabel == '') {
+             $legendLabel = $layer->name;
+         }
+         $layerObj->legendLabel = $legendLabel;
+         
+         $selectable = strtolower($layer->getMetaData('selectable'));
+         $layerObj->selectable = $selectable == 'true' ? true : false;
          $layerObj->visible = ($layer->status == MS_ON || $layer->status == MS_DEFAULT);
          $layerObj->actuallyVisible = true;
-         $layerObj->editable = false;
+         
+         $editable = strtolower($layer->getMetaData('editable'));
+         $layerObj->editable = $editable == 'true' ? true : false;
          
          /* process the classes.  The legend expects things 
           * organized by scale range so we have to first
