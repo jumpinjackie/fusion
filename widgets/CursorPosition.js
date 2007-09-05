@@ -84,6 +84,7 @@
 Fusion.Widget.CursorPosition = Class.create();
 Fusion.Widget.CursorPosition.prototype = {
     defaultTemplate: 'x: {x}, y: {y}',
+    domSpan: null,
     
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
@@ -99,6 +100,12 @@ Fusion.Widget.CursorPosition.prototype = {
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
         this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;
         this.units = json.Units ? Fusion.unitFromName(json.Units[0]) : Fusion.UNKOWN;
+
+        this.domSpan = document.createElement('span');
+        this.domSpan.className = 'spanCursorPosition';
+        this.domSpan.innerHTML = this.emptyText;
+        this.domObj.innerHTML = '';
+        this.domObj.appendChild(this.domSpan);
 
         this.enable = Fusion.Widget.CursorPosition.prototype.enable;
         this.disable = Fusion.Widget.CursorPosition.prototype.enable;
@@ -118,7 +125,7 @@ Fusion.Widget.CursorPosition.prototype = {
     },
     
     mouseOut: function(e) {
-        this.domObj.innerHTML = this.emptyText;
+        this.domSpan.innerHTML = this.emptyText;
     },
     
     mouseMove: function(e) {
@@ -141,7 +148,7 @@ Fusion.Widget.CursorPosition.prototype = {
         if (p) {
             var unitAbbr = Fusion.unitAbbr(this.units);
         
-            this.domObj.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
+            this.domSpan.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
         }
     },
 
