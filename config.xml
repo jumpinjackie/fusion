@@ -18,10 +18,11 @@
 	<!-- The MapServer section is required if you are installing fusion for MapServer. -->
 	<MapServer>
 		<!-- The URL of the mapserver CGI that you want to use.  -->
-		<MapserverCGI>/cgi-bin/mapserv</MapserverCGI>
+		<MapserverCGI>http://localhost/cgi-bin/mapserv.exe</MapserverCGI>
 		<!-- The file system path to where mapserver should put web-accessible temporary images. -->
-		<ImagePath>/tmp/ms_tmp</ImagePath>
+		<ImagePath>/ms4w/tmp/ms_tmp</ImagePath>
 		<!-- The URL to the image path configured above. -->
 		<ImageUrl>http://localhost/tmp/ms_tmp</ImageUrl>
 	</MapServer>
 </Configuration>
+

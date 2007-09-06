@@ -76,8 +76,8 @@ $Id$
   <property name="app.version" value="1.0-preview"/>
   <property name="app.flavour" value="mapguide"/>
   <property name="build.home" value="${basedir}/build"/>
-  <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
-  <!--property name="deploy.home" value="C:\ms4w\apps/${app.name}"/-->
+  <!--property name="deploy.home" value="${env.HTDOCS}/${app.name}"/-->
+  <property name="deploy.home" value="C:\ms4w\apps/${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
   <property name="docs.home" value="${build.home}/docs"/>
 

@@ -167,14 +167,11 @@ Fusion.Widget.Legend.prototype = {
             map.layerRoot.legend = {};
             map.layerRoot.legend.treeItem = this.oRoot;
         }
-        for (var j=0; j<map.aLayers.length; ++j) {
-          var mapLayer = map.aLayers[j];
-          for (var i=0; i<mapLayer.layerRoot.groups.length; i++) {
-              this.processMapGroup(mapLayer.layerRoot.groups[i], this.oRoot);
-          }
-          for (var i=0; i<mapLayer.layerRoot.layers.length; i++) {
-              this.processMapLayer(mapLayer.layerRoot.layers[i], this.oRoot);
-          }
+        for (var i=0; i<map.layerRoot.groups.length; i++) {
+            this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
+        }
+        for (var i=0; i<map.layerRoot.layers.length; i++) {
+            this.processMapLayer(map.layerRoot.layers[i], this.oRoot);
         }
         this.bIsDrawn = true;
         this.update();
@@ -245,14 +242,11 @@ Fusion.Widget.Legend.prototype = {
     _update: function() {
         var map = this.getMap();
         var currentScale = map.getScale();
-        for (var j=0; j<map.aLayers.length; ++j) {
-          var mapLayer = map.aLayers[j];
-          for (var i=0; i<mapLayer.layerRoot.groups.length; i++) {
-              this.updateGroupLayers(mapLayer.layerRoot.groups[i], currentScale);
-          }
-          for (var i=0; i<mapLayer.layerRoot.layers.length; i++) {
-              this.updateLayer(mapLayer.layerRoot.layers[i], currentScale);
-          }
+        for (var i=0; i<map.layerRoot.groups.length; i++) {
+            this.updateGroupLayers(map.layerRoot.groups[i], currentScale);
+        }
+        for (var i=0; i<map.layerRoot.layers.length; i++) {
+            this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
     },
    
