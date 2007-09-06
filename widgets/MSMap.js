@@ -47,7 +47,7 @@ Fusion.Widget.MSMap.prototype = {
     //imagetype
     _sImageType : 'png',
     
-    initialize : function(layerTag, sid) {
+    initialize : function(map, layerTag, sid) {
         //console.log('MSMap.initialize');
         Object.inheritFrom(this, Fusion.Widget.Map.prototype, [layerTag.mapWidgetTag]);
                 
@@ -57,6 +57,8 @@ Fusion.Widget.MSMap.prototype = {
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
+
+        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
         if (sid) {
             this.session[0] = sid;
@@ -115,7 +117,7 @@ Fusion.Widget.MSMap.prototype = {
             return;
         }
         
-        this.triggerEvent(Fusion.Event.MAP_LOADING);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
         this._addWorker();
         
         this._fScale = -1;
@@ -206,7 +208,7 @@ Fusion.Widget.MSMap.prototype = {
             } 
 
             this.setExtents(this._oCurrentExtents);
-            this.triggerEvent(Fusion.Event.MAP_LOADED);
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             
         }  
         else 
@@ -249,7 +251,7 @@ Fusion.Widget.MSMap.prototype = {
                 }
             }
             this.drawMap();
-            this.triggerEvent(Fusion.Event.MAP_RELOADED);
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
@@ -341,7 +343,7 @@ Fusion.Widget.MSMap.prototype = {
 
     setActiveLayer: function( oLayer ) {
         this.oActiveLayer = oLayer;
-        this.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
 
     getActiveLayer: function() {
@@ -372,7 +374,7 @@ Fusion.Widget.MSMap.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -411,7 +413,7 @@ Fusion.Widget.MSMap.prototype = {
     selectionCleared : function()
     {
         this.bSelectionOn = true;
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
@@ -424,7 +426,7 @@ Fusion.Widget.MSMap.prototype = {
         
         this.bSelectionOn = false;
         this._sQueryfile = "";
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
@@ -605,11 +607,11 @@ MSStyleItem.prototype = {
         this.filter = o.filter;
         this.index = o.index;
     },
-    getLegendImageURL: function(fScale, layer, map) {
+    getLegendImageURL: function(fScale, layer) {
         var sl = Fusion.getScriptLanguage();
-        var url = Fusion.getFusionURL() + '/' + map.arch + '/' + sl  + '/LegendIcon.' + sl;
-        var sessionid = map.getSessionID();
-        var params = 'mapname='+map._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
+        var url = Fusion.getFusionURL() + '/' + layer.oMap.arch + '/' + sl  + '/LegendIcon.' + sl;
+        var sessionid = layer.oMap.getSessionID();
+        var params = 'mapname='+layer.oMap._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
         return url + '?'+params;
     }
 };

@@ -107,10 +107,6 @@ try
 
         //only output layers that are part of the 'Normal Group' and 
         //not the base map group used for tile maps.
-        $oGroup = $layer->GetGroup();
-        if ($oGroup &&  $oGroup->GetLayerGroupType() == 2)
-          continue;
-
         echo $layerSep.'{';
         OutputLayerInfo($layer, $resourceService, $featureService);
         echo '}';
@@ -125,10 +121,6 @@ try
     for($i=0;$i<$groups->GetCount();$i++) 
     { 
         $group=$groups->GetItem($i);
-        if ($group->GetLayerGroupType() == 2)
-          continue;
-
-        $layerDefinition = $layer->GetLayerDefinition();
         echo $groupSep.'{';
         OutputGroupInfo($group);
         echo '}';
@@ -145,40 +137,6 @@ try
         echo $map->GetFiniteDisplayScaleAt($i);
     }
     echo"],";
-    
-    echo "BaseMapLayerGroups:[";
-
-    $groupSep = '';
-    for($i=0;$i<$groups->GetCount();$i++) 
-    { 
-        $group=$groups->GetItem($i);
-        if ($group->GetLayerGroupType() == 2)
-        {
-            echo $groupSep.'{';
-            OutputGroupInfo($group);
-            echo '}';
-            $groupSep = ',';
-        }
-    }
-    echo"],";
-
-    echo "BaseMapLayers:[";
-    $layerSep = '';
-    for($i=0;$i<$layers->GetCount();$i++) 
-    { 
-        $layer=$layers->GetItem($i);
-
-        //only output layers that are part of the tile map group
-        $oGroup = $layer->GetGroup();
-        if ($oGroup &&  $oGroup->GetLayerGroupType() != 2)
-          continue;
-
-        echo $layerSep.'{';
-        OutputLayerInfo($layer, $resourceService, $featureService);
-        echo '}';
-        $layerSep = ',';
-    } 
-    echo "]"; 
     
    
     echo "}";
