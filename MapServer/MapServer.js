@@ -38,6 +38,8 @@ Fusion.Maps.MapServer.prototype = {
     sActiveLayer: null,
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
+    bDisplayInLegend: true,   //TODO: set this in AppDef?
+    bExpandInLegend: true,   //TODO: set this in AppDef?
     oSelection: null,
     _oCurrentExtents : null,
 
@@ -132,6 +134,8 @@ Fusion.Maps.MapServer.prototype = {
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
         this.layerRoot = new Fusion.Widget.Map.Group();
+        this.layerRoot.displayInLegend = this.bDisplayInLegend;
+        this.layerRoot.expandInLegend = this.bExpandInLegend;
         
         this.oSelection = null;
         this.aSelectionCallbacks = [];
@@ -227,6 +231,8 @@ Fusion.Maps.MapServer.prototype = {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
         this.layerRoot = new Fusion.Widget.Map.Group();
+        this.layerRoot.displayInLegend = this.bDisplayInLegend;
+        this.layerRoot.expandInLegend = this.bExpandInLegend;
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
