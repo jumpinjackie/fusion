@@ -52,10 +52,8 @@ Fusion.Widget.InvokeURL.prototype = {
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
         var json = widgetTag.extension;
-        this.sTarget = json.Target.length>0 ? json.Target[0] : "InvokeUrlWindow";
-        this.sBaseUrl = json.URL[0];  //must be supplied
-        this.sLabel = json.Label[0];
-        this.sImageURL = json.ImageURL[0];
+        this.sTarget = json.Target ? json.Target[0] : "InvokeUrlWindow";
+        this.sBaseUrl = json.Url[0];  //must be supplied
         
         this.bSelectionOnly = (json.DisableIfSelectionEmpty &&
                            (json.DisableIfSelectionEmpty[0] == 'true' ||
