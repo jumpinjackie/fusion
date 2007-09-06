@@ -23,12 +23,12 @@
  * extended description
  * **********************************************************************/
 /**
- * MSMap : MapServer map widget Based on generic class Fusion.Widget.Map
+ * Fusion.Maps.MapServer : MapServer map widget 
 */
 
-Fusion.Widget.MSMap = Class.create();
-Fusion.Widget.MSMap.prototype = {
-    arch: 'mapserver',
+Fusion.Maps.MapServer = Class.create();
+Fusion.Maps.MapServer.prototype = {
+    arch: 'MapServer',
     session: [null],
     aShowLayers: null,
     aHideLayers: null,
@@ -47,12 +47,13 @@ Fusion.Widget.MSMap.prototype = {
     //imagetype
     _sImageType : 'png',
     
-    initialize : function(map, layerTag, sid) {
-        //console.log('MSMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [layerTag.mapWidgetTag]);
+    initialize : function(map, mapTag) {
+        //console.log('Fusion.Maps.MapServer.initialize');
+        Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
+        this.mapWidget = map;
         this.oSelection = null;
-        var extension = layerTag.extension;
+        var extension = mapTag.extension;
         
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
@@ -60,8 +61,8 @@ Fusion.Widget.MSMap.prototype = {
 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
-        if (sid) {
-            this.session[0] = sid;
+        if (mapTag.sid) {
+            this.session[0] = mapTag.sid;
             this.mapSessionCreated();
         } else {
             this.createSession();
@@ -76,7 +77,7 @@ Fusion.Widget.MSMap.prototype = {
             var options = {onComplete: this.createSessionCB.bind(this)};
             Fusion.ajaxRequest(scriptURL,options);  
         }
-        if (this.session[0] instanceof Fusion.Widget.MSMap) {
+        if (this.session[0] instanceof Fusion.Maps.MapServer) {
             this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
         }
     },
@@ -118,7 +119,7 @@ Fusion.Widget.MSMap.prototype = {
         }
         
         this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
-        this._addWorker();
+        this.mapWidget._addWorker();
         
         this._fScale = -1;
         this._nDpi = 72;
@@ -171,7 +172,7 @@ Fusion.Widget.MSMap.prototype = {
             if (o.dpi) OpenLayers.DOTS_PER_INCH = o.dpi;
 
             var oMapOptions = {};
-            if ( !this.oMapOL.getMaxExtent() ) {  //setting up the baselayer for OpenLayers
+            if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
               oMapOptions.maxExtent = this._oInitialExtents;
               oMapOptions.maxResolution = 'auto';
             }
@@ -188,7 +189,7 @@ Fusion.Widget.MSMap.prototype = {
             oMapOptions.maxScale = 1;     //TBD Do a better job of seetting scale ranges, 
                                           //perhaps from layer scale ranges min and max
 
-            this.oMapOL.setOptions(oMapOptions);
+            this.mapWidget.setMapOptions(oMapOptions);
 
             //create the OL layer for this Map layer
             var params = {
@@ -200,14 +201,14 @@ Fusion.Widget.MSMap.prototype = {
             };
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
-            this.oMapOL.addLayer(this.oLayerOL);
+            this.mapWidget.addMap(this);
 
             if (!this._oCurrentExtents) 
             { 
                 this._oCurrentExtents = this._oInitialExtents;
             } 
 
-            this.setExtents(this._oCurrentExtents);
+            this.mapWidget.setExtents(this._oCurrentExtents);
             this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             
         }  
@@ -215,11 +216,11 @@ Fusion.Widget.MSMap.prototype = {
         {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
     
     reloadMap: function() {
-        this._addWorker();
+        this.mapWidget._addWorker();
         this.aShowLayers = [];
         this.aHideLayers = [];
         this.aShowGroups = [];
@@ -255,12 +256,12 @@ Fusion.Widget.MSMap.prototype = {
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
     
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
-            var group = new MSGroup(o.groups[i], this);
+            var group = new Fusion.Maps.MapServer.Group(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
                 parent = this.layerRoot.findGroup(group.parentUniqueId);
@@ -271,7 +272,7 @@ Fusion.Widget.MSMap.prototype = {
         }
 
         for (var i=0; i<o.layers.length; i++) {
-            var layer = new MSLayer(o.layers[i], this);
+            var layer = new Fusion.Maps.MapServer.Layer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
                 parent = this.layerRoot.findGroup(layer.parentGroup);
@@ -288,7 +289,7 @@ Fusion.Widget.MSMap.prototype = {
     },
 
     getScale : function() {
-        return this.oMapOL.getScale();
+        return this.mapWidget.getScale();
     },
     
     updateLayer: function() {   //to be fleshed out, add query file to layer if selection, call this before draw
@@ -362,7 +363,7 @@ Fusion.Widget.MSMap.prototype = {
             this.aSelectionCallbacks = [];
 
         }       
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
     
     /**
@@ -395,7 +396,7 @@ Fusion.Widget.MSMap.prototype = {
                 this.aSelectionCallbacks.push(userFunc);
             }
             if (!this._bSelectionIsLoading) {
-                this._addWorker();
+                this.mapWidget._addWorker();
                 this._bSelectionIsLoading = true;
                 var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
                 var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname+'&queryfile='+this._sQueryfile, 
@@ -436,7 +437,7 @@ Fusion.Widget.MSMap.prototype = {
        Call back function when slect functions are called (eg queryRect)
     */
     processQueryResults : function(r) {
-        this._removeWorker();
+        this.mapWidget._removeWorker();
         if (r.responseXML) {
             var oNode = new DomNode(r.responseXML);
             if (oNode.getNodeText('Selection') == 'false') {
@@ -452,7 +453,7 @@ Fusion.Widget.MSMap.prototype = {
        Do a query on the map
     */
     query : function(options) {
-        this._addWorker();
+        this.mapWidget._addWorker();
         
         var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
@@ -475,8 +476,8 @@ Fusion.Widget.MSMap.prototype = {
 };
 
     
-var MSGroup = Class.create();
-MSGroup.prototype = {
+Fusion.Maps.MapServer.Group = Class.create();
+Fusion.Maps.MapServer.Group.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
@@ -513,8 +514,8 @@ var MSLAYER_POLYGON_TYPE = 2;
 var MSLAYER_SOLID_TYPE = 3;
 var MSLAYER_RASTER_TYPE = 4;
 
-var MSLayer = Class.create();
-MSLayer.prototype = {
+Fusion.Maps.MapServer.Layer = Class.create();
+Fusion.Maps.MapServer.Layer.prototype = {
     
     scaleRanges: null,
     
@@ -542,7 +543,7 @@ MSLayer.prototype = {
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new MSScaleRange(o.scaleRanges[i]);
+            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
         }
     },
@@ -580,8 +581,8 @@ MSLayer.prototype = {
     }
 };
 
-var MSScaleRange = Class.create();
-MSScaleRange.prototype = {
+Fusion.Maps.MapServer.ScaleRange = Class.create();
+Fusion.Maps.MapServer.ScaleRange.prototype = {
     styles: null,
     initialize: function(o) {
         this.minScale = o.minScale;
@@ -591,7 +592,7 @@ MSScaleRange.prototype = {
             return;
         }
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new MSStyleItem(o.styles[i]);
+            var styleItem = new Fusion.Maps.MapServer.StyleItem(o.styles[i]);
             this.styles.push(styleItem);
         }
     },
@@ -600,8 +601,8 @@ MSScaleRange.prototype = {
     }
 };
 
-var MSStyleItem = Class.create();
-MSStyleItem.prototype = {
+Fusion.Maps.MapServer.StyleItem = Class.create();
+Fusion.Maps.MapServer.StyleItem.prototype = {
     initialize: function(o) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;

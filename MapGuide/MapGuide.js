@@ -28,7 +28,7 @@
 
 Fusion.Maps.MapGuide = Class.create();
 Fusion.Maps.MapGuide.prototype = {
-    arch: 'mapguide',
+    arch: 'MapGuide',
     session: [null],
     bSingleTile: null,
     aShowLayers: null,
