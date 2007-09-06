@@ -48,7 +48,7 @@ Fusion.Widget.InvokeURL.prototype = {
 
     initialize : function(widgetTag) {
         //console.log('InvokeURL.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false=]);
+        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
         var json = widgetTag.extension;
