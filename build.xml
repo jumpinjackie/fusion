@@ -77,6 +77,7 @@ $Id$
   <property name="app.flavour" value="mapguide"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
+  <!--property name="deploy.home" value="C:\ms4w\apps/${app.name}"/-->
   <property name="dist.home" value="${basedir}/dist"/>
   <property name="docs.home" value="${build.home}/docs"/>
 
@@ -130,7 +131,7 @@ $Id$
     <echo message="Preparing mapguide files"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
-      <fileset dir="${basedir}" includes="mapguide/** samples/mapguide/**"/>
+      <fileset dir="${basedir}" includes="MapGuide/** samples/mapguide/**"/>
     </copy>
     <copy todir="${build.home}/widgets">
       <fileset dir="${basedir}/widgets" 
@@ -167,7 +168,7 @@ $Id$
     <echo message="Preparing mapserver files"/>
     <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
-      <fileset dir="${basedir}" includes="mapserver/** samples/mapserver/** widgets/**"/>
+      <fileset dir="${basedir}" includes="MapServer/** samples/mapserver/** widgets/**"/>
     </copy>
   </target>
 

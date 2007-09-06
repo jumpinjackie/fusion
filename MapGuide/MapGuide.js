@@ -23,11 +23,11 @@
  * **********************************************************************/
 
 /**
- * MGMap : MapGuide map widget Based on generic class Fusion.Widget.Map
+ * MapGuide : MapGuide map widget 
 */
 
-Fusion.Widget.MGMap = Class.create();
-Fusion.Widget.MGMap.prototype = {
+Fusion.Maps.MapGuide = Class.create();
+Fusion.Maps.MapGuide.prototype = {
     arch: 'mapguide',
     session: [null],
     bSingleTile: null,
@@ -45,7 +45,7 @@ Fusion.Widget.MGMap.prototype = {
     _sResourceId: null,
     
     initialize : function(map, mapTag) {
-        // console.log('MGMap.initialize');
+        // console.log('MapGuide.initialize');
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
@@ -76,7 +76,7 @@ Fusion.Widget.MGMap.prototype = {
             var options = {onComplete: this.createSessionCB.bind(this)};
             Fusion.ajaxRequest(scriptURL,options);  
         }
-        if (this.session[0] instanceof Fusion.Widget.MGMap) {
+        if (this.session[0] instanceof Fusion.Maps.MapGuide) {
             // console.log('register for event');
             this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
         }
@@ -263,7 +263,7 @@ Fusion.Widget.MGMap.prototype = {
             }
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
-            this.mapWidget.addLayer(this);
+            this.mapWidget.addMap(this);
 
             if (!this._oCurrentExtents) {
                 this._oCurrentExtents = this._oInitialExtents;
@@ -319,7 +319,7 @@ Fusion.Widget.MGMap.prototype = {
     
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
-            var group = new MGGroup(o.groups[i], this);
+            var group = new Fusion.Maps.MapGuide.Group(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
                 parent = this.layerRoot.findGroupByAttribute('uniqueId', group.parentUniqueId);
@@ -330,7 +330,7 @@ Fusion.Widget.MGMap.prototype = {
         }
 
         for (var i=0; i<o.layers.length; i++) {
-            var layer = new MGLayer(o.layers[i], this);
+            var layer = new Fusion.Maps.MapGuide.Layer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
                 parent = this.layerRoot.findGroupByAttribute('uniqueId', layer.parentGroup);
@@ -541,11 +541,9 @@ Fusion.Widget.MGMap.prototype = {
         }
     }
 };
-
-
     
-var MGGroup = Class.create();
-MGGroup.prototype = {
+Fusion.Maps.MapGuide.Group = Class.create();
+Fusion.Maps.MapGuide.Group.prototype = {
     oMap: null,
     initialize: function(o, oMap) {
         this.uniqueId = o.uniqueId;
@@ -588,8 +586,8 @@ MGGroup.prototype = {
     }
 };
 
-var MGLayer = Class.create();
-MGLayer.prototype = {
+Fusion.Maps.MapGuide.Layer = Class.create();
+Fusion.Maps.MapGuide.Layer.prototype = {
     
     scaleRanges: null,
     
@@ -617,7 +615,7 @@ MGLayer.prototype = {
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new MGScaleRange(o.scaleRanges[i]);
+            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
         }
     },
@@ -667,8 +665,8 @@ MGLayer.prototype = {
     }
 };
 
-var MGScaleRange = Class.create();
-MGScaleRange.prototype = {
+Fusion.Maps.MapGuide.ScaleRange = Class.create();
+Fusion.Maps.MapGuide.ScaleRange.prototype = {
     styles: null,
     initialize: function(o) {
         this.minScale = o.minScale;
@@ -678,7 +676,7 @@ MGScaleRange.prototype = {
             return;
         }
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new MGStyleItem(o.styles[i]);
+            var styleItem = new Fusion.Maps.MapGuide.StyleItem(o.styles[i]);
             this.styles.push(styleItem);
         }
     },
@@ -687,8 +685,8 @@ MGScaleRange.prototype = {
     }
 };
 
-var MGStyleItem = Class.create();
-MGStyleItem.prototype = {
+Fusion.Maps.MapGuide.StyleItem = Class.create();
+Fusion.Maps.MapGuide.StyleItem.prototype = {
     initialize: function(o) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
