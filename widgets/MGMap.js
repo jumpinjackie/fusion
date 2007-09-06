@@ -44,35 +44,30 @@ Fusion.Widget.MGMap.prototype = {
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(layerTag, sid) {
+    initialize : function(map, mapTag) {
         // console.log('MGMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.Map.prototype, [layerTag.mapWidgetTag]);
-        //Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
+        Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
-        //this.registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.historyChanged.bind(this));
-        //Fusion.registerForEvent(Fusion.Event.FUSION_ERROR, this.ajaxError.bind(this));
-        
+        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
+
+        this.mapWidget = map;
         this.oSelection = null;
 
-        var extension = layerTag.extension; //TBD: this belongs in layer tag?
+        var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
-        this.sMapResourceId = layerTag.resourceId ? layerTag.resourceId : '';
+        this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
 
-        this.bSingleTile = layerTag.singleTile ? layerTag.singleTile : false;
-A
-        if (sid) {
-            this.session[0] = sid;
+        this.bSingleTile = mapTag.singleTile;
+
+        if (mapTag.sid) {
+            this.session[0] = mapTag.sid;
             this.mapSessionCreated();
         } else {
             this.createSession();
         }
     },
 
-    ajaxError: function(o) {
-      alert(o);
-    },
-    
     createSession: function() {
         if (!this.session[0]) {
             this.session[0] = this;
@@ -127,8 +122,8 @@ A
             return;
         }
         
-        this.triggerEvent(Fusion.Event.MAP_LOADING);
-        this._addWorker();
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
+        this.mapWidget._addWorker();
         
         this._fScale = -1;
         this._nDpi = 96;
@@ -212,7 +207,7 @@ A
             //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
             var oMapOptions = {};
-            if ( !this.oMapOL.getMaxExtent() ) {  //setting up the baselayer for OpenLayers
+            if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
               oMapOptions.maxExtent = this._oInitialExtents
             }
 
@@ -228,12 +223,12 @@ A
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
               oMapOptions.scales = o.FiniteDisplayScales;
             } else {
-              oMapOptions.maxScale = 1;     //TBD Get these values form the Map info
+              oMapOptions.maxScale = 1;     //TODO: Get these values form the Map info
             }
-            this.oMapOL.setOptions(oMapOptions);
+            this.mapWidget.setMapOptions(oMapOptions);  //TODO: only do this for BaseLayers
 
             if (!this.bSingleTile) {
-              if (o.BaseMapLayerGroups.length >0) {
+              if (o.groups.length >0) {
                 this.bSingleTile = false;
               } else {
                 this.bSingleTile = true;
@@ -260,7 +255,7 @@ A
             } else {
               params = {      //tiled version
                 mapdefinition: this._sResourceId,
-                basemaplayergroupname: o.BaseMapLayerGroups[0].groupName  //assumes only one group for now
+                basemaplayergroupname: o.groups[0].groupName  //assumes only one group for now
               };
               options = {
                 singleTile: false,   
@@ -268,27 +263,27 @@ A
             }
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
-            this.oMapOL.addLayer(this.oLayerOL);
+            this.mapWidget.addLayer(this);
 
             if (!this._oCurrentExtents) {
                 this._oCurrentExtents = this._oInitialExtents;
             }
-            this.setExtents(this._oCurrentExtents);
+            this.mapWidget.setExtents(this._oCurrentExtents);
             
             //this._calculateScale();
-            this.triggerEvent(Fusion.Event.MAP_LOADED);
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
             //TBD: something funky going on with Fusion.Error object
             //Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
             alert( 'Failed to load requested map:\n'+r.responseText );
         }
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
 
 //TBD: this function not yet converted for OL    
     reloadMap: function() {
         
-        this._addWorker();
+        this.mapWidget._addWorker();
         //console.log('loadMap: ' + resourceId);
         this.aShowLayers = [];
         this.aHideLayers = [];
@@ -315,11 +310,11 @@ A
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
-            this.triggerEvent(Fusion.Event.MAP_RELOADED);
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
     
     parseMapLayersAndGroups: function(o) {
@@ -345,14 +340,6 @@ A
             parent.addLayer(layer);
             this.aLayers.push(layer);
         }
-    },
-    
-    isMapLoaded: function() {
-        return (this._oCurrentExtents) ? true : false;
-    },
-
-    getScale : function() {
-        return this.oMapOL.getScale();
     },
     
     drawMap: function() {
@@ -388,7 +375,7 @@ A
             this.aSelectionCallbacks = [];
 
         }       
-        this._removeWorker();
+        this.mapWidget._removeWorker();
     },
     
     /**
@@ -400,7 +387,7 @@ A
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -421,7 +408,7 @@ A
                 this.aSelectionCallbacks.push(userFunc);
             }
             if (!this._bSelectionIsLoading) {
-                this._addWorker();
+                this.mapWidget._addWorker();
                 this._bSelectionIsLoading = true;
                 var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
                 var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, 
@@ -439,7 +426,7 @@ A
     selectionCleared : function()
     {
         this.bSelectionOn = true;
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
@@ -458,7 +445,7 @@ A
        Call back function when slect functions are called (eg queryRect)
     */
     processQueryResults : function(r) {
-        this._removeWorker();
+        this.mapWidget._removeWorker();
         if (r.responseXML) {
             var oNode = new DomNode(r.responseXML);
             if (oNode.getNodeText('Selection') == 'false') {
@@ -474,7 +461,7 @@ A
        Do a query on the map
     */
     query : function(options) {
-        this._addWorker();
+        this.mapWidget._addWorker();
         
         var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
@@ -542,7 +529,7 @@ A
     },
     setActiveLayer: function( oLayer ) {
         this.oActiveLayer = oLayer;
-        this.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
     },
     getActiveLayer: function() {
         return this.oActiveLayer;
@@ -714,8 +701,8 @@ MGStyleItem.prototype = {
             this.categoryindex = -1;
         }
     },
-    getLegendImageURL: function(fScale, layer, map) {
+    getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + map.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
     }
 };
