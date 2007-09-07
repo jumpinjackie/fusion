@@ -1,8 +1,8 @@
-/********************************************************************** * 
- * @project Fusion
- * @revision $Id: $
- * @purpose Help widget
- * @author pspencer@dmsolutions.ca
+/*****************************************************************************
+ * $Id: $
+ * 
+ * The Help widget displays custom HTML content in a frame or popup window
+ *
  * Copyright (c) 2007 DM Solutions Group Inc.
  *****************************************************************************
  * This code shall not be copied or used without the expressed written consent
@@ -28,28 +28,33 @@
  *   <Type>Help</Type>
  *   <Description>Open the help page for this application</Description>
  *   <Extension>
- *
- *   <Label>Keep Session Alive/Label>
- *   <TargetViewer>All</TargetViewer>
- *   <Action>KeepSessionAlive</Action>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (string, mandatory) 
- * 
- * If the Target property points to TaskPane widget, the task will be listed in
- * the menu list of the TaskPane and loaded there.
- * Otherwise if the target is an existing IFrame in the page it will be loaded 
- * there, otherwise it will open a new window with that name.
- *
+ *      <Url>help/main.html</Url>
+ *      <Target>TaskPane</Target>
+ *   </Extension>
+ *   <ImageUrl>images/icons/help.png</ImageUrl>
+ *   <ImageClass/>
+ *   <Tooltip>Open the help page for this application</Tooltip>
+ *   <Label/>
+ *   <Disabled/>
+ * </Widget>
  *
  * **********************************************************************/
 
 Fusion.Widget.Help = Class.create();
 Fusion.Widget.Help.prototype = {
+    /* popup window initialization parameters */
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
+    /* the frame or window name to target.  If set to the Name of a
+     * task pane widget, then it will appear in the task pane
+     */
+    target: 'HelpWindow',
+    
+    /* the url to open.  If specified, it is relative to the
+     * application, not fusion
+     */
+    baseUrl: null,
+    
     initialize : function(widgetTag) {
         //console.log('Help.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
@@ -57,30 +62,29 @@ Fusion.Widget.Help.prototype = {
 
         var json = widgetTag.extension;
         this.target = json.Target ? json.Target[0] : "HelpWindow";
-        this.baseUrl = json.Url ? json.Url[0] : widgetTag.location + '/Help/Help.html';
-        if (this.baseUrl.indexOf("http://")<0) {
-            if (this.baseUrl.slice(0,1) == "/") {
-                this.baseUrl = window.location.protocol + "//" + window.location.host + this.baseUrl;
-            } else {
-                this.baseUrl = Fusion.getFusionURL() + this.baseUrl;
-            }
+        this.baseUrl = json.Url ? json.Url[0] : Fusion.getFusionURL() + widgetTag.location + '/Help/Help.html';
+
+        /* this widget is always enabled unless it was explicitly disabled
+         * in the widget tag
+         */
+        if (!widgetTag.Disabled || widgetTag.Disabled[0].toLowerCase() != 'true') {
+            this.enable();                   
         }
-        
-        this.enable();       
     },
     
     execute : function() {
         var url = this.baseUrl;
-        //add in other parameters to the url here
-        
+        /* check to see if this is going into a task pane */
         var taskPaneTarget = Fusion.getWidgetById(this.target);
         if ( taskPaneTarget ) {
             taskPaneTarget.setContent(url);
         } else {
+            /* check to see if it is going into a frame in the page */
             var pageElement = $(this.target);
             if ( pageElement ) {
                 pageElement.src = url;
             } else {
+                /* open in a window */
                 window.open(url, this.target, this.sWinFeatures);
             }
         }
