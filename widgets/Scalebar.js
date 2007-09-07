@@ -75,7 +75,7 @@ Fusion.Widget.Scalebar.prototype = {
         }
 
         this.oScaleBar = new ScaleBarTool(1);
-        this.oScaleBar.displaySystem = this.displaySystem
+        this.oScaleBar.displaySystem = this.displaySystem;
         this.oScaleBar.minWidth = this.minWidth;
         this.oScaleBar.maxWidth = this.maxWidth;
         this.oScaleBar.divisions = this.divisions;
@@ -83,7 +83,13 @@ Fusion.Widget.Scalebar.prototype = {
         this.oScaleBar.showMinorMeasures = this.showMinorMeasures;
         this.oScaleBar.abbreviateLabel = this.abbreviateLabel;
         this.oScaleBar.singleLine = this.singleLine;
-        this.oScaleBar.place(widgetTag.name);
+        
+        //FireFox gives the following error when just calling place
+        //but putting it in a timeout seems to fix the problem.  When
+        //debugging using firebug, the problem doesn't occur.
+        //this.oScaleBar.place(widgetTag.name);
+        //A parameter or an operation is not supported by the underlying object"  code: "15
+        window.setTimeout(this.oScaleBar.place.bind(this.oScaleBar, widgetTag.name), 1);
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.extentsChangedCB.bind(this));
