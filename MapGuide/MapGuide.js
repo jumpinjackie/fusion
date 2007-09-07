@@ -216,7 +216,7 @@ Fusion.Maps.MapGuide.prototype = {
 
             var oMapOptions = {};
             if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
-              oMapOptions.maxExtent = this._oInitialExtents
+              oMapOptions.maxExtent = this._oInitialExtents;
             }
 
             //set projection units and code if supplied
@@ -249,7 +249,7 @@ Fusion.Maps.MapGuide.prototype = {
             if ( this.bSingleTile ) {
               params = {        //single tile params
                 session : this.getSessionID(),
-                mapname : this._sMapname,
+                mapname : this._sMapname
               };
               options = {
                 singleTile: true,   
@@ -258,7 +258,7 @@ Fusion.Maps.MapGuide.prototype = {
                 showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
                 hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
                 refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
-              }
+              };
 
             } else {
               params = {      //tiled version
@@ -266,8 +266,8 @@ Fusion.Maps.MapGuide.prototype = {
                 basemaplayergroupname: o.groups[0].groupName  //assumes only one group for now
               };
               options = {
-                singleTile: false,   
-              }
+                singleTile: false
+              };
             }
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
@@ -361,7 +361,7 @@ Fusion.Maps.MapGuide.prototype = {
           showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
           hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
           refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
-        }
+        };
         this.aShowLayers = [];
         this.aHideLayers = [];
         this.aShowGroups = [];
@@ -397,7 +397,7 @@ Fusion.Maps.MapGuide.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -436,7 +436,7 @@ Fusion.Maps.MapGuide.prototype = {
     selectionCleared : function()
     {
         this.bSelectionOn = true;
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },

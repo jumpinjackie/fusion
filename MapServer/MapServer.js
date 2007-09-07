@@ -385,7 +385,7 @@ Fusion.Maps.MapServer.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -419,17 +419,6 @@ Fusion.Maps.MapServer.prototype = {
     },
 
     /**
-       Call back function when selection is cleared
-    */
-    selectionCleared : function()
-    {
-        this.bSelectionOn = true;
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
-        this.drawMap();
-        this.oSelection = null;
-    },
-
-    /**
        Utility function to clear current selection
     */
     clearSelection : function() 
@@ -437,7 +426,7 @@ Fusion.Maps.MapServer.prototype = {
         
         this.bSelectionOn = false;
         this._sQueryfile = "";
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
     },
