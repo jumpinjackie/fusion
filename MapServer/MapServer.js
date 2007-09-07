@@ -381,6 +381,7 @@ Fusion.Maps.MapServer.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
+        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
