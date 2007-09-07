@@ -111,6 +111,8 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     loadMap: function(mapfile, options) {
+        console.trace();
+        
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sMapFile == mapfile) {
@@ -211,6 +213,9 @@ Fusion.Maps.MapServer.prototype = {
               map_imagetype : this._sImageType
             };
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
+            if (this.oLayerOL) {
+                this.oLayerOL.destroy();
+            }
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
             this.mapWidget.addMap(this);
 
