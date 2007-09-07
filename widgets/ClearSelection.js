@@ -39,7 +39,6 @@ Fusion.Widget.ClearSelection.prototype = {
      */
     execute : function() {
         this.getMap().clearSelection();
-        
     },
     
     enable: function() {

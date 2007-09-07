@@ -51,6 +51,8 @@ Fusion.Maps.MapGuide.prototype = {
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
 
         this.mapWidget = map;
         this.oSelection = null;
@@ -68,6 +70,8 @@ Fusion.Maps.MapGuide.prototype = {
         } else {
             this.createSession();
         }
+        
+        
     },
 
     createSession: function() {

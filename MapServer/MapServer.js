@@ -53,6 +53,10 @@ Fusion.Maps.MapServer.prototype = {
         //console.log('Fusion.Maps.MapServer.initialize');
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
+        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
+        this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
+
         this.mapWidget = map;
         this.oSelection = null;
         var extension = mapTag.extension;
@@ -60,8 +64,6 @@ Fusion.Maps.MapServer.prototype = {
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
-
-        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
@@ -310,6 +312,8 @@ Fusion.Maps.MapServer.prototype = {
         var params = { layers: this.aVisibleLayers.join(' ') };
         if (this.hasSelection()) {
             params['queryfile']=this._sQueryfile;
+        } else {
+            params['queryfile'] = '';
         }
         this.oLayerOL.mergeNewParams(params);
     },
