@@ -135,9 +135,6 @@ Fusion.Maps.MapServer.prototype = {
         this.aVisibleLayers = options.showlayers || [];
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
-        this.layerRoot = new Fusion.Widget.Map.Group();
-        this.layerRoot.displayInLegend = this.bDisplayInLegend;
-        this.layerRoot.expandInLegend = this.bExpandInLegend;
         
         this.oSelection = null;
         this.aSelectionCallbacks = [];
@@ -168,6 +165,14 @@ Fusion.Maps.MapServer.prototype = {
               this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent); 
             } 
             
+            rootOpts = {
+              displayInLegend: this.bDisplayInLegend,
+              expandInLegend: this.bExpandInLegend,
+              legendLabel: this._sMapname
+              //TODO: set other opts for group initialization as required
+            }
+            this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
+
             this.parseMapLayersAndGroups(o);
             for (var i=0; i<this.aLayers.length; i++) {
                 if (this.aLayers[i].visible) {
@@ -352,15 +357,6 @@ Fusion.Maps.MapServer.prototype = {
         this.drawMap();
     },
 
-    setActiveLayer: function( oLayer ) {
-        this.oActiveLayer = oLayer;
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
-    },
-
-    getActiveLayer: function() {
-        return this.oActiveLayer;
-    },
-
     hasSelection: function() { return this.bSelectionOn; },
 
     getSelectionCB : function(userFunc, r) {
@@ -385,7 +381,6 @@ Fusion.Maps.MapServer.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**

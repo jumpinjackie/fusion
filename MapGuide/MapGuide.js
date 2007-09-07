@@ -144,10 +144,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.aHideGroups = options.hidegroups || [];
         this.aRefreshLayers = options.refreshlayers || [];
         this.aLayers = [];
-        this.layerRoot = new Fusion.Widget.Map.Group();
-        this.layerRoot.displayInLegend = this.bDisplayInLegend;
-        this.layerRoot.expandInLegend = this.bExpandInLegend;
-        
+
         this.oSelection = null;
         this.aSelectionCallbacks = [];
         this._bSelectionIsLoading = false;
@@ -174,6 +171,14 @@ Fusion.Maps.MapGuide.prototype = {
                 this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent);
             }
             
+            rootOpts = {
+              displayInLegend: this.bDisplayInLegend,
+              expandInLegend: this.bExpandInLegend,
+              legendLabel: this._sMapname
+              //TODO: set other opts for group initialization as required
+            }
+            this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
+
             this.parseMapLayersAndGroups(o);
             
             for (var i=0; i<this.aShowLayers.length; i++) {
@@ -397,7 +402,6 @@ Fusion.Maps.MapGuide.prototype = {
         }
         this.bSelectionOn = true;
         this.drawMap();
-        this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
@@ -537,14 +541,6 @@ Fusion.Maps.MapGuide.prototype = {
         this.aRefreshLayers.push(layer.uniqueId);        
         this.drawMap();
     },
-    setActiveLayer: function( oLayer ) {
-        this.oActiveLayer = oLayer;
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, oLayer);
-    },
-    getActiveLayer: function() {
-        return this.oActiveLayer;
-    },
-
     setParameter : function(param, value) {
         if (param == 'SelectionType') {
             this.selectionType = value;
