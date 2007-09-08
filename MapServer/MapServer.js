@@ -63,6 +63,14 @@ Fusion.Maps.MapServer.prototype = {
         
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
+        rootOpts = {
+          displayInLegend: this.bDisplayInLegend,
+          expandInLegend: this.bExpandInLegend,
+          legendLabel: this._sMapname
+          //TODO: set other opts for group initialization as required
+        };
+        this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
+        
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
 
         if (mapTag.sid) {
@@ -166,14 +174,9 @@ Fusion.Maps.MapServer.prototype = {
               this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent); 
             } 
             
-            rootOpts = {
-              displayInLegend: this.bDisplayInLegend,
-              expandInLegend: this.bExpandInLegend,
-              legendLabel: this._sMapname
-              //TODO: set other opts for group initialization as required
-            }
-            this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
-
+            this.layerRoot.clear();
+            this.layerRoot.legendLabel = this._sMapname;
+            
             this.parseMapLayersAndGroups(o);
             for (var i=0; i<this.aLayers.length; i++) {
                 if (this.aLayers[i].visible) {
@@ -241,9 +244,7 @@ Fusion.Maps.MapServer.prototype = {
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
-        this.layerRoot = new Fusion.Widget.Map.Group();
-        this.layerRoot.displayInLegend = this.bDisplayInLegend;
-        this.layerRoot.expandInLegend = this.bExpandInLegend;
+        this.layerRoot.clear();
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
@@ -492,6 +493,11 @@ Fusion.Maps.MapServer.Group.prototype = {
         this.actuallyVisible = o.actuallyVisible;
     },
     
+    clear: function() {
+        Fusion.Widget.Map.Group.prototype.clear.apply(this, []);
+        this.oMap = null;
+    },
+     
     show: function() {
         this.oMap.showGroup(this.groupName);
         this.visible = true;
@@ -545,6 +551,12 @@ Fusion.Maps.MapServer.Layer.prototype = {
             var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
         }
+    },
+    
+    clear: function() {
+        Fusion.Widget.Map.Layer.prototype.clear.apply(this, []);
+        this.oMap = null;
+        this.legend = null;
     },
     
     supportsType: function(type) {
