@@ -188,6 +188,7 @@ Fusion.Maps.MapServer.prototype = {
 
             var oMapOptions = {};
             if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
+                this.mapWidget._oInitialExtents = this._oInitialExtents;
               oMapOptions.maxExtent = this._oInitialExtents;
               oMapOptions.maxResolution = 'auto';
             }

@@ -225,7 +225,8 @@ Fusion.Maps.MapGuide.prototype = {
 
             var oMapOptions = {};
             if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
-              oMapOptions.maxExtent = this._oInitialExtents;
+                this.mapWidget._oInitialExtents = this._oInitialExtents;
+                oMapOptions.maxExtent = this._oInitialExtents;
             }
 
             //set projection units and code if supplied
