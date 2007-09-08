@@ -217,9 +217,13 @@ Fusion.Maps.MapServer.prototype = {
             };
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
             if (this.oLayerOL) {
+                this.oLayerOL.unregister("loadstart", this, this.loadStart);
+                this.oLayerOL.unregister("loadend", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
+            this.oLayerOL.events.register("loadstart", this, this.loadStart);
+            this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.mapWidget.addMap(this);
 
             if (!this._oCurrentExtents) 
@@ -473,6 +477,14 @@ Fusion.Maps.MapServer.prototype = {
         var options = {onSuccess: this.processQueryResults.bind(this), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+    loadStart: function() {
+        this.mapWidget._addWorker();
+    },
+    
+    loadEnd: function() {
+        this.mapWidget._removeWorker();
     }
 };
 
