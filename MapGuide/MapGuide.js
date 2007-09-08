@@ -61,6 +61,15 @@ Fusion.Maps.MapGuide.prototype = {
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
+        
+        rootOpts = {
+          displayInLegend: this.bDisplayInLegend,
+          expandInLegend: this.bExpandInLegend,
+          legendLabel: this._sMapname
+          //TODO: set other opts for group initialization as required
+        }
+        this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
+        
 
         this.bSingleTile = mapTag.singleTile;
 
@@ -171,14 +180,9 @@ Fusion.Maps.MapGuide.prototype = {
                 this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent);
             }
             
-            rootOpts = {
-              displayInLegend: this.bDisplayInLegend,
-              expandInLegend: this.bExpandInLegend,
-              legendLabel: this._sMapname
-              //TODO: set other opts for group initialization as required
-            }
-            this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
-
+            this.layerRoot.clear();
+            this.layerRoot.legendLabel = this._sMapname;
+            
             this.parseMapLayersAndGroups(o);
             
             for (var i=0; i<this.aShowLayers.length; i++) {
@@ -303,9 +307,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.aShowGroups = [];
         this.aHideGroups = [];
         this.aRefreshLayers = [];
-        this.layerRoot = new Fusion.Widget.Map.Group();
-        this.layerRoot.displayInLegend = this.bDisplayInLegend;
-        this.layerRoot.expandInLegend = this.bExpandInLegend;
+        this.layerRoot.clear();
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
