@@ -290,7 +290,7 @@ Fusion.Widget.Legend.prototype = {
         }
        
         layer.legend.currentRange = range;
-        if (range != null) {
+        if (range != null && range.styles.length) {
             layer.legend.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
