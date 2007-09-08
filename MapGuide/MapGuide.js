@@ -67,7 +67,7 @@ Fusion.Maps.MapGuide.prototype = {
           expandInLegend: this.bExpandInLegend,
           legendLabel: this._sMapname
           //TODO: set other opts for group initialization as required
-        }
+        };
         this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
         
 
@@ -280,7 +280,15 @@ Fusion.Maps.MapGuide.prototype = {
               };
             }
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            if (this.oLayerOL) {
+                this.oLayerOL.unregister("loadstart", this, this.loadStart);
+                this.oLayerOL.unregister("loadend", this, this.loadEnd);
+                this.oLayerOL.destroy();
+            }
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
+            this.oLayerOL.register("loadstart", this, this.loadStart);
+            this.oLayerOL.register("loadend", this, this.loadEnd);
+            
             this.mapWidget.addMap(this);
 
             if (!this._oCurrentExtents) {
@@ -549,6 +557,14 @@ Fusion.Maps.MapGuide.prototype = {
         if (param == 'SelectionType') {
             this.selectionType = value;
         }
+    },
+
+    loadStart: function() {
+        this.mapWidget._addWorker();
+    },
+
+    loadEnd: function() {
+        this.mapWidget._removeWorker();
     }
 };
     

@@ -37,6 +37,6 @@ Fusion.Widget.RefreshMap.prototype =  {
      */
     execute : function() {
         var map = this.getMap();
-        map.drawMap();
+        map.redraw();
     }
 };
