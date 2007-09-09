@@ -1,8 +1,8 @@
 /********************************************************************** * 
- * @project Fusion
- * @revision $Id$
- * @purpose execute arbitrary javascript
- * @author pspencer@dmsolutions.ca
+ * $Id$
+ * 
+ * execute arbitrary javascript
+ * 
  * Copyright (c) 2007 DM Solutions Group Inc.
  *****************************************************************************
  * This code shall not be copied or used without the expressed written consent
@@ -20,19 +20,14 @@
  * in all copies or substantial portions of the Software.
  ********************************************************************
  *
- * execute arbitrary javascript
+ * 
  * 
  * **********************************************************************/
 
-
-
-Fusion.Widget.ExecuteJS = Class.create();
-Fusion.Widget.ExecuteJS.prototype = 
-{
+Fusion.Widget.InvokeScript = Class.create();
+Fusion.Widget.InvokeScript.prototype = {
     sScript: null,
-    initialize : function(widgetTag)
-    {
-        //console.log('FitToWindow.initialize');
+    initialize : function(widgetTag) {
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         var json = widgetTag.extension;
@@ -42,8 +37,7 @@ Fusion.Widget.ExecuteJS.prototype =
     /**
      * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      */
-    execute : function()
-    {
+    execute : function() {
         eval(this.sScript);
     }
 };
