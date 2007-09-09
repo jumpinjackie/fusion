@@ -168,6 +168,7 @@ Fusion.Maps.MapServer.prototype = {
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName; 
             this._fMetersperunit = o.metersPerUnit; 
+            this.mapWidget._fMetersperunit = this._fMetersperunit;
             this._sImageType = o.imagetype; 
 
             if (!this._oInitialExtents) { 

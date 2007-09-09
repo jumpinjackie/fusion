@@ -175,6 +175,7 @@ Fusion.Maps.MapGuide.prototype = {
             this._sResourceId = o.mapId;
             this._sMapname = o.mapName;
             this._fMetersperunit = o.metersPerUnit;
+            this.mapWidget._fMetersperunit = this._fMetersperunit;
 
             if (!this._oInitialExtents) {
                 this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent);
