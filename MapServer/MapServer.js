@@ -218,11 +218,11 @@ Fusion.Maps.MapServer.prototype = {
             };
             var url = Fusion.getConfigurationItem('mapserver', 'cgi');
             if (this.oLayerOL) {
-                this.oLayerOL.unregister("loadstart", this, this.loadStart);
-                this.oLayerOL.unregister("loadend", this, this.loadEnd);
+                this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
+                this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
-            this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true} );
+            this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true, ratio: 1.5} );
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.mapWidget.addMap(this);
