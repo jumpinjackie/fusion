@@ -107,9 +107,9 @@ Fusion.Widget.Pan.prototype = {
             var size = olMap.getSize();
             var newXY = new OpenLayers.Pixel(size.w / 2 + dx, size.h / 2 + dy);
             var newCenter = olMap.getLonLatFromPixel( newXY ); 
-            olMap.setCenter(newCenter, null, false);
+            this.getMap().zoom(newCenter.lon, newCenter.lat, 1);
             this.startPos = null;
-             Event.stop(e);
+            Event.stop(e);
         }
         OpenLayers.Event.stopObserving(document, 'mouseup', this.mouseUpCB);
         OpenLayers.Event.stopObserving(document, 'mousemove', this.mouseMoveCB);
