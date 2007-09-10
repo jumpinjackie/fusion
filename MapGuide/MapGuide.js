@@ -282,8 +282,8 @@ Fusion.Maps.MapGuide.prototype = {
             }
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             if (this.oLayerOL) {
-                this.oLayerOL.unregister("loadstart", this, this.loadStart);
-                this.oLayerOL.unregister("loadend", this, this.loadEnd);
+                this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
+                this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
