@@ -224,27 +224,26 @@ Fusion.Maps.MapGuide.prototype = {
             //TODO: get this from the layerTag.extension
             //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
-            var oMapOptions = {};
-            if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
-                this.mapWidget._oInitialExtents = this._oInitialExtents;
-                oMapOptions.maxExtent = this._oInitialExtents;
-            }
+            var layerOptions = {};
+            this.mapWidget._oInitialExtents = this._oInitialExtents;
+            layerOptions.maxExtent = this._oInitialExtents;
+            layerOptions.maxResolution = 'auto';
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
-              oMapOptions.units = 'm';
-              //oMapOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
+              layerOptions.units = 'm';
+              //layerOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
             } else {
               //TBD need to do anything here? OL defaults to degrees
             }
 
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
-              oMapOptions.scales = o.FiniteDisplayScales;
+              layerOptions.scales = o.FiniteDisplayScales;
             } else {
-              oMapOptions.maxScale = 1;     //TODO: Get these values form the Map info
+              //layerOptions.maxScale = 1;     //TODO: Get these values form the Map info
             }
-            this.mapWidget.setMapOptions(oMapOptions);  //TODO: only do this for BaseLayers
+            //this.mapWidget.setMapOptions(layerOptions);  //TODO: only do this for BaseLayers?
 
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
@@ -256,40 +255,37 @@ Fusion.Maps.MapGuide.prototype = {
 
             //create the OL layer for this Map layer
             var params = {};
-            var options = {};
             if ( this.bSingleTile ) {
               params = {        //single tile params
                 session : this.getSessionID(),
                 mapname : this._sMapname
               };
-              options = {
-                singleTile: true,   
-                showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
-                hideLayers : this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
-                showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
-                hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
-                refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
-              };
+              layerOptions.singleTile = true,   
+              layerOptions.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
+              layerOptions.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
+              layerOptions.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
+              layerOptions.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
+              layerOptions.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
 
             } else {
               params = {      //tiled version
                 mapdefinition: this._sResourceId,
                 basemaplayergroupname: o.groups[0].groupName  //assumes only one group for now
               };
-              options = {
-                singleTile: false
-              };
+              layerOptions.singleTile = false
             }
-            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+
+            //remove this layer if it was already created
             if (this.oLayerOL) {
                 this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
                 this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
+
+            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
-            this.oLayerOL.register("loadstart", this, this.loadStart);
-            this.oLayerOL.register("loadend", this, this.loadEnd);
-            
+            this.oLayerOL.events.register("loadstart", this, this.loadStart);
+            this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.mapWidget.addMap(this);
 
             if (!this._oCurrentExtents) {
