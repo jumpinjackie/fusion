@@ -328,7 +328,7 @@ Fusion.Maps.MapServer.prototype = {
     drawMap: function() {
         if (!this._oCurrentExtents) return;
 
-        var params = { layers: this.aVisibleLayers.join(' ') };
+        var params = { layers: this.aVisibleLayers.join(' '), ts : (new Date()).getTime()};
         if (this.hasSelection()) {
             params['queryfile']=this._sQueryfile;
         } else {
