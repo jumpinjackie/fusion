@@ -187,26 +187,24 @@ Fusion.Maps.MapServer.prototype = {
             
             if (o.dpi) OpenLayers.DOTS_PER_INCH = o.dpi;
 
-            var oMapOptions = {};
-            if ( !this.mapWidget.getInitialExtents() ) {  //setting up the baselayer for OpenLayers
-                this.mapWidget._oInitialExtents = this._oInitialExtents;
-              oMapOptions.maxExtent = this._oInitialExtents;
-              oMapOptions.maxResolution = 'auto';
-            }
+            var layerOptions = {singleTile: true, ratio: 1.5};
+            this.mapWidget._oInitialExtents = this._oInitialExtents;
+            layerOptions.maxExtent = this._oInitialExtents;
+            layerOptions.maxResolution = 'auto';
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
-              oMapOptions.units = 'm';
-              //oMapOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
+              layerOptions.units = 'm';
+              //layerOptions.projection = 'EPSG:42304';  //TODO: not necessary, but can this be supplied by LoadMap?
             } else {
               //TBD need to do anything here? OL defaults to degrees
             }
 
             //add in scales array if supplied
-            oMapOptions.maxScale = 1;     //TBD Do a better job of seetting scale ranges, 
+            //oMapOptions.maxScale = 1;     //TBD Do a better job of seetting scale ranges, 
                                           //perhaps from layer scale ranges min and max
 
-            this.mapWidget.setMapOptions(oMapOptions);
+            //this.mapWidget.setMapOptions(oMapOptions);
 
             //create the OL layer for this Map layer
             var params = {
@@ -216,16 +214,21 @@ Fusion.Maps.MapServer.prototype = {
               seq : Math.random(),
               map_imagetype : this._sImageType
             };
-            var url = Fusion.getConfigurationItem('mapserver', 'cgi');
+
+            //remove this layer if it was already loaded
             if (this.oLayerOL) {
                 this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
                 this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
-            this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, {singleTile: true, ratio: 1.5} );
+
+            var url = Fusion.getConfigurationItem('mapserver', 'cgi');
+            this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, layerOptions);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.mapWidget.addMap(this);
+
+            this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
 
             if (!this._oCurrentExtents) 
             { 
