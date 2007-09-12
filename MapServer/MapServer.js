@@ -41,7 +41,7 @@ Fusion.Maps.MapServer.prototype = {
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
     oSelection: null,
-    _oCurrentExtents : null,
+    bMapLoaded : false,
 
     //the map file
     sMapFile: null,
@@ -91,6 +91,8 @@ Fusion.Maps.MapServer.prototype = {
         }
         if (this.session[0] instanceof Fusion.Maps.MapServer) {
             this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
+        } else {
+            this.mapSessionCreated();
         }
     },
     
@@ -120,6 +122,7 @@ Fusion.Maps.MapServer.prototype = {
     
     loadMap: function(mapfile, options) {
         
+        this.bMapLoaded = false;
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
         if (this._sMapFile == mapfile) {
@@ -139,8 +142,7 @@ Fusion.Maps.MapServer.prototype = {
         
         options = options || {};
         
-        this._oInitialExtents = null;
-        this._oCurrentExtents = options.extents ? OpenLayers.Bounds.fromArray(options.extents) : null;
+        this._oMaxExtent = null;
         this.aVisibleLayers = options.showlayers || [];
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
@@ -171,9 +173,7 @@ Fusion.Maps.MapServer.prototype = {
             this.mapWidget._fMetersperunit = this._fMetersperunit;
             this._sImageType = o.imagetype; 
 
-            if (!this._oInitialExtents) { 
-              this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent); 
-            } 
+            this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
             
             this.layerRoot.clear();
             this.layerRoot.legendLabel = this._sMapname;
@@ -188,8 +188,7 @@ Fusion.Maps.MapServer.prototype = {
             if (o.dpi) OpenLayers.DOTS_PER_INCH = o.dpi;
 
             var layerOptions = {singleTile: true, ratio: 1.5};
-            this.mapWidget._oInitialExtents = this._oInitialExtents;
-            layerOptions.maxExtent = this._oInitialExtents;
+            layerOptions.maxExtent = this._oMaxExtent;
             layerOptions.maxResolution = 'auto';
 
             //set projection units and code if supplied
@@ -230,12 +229,8 @@ Fusion.Maps.MapServer.prototype = {
 
             this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
 
-            if (!this._oCurrentExtents) 
-            { 
-                this._oCurrentExtents = this._oInitialExtents;
-            } 
-
-            this.mapWidget.setExtents(this._oCurrentExtents);
+            this.mapWidget.fullExtents();
+            this.bMapLoaded = true;
             this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             
         }  
@@ -310,9 +305,14 @@ Fusion.Maps.MapServer.prototype = {
             this.aLayers.push(layer);
         }
     },
-     
+
+    /**
+     * Function: isMapLoaded
+     * 
+     * Returns true if the Map has been laoded succesfully form the server
+     */
     isMapLoaded: function() {
-        return (this._oCurrentExtents) ? true : false;
+        return this.bMapLoaded;
     },
 
     getScale : function() {
@@ -326,7 +326,7 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     drawMap: function() {
-        if (!this._oCurrentExtents) return;
+        if (!this.bMapLoaded) return;
 
         var params = { layers: this.aVisibleLayers.join(' '), ts : (new Date()).getTime()};
         if (this.hasSelection()) {

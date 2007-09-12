@@ -42,6 +42,7 @@ Fusion.Maps.MapGuide.prototype = {
     oSelection: null,
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
+    bMapLoaded : false,
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -127,6 +128,8 @@ Fusion.Maps.MapGuide.prototype = {
     },
     
     loadMap: function(resourceId, options) {
+        this.bMapLoaded = false;
+
         /* don't do anything if the map is already loaded? */
         if (this._sResourceId == resourceId) {
             return;
@@ -145,8 +148,7 @@ Fusion.Maps.MapGuide.prototype = {
         
         options = options || {};
         
-        this._oInitialExtents = null;
-        this._oCurrentExtents = options.extents ? OpenLayers.Bounds.fromArray(options.extents) : null;
+        this._oMaxExtent = null;
         this.aShowLayers = options.showlayers || [];
         this.aHideLayers = options.hidelayers || [];
         this.aShowGroups = options.showgroups || [];
@@ -177,10 +179,8 @@ Fusion.Maps.MapGuide.prototype = {
             this._fMetersperunit = o.metersPerUnit;
             this.mapWidget._fMetersperunit = this._fMetersperunit;
 
-            if (!this._oInitialExtents) {
-                this._oInitialExtents = OpenLayers.Bounds.fromArray(o.extent);
-            }
-            
+            this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
+
             this.layerRoot.clear();
             this.layerRoot.legendLabel = this._sMapname;
             
@@ -225,8 +225,7 @@ Fusion.Maps.MapGuide.prototype = {
             //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
             var layerOptions = {};
-            this.mapWidget._oInitialExtents = this._oInitialExtents;
-            layerOptions.maxExtent = this._oInitialExtents;
+            layerOptions.maxExtent = this._oMaxExtent;
             layerOptions.maxResolution = 'auto';
 
             //set projection units and code if supplied
@@ -288,12 +287,8 @@ Fusion.Maps.MapGuide.prototype = {
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.mapWidget.addMap(this);
 
-            if (!this._oCurrentExtents) {
-                this._oCurrentExtents = this._oInitialExtents;
-            }
-            this.mapWidget.setExtents(this._oCurrentExtents);
-            
-            //this._calculateScale();
+            this.mapWidget.fullExtents();
+            this.bMapLoaded = true;
             this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
             //TBD: something funky going on with Fusion.Error object
@@ -366,7 +361,7 @@ Fusion.Maps.MapGuide.prototype = {
     },
     
     drawMap: function() {
-        if (!this._oCurrentExtents) return;
+        if (!this.bMapLoaded) return;
         
         var options = {
           showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
@@ -385,7 +380,15 @@ Fusion.Maps.MapGuide.prototype = {
         this.oLayerOL.redraw();
     },
 
-    
+    /**
+     * Function: isMapLoaded
+     * 
+     * Returns true if the Map has been laoded succesfully form the server
+     */
+    isMapLoaded: function() {
+        return this.bMapLoaded;
+    },
+
     hasSelection: function() { return this.bSelectionOn; },
     
     getSelectionCB : function(userFunc, r) {
