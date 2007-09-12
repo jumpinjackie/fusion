@@ -92,12 +92,10 @@ for ($i=0; $i<$nLayers; $i++) {
     } else {
         $oLayer = $oMap->GetLayer($i);
     }
-        
-    if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) 
-    {
+    $oLayer->set('tolerance', 0);
+    if ($oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
         $nSelections++;
     }
-
 
     if ($bExtendSelection) {
     } else {
