@@ -98,6 +98,8 @@ Fusion.Maps.MapGuide.prototype = {
         if (this.session[0] instanceof Fusion.Maps.MapGuide) {
             // console.log('register for event');
             this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, this.mapSessionCreated.bind(this));
+        } else {
+            this.mapSessionCreated();
         }
     },
     
@@ -285,7 +287,7 @@ Fusion.Maps.MapGuide.prototype = {
             }
 
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-            this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
+            this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, layerOptions );
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
 

@@ -169,7 +169,6 @@ function buildScaleRanges($layer) {
             $type = 1;
         }
     }
-    echo "\n/* type: $type */ \n";
     $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle");
     $ruleNames = array("PointRule", "LineRule", "AreaRule", );
     $output = 'scaleRanges: [';
