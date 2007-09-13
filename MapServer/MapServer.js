@@ -42,6 +42,7 @@ Fusion.Maps.MapServer.prototype = {
     bExpandInLegend: true,   //TODO: set this in AppDef?
     oSelection: null,
     bMapLoaded : false,
+    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
 
     //the map file
     sMapFile: null,
@@ -49,18 +50,20 @@ Fusion.Maps.MapServer.prototype = {
     //imagetype
     _sImageType : 'png',
     
-    initialize : function(map, mapTag) {
+    initialize : function(map, mapTag, isMapWidgetLayer) {
         //console.log('Fusion.Maps.MapServer.initialize');
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
         this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
         this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
+        this.registerEventID(Fusion.Event.MAP_LOADED);
 
         this.mapWidget = map;
         this.oSelection = null;
+        if (isMapWidgetLayer != null) this.bIsMapWidgetLayer = isMapWidgetLayer;
+
         var extension = mapTag.extension;
-        
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
         rootOpts = {
@@ -225,14 +228,17 @@ Fusion.Maps.MapServer.prototype = {
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, layerOptions);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
-            this.mapWidget.addMap(this);
 
-            this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+            if (this.bIsMapWidgetLayer) {
+              this.mapWidget.addMap(this);
+              this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+              this.mapWidget.fullExtents();
+              this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
+            } else {
+              this.triggerEvent(Fusion.Event.MAP_LOADED);
+            }
 
-            this.mapWidget.fullExtents();
             this.bMapLoaded = true;
-            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
-            
         }  
         else 
         {

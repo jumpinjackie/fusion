@@ -34,16 +34,16 @@ Fusion.Widget.OverviewMap.prototype = {
         
         var json = widgetTag.extension;
 
-        if (json.mapGroup) {
-          this.sMapGroup = json.mapGroup;
+        if (json.MapGroup) {
+          this.sMapGroup = json.MapGroup;
         }
         this.nMinRatio = json.MinRatio ? json.MinRatio[0] : 8;
         this.nMaxRatio = json.MaxRatio ? json.MaxRatio[0] : 128;
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
-          this.nWidth = this.domObj.getWidth();
-          this.nHeight = this.domObj.getHeight();
+          this.nWidth = this.domObj.getWidth()-1;   //adjust size to prevent scroll bars from appearing
+          this.nHeight = this.domObj.getHeight()-1;
         }
         //but you can also override these with values form AppDef
         if (json.Width) this.nWidth = json.Width;
@@ -51,33 +51,49 @@ Fusion.Widget.OverviewMap.prototype = {
 
         this.oSize = new OpenLayers.Size(this.nWidth, this.nHeight);
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
+        this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
+
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapWidgetLoaded.bind(this));
     },
     
-    mapLoaded: function() 
+    mapWidgetLoaded: function() 
     {
-        var map = this.getMap();
-        var mapOpts = {
-          //size: this.oSize,
-          minRatio: this.nMinRatio,
-          maxRatio: this.nMaxRatio
-        }
-        if (this.oMapOptions) mapOpts.mapOptions = this.oMapOptions;
         if (this.sMapGroup) {
-          var mapGroup = Fusion.Lib.ApplicationDefinition.getMapGroup(this.sMapGroup);
+          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroup);
           var mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
-          var keymap = new eval("new Fusion.Maps."+mapTag.type+"(map,mapTag)");
-          mapOpts.layers = keymap.oLayerOL;
+          this.mapObject = new eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
+          this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.keymapLoaded.bind(this));
         } else {
           //just use the base map layer
-          //mapOpts.layers = map.aMaps[0].oLayerOL.clone();
+          this.loadOverview();
         }
-        mapOpts.div = this.domObj;
+    },
+
+    keymapLoaded: function() 
+    {
+        //OL bug? this should be set to true?
+        //set .baseLayer for the map to this layer instead      
+        this.mapObject.oLayerOL.isBaseLayer = false;  
+        this.oMapOptions.baseLayer = this.mapObject.oLayerOL;
+
+        this.loadOverview([this.mapObject.oLayerOL]);
+    },
+
+    loadOverview: function(aLayers) 
+    {
+        var mapOpts = {
+          div: this.domObj,
+          size: this.oSize,
+          minRatio: this.nMinRatio,
+          maxRatio: this.nMaxRatio,
+          mapOptions: this.oMapOptions,
+        }
+        if (aLayers) mapOpts.layers = aLayers;
 
         this.control = new OpenLayers.Control.OverviewMap(mapOpts);
-        map.oMapOL.addControl(this.control);
-
+        this.getMap().oMapOL.addControl(this.control);
         //console.log('OverviewMap mapLoaded');
     }
+
 };
       
