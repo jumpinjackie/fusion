@@ -43,20 +43,23 @@ Fusion.Maps.MapGuide.prototype = {
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
     bMapLoaded : false,
+    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
     
-    initialize : function(map, mapTag) {
+    initialize : function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
                 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
         this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
         this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
+        this.registerEventID(Fusion.Event.MAP_LOADED);
 
         this.mapWidget = map;
         this.oSelection = null;
+        if (isMapWidgetLayer != null) this.bIsMapWidgetLayer = isMapWidgetLayer;
 
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
@@ -285,11 +288,17 @@ Fusion.Maps.MapGuide.prototype = {
             this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, options );
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
-            this.mapWidget.addMap(this);
 
-            this.mapWidget.fullExtents();
+            if (this.bIsMapWidgetLayer) {
+              this.mapWidget.addMap(this);
+              this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+              this.mapWidget.fullExtents();
+              this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
+            } else {
+              this.triggerEvent(Fusion.Event.MAP_LOADED);
+            }
+
             this.bMapLoaded = true;
-            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
         } else {
             //TBD: something funky going on with Fusion.Error object
             //Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
