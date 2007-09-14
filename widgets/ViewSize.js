@@ -50,8 +50,9 @@ Fusion.Widget.ViewSize.prototype = {
         this.domObj.appendChild(this.domSpan);
         
         this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, this.updateViewSize.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.updateViewSize.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateViewSize.bind(this));
+        this.registerParameter('Units');
     },
     
     updateViewSize: function(e) {
@@ -74,9 +75,17 @@ Fusion.Widget.ViewSize.prototype = {
         this.domSpan.innerHTML = this.template.replace('{w}',gw).replace('{h}',gh).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
     },
 
+    setUnits: function() {
+      if (this.units == Fusion.UNKNOWN) {
+        this.setParameter('Units',this.getMap().getUnits());
+      }
+      this.updateViewSize();
+    },
+
     setParameter: function(param, value) {
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
+            this.updateViewSize();
         }
     }
 };

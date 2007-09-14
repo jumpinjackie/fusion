@@ -216,6 +216,9 @@ Fusion.Widget.Measure.prototype = {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         this.keyHandler = this.onKeyPress.bind(this);
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Measure/Measure.css');
+
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
+        this.registerParameter('Units');
         
     },
     
@@ -558,6 +561,12 @@ Fusion.Widget.Measure.prototype = {
 
     getArea: function() {
         return this.cumulativeArea + this.lastArea;
+    },
+
+    setUnits: function() {
+      if (this.units == Fusion.UNKNOWN) {
+        this.setParameter('Units',this.getMap().getUnits());
+      }
     },
 
     setParameter: function(param, value) {
