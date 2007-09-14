@@ -112,6 +112,9 @@ Fusion.Widget.CursorPosition.prototype = {
         
         this.mouseMoveWatcher = this.mouseMove.bind(this);
         this.mouseOutWatcher = this.mouseOut.bind(this);
+
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
+        this.registerParameter('Units');
     },
     
     enable: function() {
@@ -150,6 +153,12 @@ Fusion.Widget.CursorPosition.prototype = {
         
             this.domSpan.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
         }
+    },
+
+    setUnits: function() {
+      if (this.units == Fusion.UNKNOWN) {
+        this.setParameter('Units',this.getMap().getUnits());
+      }
     },
 
     setParameter: function(param, value) {
