@@ -86,7 +86,7 @@ Fusion.Widget.OverviewMap.prototype = {
           size: this.oSize,
           minRatio: this.nMinRatio,
           maxRatio: this.nMaxRatio,
-          mapOptions: this.oMapOptions,
+          mapOptions: this.oMapOptions
         }
         if (aLayers) mapOpts.layers = aLayers;
 
