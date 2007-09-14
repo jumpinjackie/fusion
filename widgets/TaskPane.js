@@ -46,16 +46,12 @@ Fusion.Widget.TaskPane.prototype =
               
         var json = widgetTag.extension;
        
-        var taskURL = json.InitialTask ? json.InitialTask[0] : this.defInitialTask;
         
-        if (taskURL.indexOf("http://")<0) {
-            if (taskURL.slice(0,1) == "/") {
-                taskURL = window.location.protocol + "//" + window.location.host + taskURL;
-            } else {
-                taskURL = Fusion.getFusionURL() + taskURL;
-            }
+        if (json.InitialTask) {
+            this.initialTask = taskURL = json.InitialTask[0];
+        } else {
+            this.initialTask = Fusion.getFusionURL() + this.defInitialTask;
         }
-        this.initialTask = taskURL;
         
         var divName = 'TaskNav';
         var tmpDiv = document.createElement('div');
