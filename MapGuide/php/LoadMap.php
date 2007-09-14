@@ -136,7 +136,7 @@ try
           echo ",";
         echo $map->GetFiniteDisplayScaleAt($i);
     }
-    echo"],";
+    echo"]";
     
    
     echo "}";
