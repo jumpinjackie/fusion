@@ -72,7 +72,7 @@ Fusion.Widget.SelectionPanel.prototype = {
         d.appendChild(this.toolbar);
         d.appendChild(this.featureDiv);
         
-        Fusion.addWidgetStyleSheet(widgetTag.location + '/SelectionPanel/SelectionPanel.css');
+        Fusion.addWidgetStyleSheet(widgetTag.location + 'SelectionPanel/SelectionPanel.css');
         
         this.domObj.appendChild(d);
     },

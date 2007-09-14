@@ -99,7 +99,7 @@ Fusion.Widget.TaskPane.prototype =
                       content: this.iframe
         });
         Element.addClassName(this.domObj, 'taskPanePanel');
-        Fusion.addWidgetStyleSheet(widgetTag.location + '/TaskPane/TaskPane.css');
+        Fusion.addWidgetStyleSheet(widgetTag.location + 'TaskPane/TaskPane.css');
         
         this.domObj.appendChild(this.oTaskPane.domObj);
         //we need to trigger an initial resize after the panel

@@ -96,7 +96,9 @@ Fusion.Widget.Measure = Class.create();
 Fusion.Widget.Measure.prototype = {
     isDigitizing: false,
     //distance of each segment
-    aDistances: [],
+    distances: null,
+    distanceMarkers: null,
+    
     //Array of points used to compute area
     aAreaFirstPoint: null,
     //cumulativeDistance
@@ -207,9 +209,14 @@ Fusion.Widget.Measure.prototype = {
                 this.measureTip.style.zIndex = 101;
             }
         }
+        this.distanceMarkers = [];
+        this.distances = [];
+        
         this.registerEventID(Fusion.Event.MEASURE_CHANGED);
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
         this.keyHandler = this.onKeyPress.bind(this);
+        Fusion.addWidgetStyleSheet(widgetTag.location + 'Measure/Measure.css');
+        
     },
     
     onKeyPress: function(e) {
@@ -276,6 +283,10 @@ Fusion.Widget.Measure.prototype = {
         if (this.measureTip) {
             this.updateTip(null);
         }
+        for (var i=0; i<this.distanceMarkers.length; i++)  {
+            this.distanceMarkers[i].destroy();
+        }
+        this.distanceMarkers = [];
     },
       
     /**
@@ -290,11 +301,16 @@ Fusion.Widget.Measure.prototype = {
             var map = this.getMap();
             var p = map.getEventPosition(e);
             var gp = map.pixToGeo(p.x, p.y);
+            
             //if not digitizing
             if (!this.isDigitizing) {
+                for (var i=0; i<this.distanceMarkers.length; i++)  {
+                    this.distanceMarkers[i].destroy();
+                }
+                this.distanceMarkers = [];
                 var from = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
                 var to = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
-                var seg = new Fusion.Tool.Canvas.Segment(from,to);
+                var lastSegment = new Fusion.Tool.Canvas.Segment(from,to);
                 if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE) {
                     this.feature = new Fusion.Tool.Canvas.Line(map);
                 } else {
@@ -302,7 +318,7 @@ Fusion.Widget.Measure.prototype = {
                     this.feature.fillStyle = this.fillStyle;
                     this.feature.lineStyle = this.lineStyle;
                 }
-                this.feature.addSegment(seg);
+                this.feature.addSegment(lastSegment);
                 this.initVars();               
                 this.aAreaFirstPoint = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
                 this.isDigitizing = true;                                  
@@ -311,24 +327,16 @@ Fusion.Widget.Measure.prototype = {
                 var lastSegment = this.feature.lastSegment();
                 lastSegment.to.set(gp.x,gp.y);
                 this.feature.extendLine();
-                if (this.measureType == Fusion.Constant.MEASURE_TYPE_AREA || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
-                    //Compute area
-                    var a = this.measureArea(lastSegment);
-                    this.aAreas.push(a);
-                    this.cumulativeArea += a;
-                }
-                if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
-                    //Compute distance
-                    var d = this.measureSegment(lastSegment);
-                    this.aDistances.push(d);
-                    this.cumulativeDistance += d;
-                    this.lastDistance = 0;
-                } 
                 this.triggerEvent(Fusion.Event.MEASURE_CHANGED, this, this.getDistance());
-                if (this.measureTip) {
-                    this.updateTip(e);
-                } 
+                this.updateMarker(this.lastMarker, lastSegment, e);
             }
+            //create a new marker
+            this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units);
+            this.distanceMarkers.push(this.lastMarker);
+            var oDomElem =  this.getMap().getDomObj();
+            oDomElem.appendChild(this.lastMarker.domObj);
+            
+                        
             this.clearContext();
             this.feature.draw(this.context);
         }
@@ -345,11 +353,20 @@ Fusion.Widget.Measure.prototype = {
         if (!this.isDigitizing) {
             return;
         }
+        var offset = {x:0,y:0};
         var oElement = this.getMap().getDomObj();
         var target = e.target || e.srcElement;
         if (target.id != 'featureDigitizer') { //'_oEventDiv_'+oElement.id) {
-            console.log('target id is ' + target.id);
             return;
+            var target = Event.findElement(e, 'div');
+            if (!Element.hasClassName(target, 'divMeasureMarker')) {
+                return;
+            } else {
+                debugger;
+            }
+        }
+        if (this.delayUpdateTimer) {
+            window.clearTimeout(this.delayUpdateTimer);
         }
         var map = this.getMap();
         var p = map.getEventPosition(e);
@@ -359,12 +376,12 @@ Fusion.Widget.Measure.prototype = {
         lastSegment.to.set(gp.x,gp.y);
         this.clearContext();
         this.feature.draw(this.context);
-        if (this.measureType == Fusion.Constant.MEASURE_TYPE_AREA || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
-            this.updateArea(lastSegment, e);
-        }
-        if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {  
-            this.updateDistance(lastSegment, e);      
-        }
+        this.delayUpdateTimer = window.setTimeout(this.delayUpdate.bind(this, lastSegment, e), 250);
+    },
+    
+    delayUpdate: function(lastSegment, e) {
+        this.delayUpdateTimer = null;
+        this.updateMarker(this.lastMarker, lastSegment, e);
     },
    
     /**
@@ -392,6 +409,33 @@ Fusion.Widget.Measure.prototype = {
         if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
         }  
         this.isDigitizing = false;
+    },
+    
+    updateMarker: function(marker, segment, e) {
+        if (!marker) {
+            console.log('no marker');
+            return;
+        }
+        var dist = this.measureSegment(segment);
+        var dAmp = Math.pow(10, this.distPrecision);
+        dist = parseInt(dist * dAmp)/dAmp;
+        
+       marker.setDistance(dist);
+        
+        var p = this.getMap().getEventPosition(e);
+        var size = Element.getDimensions(marker.domObj);
+        var t = (p.y - size.height * 1.5);
+        if (t < 0) {
+            t = p.y + size.height * 0.5;
+        }               
+        var pSize = Element.getDimensions(marker.domObj.parentNode);
+        var l = p.x;
+        if (l+size.width > pSize.width) {
+            l = p.x - size.width;
+        }  
+             
+        marker.domObj.style.top = t + 'px';
+        marker.domObj.style.left = l + 'px';
     },
     
     /**
@@ -424,7 +468,7 @@ Fusion.Widget.Measure.prototype = {
     	if (this.units != Fusion.PIXELS) {
             d = dist * map._fMetersperunit;
         }
-        /* magic number - this means the map units are meters! */
+        /* magic number - this means the map units are degrees! */
         if (map._fMetersperunit == 111319.4908) {
             var center = map.getCurrentCenter();
             d = d * Math.cos(2 * Math.PI * center.y / 360);
@@ -598,5 +642,29 @@ Fusion.Widget.Measure.prototype = {
                 this.measureTip.style.left = this.measureTipPositionLeft + 'px';
             }//end static
         }//else
+    }
+};
+
+Fusion.Widget.Measure.DistanceMarker = Class.create();
+Fusion.Widget.Measure.DistanceMarker.prototype = {
+    initialize: function( units ) {
+        this.domObj = document.createElement('div');
+        this.domObj.className = 'divMeasureMarker';
+        this.setUnits(units);
+    },
+    
+    destroy: function() {
+        if (this.domObj.parentNode) {
+            this.domObj.parentNode.removeChild(this.domObj);
+        }
+    },
+    
+    setUnits: function(units) {
+        this.units = Fusion.unitAbbr(units);
+    },
+    
+    setDistance: function(distance) {
+        this.distance = distance;
+        this.domObj.innerHTML = distance + ' ' + this.units;
     }
 };
