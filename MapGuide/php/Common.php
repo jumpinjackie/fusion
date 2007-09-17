@@ -32,8 +32,8 @@
 //$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
 //$defaultInstallDir = "C:/Program Files/Autodesk/MapGuideEnterprise2008/";
 $defaultInstallDir = "../../../../../";
-$defaultExtensionDir = $defaultInstallDir . "WebServerExtensions/www/";
-
+$defaultExtensionDir = realpath($defaultInstallDir . "WebServerExtensions/www/");
+//echo realpath($defaultExtensionDir);
 /**
  * Developer's notes:
  *
@@ -56,14 +56,13 @@ if (!isset($extensionDir)){
     $extensionDir = $defaultExtensionDir;
 }
 
-$viewDir = $extensionDir."mapviewerphp/";
+$viewDir = $extensionDir."/mapviewerphp/";
 
 include $viewDir . "common.php";
 include $viewDir . "constants.php";
-
 // Initialize
-MgInitializeWebTier($extensionDir. "webconfig.ini");
 
+MgInitializeWebTier($extensionDir. "/webconfig.ini");
 try {
     /* If no session has been established yet, then we use the credentials passed
      * to this script to connect to the site server.  By default, we use the
