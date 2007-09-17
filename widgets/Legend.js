@@ -290,7 +290,7 @@ Fusion.Widget.Legend.prototype = {
         }
        
         layer.legend.currentRange = range;
-        if (range != null && range.styles.length) {
+        if (range != null) {
             layer.legend.checkBox.disabled = false;
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
@@ -335,8 +335,10 @@ Fusion.Widget.Legend.prototype = {
                     }
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else {                   
-                    layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer, this.getMap());
+                } else {
+                    if (range.styles.length > 0) {
+                        layer.legend.treeItem.domObj.childNodes[2].src = range.styles[0].getLegendImageURL(fScale, layer, this.getMap());
+                    }
                     Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
                 }
             }
