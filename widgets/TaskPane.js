@@ -42,7 +42,7 @@ Fusion.Widget.TaskPane.prototype =
         this.defPrevTaskIcon = 'images/icon_back.gif';
         this.defNextTaskIcon = 'images/icon_forward.gif';
         this.defTaskListIcon = 'images/icon_tasks.gif';
-        this.defInitialTask = widgetTag.location + '/TaskPane/TaskPane.html';
+        this.defInitialTask = widgetTag.location + 'TaskPane/TaskPane.html';
               
         var json = widgetTag.extension;
        
