@@ -232,6 +232,7 @@ Fusion.Maps.MapServer.prototype = {
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+              this.mapWidget._oInitialExtents = null;
               this.mapWidget.fullExtents();
               this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             } else {
