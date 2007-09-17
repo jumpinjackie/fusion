@@ -192,9 +192,10 @@ Fusion.Widget.Print.prototype = {
             return;
         }
         
+        var maps = this.getMap().getAllMaps();
         var printFeaturesUrl = 'ext/nanaimo/' + this.getMap().arch + '/' + Fusion.getScriptLanguage() +
                       '/PrintFeatures.' + Fusion.getScriptLanguage();
-        var session = 'session='+Fusion.getSessionID();
+        var session = 'session='+maps[0].getSessionID();
         var mapname = '&mapname='+this.getMap().getMapName();
         var layer = '&layer='+ this.resultsLayer;
         var selection = '&selection=' + this.selectionString;
@@ -221,8 +222,9 @@ Fusion.Widget.Print.prototype = {
         var centerY = (extents[1] + extents[3])/ 2;
         var dpi = this.getMap()._nDpi;
         var scale = this.getMap()._fScale;
+        var maps = this.getMap().getAllMaps();
         url = url + 'MAPNAME=' + this.getMap().getMapName();
-        url = url + '&SESSION=' + this.getMap().getSessionID();
+        url = url + '&SESSION=' + maps[0].getSessionID();
         url = url + '&CENTERX='+centerX;
         url = url + '&CENTERY='+centerY;
         url = url + '&DPI='+dpi;
