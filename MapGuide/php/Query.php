@@ -171,36 +171,32 @@ try {
     
     header( 'Content-type: text/xml');
     $layers = $selection->GetLayers();
-    
+    $result = NULL;
+    $result->hasSelection = false;
     if ($layers && $layers->GetCount() >= 0) 
     {
-        echo "<SelectionResult>";
-        echo '<Selection>true</Selection>';
+        $result->hasSelection = true;
         $oExtents = $selection->GetExtents($featureService);
-        echo '<Layers>';
-        for ($i=0; $i<$layers->GetCount(); $i++) {
-          $layer = $layers->GetItem($i);
-          echo '<Layer>'.$layer->GetName().'</Layer>';
-        }
-        echo '</Layers>';
-        /*echo $selection->ToXml();*/
         if ($oExtents) 
         {
             $oMin = $oExtents->GetLowerLeftCoordinate();
             $oMax = $oExtents->GetUpperRightCoordinate();
-            echo "<minx>".$oMin->GetX()."</minx>";
-            echo "<miny>".$oMin->GetY()."</miny>";
-            echo "<maxx>".$oMax->GetX()."</maxx>";
-            echo "<maxy>".$oMax->GetY()."</maxy>";
+            $result->extents = NULL;
+            $result->extents->minx = $oMin->GetX();
+            $result->extents->miny = $oMin->GetY();
+            $result->extents->maxx = $oMax->GetX();
+            $result->extents->maxy = $oMax->GetY();
         }
-        echo "</SelectionResult>";
+        for ($i=0; $i<$layers->GetCount(); $i++) {
+          $layer = $layers->GetItem($i);
+          $layerName = $layer->GetName();
+          $layerClassName = $layer->GetFeatureClassName();
+          $result->$layerName = NULL;
+          $filter = $selection->GenerateFilter($layer, $layerClassName);
+          $result->$layerName->featureCount = $filter;
+        }
     } 
-    else 
-    {
-        echo "<SelectionResult>";
-        echo '<Selection>false</Selection>';
-        echo "</SelectionResult>";
-    }
+    echo var2json($result);
 
 } 
 catch (MgException $e)
