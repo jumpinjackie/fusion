@@ -177,6 +177,13 @@ try {
         echo "<SelectionResult>";
         echo '<Selection>true</Selection>';
         $oExtents = $selection->GetExtents($featureService);
+        echo '<Layers>';
+        for ($i=0; $i<$layers->GetCount(); $i++) {
+          $layer = $layers->GetItem($i);
+          echo '<Layer>'.$layer->GetName().'</Layer>';
+        }
+        echo '</Layers>';
+        /*echo $selection->ToXml();*/
         if ($oExtents) 
         {
             $oMin = $oExtents->GetLowerLeftCoordinate();
