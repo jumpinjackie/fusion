@@ -141,6 +141,7 @@ Fusion.Widget.TaskPane.prototype =
         this.aExecutedTasks.push(url);
         ++this.nCurrentTask;
         this.iframe.src = url;
+        this.iframe.taskPaneId = this.widgetTag.name;
         this.updateButtons();
     },
 
