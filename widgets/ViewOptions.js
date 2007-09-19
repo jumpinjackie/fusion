@@ -46,7 +46,8 @@ Fusion.Widget.ViewOptions.prototype =
     displayUnits: 'meters',
     options : {
         'Imperial': 'Miles', 
-        'Metric': 'Meters'
+        'Metric': 'Meters',
+        'Degrees': 'Degrees'
     },
 
     initialize : function(widgetTag) {
@@ -68,13 +69,17 @@ Fusion.Widget.ViewOptions.prototype =
           this.oMenu.add(menuItem);
         }
 
-        this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : 'meters';
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setViewOptions.bind(this, this.displayUnits));
+        this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : 'Degrees';
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setMapUnits.bind(this));
     },
     
     //action to perform when the button is clicked
     activateTool: function(e) {
         this.oMenu.show(e);
+    },
+
+    setMapUnits: function() {
+      this.setViewOptions(this.getMap().getUnits());
     },
     
     setViewOptions: function(data) {
