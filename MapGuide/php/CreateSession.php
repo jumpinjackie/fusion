@@ -27,17 +27,19 @@
  *
  *****************************************************************************/
 include('Common.php');
+include('../../common/php/Utilities.php');
 
 try {
     $site = $siteConnection->GetSite();
     $sessionId =  $site->CreateSession();
     $user->SetMgSessionId($sessionId);
 
-    header('content-type: text/xml');
-    echo "<mapguidesession>";
-    echo "<sessionid>$sessionId</sessionid>";
-    echo "<username>".$username."</username>";
-    echo "</mapguidesession>";
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
+    $result = null;
+    $result->sessionId = $sessionId;
+    $result->userName = $username;
+    echo var2json($result);
     
     /* start a php session in the web tier as well, using same session id */
     session_start($sessionId);

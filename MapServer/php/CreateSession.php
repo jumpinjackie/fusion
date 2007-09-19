@@ -24,13 +24,15 @@
  
  /* initialize a session and return the session id to the caller */
 include(dirname(__FILE__).'/Common.php');
+include('../../common/php/Utilities.php');
 
 initializeSession( "sid", "", "" );
 $sessionId = session_id();
 
-header('content-type: text/xml');
-echo "<!--".getSessionSavePath()."-->";
-echo "<mapserveresession>";
-echo "<sessionid>$sessionId</sessionid>";
-echo "</mapserveresession>";
+header('Content-type: text/x-json');
+header('X-JSON: true');
+$result = null;
+$result->sessionId = $sessionId;
+$result->userName = '';
+echo var2json($result);
 ?>
