@@ -93,7 +93,7 @@ for ($i=0; $i<$nLayers; $i++) {
         $oLayer = $oMap->GetLayer($i);
     }
     $oLayer->set('tolerance', 0);
-    if ($oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+    if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
         $nSelections++;
     }
 
