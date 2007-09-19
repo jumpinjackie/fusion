@@ -131,8 +131,6 @@ Fusion.Widget.Navigator.prototype = {
         
         this.domObj.style.position = 'absolute';
         this.domObj.style.zIndex = 1000;
-        //this.domObj.style.top = '0px';
-        //this.domObj.style.right = '0px';
         this.domObj.style.width = '51px';
         this.domObj.style.height = '204px';
         
