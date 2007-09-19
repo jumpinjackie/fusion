@@ -250,7 +250,7 @@ function OutputGroupInfo($group)
     echo "layerGroupType:'".$group->GetLayerGroupType()."',";
     $parent = $group->GetGroup();
     echo "parentUniqueId:";
-    echo $parent != null ? "'".$parent->GetObjectId()."," : "null,";
+    echo $parent != null ? "'".$parent->GetObjectId()."'," : "null,";
     echo "visible:".BooleanToString($group->GetVisible()).",";
     echo "actuallyVisible:".BooleanToString($group->isVisible());
 }
