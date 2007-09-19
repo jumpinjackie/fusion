@@ -76,6 +76,8 @@ Fusion.Maps.MapServer.prototype = {
         
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
 
+        this.bSingleTile = mapTag.singleTile ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
+
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
             this.mapSessionCreated();
@@ -438,9 +440,7 @@ Fusion.Maps.MapServer.prototype = {
     /**
        Utility function to clear current selection
     */
-    clearSelection : function() 
-    {
-        
+    clearSelection : function() {
         this.bSelectionOn = false;
         this._sQueryfile = "";
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
@@ -452,15 +452,24 @@ Fusion.Maps.MapServer.prototype = {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(r) {
+    processQueryResults : function(r, json) {
         this.mapWidget._removeWorker();
-        if (r.responseXML) {
-            var oNode = new DomNode(r.responseXML);
-            if (oNode.getNodeText('Selection') == 'false') {
+        if (json) {
+            var o;
+            eval("o="+r.responseText);
+            if (!o.hasSelection) { 
                 this.drawMap();
                 return;
             } else {
-                this._sQueryfile = oNode.getNodeText('QueryFile');
+                this._sQueryfile = o.queryFile;
+                for (var i=0; i<o.layers.length; ++i) {
+                  var layerName = o.layers[i];
+                  for (var j=0; j<this.aLayers.length; ++j) {
+                    if (layerName == this.aLayers[j].layerName) {
+                      this.aLayers[j].selectedFeatureCount = o[layerName].featureCount;
+                    }
+                  }
+                }
                 this.newSelection();
             }
         }

@@ -30,6 +30,7 @@
 /* set up the session */
 include ("Common.php");
 include ("Utilities.php");
+include('../../common/php/Utilities.php');
 
 /* the name of the layer in the map to query */
 if ($_REQUEST['layers'] != '') {
@@ -86,6 +87,9 @@ if ($nLayers == 0) {
     $bAllLayers = true;
 }
 
+$result = NULL;
+$result->hasSelection = false;
+$result->layers = array();
 for ($i=0; $i<$nLayers; $i++) {
     if (!$bAllLayers) {
         $oLayer = $oMap->GetLayerByName($layers[$i]);
@@ -94,7 +98,11 @@ for ($i=0; $i<$nLayers; $i++) {
     }
     $oLayer->set('tolerance', 0);
     if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
-        $nSelections++;
+        $result->hasSelection = true;
+        $layerName = $oLayer->name;
+        array_push($result->layers, $layerName);
+        $result->$layerName->featureCount = $oLayer->getNumResults();
+        //TODO: dump out the extents of the selection
     }
 
     if ($bExtendSelection) {
@@ -104,20 +112,13 @@ for ($i=0; $i<$nLayers; $i++) {
 if ($bExtendSelection) {
 }
 
-header( 'Content-type: text/xml');
-if ($nSelections > 0) {
+header('Content-type: text/x-json');
+header('X-JSON: true');
+if ($result->hasSelection) {
     $oMap->savequery(getSessionSavePath()."query.qry");
-    SaveQuery($oMap, getSessionSavePath()."query2.qry");
-    echo "<SelectionResult>";
-    echo '<Selection>true</Selection>';
-    echo '<QueryFile>'.getSessionSavePath()."query.qry"."</QueryFile>";
-    //TODO: dump out the extents of the selection
-    echo "</SelectionResult>";
-} else {
-    echo "<SelectionResult>";
-    echo '<Selection>false</Selection>';
-    echo "</SelectionResult>";
+    $result->queryFile = getSessionSavePath()."query.qry";
 }
 
+echo var2json($result);
 
 ?>
