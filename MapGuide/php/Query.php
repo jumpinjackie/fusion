@@ -30,6 +30,7 @@
 try {
     /* set up the session */
     include ("Common.php");
+    include('../../common/php/Utilities.php');
 
     /* the name of the layer in the map to query */
     if ($_REQUEST['layers'] != '') {
@@ -169,7 +170,8 @@ try {
     }
     $selection->Save($resourceService, $mapName);
     
-    header( 'Content-type: text/xml');
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
     $layers = $selection->GetLayers();
     $result = NULL;
     $result->hasSelection = false;
@@ -187,13 +189,15 @@ try {
             $result->extents->maxx = $oMax->GetX();
             $result->extents->maxy = $oMax->GetY();
         }
+        $result->layers = array();
         for ($i=0; $i<$layers->GetCount(); $i++) {
           $layer = $layers->GetItem($i);
           $layerName = $layer->GetName();
+          array_push($result->layers, $layerName);
           $layerClassName = $layer->GetFeatureClassName();
-          $result->$layerName = NULL;
           $filter = $selection->GenerateFilter($layer, $layerClassName);
-          $result->$layerName->featureCount = $filter;
+          $a = explode('OR', $filter);
+          $result->$layerName->featureCount = count($a);
         }
     } 
     echo var2json($result);
