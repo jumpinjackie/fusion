@@ -59,11 +59,11 @@ Fusion.Widget.OverviewMap.prototype = {
     mapWidgetLoaded: function() 
     {
         if (this.sMapGroup) {
-          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroup);
+		  var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroup);
           var mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
-          this.mapObject = new eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
+          this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
           this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.keymapLoaded.bind(this));
-        } else {
+		} else {
           //just use the base map layer
           this.loadOverview();
         }
