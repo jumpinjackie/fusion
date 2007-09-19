@@ -132,6 +132,10 @@ Fusion.Maps.MapGuide.prototype = {
         return this.session[0];
     },
     
+    getMapName: function() {
+        return this._sMapname;
+    },
+    
     loadMap: function(resourceId, options) {
         this.bMapLoaded = false;
 
@@ -294,6 +298,7 @@ Fusion.Maps.MapGuide.prototype = {
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+              this.mapWidget._oInitialExtents = null;
               this.mapWidget.fullExtents();
               this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             } else {
@@ -340,6 +345,7 @@ Fusion.Maps.MapGuide.prototype = {
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
+            this.drawMap();
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
         }
@@ -388,6 +394,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.aRefreshLayers = [];
 
         this.oLayerOL.addOptions(options);
+        this.oLayerOL.mergeNewParams({ts : (new Date()).getTime()});
         this.oLayerOL.redraw();
     },
 
@@ -428,6 +435,30 @@ Fusion.Maps.MapGuide.prototype = {
     },
 
     /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectedFeatureCount : function() {
+      var total = 0;
+      for (var j=0; j<this.aLayers.length; ++j) {
+        total += this.aLayers[j].selectedFeatureCount;
+      }
+      return total;
+    },
+
+    /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectedLayers : function() {
+      var layers = [];
+      for (var j=0; j<this.aLayers.length; ++j) {
+        if (this.aLayers[j].selectedFeatureCount>0) {
+          layers.push(this.aLayers[j]);
+        }
+      }
+      return layers;
+    },
+
+     /**
      * asynchronously load the current selection.  When the current
      * selection changes, the selection is not loaded because it
      * could be a lengthy process.  The user-supplied function will
@@ -462,6 +493,11 @@ Fusion.Maps.MapGuide.prototype = {
     */
     selectionCleared : function()
     {
+        //clear the selection count for the layers
+        for (var j=0; j<this.aLayers.length; ++j) {
+          this.aLayers[j].selectedFeatureCount = 0;
+        }
+
         this.bSelectionOn = true;
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
@@ -483,13 +519,25 @@ Fusion.Maps.MapGuide.prototype = {
     */
     processQueryResults : function(r) {
         this.mapWidget._removeWorker();
-        if (r.responseXML) {
-            var oNode = new DomNode(r.responseXML);
-            if (oNode.getNodeText('Selection') == 'false') {
-                this.drawMap();
-                return;
+        if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
+            var oNode;
+            eval('oNode='+r.responseText);
+            
+            if (oNode.hasSelection) {
+
+              // set the feature count on each layer making up this map
+              for (var i=0; i<oNode.layers.length; ++i) {
+                var layerName = oNode.layers[i];
+                for (var j=0; j<this.aLayers.length; ++j) {
+                  if (layerName == this.aLayers[j].layerName) {
+                    this.aLayers[j].selectedFeatureCount = oNode[layerName].featureCount;
+                  }
+                }
+              }
+              this.drawMap();
+              return;
             } else {
-                this.newSelection();
+              this.newSelection();
             }
         }
     },
@@ -500,6 +548,11 @@ Fusion.Maps.MapGuide.prototype = {
     query : function(options) {
         this.mapWidget._addWorker();
         
+        //clear the selection count for the layers
+        for (var j=0; j<this.aLayers.length; ++j) {
+          this.aLayers[j].selectedFeatureCount = 0;
+        }
+
         var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
         var bPersistant = options.persistent || true;
@@ -639,6 +692,7 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         this.resourceId = o.resourceId;
         this.legendLabel = o.legendLabel;
         this.selectable = o.selectable;
+        this.selectedFeatureCount = 0;
         this.layerTypes = [].concat(o.layerTypes);
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
