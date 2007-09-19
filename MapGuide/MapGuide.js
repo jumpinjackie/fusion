@@ -74,8 +74,7 @@ Fusion.Maps.MapGuide.prototype = {
         };
         this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
         
-
-        this.bSingleTile = mapTag.singleTile;
+        this.bSingleTile = mapTag.singleTile ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
@@ -268,19 +267,19 @@ Fusion.Maps.MapGuide.prototype = {
                 session : this.getSessionID(),
                 mapname : this._sMapname
               };
-              layerOptions.singleTile = true,   
-              layerOptions.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
-              layerOptions.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
-              layerOptions.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
-              layerOptions.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
-              layerOptions.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
+              layerOptions.singleTile = true;   
+              layerOptions.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
+              layerOptions.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
+              layerOptions.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
+              layerOptions.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
+              layerOptions.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
 
             } else {
               params = {      //tiled version
                 mapdefinition: this._sResourceId,
                 basemaplayergroupname: o.groups[0].groupName  //assumes only one group for now
               };
-              layerOptions.singleTile = false
+              layerOptions.singleTile = false;
             }
 
             //remove this layer if it was already created
@@ -534,10 +533,10 @@ Fusion.Maps.MapGuide.prototype = {
                   }
                 }
               }
+              this.newSelection();
+            } else {
               this.drawMap();
               return;
-            } else {
-              this.newSelection();
             }
         }
     },
