@@ -103,6 +103,14 @@ Fusion.Widget.Navigator.prototype = {
         sliderBg.useMap = '#Navigator_ImageMap';
         this.domObj.appendChild(sliderBg);
         
+        var handleDiv = document.createElement('div');
+        handleDiv.style.position = 'absolute';
+        handleDiv.style.top = '6px';
+        handleDiv.style.left = '6px';
+        handleDiv.style.width = '39px';
+        handleDiv.style.height = '16px';
+        this.domObj.appendChild(handleDiv);
+        
         var sliderDiv = document.createElement('div');
         sliderDiv.style.position = 'absolute';
         sliderDiv.style.top = '43px';
@@ -131,7 +139,7 @@ Fusion.Widget.Navigator.prototype = {
         var checkPosition = this.checkPosition.bind(this);
 
         //set up the navigator as draggable
-        new Draggable(this.domObj, {starteffect: false, endeffect: false});
+        new Draggable(this.domObj, {handle: handleDiv, starteffect: false, endeffect: false});
         //this observer pins the navigator to the top right after a drag so
         //that it moves if the window is resized
         var observer = {
