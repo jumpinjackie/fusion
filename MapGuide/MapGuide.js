@@ -102,18 +102,12 @@ Fusion.Maps.MapGuide.prototype = {
         }
     },
     
-    createSessionCB : function(r) {
-        if (r.status == 200) {
-            if (r.responseXML) {
-                // console.log('setting session id');
-                var node = new DomNode(r.responseXML);
-                if ( node.findFirstNode('Exception') ) {
-                  alert("Error creating MapGuide session:" + r.responseText);
-                } else {
-                  this.session[0] = node.getNodeText('sessionid');
-                  this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
-                }
-            }
+    createSessionCB : function(r, json) {
+        if (r.status == 200 && json) {
+            var o;
+            eval('o='+r.responseText);
+            this.session[0] = o.sessionId;
+            this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
         }
     },
 

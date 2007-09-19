@@ -101,13 +101,12 @@ Fusion.Maps.MapServer.prototype = {
         }
     },
     
-    createSessionCB : function(r) {
-        if (r.status == 200) {
-            if (r.responseXML) {
-                var node = new DomNode(r.responseXML);
-                this.session[0] = node.getNodeText('sessionid');
-                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
-            }
+    createSessionCB : function(r, json) {
+        if (r.status == 200 && json) {
+            var o;
+            eval('o='+r.responseText);
+            this.session[0] = o.sessionId;
+            this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
         }
     },
 
