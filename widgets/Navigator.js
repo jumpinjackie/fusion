@@ -131,13 +131,21 @@ Fusion.Widget.Navigator.prototype = {
         
         this.domObj.style.position = 'absolute';
         this.domObj.style.zIndex = 1000;
-        this.domObj.style.top = 0;
-        this.domObj.style.right = 0;
+        //this.domObj.style.top = '0px';
+        //this.domObj.style.right = '0px';
         this.domObj.style.width = '51px';
         this.domObj.style.height = '204px';
         
         var checkPosition = this.checkPosition.bind(this);
-
+		
+		if (this.domObj.currentStyle) {
+			if (this.domObj.currentStyle.left == 'auto') {
+				var pDim = Element.getDimensions(this.domObj.parentNode);
+				var nRight = parseInt(this.domObj.currentStyle.right);
+				var navDim = Element.getDimensions(this.domObj);
+				this.domObj.style.left = (pDim.width - nRight - navDim.width) + 'px';
+			}
+		}
         //set up the navigator as draggable
         new Draggable(this.domObj, {handle: handleDiv, starteffect: false, endeffect: false});
         //this observer pins the navigator to the top right after a drag so
@@ -180,9 +188,9 @@ Fusion.Widget.Navigator.prototype = {
         var nav = this.domObj;
         var pDim = Element.getDimensions(nav.parentNode);
         var nLeft, nTop;
-        nLeft = parseInt(nav.style.left);
-        nTop = parseInt(nav.style.top);
-        if (nLeft + nav.width > pDim.width) {
+		nLeft = parseInt(nav.style.left);
+		nTop = parseInt(nav.style.top);
+		if (nLeft + nav.width > pDim.width) {
             nLeft = pDim.width - nav.width;
             nav.style.left = nLeft + 'px';
         }
