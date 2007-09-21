@@ -26,7 +26,7 @@ Fusion.Widget.TaskPane = Class.create();
 Fusion.Widget.TaskPane.prototype =
 {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
-    nCurrentTask: -1,
+    nCurrentTask: 0,
     nTasks: 0,
     homeAction: null,
     prevAction: null,
