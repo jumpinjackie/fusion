@@ -326,9 +326,13 @@ Fusion.Maps.MapGuide.prototype = {
         var sessionid = this.getSessionID();
         
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
-        var options = {onSuccess: this.mapReloaded.bind(this), 
+        var options = {onSuccess: this.mapReloaded.bind(this), onException: this.reloadFailed.bind(this),
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
+    },
+
+    reloadFailed: function(r,json) {
+      alert(r.transport.responseText);
     },
 
 //TBD: this function not yet converted for OL    
@@ -450,6 +454,153 @@ Fusion.Maps.MapGuide.prototype = {
       }
       return layers;
     },
+
+    /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectableLayers : function() {
+      var layers = [];
+      for (var j=0; j<this.aLayers.length; ++j) {
+        if (this.aLayers[j].selectable) {
+          layers.push(this.aLayers[j]);
+        }
+      }
+      return layers;
+    },
+
+    //TODO: the following 3 methods are copied from ajaxmappane.templ and can probably be reworked for fusion
+    setSelectionXML: function(xmlSet) {
+//"<?xml version=\"1.0\" encoding=\"UTF-8\"?><FeatureSet xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"FeatureSet-1.0.0.xsd\"> <Layer id=\"300df790-0000-1000-8000-0017a4e6ff5d\">  <Class id=\"SHP_Schema:Parcels\">   <ID>myYAAA==</ID>   <ID>nCYAAA==</ID>   <ID>nyYAAA==</ID>   <ID>oiYAAA==</ID>   <ID>9yYAAA==</ID>   <ID>+CYAAA==</ID>   <ID>+SYAAA==</ID>   <ID>CCcAAA==</ID>   <ID>hScAAA==</ID>   <ID>hycAAA==</ID>   <ID>zicAAA==</ID>   <ID>TygAAA==</ID>   <ID>XSgAAA==</ID>   <ID>YCgAAA==</ID>   <ID>vigAAA==</ID>  </Class> </Layer></FeatureSet>"
+      xmlOut = this.setSelection(xmlSet, true);
+      xmlDoc = (new DOMParser()).parseFromString(xmlSet, "text/xml");
+      this.processFeatureInfo(xmlDoc.documentElement, false, 1);
+      this.processFeatureInfo(xmlOut, false, 2);
+    },
+
+    setSelection: function (selText, requery) {
+      var sl = Fusion.getScriptLanguage();
+      var selectWithinScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
+      var sessionid = this.getSessionID();
+      var params = 'maname='+this.getMapName()+"&session="+sessionid;
+      params += '&selection=' + encodeURIComponent(selText);
+      params += '&queryinfo=' + (requery? "1": "0");
+      params += '&seq=' + Math.random();
+      var options = {onSuccess: this.mapLoaded.bind(this), parameters:params};
+      Fusion.ajaxRequest(selectWithinScript, options);
+
+    },
+
+    processFeatureInfo: function(xmlIn, append, which) {
+      if (which & 1) {
+        var selectionChanged = false;
+        var prevCount = selection.count;
+        if(!append) selection = new Selection();
+        try
+        {
+            var layers = xmlIn.getElementsByTagName("Layer");
+            for(var i=0; i < layers.length; i++)
+            {
+                var layerId = layers[i].getAttribute("id");
+
+                var classElt = layers[i].getElementsByTagName("Class")[0];
+                var className = classElt.getAttribute("id");
+
+                var layer = null, newLayer = null;
+                if(append)
+                {
+                    if((layer = selection.layers.getItem(layerId)) == null)
+                        newLayer = layer = new SelLayer(className);
+                }
+                else
+                {
+                    newLayer = layer = new SelLayer(className);
+                    selectionChanged = true;
+                }
+                if(newLayer)
+                    selection.layers.setItem(layerId, layer);
+
+                var features = classElt.getElementsByTagName("ID");
+                for(var j=0; j < features.length; j++)
+                {
+                    var id = features[j].childNodes[0].nodeValue;
+                    if(append && newLayer == null)
+                    {
+                        if(layer.featIds.hasItem(id))
+                        {
+                            layer.featIds.removeItem(id);
+                            selection.count --;
+                        }
+                        else
+                        {
+                            layer.featIds.setItem(id, layer);
+                            selection.count ++;
+                        }
+                        selectionChanged = true;
+                    }
+                    else
+                    {
+                        layer.featIds.setItem(id, layer);
+                        selection.count ++;
+                    }
+                }
+            }
+        }
+        catch(e) {}
+
+        if(selectionChanged || prevCount != selection.count)
+        {
+            xmlSelection = null;
+            if(appending)
+            {
+                fi = SetSelection(selectionToXml(), selection.count == 1);
+                if(selection.count == 1)
+                {
+                    ProcessFeatureInfo(fi, false, 2);
+                    which &= ~2;
+                }
+            }
+            parent.OnSelectionChanged();
+            RequestMapImage(++ mapId);
+        }
+      }
+      if(which & 2) {
+        properties = new Array();
+        if(selection.count == 1)
+        {
+            try
+            {
+                var props = xmlIn.getElementsByTagName("Property");
+                if(props != null)
+                {
+                    for(var i=0; i < props.length; i++)
+                    {
+                        var name = props[i].getAttribute("name");
+                        var value = props[i].getAttribute("value");
+                        properties.push(new Property(name, value));
+                    }
+                }
+            }
+            catch(e) {}
+        }
+        properties.sort(CompareProperties);
+        GetPropertyCtrl().SetProperties(selection.count, properties);
+      }
+      if(which & 4) {
+        try {
+            var hlinkElt = xmlIn.getElementsByTagName("Hyperlink")[0];
+            if(hlinkElt != null)
+                hlData.url = hlinkElt.childNodes[0].nodeValue;
+        } catch(e) {
+            hlData.url = "";
+        }
+        try {
+            var ttipElt = xmlIn.getElementsByTagName("Tooltip")[0];
+            if(ttipElt != null) hlData.ttip = ttipElt.childNodes[0].nodeValue;
+        }
+        catch(e) {}
+      }
+    },
+
 
      /**
      * asynchronously load the current selection.  When the current
