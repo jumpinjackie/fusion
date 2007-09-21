@@ -58,8 +58,8 @@ if (!isset($extensionDir)){
 
 $viewDir = $extensionDir."/mapviewerphp/";
 
-include $viewDir . "common.php";
-include $viewDir . "constants.php";
+//include $viewDir . "common.php";
+include dirname(__FILE__)."/Constants.php";
 // Initialize
 
 MgInitializeWebTier($extensionDir. "/webconfig.ini");
@@ -141,6 +141,7 @@ try {
     exit;
 }
 
+
 //common resource service to be used by all scripts
 $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
 
@@ -149,4 +150,108 @@ if (isset($_REQUEST['mapname'])) {
     $mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
     $mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
 }
+
+function GetDefaultLocale()
+{
+    return "en"; // localizable string
+}
+
+function GetLocalizationPath()
+{
+    $thisFile = __FILE__;
+    $pos = strrpos($thisFile, '\\');
+    if ($pos == false)
+        $pos = strrpos($thisFile, '/');
+    return substr($thisFile, 0, $pos+1) . "../../../localized/";
+}
+
+function FormatMessage($id, $locale, $params)
+{
+    $text = GetString($id, $locale);
+    for($i = 0; $i < count($params); $i++)
+    {
+        $tag = "{" . $i . "}";
+        $pos1 = strpos($text, $tag);
+        if($pos1 == false)
+            break;
+        if($pos1 > 0)
+            $begin = substr($text, 0, $pos1);
+        else
+            $begin = "";
+        $end = substr($text, $pos1 + strlen($tag));
+        $text = $begin . $params[$i] . $end;
+    }
+    return $text;
+}
+
+function GetSurroundVirtualPath()
+{
+    if (isset($_SERVER["REQUEST_URI"]))
+    {
+        $path = $_SERVER["REQUEST_URI"];
+        $baseuri = substr($path, 0, strrpos($path, '?') + 1);
+    }
+    else
+    {
+        $baseuri = $_SERVER["PHP_SELF"];
+    }
+
+    return substr($baseuri, 0, strrpos($baseuri, '/') + 1);
+}
+
+function GetRootVirtualFolder()
+{
+    if (isset($_SERVER["REQUEST_URI"]))
+    {
+        $path = $_SERVER["REQUEST_URI"];
+        $baseuri = substr($path, 0, strrpos($path, '?') + 1);
+    }
+    else
+    {
+        $baseuri = $_SERVER["PHP_SELF"];
+    }
+
+    return substr($baseuri, 0, strpos($baseuri, '/', 1));
+}
+
+function GetClientOS() {
+    if(!isset($_SERVER['HTTP_USER_AGENT']))
+        return 0;
+    $agent = $_SERVER['HTTP_USER_AGENT'];
+    if(strpos($agent, "Windows") != FALSE)
+        return 0;
+    else if(strpos($agent, "Macintosh") != FALSE)
+        return 1;
+    return 2;
+}
+
+function EscapeForHtml($str)
+{
+    $org = array("'", "\"", "\n", "<", ">");
+    $repl = array("&#39;", "&quot;", " ", "&lt;", "&gt;" );
+    return str_replace($org, $repl, $str);
+}
+
+function GetDecimalFromLocalizedString($numberString, $locale)
+{
+    if($locale != null && $numberString != null)
+    {
+        // Remove thousand separators
+        $thousandSeparator = GetLocalizedString("THOUSANDSEPARATOR", $locale);
+        if($thousandSeparator != null && strlen($thousandSeparator) > 0)
+        {
+            $numberString = str_replace($thousandSeparator, "", $numberString);
+        }
+        
+        // Replace localized decimal separators with "."
+        $decimalSeparator = GetLocalizedString("DECIMALSEPARATOR", $locale);
+        if($decimalSeparator != null && strlen($decimalSeparator) > 0 && $decimalSeparator != ".")
+        {
+            $numberString = str_replace($decimalSeparator, ".", $numberString);
+        }
+    }
+    return $numberString;
+}
+
+
 ?>
