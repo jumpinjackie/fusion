@@ -68,6 +68,7 @@ $Id$
   dist.home            The name of the base directory in which
                        distribution files are created.
                        Defaults to "dist".
+  <property name="deploy.home" value="C:\ms4w\apps/${app.name}"/>
 -->
 
   <property environment="env"/>
@@ -77,7 +78,6 @@ $Id$
   <property name="app.flavour" value="mapguide"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
-  <!--property name="deploy.home" value="C:\ms4w\apps/${app.name}"/-->
   <property name="dist.home" value="${basedir}/dist"/>
   <property name="docs.home" value="${build.home}/docs"/>
 
@@ -110,17 +110,16 @@ $Id$
     <echo message="Preparing uncompressed build"/>
     <!-- Create build directories as needed -->
     <mkdir dir="${build.home}"/>
-    <!-- Copy static content of the mapbuilder project  -->
+    <!-- Copy static content -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
-            includes="config.json config.xml common/** docs/** ext/** lib/** redist/**"
+            includes="config.json common/** docs/** ext/** lib/** redist/**"
             excludes="selenium/**"
        />
     </copy>
     
     <!-- Create jx directories -->
     <mkdir dir="${build.home}/jx"/>
-    <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}/jx">
       <fileset dir="${jx-lib}" excludes="nbproject/** build.sh build.xml build/** dist/**"/>
     </copy>
@@ -129,7 +128,6 @@ $Id$
 
   <target name="prepare-mapguide" depends="prepare" description="creates uncompressed build for mapguide">
     <echo message="Preparing mapguide files"/>
-    <!-- Copy static content of the mapbuilder project  -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" includes="MapGuide/** samples/mapguide/**"/>
     </copy>
@@ -154,6 +152,20 @@ $Id$
                       Toolbar.js
                       KeepSessionAlive.js
                       About.js
+                      BufferPanel.js
+                      BufferPanel/**
+                      EditableScale.js
+                      EditableScale/**
+                      Help.js
+                      Help/**
+                      Navigator.js
+                      Navigator/**
+                      SelectWithin.js
+                      SelectWithin/**
+                      SelectionPanel.js
+                      SelectionPanel/**
+                      TaskPane.js
+                      TaskPane/**
                       html/**
                       scalebar/**"/>
     <!--                  Print
@@ -166,7 +178,7 @@ $Id$
 
   <target name="prepare-mapserver" depends="prepare" description="creates uncompressed build for mapserver">
     <echo message="Preparing mapserver files"/>
-    <!-- Copy static content of the mapbuilder project  -->
+    <!-- Copy all widgets for now -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" includes="MapServer/** samples/mapserver/** widgets/**"/>
     </copy>
