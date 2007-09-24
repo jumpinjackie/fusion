@@ -51,14 +51,15 @@
     {
         $newBuffer = false;
 
-        InitializeWebTier();
-
+        //MgInitializeWebTier();
+/*
         $cred = new MgUserInformation($sessionId);
         //connect to the site and get a feature service and a resource service instances
         $site = new MgSiteConnection();
         $site->Open($cred);
-        $featureSrvc = $site->CreateService(MgServiceType::FeatureService);
-        $resourceSrvc = $site->CreateService(MgServiceType::ResourceService);
+*/
+        $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
+        $resourceSrvc = $siteConnection->CreateService(MgServiceType::ResourceService);
 
         $dataSourceId = new MgResourceIdentifier($dataSource);
         $layerDefId = new MgResourceIdentifier($layerDef);
@@ -358,19 +359,19 @@ function GetParameters()
     global $mapName, $sessionId, $bufferName, $lcolor, $ffcolor, $fbcolor, $layersParam, $popup;
     global $transparent, $distance, $units, $linestyle, $fillstyle, $thickness, $merge, $foretrans;
 
-    if(isset($params['LOCALE']))
-        $locale = $params['LOCALE'];
+    if(isset($params['locale']))
+        $locale = $params['locale'];
 
-    $mapName = $params['MAPNAME'];
-    $sessionId = $params['SESSION'];
-    $popup = $params['POPUP'];
+    $mapName = $params['mapname'];
+    $sessionId = $params['session'];
+    $popup = $params['popup'];
     $bufferName = $params['BUFFER'];
-    $layersParam = $params['LAYERS'];
-    $lcolor = $params['LCOLOR'];
-    $ffcolor = $params['FFCOLOR'];
-    $fbcolor = $params['FBCOLOR'];
+    $layersParam = $params['layers'];
+    $lcolor = $params['lcolor'];
+    $ffcolor = $params['ffcolor'];
+    $fbcolor = $params['fbcolor'];
     $foretrans = $params['FORETRANS'];
-    $transparent = $params['TRANSPARENT'];
+    $transparent = $params['transparent'];
     $distance = GetDecimalFromLocalizedString($params['DISTANCE'], $locale);
     $units = $params['UNITS'];
     $linestyle = $params['LINESTYLE'];

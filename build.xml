@@ -152,23 +152,34 @@ $Id$
                       Toolbar.js
                       KeepSessionAlive.js
                       About.js
+                      ActivityIndicator.js
                       BufferPanel.js
                       BufferPanel/**
+                      CursorPosition.js
                       EditableScale.js
                       EditableScale/**
                       Help.js
                       Help/**
+                      Measure.js
                       Navigator.js
                       Navigator/**
+                      Print.js
+                      RefreshMap.js
                       SelectWithin.js
                       SelectWithin/**
                       SelectionPanel.js
                       SelectionPanel/**
+                      SelectRadius.js
+                      SelectPolygon.js
                       TaskPane.js
                       TaskPane/**
+                      ViewOptions.js
+                      ViewSize.js
+                      ZoomOnClick.js
+                      ZoomToSelection.js
                       html/**
                       scalebar/**"/>
-    <!--                  Print
+    <!--              
                       Info
                       Help
                       Context Menu-->
@@ -243,7 +254,7 @@ $Id$
   The "deploy" target synchronizes the build directory with the Java Servlet
   container directory.  This could also be done by copying in the war file.
 -->
-  <target name="deploy" description="Copy build directory to web server" depends="prepare-mapserver,prepare-mapguide">
+  <target name="deploy" description="Copy build directory to web server" depends="prepare-mapguide">
     <echo message="Deploying to web server"/>
     <mkdir dir="${deploy.home}"/>
     <copy todir="${deploy.home}">

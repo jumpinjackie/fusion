@@ -53,7 +53,8 @@ function InitDocument()
 
 function OnMouseDown(e)
 {
-    GetParent().ForwardMouseDown(document, e);
+  //not sure what this did in the MG version
+    //GetParent().ForwardMouseDown(document, e);
 }
 
 function ExecuteCommand()
@@ -78,28 +79,15 @@ function ExecuteCommand()
     if(layerSet == "")
         return;
 
-    var reqParams = "mapname=" + encodeURIComponent(mapName) + "&session=" + sessionId + "&layers=" + encodeURIComponent(layerSet) + "&dwf=" + dwf;
+    //reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var params = "mapname=" + encodeURIComponent(mapName) + "&session=" + sessionId + "&layers=" + encodeURIComponent(layerSet) + "&dwf=" + dwf;
+    var options = {onSuccess: selected, onFailure: selectedError, parameters:params};
+    GetParent().Fusion.ajaxRequest(webAgent, options);
+}
 
-    var reqHandler = null;
-    if(msie)
-        reqHandler = new ActiveXObject("Microsoft.XMLHTTP");
-    else
-        reqHandler = new XMLHttpRequest();
-
-    reqHandler.open("POST", webAgent, false);
-    reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    try
-    {
-        reqHandler.send(reqParams);
-        if(reqHandler.status == 200) {
-            var map = GetParent().Fusion.getMapByName(mapName);
-            map.aMaps[0].reloadMap();    //TODO: make a MapWidget reload function
-            //map.aMaps[0].setSelectionXML(reqHandler.responseText);
-        } else {
-          alert(reqHandler.responseText);
-        }
-    }
-    catch(e) {}
+function selected() {
+    var map = GetParent().Fusion.getMapByName(mapName);
+    map.aMaps[0].reloadMap();    //TODO: make a MapWidget reload function
 
     if (popup) {
       window.close();
@@ -107,6 +95,10 @@ function ExecuteCommand()
       var TaskPaneId=this.frameElement.taskPaneId;
       GetParent().Fusion.getWidgetById(TaskPaneId).goHome();  
     }
+}
+
+function selectedError(r) {
+    alert(r.responseText);
 }
 
 function Clear()
