@@ -31,7 +31,7 @@
     $templ = file_get_contents("./SelectWithinPanel.templ");
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
-    print sprintf($templ, $popup, GetSurroundVirtualPath() . "SelectWithin.php", $mapName, $sessionId, $dwf);
+    print sprintf($templ, $popup, "./widgets/SelectWithin/SelectWithin.php", $mapName, $sessionId, $dwf);
 
 
 function GetParameters($params)

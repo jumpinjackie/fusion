@@ -70,7 +70,7 @@ function FillLayerList()
 {
     var list = document.getElementById("layers");
     var listNames = document.getElementById("layerNames");
-    var mapName = document.getElementById('Frm').MAPNAME.value;
+    var mapName = document.getElementById('Frm').mapname.value;
     list.options.length = 0;
     var map = GetParent().Fusion.getMapByName(mapName);
     var layers = map.aMaps[0].getSelectedLayers();  
@@ -339,15 +339,15 @@ function OnCancel()
         </td></tr>
     </table>
 
-    <input type="hidden" name="MAPNAME" value="%s">
-    <input type="hidden" name="SESSION" value="%s">
-    <input type="hidden" name="POPUP" value="%s">
-    <input type="hidden" name="LOCALE" value="%s">
-    <input type="hidden" name="LCOLOR" id="lcolor" value="#000000">
-    <input type="hidden" name="FFCOLOR" id="ffcolor" value="#f00000">
-    <input type="hidden" name="FBCOLOR" id="fbcolor" value="#ffffff">
-    <input type="hidden" name="TRANSPARENT" id="fbtransp" value="1">
-    <input type="hidden" name="LAYERS" id="inLayers" value="">
+    <input type="hidden" name="mapname" value="%s">
+    <input type="hidden" name="session" value="%s">
+    <input type="hidden" name="popup" value="%s">
+    <input type="hidden" name="locale" value="%s">
+    <input type="hidden" name="lcolor" id="lcolor" value="#000000">
+    <input type="hidden" name="ffcolor" id="ffcolor" value="#f00000">
+    <input type="hidden" name="fbcolor" id="fbcolor" value="#ffffff">
+    <input type="hidden" name="transparent" id="fbtransp" value="1">
+    <input type="hidden" name="layers" id="inLayers" value="">
     <select size="4" id="layerNames" style="visibility: hidden">
     </select>
 </form>
