@@ -76,7 +76,7 @@ Fusion.Maps.MapServer.prototype = {
         
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
 
-        this.bSingleTile = mapTag.singleTile ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
+        this.bSingleTile = mapTag.singleTile;// this is set by the AppDef.Map object
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
@@ -122,6 +122,10 @@ Fusion.Maps.MapServer.prototype = {
 
     getSessionID: function() {
         return this.session[0];
+    },
+    
+    getMapName: function() {
+        return this._sMapname;
     },
     
     loadMap: function(mapfile, options) {

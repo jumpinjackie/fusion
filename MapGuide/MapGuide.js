@@ -74,7 +74,7 @@ Fusion.Maps.MapGuide.prototype = {
         };
         this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
         
-        this.bSingleTile = mapTag.singleTile ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
+        this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
