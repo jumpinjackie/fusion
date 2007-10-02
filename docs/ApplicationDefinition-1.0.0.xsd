@@ -52,8 +52,7 @@
     <xs:sequence>
       <xs:element name="Name" type="xs:string" />
       <xs:element name="Type" type="xs:string" />
-      <xs:element name="StatusItem" type="xs:string" />
-      <xs:element name="Location" type="xs:string" />
+      <xs:element name="Location" type="xs:string" minOccurs="0"/>
       <xs:element name="Extension" type="CustomContentType" minOccurs="0" />
     </xs:sequence>
   </xs:complexType>
@@ -72,8 +71,9 @@
         <xs:sequence>
           <xs:element name="ImageUrl" type="xs:string" />
           <xs:element name="ImageClass" type="xs:string" />
-          <xs:element name="Tooltip" type="xs:string" />
           <xs:element name="Label" type="xs:string" />
+          <xs:element name="Tooltip" type="xs:string" />
+          <xs:element name="StatusText" type="xs:string" />
           <xs:element name="Disabled" type="xs:string" />
         </xs:sequence>
       </xs:extension>
