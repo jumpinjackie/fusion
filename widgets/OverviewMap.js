@@ -25,7 +25,7 @@ Fusion.Widget.OverviewMap = Class.create();
 Fusion.Widget.OverviewMap.prototype = {
     nWidth : 200,
     nHeight : 100,
-    nMinRatio : 8,
+    nMinRatio : 32,
     nMaxRatio : 128,
   
     initialize : function(widgetTag) {
@@ -34,22 +34,20 @@ Fusion.Widget.OverviewMap.prototype = {
         
         var json = widgetTag.extension;
 
-        if (json.MapGroup) {
-          this.sMapGroup = json.MapGroup;
+        if (json.MapId) {
+          this.sMapGroupId = json.MapId;
         }
-        this.nMinRatio = json.MinRatio ? json.MinRatio[0] : 8;
-        this.nMaxRatio = json.MaxRatio ? json.MaxRatio[0] : 128;
+        if (json.MinRatio) this.nMinRatio = json.MinRatio[0];
+        if (json.MaxRatio) this.nMaxRatio = json.MaxRatio[0];
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
           this.nWidth = this.domObj.getWidth()-1;   //adjust size to prevent scroll bars from appearing
-          this.nHeight = this.domObj.getHeight()-1;
+          this.domObj.style.overflow = 'hidden';
         }
         //but you can also override these with values form AppDef
         if (json.Width) this.nWidth = json.Width;
         if (json.Height) this.nHeight = json.Height;
-
-        this.oSize = new OpenLayers.Size(this.nWidth, this.nHeight);
 
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
@@ -58,14 +56,16 @@ Fusion.Widget.OverviewMap.prototype = {
     
     mapWidgetLoaded: function() 
     {
-        if (this.sMapGroup) {
-		  var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroup);
+        if (this.sMapGroupId) {
+          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroupId);
           var mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
           this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
           this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.keymapLoaded.bind(this));
-		} else {
+	} else {
           //just use the base map layer
-          this.loadOverview();
+          var extent = this.oMap._oCurrentExtents;
+          this.nHeight = Math.round(this.nWidth*(extent.top-extent.bottom)/(extent.right-extent.left));
+          this.loadOverview([this.getMap().oMapOL.baseLayer.clone()]);
         }
     },
 
@@ -75,20 +75,25 @@ Fusion.Widget.OverviewMap.prototype = {
         //set .baseLayer for the map to this layer instead      
         this.mapObject.oLayerOL.isBaseLayer = false;  
         this.oMapOptions.baseLayer = this.mapObject.oLayerOL;
+        var extent = this.mapObject._oMaxExtent;
+        this.nHeight = Math.round(this.nWidth*(extent.top-extent.bottom)/(extent.right-extent.left));
 
         this.loadOverview([this.mapObject.oLayerOL]);
     },
 
     loadOverview: function(aLayers) 
     {
+        this.oSize = new OpenLayers.Size(this.nWidth, this.nHeight);
+        aLayers[0].ratio = 1.0;
+
         var mapOpts = {
           div: this.domObj,
           size: this.oSize,
           minRatio: this.nMinRatio,
           maxRatio: this.nMaxRatio,
-          mapOptions: this.oMapOptions
+          mapOptions: this.oMapOptions,
+          layers: aLayers
         }
-        if (aLayers) mapOpts.layers = aLayers;
 
         this.control = new OpenLayers.Control.OverviewMap(mapOpts);
         this.getMap().oMapOL.addControl(this.control);

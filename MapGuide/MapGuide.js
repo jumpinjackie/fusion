@@ -288,6 +288,7 @@ Fusion.Maps.MapGuide.prototype = {
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
 
+            //this is to distinguish between a regular map and an overview map
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
