@@ -23,27 +23,17 @@
   $mapName = "";
   $sessionId = "";
   $layers = null;
-  $dwf = "";
-  $queryInfo = 0;   //seemed to be always set to true in MG version
+  $queryInfo = false;   //seemed to be always set to true in MG version
 
   GetRequestParameters();
 
   try {
-    InitializeWebTier();
-
-    $cred = new MgUserInformation($sessionId);
-
-    //connect to the site and get an instance of each service used in this script
-    //
-    $site = new MgSiteConnection();
-    $site->Open($cred);
-    $featureSrvc = $site->CreateService(MgServiceType::FeatureService);
-    $renderingSrvc = $site->CreateService(MgServiceType::RenderingService);
-    $resourceSrvc = $site->CreateService(MgServiceType::ResourceService);
+    $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
+    $renderingSrvc = $siteConnection->CreateService(MgServiceType::RenderingService);
 
     //load the map runtime state
     $map = new MgMap();
-    $map->Open($resourceSrvc, $mapName);
+    $map->Open($resourceService, $mapName);
 
     $layers = explode(",", $layers);
     if (count($layers) > 0) {
@@ -53,7 +43,7 @@
         $layerNames->Add($layers[$i]);
 
       // create a multi-polygon or a multi-geometry containing the input selected features
-      $inputGeom = MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName);
+      $inputGeom = MultiGeometryFromSelection($featureSrvc, $resourceService, $map, $mapName);
       if ($inputGeom) {
         // Query all the features belonging the the layer list that intersects with the input geometries
         $fi = $renderingSrvc->QueryFeatures($map, $layerNames, $inputGeom, MgFeatureSpatialOperations::Intersects, -1);
@@ -62,7 +52,7 @@
           if( $resultSel) {
 
             //this block comes from setSelection
-            //$resultSel->Save($resourceSrvc, $mapName);
+            $resultSel->Save($resourceService, $mapName);
             if ($queryInfo) {
               //Query feature info for the feature in the selection set. This will return the current set
               //along with property info
@@ -75,7 +65,7 @@
               $layer = $layers->GetItem(0);
               $featureClassName = $layer->GetFeatureClassName();
               $filter = $resultSel->GenerateFilter($layer, $featureClassName);
-              $featureSrvc = $site->CreateService(MgServiceType::FeatureService);
+              $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
               $query = new MgFeatureQueryOptions();
               $query->SetFilter($filter);
               $featureSource = new MgResourceIdentifier($layer->GetFeatureSourceId());
@@ -89,12 +79,15 @@
                 echo "Error: There must be exactly one feature in the set."; ///NOXLATE dbg report only
                 return;
               }
-              $renderingSrvc = $site->CreateService(MgServiceType::RenderingService);
+              $renderingSrvc = $siteConnection->CreateService(MgServiceType::RenderingService);
               $layerNames = new MgStringCollection();
               $layerNames->Add($layer->GetName());
-              //$featInfo = $renderingSrvc->QueryFeatures($map, $layerNames, NULL, MgFeatureSpatialOperations::Intersects, $selText, 1, 2);
-              //header('Content-Type: text/xml; charset: UTF-8');
-              //echo $featInfo->ToXml()->ToString();
+              $featInfo = $renderingSrvc->QueryFeatures($map, $layerNames, NULL, MgFeatureSpatialOperations::Intersects, $selText, 1, 2);
+              header('Content-Type: text/xml; charset: UTF-8');
+              echo $featInfo->ToXml()->ToString();
+            } else {
+              header("Content-type: text/xml");
+              echo $resultSel->ToXml();
             }
           }
         }
@@ -166,12 +159,13 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
 
 function GetParameters($params)
 {
-    global $layers, $mapName, $sessionId, $dwf;
+    global $layers, $mapName, $sessionId, $queryInfo;
 
     $mapName = $params['mapname'];
     $sessionId = $params['session'];
     $layers = $params['layers'];
-    $dwf = $params['dwf'];
+    if(isset($params['queryinfo']))
+        $queryInfo = $params['queryinfo'] == "1";
 }
 
 function GetRequestParameters()
