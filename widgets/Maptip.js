@@ -86,7 +86,7 @@ Fusion.Widget.Maptip.prototype =
     
     initialize : function(widgetTag)
     {
-        //console.log('Maptip.initialize');
+      //console.log('Maptip.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         var json = widgetTag.extension;
         
@@ -118,7 +118,7 @@ Fusion.Widget.Maptip.prototype =
     },
     
     mouseOut: function(e) {
-        /*console.log('mouseOut');*/
+      //console.log('maptip mouseOut');
         if (this.nTimer) {
             window.clearTimeout(this.nTimer);
             if (!this.nHideTimer) {
@@ -129,7 +129,7 @@ Fusion.Widget.Maptip.prototype =
     },
     
     mouseMove: function(e) {
-        /*console.log('mouseMove');*/
+      //console.log('map tip mouseMove');
         if (this.bOverTip) {
             return;
         }
@@ -152,10 +152,15 @@ Fusion.Widget.Maptip.prototype =
     },
     
     showMaptip: function(r) {
-        /*console.log('showMaptip');*/
+      //console.log('showMaptip');
         var map = this.getMap();
+        if (map == null) {
+          return;
+        }
         var cellSize = map._nCellSize;
-        var oBroker = map._oConfigObj.oApp.getBroker();
+        cellSize = 1e-6;
+
+        var oBroker = Fusion.oBroker;
         var x = this.oCurrentPosition.x;
         var y = this.oCurrentPosition.y;
         var min = map.pixToGeo(x, y);
@@ -166,17 +171,20 @@ Fusion.Widget.Maptip.prototype =
         min.x -= cellSize;
         min.y -= cellSize;
         var max = map.pixToGeo(x, y);
-        max.x -= cellSize;
-        max.y -= cellSize;
+        max.x += cellSize;
+        max.y += cellSize;
         var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
+
+        //var sGeometry = 'POINT('+ min.x + ' ' +  min.y + ')';
 
          var maxFeatures = 1;
          var persist = 0;
          var selection = 'INTERSECTS';
+        var maps = this.getMap().getAllMaps();
          //TODO: possibly make the layer names configurable?
          var layerNames = this.aLayers.toString();
-         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(map.getSessionID(),
-                                        map._sMapname,
+         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(maps[0].getSessionID(),
+                                        maps[0]._sMapname,
                                         sGeometry,
                                         maxFeatures, persist, selection, layerNames);
         oBroker.dispatchRequest(r, 
@@ -184,7 +192,7 @@ Fusion.Widget.Maptip.prototype =
 
     },
     _display: function(r) {
-        /*console.log('_display');*/
+      //console.log('maptip _display');
         if (r.responseXML) {
             this.bIsVisible = true;
             this.oMapTipPosition = {x:this.oCurrentPosition.x, y: this.oCurrentPosition.y};
@@ -206,13 +214,13 @@ Fusion.Widget.Maptip.prototype =
     },
     
     hideMaptip: function() {
-        /*console.log('hideMaptip');*/
+      //console.log('hideMaptip');
         this.bIsVisible = false;
         this.hideTimer = window.setTimeout(this._hide.bind(this),250);
     },
     
     _hide: function() {
-        /*console.log('_hide');*/
+      //console.log('maptip _hide');
         this.hideTimer = null;
         this.domObj.style.display = 'none';
         this.domObj.innerHTML = '&nbsp;';
@@ -220,14 +228,14 @@ Fusion.Widget.Maptip.prototype =
     },
     
     mouseOverTip: function() {
-        /*console.log('mouseOverTip');*/
+      //console.log('mouseOverTip');
         window.clearTimeout(this.nHideTimer);
         this.nHideTimer = null;
         this.bOverTip = true;
     },
     
     mouseOutTip: function() {
-        /*console.log('mouseOutTip');*/
+      //console.log('mouseOutTip');
         this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
         this.bOverTip = false;
     }
