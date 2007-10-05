@@ -470,25 +470,33 @@ Fusion.Maps.MapGuide.prototype = {
     },
 
     //TODO: the following 3 methods are copied from ajaxmappane.templ and can probably be reworked for fusion
-    setSelectionXML: function(xmlSet) {
-//"<?xml version=\"1.0\" encoding=\"UTF-8\"?><FeatureSet xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"FeatureSet-1.0.0.xsd\"> <Layer id=\"300df790-0000-1000-8000-0017a4e6ff5d\">  <Class id=\"SHP_Schema:Parcels\">   <ID>myYAAA==</ID>   <ID>nCYAAA==</ID>   <ID>nyYAAA==</ID>   <ID>oiYAAA==</ID>   <ID>9yYAAA==</ID>   <ID>+CYAAA==</ID>   <ID>+SYAAA==</ID>   <ID>CCcAAA==</ID>   <ID>hScAAA==</ID>   <ID>hycAAA==</ID>   <ID>zicAAA==</ID>   <ID>TygAAA==</ID>   <ID>XSgAAA==</ID>   <ID>YCgAAA==</ID>   <ID>vigAAA==</ID>  </Class> </Layer></FeatureSet>"
-      xmlOut = this.setSelection(xmlSet, true);
-      xmlDoc = (new DOMParser()).parseFromString(xmlSet, "text/xml");
-      this.processFeatureInfo(xmlDoc.documentElement, false, 1);
-      this.processFeatureInfo(xmlOut, false, 2);
+     /**
+      * Function: zoomToSelection
+      *
+      * sets a Selection XML back to the server
+      */
+    zoomToSelection: function(sel, r) {
+      var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
+      Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection);
+      alert('zoomToSlection not yet implemented for mapguide');
+    },  
+
+    processSelection: function(r) {
+      xmlDoc = (new DOMParser()).parseFromString(r.responseXML, "text/xml");
+      //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
+      //this.processFeatureInfo(xmlOut, false, 2);
     },
 
     setSelection: function (selText, requery) {
       var sl = Fusion.getScriptLanguage();
-      var selectWithinScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
+      var setSelectionScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
       var sessionid = this.getSessionID();
-      var params = 'maname='+this.getMapName()+"&session="+sessionid;
+      var params = 'mapname='+this.getMapName()+"&session="+sessionid;
       params += '&selection=' + encodeURIComponent(selText);
       params += '&queryinfo=' + (requery? "1": "0");
       params += '&seq=' + Math.random();
-      var options = {onSuccess: this.mapLoaded.bind(this), parameters:params};
-      Fusion.ajaxRequest(selectWithinScript, options);
-
+      var options = {onSuccess: this.zoomToSelection.bind(this, selText), parameters:params, asynchronous:false};
+      Fusion.ajaxRequest(setSelectionScript, options);
     },
 
     processFeatureInfo: function(xmlIn, append, which) {
