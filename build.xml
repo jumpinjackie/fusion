@@ -74,8 +74,7 @@ $Id$
   <property environment="env"/>
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
-  <property name="app.version" value="1.0-preview"/>
-  <property name="app.flavour" value="mapguide"/>
+  <property name="app.version" value="1.0-beta3"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
@@ -113,7 +112,18 @@ $Id$
     <!-- Copy static content -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
-            includes="config.json common/** docs/** ext/** lib/** redist/**"
+            includes="config.json 
+                      MapGuide/** 
+                      MapServer/** 
+                      common/** 
+                      containerinfo/**
+                      docs/** 
+                      ext/** 
+                      lib/** 
+                      redist/** 
+                      samples/** 
+                      templates/** 
+                      widgets/**"
             excludes="selenium/**"
        />
     </copy>
@@ -126,80 +136,9 @@ $Id$
     
   </target>
 
-  <target name="prepare-mapguide" depends="prepare" description="creates uncompressed build for mapguide">
-    <echo message="Preparing mapguide files"/>
-    <copy todir="${build.home}">
-      <fileset dir="${basedir}" includes="MapGuide/** samples/mapguide/**"/>
-    </copy>
-    <copy todir="${build.home}/widgets">
-      <fileset dir="${basedir}/widgets" 
-            includes="MGMap.js
-                      Zoom.js
-                      ZoomOut.js
-                      ExtentHistory.js
-                      Pan.js
-                      FitToWindow.js
-                      ScaleEntry.js
-                      Ruler.js
-                      Select.js
-                      ClearSelection.js
-                      Buffer.js
-                      SaveMap.js
-                      Legend.js
-                      MapMenu.js
-                      ExecuteJS.js
-                      Maptip.js
-                      Toolbar.js
-                      KeepSessionAlive.js
-                      About.js
-                      ActivityIndicator.js
-                      BufferPanel.js
-                      BufferPanel/**
-                      CursorPosition.js
-                      EditableScale.js
-                      EditableScale/**
-                      Help.js
-                      Help/**
-                      Measure.js
-                      Navigator.js
-                      Navigator/**
-                      Print.js
-                      RefreshMap.js
-                      SelectWithin.js
-                      SelectWithin/**
-                      SelectionPanel.js
-                      SelectionPanel/**
-                      SelectRadius.js
-                      SelectPolygon.js
-                      TaskPane.js
-                      TaskPane/**
-                      ViewOptions.js
-                      ViewSize.js
-                      ZoomOnClick.js
-                      ZoomToSelection.js
-                      html/**
-                      scalebar/**"/>
-    <!--              
-                      Info
-                      Help
-                      Context Menu-->
-
-    </copy>
-  </target>
-
-  <target name="prepare-mapserver" depends="prepare" description="creates uncompressed build for mapserver">
-    <echo message="Preparing mapserver files"/>
-    <!-- Copy all widgets for now -->
-    <copy todir="${build.home}">
-      <fileset dir="${basedir}" includes="MapServer/** samples/mapserver/** widgets/**"/>
-    </copy>
-  </target>
-
-
-
 <!-- ==================== Documentation =================================== -->
 
-  <target description="Create documentation" name="docs" depends="prepare-mapguide">
+  <target description="Create documentation" name="docs" depends="prepare">
   
     <delete dir="${build.home}/docs/NaturalDocs"/>
     <mkdir dir="${build.home}/docs"/>
@@ -222,7 +161,7 @@ $Id$
   
 <!-- =================== Compress Target ================================== -->
 
-  <target description="Compress JS files" name="compress" depends="prepare-mapguide">
+  <target description="Compress JS files" name="compress" depends="prepare">
     <echo message="Concatenating into -lib version"/>
     <concat destfile="${build.home}/lib/fusion-lib-full.js">
         <filelist dir="${build.home}/lib" 
@@ -246,15 +185,12 @@ $Id$
       input="${build.home}/lib/fusion-lib-full.js" output="${build.home}/lib/fusion-lib.js"/>
   </target>
 
-
-
-
 <!-- ==================== Deploy ========================================== -->
 <!--
   The "deploy" target synchronizes the build directory with the Java Servlet
   container directory.  This could also be done by copying in the war file.
 -->
-  <target name="deploy" description="Copy build directory to web server" depends="prepare-mapguide">
+  <target name="deploy" description="Copy build directory to web server" depends="prepare">
     <echo message="Deploying to web server"/>
     <mkdir dir="${deploy.home}"/>
     <copy todir="${deploy.home}">
@@ -295,18 +231,6 @@ $Id$
     <!--tar destfile=""/-->
     
   </target>
-
-  <target name="dist-mapguide" description="Create binary distribution for MapGuide" depends="prepare-mapguide,dist">
-    <move file="${dist.home}/${app.name}-${app.version}.zip" tofile="${dist.home}/${app.name}-mapguide-${app.version}.zip"/>
-    <move file="${dist.home}/${app.name}-${app.version}.tar" tofile="${dist.home}/${app.name}-mapguide-${app.version}.tar"/>
-    <move file="${dist.home}/${app.name}-${app.version}.tar.gz" tofile="${dist.home}/${app.name}-mapguide-${app.version}.tar.gz"/>
-  </target>
-  <target name="dist-mapserver" description="Create binary distribution for MapServer" depends="prepare-mapserver,dist">
-    <move file="${dist.home}/${app.name}-${app.version}.zip" tofile="${dist.home}/${app.name}-mapserver-${app.version}.zip"/>
-    <move file="${dist.home}/${app.name}-${app.version}.tar" tofile="${dist.home}/${app.name}-mapserver-${app.version}.tar"/>
-    <move file="${dist.home}/${app.name}-${app.version}.tar.gz" tofile="${dist.home}/${app.name}-mapserver-${app.version}.tar.gz"/>
-  </target>
-    
 
 <!-- ==================== Clean Target ==================================== -->
 <!--
