@@ -163,26 +163,26 @@ $Id$
 
   <target description="Compress JS files" name="compress" depends="prepare">
     <echo message="Concatenating into -lib version"/>
-    <concat destfile="${build.home}/lib/fusion-lib-full.js">
+    <concat destfile="${build.home}/lib/fusion-combined.js">
         <filelist dir="${build.home}/lib" 
         files="ConfigMgr.js 
                 utils.js 
                 Error.js 
-                ConfigMgr.js 
-                WebCommand.js 
-                WebLayout.js 
+                ApplicationDefinition.js
                 MGBroker.js 
                 Widget.js 
                 ButtonBase.js 
+                MenuBase.js
                 ButtonTool.js 
                 CanvasTool.js 
                 ClickTool.js 
                 RectTool.js 
+                Search.js
                 Map.js"/>
     </concat>
     <echo message="compressing..."/>
     <exec executable="jsmin.exe" os="Windows Vista" 
-      input="${build.home}/lib/fusion-lib-full.js" output="${build.home}/lib/fusion-lib.js"/>
+      input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/>
   </target>
 
 <!-- ==================== Deploy ========================================== -->
@@ -190,7 +190,7 @@ $Id$
   The "deploy" target synchronizes the build directory with the Java Servlet
   container directory.  This could also be done by copying in the war file.
 -->
-  <target name="deploy" description="Copy build directory to web server" depends="prepare">
+  <target name="deploy" description="Copy build directory to web server" depends="prepare,compress">
     <echo message="Deploying to web server"/>
     <mkdir dir="${deploy.home}"/>
     <copy todir="${deploy.home}">
