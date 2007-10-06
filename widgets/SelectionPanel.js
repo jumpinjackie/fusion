@@ -86,7 +86,7 @@ Fusion.Widget.SelectionPanel.prototype = {
     },
     
     updateSelection: function() {
-        console.log('update selection');
+        //console.log('update selection');
         this.getMap().getSelection(this.renderSelectionLayers.bind(this));
     },
     

@@ -235,7 +235,7 @@ Fusion.Widget.Navigator.prototype = {
     },
     
     pan: function(x,y) {
-        console.log('pan by : ' + x + ', ' + y);
+        //console.log('pan by : ' + x + ', ' + y);
         var map = this.getMap();
         var center = map.getCurrentCenter();
         var res = map.oMapOL.getResolution();
@@ -244,7 +244,7 @@ Fusion.Widget.Navigator.prototype = {
     },
     
     zoom: function(factor) {
-        console.log('zoom by factor: ' + factor);
+        //console.log('zoom by factor: ' + factor);
         var map = this.getMap();
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);

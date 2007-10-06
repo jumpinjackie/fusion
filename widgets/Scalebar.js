@@ -65,7 +65,7 @@ Fusion.Widget.Scalebar.prototype = {
         if (document.styleSheets) {
             if (document.styleSheets[0]) {
                 var url = Fusion.getFusionURL() + 'widgets/scalebar/scalebar-'+this.style+'.css';
-                console.log(url);
+                //console.log(url);
                 if (document.styleSheets[0].addImport) {
                     document.styleSheets[0].addImport(url);
                 } else {
