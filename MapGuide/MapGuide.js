@@ -469,25 +469,46 @@ Fusion.Maps.MapGuide.prototype = {
       return layers;
     },
 
-    //TODO: the following 3 methods are copied from ajaxmappane.templ and can probably be reworked for fusion
      /**
       * Function: zoomToSelection
       *
       * sets a Selection XML back to the server
       */
-    zoomToSelection: function(sel, r) {
-      var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
-      Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection);
-      alert('zoomToSlection not yet implemented for mapguide');
+    zoomToSelection: function(r) {
+      var xmlDoc = r.responseXML.documentElement;
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<Envelope>
+<LowerLeftCoordinate><X>-87.757810292102718</X><Y>43.782755760427854</Y></LowerLeftCoordinate>
+<UpperRightCoordinate><X>-87.755035756736021</X><Y>43.78514149703846</Y></UpperRightCoordinate>
+</Envelope>
+*/
+      var x = xmlDoc.getElementsByTagName('X');
+      var y = xmlDoc.getElementsByTagName('Y');
+      //double the veiwport
+      var extent = new OpenLayers.Bounds(x[0].firstChild.nodeValue,y[0].firstChild.nodeValue,x[1].firstChild.nodeValue,y[1].firstChild.nodeValue);
+      var center = extent.getCenterPixel();
+      var size = extent.getSize();
+      extent.left = center.x - 2*size.w;
+      extent.right = center.x + 2*size.w;
+      extent.bottom = center.y - 2*size.h;
+      extent.top = center.y + 2*size.h;
+      this.mapWidget.setExtents(extent);
     },  
 
-    processSelection: function(r) {
-      xmlDoc = (new DOMParser()).parseFromString(r.responseXML, "text/xml");
-      //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
-      //this.processFeatureInfo(xmlOut, false, 2);
+    processSelection: function(sel, requery, zoomTo) {
+      if (requery) {
+        //xmlDoc = (new DOMParser()).parseFromString(r.responseXML, "text/xml");
+        //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
+        //this.processFeatureInfo(xmlOut, false, 2);
+      }
+      if (zoomTo) {
+        var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
+        Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection.bind(this));
+      }
     },
 
-    setSelection: function (selText, requery) {
+    setSelection: function (selText, requery, zoomTo) {
       var sl = Fusion.getScriptLanguage();
       var setSelectionScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
       var sessionid = this.getSessionID();
@@ -495,10 +516,11 @@ Fusion.Maps.MapGuide.prototype = {
       params += '&selection=' + encodeURIComponent(selText);
       params += '&queryinfo=' + (requery? "1": "0");
       params += '&seq=' + Math.random();
-      var options = {onSuccess: this.zoomToSelection.bind(this, selText), parameters:params, asynchronous:false};
+      var options = {onSuccess: this.processSelection.bind(this, selText, requery, zoomTo), parameters:params, asynchronous:false};
       Fusion.ajaxRequest(setSelectionScript, options);
     },
 
+    //TODO: the following method is copied from ajaxmappane.templ and can probably be reworked for fusion
     processFeatureInfo: function(xmlIn, append, which) {
       if (which & 1) {
         var selectionChanged = false;

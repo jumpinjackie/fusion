@@ -38,7 +38,7 @@
 
 Fusion.Widget.Search = Class.create();
 Fusion.Widget.Search.prototype = {
-    sFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    sFeatures : 'menubar=no,location=no,status=no,scrollbars=yes',
 
     initialize : function(widgetTag) {
         //console.log('Search.initialize');
