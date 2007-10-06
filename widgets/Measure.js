@@ -416,7 +416,7 @@ Fusion.Widget.Measure.prototype = {
     
     updateMarker: function(marker, segment, e) {
         if (!marker) {
-            console.log('no marker');
+            //console.log('no marker');
             return;
         }
         var dist = this.measureSegment(segment);

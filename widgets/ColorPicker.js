@@ -67,7 +67,7 @@ Fusion.Widget.ColorPicker.prototype =
     colorChanged: function(button) {
         var a = parseInt(this.colorButton.alpha*255/100).toString(16);
         var c = a + this.colorButton.color.substring(1);
-        console.log('colorChanged: '+c);
+        //console.log('colorChanged: '+c);
         if (this.colorInput) {
             this.colorInput.value = c;
         }
