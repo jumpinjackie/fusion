@@ -103,18 +103,6 @@ Fusion.Widget.SelectWithin.prototype = {
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         var pageElement = $(this.sTarget);
 
-/*
-mapviewer example
-http://localhost:8008/mapguide/mapviewerphp/selectwithinui.php?
-DWF=0&
-WIDTH=250&
-LOCALE=en&
-SESSION=edb25a40-ffff-ffff-8000-0017a4e6ff5d_en_C0A802AD0AFC0AFB0AFA&
-MAPNAME=Sheboygan&
-TGT=1&
-POPUP=0&
-CMDINDEX=22
-*/
         var params = [];
         params.push('locale=en');
         params.push('session='+mapLayers[0].getSessionID());
@@ -124,7 +112,6 @@ CMDINDEX=22
         } else {
           params.push('popup=true');
         }
-        params.push('dwf=0');  //TODO: get displayunits from viewOptions; as it stands. us=1 means miles, anything else is kilometers
         params = params.concat(this.additionalParameters);
 
         if (url.indexOf('?') < 0) {
