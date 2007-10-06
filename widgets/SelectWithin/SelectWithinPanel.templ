@@ -40,7 +40,6 @@ var layerSet = "";
 var webAgent = '%s';
 var mapName = '%s';
 var sessionId = '%s';
-var dwf = %s;
 
 function InitDocument()
 {
@@ -79,15 +78,14 @@ function ExecuteCommand()
     if(layerSet == "")
         return;
 
-    //reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    var params = "mapname=" + encodeURIComponent(mapName) + "&session=" + sessionId + "&layers=" + encodeURIComponent(layerSet) + "&dwf=" + dwf;
+    var params = "mapname=" + encodeURIComponent(mapName) + "&session=" + sessionId + "&layers=" + encodeURIComponent(layerSet);
     var options = {onSuccess: selected, onFailure: selectedError, parameters:params};
     GetParent().Fusion.ajaxRequest(webAgent, options);
 }
 
-function selected() {
+function selected(r) {
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.aMaps[0].reloadMap();    //TODO: make a MapWidget reload function
+    map.setSelection(r.responseText, true, false);
 
     if (popup) {
       window.close();

@@ -19,6 +19,7 @@
 
 include('Common.php');
 include('Utilities.php');
+include('../../common/php/Utilities.php');
 
     $mapName = "";
     $sessionId = "";
@@ -71,8 +72,11 @@ include('Utilities.php');
             $layerNames = new MgStringCollection();
             $layerNames->Add($layer->GetName());
             $featInfo = $renderingSrvc->QueryFeatures($map, $layerNames, NULL, MgFeatureSpatialOperations::Intersects, $selText, 1, 2);
-            header('Content-Type: text/xml; charset: UTF-8');
-            echo $featInfo->ToXml()->ToString();
+            //header('Content-Type: text/xml; charset: UTF-8');
+            //echo $featInfo->ToXml()->ToString();
+            header('Content-type: text/x-json');
+            header('X-JSON: true');
+            echo xml2json($featInfo->ToXml());
         }
 
 

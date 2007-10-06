@@ -24,26 +24,24 @@
     $popup = "";
     $mapName = "";
     $sessionId = "";
-    $dwf = "";
 
     GetRequestParameters();
 
     $templ = file_get_contents("./SelectWithinPanel.templ");
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
-    print sprintf($templ, $popup, "./widgets/SelectWithin/SelectWithin.php", $mapName, $sessionId, $dwf);
+    print sprintf($templ, $popup, "./widgets/SelectWithin/SelectWithin.php", $mapName, $sessionId);
 
 
 function GetParameters($params)
 {
-    global $mapName, $sessionId, $dwf, $locale, $popup;
+    global $mapName, $sessionId, $locale, $popup;
 
     if(isset($params['locale']))
         $locale = $params['locale'];
     $mapName = $params['mapname'];
     $sessionId = $params['session'];
     $popup = $params['popup'];
-    $dwf = $params['dwf'];
 }
 
 function GetRequestParameters()

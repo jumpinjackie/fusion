@@ -496,7 +496,7 @@ Fusion.Maps.MapGuide.prototype = {
       this.mapWidget.setExtents(extent);
     },  
 
-    processSelection: function(sel, requery, zoomTo) {
+    processSelection: function(sel, requery, zoomTo, json) {
       if (requery) {
         //xmlDoc = (new DOMParser()).parseFromString(r.responseXML, "text/xml");
         //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
@@ -505,14 +505,15 @@ Fusion.Maps.MapGuide.prototype = {
       if (zoomTo) {
         var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
         Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection.bind(this));
+      } else {
+        this.mapWidget.redraw();
       }
     },
 
     setSelection: function (selText, requery, zoomTo) {
       var sl = Fusion.getScriptLanguage();
       var setSelectionScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
-      var sessionid = this.getSessionID();
-      var params = 'mapname='+this.getMapName()+"&session="+sessionid;
+      var params = 'mapname='+this.getMapName()+"&session="+this.getSessionID();
       params += '&selection=' + encodeURIComponent(selText);
       params += '&queryinfo=' + (requery? "1": "0");
       params += '&seq=' + Math.random();

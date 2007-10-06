@@ -50,45 +50,9 @@
         if ($fi) {
           $resultSel = $fi->GetSelection();
           if( $resultSel) {
-
-            //this block comes from setSelection
-            $resultSel->Save($resourceService, $mapName);
-            if ($queryInfo) {
-              //Query feature info for the feature in the selection set. This will return the current set
-              //along with property info
-              //There must be only one feature in the feature set
-              $layers = $resultSel->GetLayers();
-              if($layers == null || $layers->GetCount() != 1) {
-                echo "Error: There must be exactly one feature in the set."; ///NOXLATE dbg report only
-                return;
-              }
-              $layer = $layers->GetItem(0);
-              $featureClassName = $layer->GetFeatureClassName();
-              $filter = $resultSel->GenerateFilter($layer, $featureClassName);
-              $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
-              $query = new MgFeatureQueryOptions();
-              $query->SetFilter($filter);
-              $featureSource = new MgResourceIdentifier($layer->GetFeatureSourceId());
-              $features = $featureSrvc->SelectFeatures($featureSource, $featureClassName, $query);
-              $featCount = 0;
-              while($features->ReadNext()) {
-                if($featCount++ == 1)
-                break;
-              }
-              if($featCount != 1) {
-                echo "Error: There must be exactly one feature in the set."; ///NOXLATE dbg report only
-                return;
-              }
-              $renderingSrvc = $siteConnection->CreateService(MgServiceType::RenderingService);
-              $layerNames = new MgStringCollection();
-              $layerNames->Add($layer->GetName());
-              $featInfo = $renderingSrvc->QueryFeatures($map, $layerNames, NULL, MgFeatureSpatialOperations::Intersects, $selText, 1, 2);
-              header('Content-Type: text/xml; charset: UTF-8');
-              echo $featInfo->ToXml()->ToString();
-            } else {
-              header("Content-type: text/xml");
-              echo $resultSel->ToXml();
-            }
+            //return XML
+            header("Content-type: text/xml");
+            echo $resultSel->ToXml();
           }
         }
       }
