@@ -23,7 +23,7 @@
     $fusionMGpath = '../../MapGuide/php/';
     include $fusionMGpath . 'Common.php';
 
-    $logHandle = fopen("debug.log","at");
+    //$logHandle = fopen("debug.log","at");
 
     class SearchError extends Exception
     {
@@ -59,11 +59,11 @@
         $map->Open($resourceService, $mapName);
         $layers = $map->GetLayers();
         $layer = null;
-        fwrite($logHandle,"found layers:".$layers->GetCount()."\n");
+        //fwrite($logHandle,"found layers:".$layers->GetCount()."\n");
         for($i = 0; $i < $layers->GetCount(); $i++)
         {
             $layer = $layers->GetItem($i);
-            fwrite($logHandle,"found layer:".$layer->GetName()."\n");
+            //fwrite($logHandle,"found layer:".$layer->GetName()."\n");
             if($layer->GetName() == $layerName)
                 break;
         }
@@ -91,11 +91,11 @@
             $filter = str_replace("\\", "", $filter);
         }
 
-        fwrite($logHandle,"filter before:".$filter."\n");
+        //fwrite($logHandle,"filter before:".$filter."\n");
 
         //substitute the input tag with the actual user input to make up the filter
         $filter = str_replace('$USER_VARIABLE', $userInput, $filter);
-        fwrite($logHandle,"filter after:".$filter."\n");
+        //fwrite($logHandle,"filter after:".$filter."\n");
 
         //parse the match label string, which defines what columns to be displayed
         $displayAll = (count($resProps) == 0);
@@ -110,7 +110,7 @@
 
         if($hasResult)
         {
-          fwrite($logHandle,"has result\n");
+          //fwrite($logHandle,"has result\n");
             $colCount = $displayAll? $features->GetPropertyCount(): count($resProps);
 
             //output the beginning of the document (head section and beginning of body section)
