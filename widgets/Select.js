@@ -111,6 +111,11 @@ Fusion.Widget.Select.prototype =  {
      * @param nTop integer pixel coordinates of the top (maxy)
      **/
     execute : function(nLeft, nBottom, nRight, nTop) {
+
+      /*ctrl click is used to launch a URL defined on the feature. See ClickCTRL widget*/
+      if (this.event.ctrlKey) {
+        return;
+      }
         if (arguments.length == 2) {
             nRight = nLeft;
             nTop = nBottom;
