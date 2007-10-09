@@ -76,8 +76,9 @@ Fusion.Maps.MapGuide.prototype = {
         
         this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
 
-        if (mapTag.sid) {
-            this.session[0] = mapTag.sid;
+        var sid = Fusion.getQueryParam("session");
+        if (sid) {
+            this.session[0] = sid;
             this.mapSessionCreated();
         } else {
             this.createSession();
