@@ -23,7 +23,7 @@
  * extended description
  * **********************************************************************/
 
-Fusion.require('widgets/ZoomOut.js');
+if (!Fusion.Widget.ZoomOut) Fusion.require('widgets/ZoomOut.js');
 
 Fusion.Widget.Recenter = Class.create();
 Fusion.Widget.Recenter.prototype ={
