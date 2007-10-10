@@ -75,12 +75,12 @@ Fusion.Widget.Legend.prototype = {
     currentNode: null,
     bIsDrawn: false,
     initialize : function(widgetTag) {
-        this.defLayerRasterIcon = 'images/legend-raster.png';
-        this.defLayerThemeIcon = 'images/legend-theme.png';
-        this.defDisabledLayerIcon = 'images/legend-layer.png';
-        this.defRootFolderIcon = 'images/legend-map.png';
-        this.defLayerInfoIcon = 'images/tree_layer_info.png';
-        this.defGroupInfoIcon = 'images/tree_group_info.png';
+        this.defLayerRasterIcon = 'images/icons/legend-raster.png';
+        this.defLayerThemeIcon = 'images/icons/legend-theme.png';
+        this.defDisabledLayerIcon = 'images/icons/legend-layer.png';
+        this.defRootFolderIcon = 'images/icons/legend-map.png';
+        this.defLayerInfoIcon = 'images/icons/tree_layer_info.png';
+        this.defGroupInfoIcon = 'images/icons/tree_group_info.png';
        
         //console.log('Legend.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
