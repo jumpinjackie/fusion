@@ -116,7 +116,7 @@ Fusion.Widget.Navigator.prototype = {
         sliderDiv.style.top = '44px';
         sliderDiv.style.left = '0px';
         sliderDiv.style.width = '51px';
-        sliderDiv.style.height = '89px';
+        sliderDiv.style.height = '88px';
         this.domObj.appendChild(sliderDiv);
 
         var sliderHandle = document.createElement('img');
@@ -128,6 +128,15 @@ Fusion.Widget.Navigator.prototype = {
         sliderHandle.style.left = '11px';
         sliderHandle.style.top = '49px';
         sliderDiv.appendChild(sliderHandle);
+        
+        this.activityIndicator = document.createElement('img');
+        this.activityIndicator.src = Fusion.getFusionURL() + widgetTag.location + 'Navigator/spinner.gif';
+        this.activityIndicator.width = 18;
+        this.activityIndicator.height = 6;
+        this.activityIndicator.style.position = 'absolute';
+        this.activityIndicator.style.top = '3px';
+        this.activityIndicator.style.right = '4px';
+        handleDiv.appendChild(this.activityIndicator);
 
         this.domObj.style.position = 'absolute';
         this.domObj.style.zIndex = 1000;
@@ -167,6 +176,7 @@ Fusion.Widget.Navigator.prototype = {
         this.slider.setDisabled();
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.updateSlider.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateValue.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
     },
 
     scaleChanged: function(value) {
@@ -248,6 +258,11 @@ Fusion.Widget.Navigator.prototype = {
         var map = this.getMap();
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);
+    },
+    
+    busyChanged: function() {
+        this.activityIndicator.style.visibility = this.getMap().isBusy() ? 'visible' : 'hidden';
     }
+    
 
 };
