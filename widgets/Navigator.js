@@ -41,7 +41,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan East';
         a.title = 'Pan East';
         a.coords = '27,176, 27,177, 40,190, 44,182, 44,159';
-        a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, this.panAmount/100, 0);
         m.appendChild(a);
 
@@ -50,7 +49,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan West';
         a.title = 'Pan West';
         a.coords = '24,177, 24,176, 7,159, 7,182, 11,190';
-        a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, -this.panAmount/100, 0);
         m.appendChild(a);
 
@@ -59,7 +57,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan South';
         a.title = 'Pan South';
         a.coords = '25,178, 12,191, 21,197, 30,197, 39,191, 26,178';
-        a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, 0, -this.panAmount/100);
         m.appendChild(a);
 
@@ -68,7 +65,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan North';
         a.title = 'Pan North';
         a.coords = '26,175, 43,158, 8,158, 25,175';
-        a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, 0, this.panAmount/100);
         m.appendChild(a);
 
@@ -77,7 +73,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Zoom Out';
         a.title = 'Zoom Out';
         a.coords = '25,142,8';
-        a.href='javascript:void(0);';
         a.onclick = this.zoom.bind(this, 1/this.zoomFactor);
         m.appendChild(a);
 
@@ -86,7 +81,6 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Zoom In';
         a.title = 'Zoom In';
         a.coords = '25,34,8';
-        a.href='javascript:void(0);';
         a.onclick = this.zoom.bind(this, this.zoomFactor);
         m.appendChild(a);
 
@@ -147,9 +141,12 @@ Fusion.Widget.Navigator.prototype = {
         var checkPosition = this.checkPosition.bind(this);
 
     if (this.domObj.currentStyle) {
-      if (this.domObj.currentStyle.left == 'auto') {
+      if (this.domObj.currentStyle.left == 'auto' && this.domObj.currentStyle.right != 'auto') {
         var pDim = Element.getDimensions(this.domObj.parentNode);
         var nRight = parseInt(this.domObj.currentStyle.right);
+        if (isNaN(nRight)) {
+            nRight = 0;
+        }
         var navDim = Element.getDimensions(this.domObj);
         this.domObj.style.left = (pDim.width - nRight - navDim.width) + 'px';
       }
