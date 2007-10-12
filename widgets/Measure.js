@@ -345,8 +345,8 @@ Fusion.Widget.Measure.prototype = {
     },
     
     positionMarker: function(marker, segment) {
-        if (!marker.domObj.parentNode) {
-            var oDomElem =  this.getMap().getDomObj();
+        var oDomElem =  this.getMap().getDomObj();
+        if (marker.domObj.parentNode != oDomElem) {
             oDomElem.appendChild(marker.domObj);
             this.triggerEvent(Fusion.Event.MEASURE_NEW_SEGMENT, this, segment);
         }
