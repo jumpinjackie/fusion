@@ -1,4 +1,4 @@
-/********************************************************************** * 
+/********************************************************************** *
  * $Id: $
  *
  * In-map navigator
@@ -7,7 +7,7 @@
  *****************************************************************************
  * This code shall not be copied or used without the expressed written consent
  * of DM Solutions Group Inc.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -15,12 +15,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
  ********************************************************************
  *
- * 
+ *
  *
  * **********************************************************************/
 
@@ -35,7 +35,7 @@ Fusion.Widget.Navigator.prototype = {
         var m = document.createElement('map');
         m.name = 'Navigator_ImageMap';
         m.id = 'Navigator_ImageMap';
-        
+
         var a = document.createElement('area');
         a.shape = 'poly';
         a.alt = 'Pan East';
@@ -44,7 +44,7 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, this.panAmount/100, 0);
         m.appendChild(a);
-        
+
         var a = document.createElement('area');
         a.shape = 'poly';
         a.alt = 'Pan West';
@@ -53,7 +53,7 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, -this.panAmount/100, 0);
         m.appendChild(a);
-        
+
         var a = document.createElement('area');
         a.shape = 'poly';
         a.alt = 'Pan South';
@@ -62,7 +62,7 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, 0, -this.panAmount/100);
         m.appendChild(a);
-        
+
         var a = document.createElement('area');
         a.shape = 'poly';
         a.alt = 'Pan North';
@@ -71,7 +71,7 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.pan.bind(this, 0, this.panAmount/100);
         m.appendChild(a);
-        
+
         var a = document.createElement('area');
         a.shape = 'circle';
         a.alt = 'Zoom Out';
@@ -80,7 +80,7 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.zoom.bind(this, 1/this.zoomFactor);
         m.appendChild(a);
-        
+
         var a = document.createElement('area');
         a.shape = 'circle';
         a.alt = 'Zoom In';
@@ -89,9 +89,9 @@ Fusion.Widget.Navigator.prototype = {
         a.href='javascript:void(0);';
         a.onclick = this.zoom.bind(this, this.zoomFactor);
         m.appendChild(a);
-        
+
         this.domObj.appendChild(m);
-        
+
         var sliderBg = document.createElement('img');
         sliderBg.src = Fusion.getFusionURL() + widgetTag.location + 'Navigator/sliderscale.png';
         sliderBg.className = 'png24';
@@ -102,7 +102,7 @@ Fusion.Widget.Navigator.prototype = {
         sliderBg.style.top = '0px';
         sliderBg.useMap = '#Navigator_ImageMap';
         this.domObj.appendChild(sliderBg);
-        
+
         var handleDiv = document.createElement('div');
         handleDiv.style.position = 'absolute';
         handleDiv.style.top = '6px';
@@ -110,33 +110,33 @@ Fusion.Widget.Navigator.prototype = {
         handleDiv.style.width = '39px';
         handleDiv.style.height = '16px';
         this.domObj.appendChild(handleDiv);
-        
+
         var sliderDiv = document.createElement('div');
         sliderDiv.style.position = 'absolute';
-        sliderDiv.style.top = '43px';
+        sliderDiv.style.top = '44px';
         sliderDiv.style.left = '0px';
         sliderDiv.style.width = '51px';
-        sliderDiv.style.height = '91px';
+        sliderDiv.style.height = '89px';
         this.domObj.appendChild(sliderDiv);
 
         var sliderHandle = document.createElement('img');
         sliderHandle.src = Fusion.getFusionURL() + widgetTag.location + 'Navigator/slider.png';
         sliderHandle.className = 'png24';
-        sliderHandle.width = 31;
-        sliderHandle.height = 14;
+        sliderHandle.width = 29;
+        sliderHandle.height = 12;
         sliderHandle.style.position = 'absolute';
-        sliderHandle.style.left = '10px';
+        sliderHandle.style.left = '11px';
         sliderHandle.style.top = '49px';
         sliderDiv.appendChild(sliderHandle);
-        
+
         this.domObj.style.position = 'absolute';
         this.domObj.style.zIndex = 1000;
         this.domObj.style.width = '51px';
         this.domObj.style.height = '204px';
         this.domObj.style.cursor = 'pointer';
-        
+
         var checkPosition = this.checkPosition.bind(this);
-    
+
     if (this.domObj.currentStyle) {
       if (this.domObj.currentStyle.left == 'auto') {
         var pDim = Element.getDimensions(this.domObj.parentNode);
@@ -157,10 +157,10 @@ Fusion.Widget.Navigator.prototype = {
         //this should position the nav tool by the right rather than the left,
         //but it is broken in IE
         Draggables.addObserver(observer);
-        
+
         var options = {};
         options.axis = 'vertical';
-        options.range = $R(1, 91);        
+        options.range = $R(1, 91);
         options.sliderValue = 91;
         options.onChange = this.scaleChanged.bind(this);
         this.slider = new Control.Slider(sliderHandle,sliderDiv, options);
@@ -168,7 +168,7 @@ Fusion.Widget.Navigator.prototype = {
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.updateSlider.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateValue.bind(this));
     },
-    
+
     scaleChanged: function(value) {
         if (!this.bInternalChange) {
             var map = this.getMap();
@@ -182,7 +182,7 @@ Fusion.Widget.Navigator.prototype = {
                                                center.y + h_deg / 2));
         }
     },
-    
+
     checkPosition: function() {
         var nav = this.domObj;
         var pDim = Element.getDimensions(nav.parentNode);
@@ -204,7 +204,7 @@ Fusion.Widget.Navigator.prototype = {
             nav.style.top = '0px';
         }
     },
-    
+
     updateSlider: function() {
         var olMap = this.getMap().oMapOL;
         if (olMap.baseLayer.singleTile) {
@@ -226,14 +226,14 @@ Fusion.Widget.Navigator.prototype = {
         }
         this.slider.setEnabled();
     },
-    
+
     updateValue: function() {
         var olMap = this.getMap().oMapOL;
         this.bInternalChange = true;
         this.slider.setValue(olMap.getResolution());
         this.bInternalChange = false;
     },
-    
+
     pan: function(x,y) {
         //console.log('pan by : ' + x + ', ' + y);
         var map = this.getMap();
@@ -242,12 +242,12 @@ Fusion.Widget.Navigator.prototype = {
         var size = map.oMapOL.getSize();
         map.zoom(center.x + (x * size.w * res), center.y + (y * size.h * res), 1);
     },
-    
+
     zoom: function(factor) {
         //console.log('zoom by factor: ' + factor);
         var map = this.getMap();
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);
     }
-    
+
 };
