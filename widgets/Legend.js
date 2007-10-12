@@ -168,6 +168,7 @@ Fusion.Widget.Legend.prototype = {
             map.layerRoot.legend.treeItem = this.oRoot;
         }
         for (var i=0; i<map.layerRoot.groups.length; i++) {
+            map.layerRoot.groups[i].visible = true;
             this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
         }
         for (var i=0; i<map.layerRoot.layers.length; i++) {
@@ -189,9 +190,9 @@ Fusion.Widget.Legend.prototype = {
             folder.append(group.legend.treeItem);
             group.legend.checkBox = document.createElement('input');
             group.legend.checkBox.type = 'checkbox';
+            group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
             group.legend.checkBox.checked = group.visible?true:false;
             Event.observe(group.legend.checkBox, 'click', this.stateChanged.bind(this, group));
-            group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
             var groupInfo = this.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
                 var a = document.createElement('a');
