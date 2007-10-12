@@ -80,11 +80,7 @@ Fusion.Widget.OverviewMap.prototype = {
 
     keymapLoaded: function() 
     {
-        //OL bug? this should be set to true?
-        //set .baseLayer for the map to this layer instead      
-        this.mapObject.oLayerOL.isBaseLayer = false;  
-        this.oMapOptions.baseLayer = this.mapObject.oLayerOL;
-        var extent = this.mapObject._oMaxExtent;
+        this.mapObject.oLayerOL.isBaseLayer = true;  
         this.loadOverview([this.mapObject.oLayerOL]);
     },
 
