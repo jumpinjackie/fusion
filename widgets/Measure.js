@@ -383,7 +383,7 @@ Fusion.Widget.Measure.prototype = {
             var o;
             eval('o='+r.responseText);
             if (o.distance) {
-                var p = Math.pow(1,this.distPrecision)
+                var p = Math.pow(1,this.distPrecision);
                 var d = Math.round(o.distance*p)/p;
                 marker.setDistance(d);
                 this.positionMarker(marker, segment);
@@ -406,15 +406,22 @@ Fusion.Widget.Measure.prototype = {
       //console.log('setParameter: ' + param + ' = ' + value);
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
+            for (var i=0; i<this.distanceMarkers.length; i++) {
+                this.distanceMarkers[i].setUnits(this.units);
+            }
         }
     }
 };
+
+Fusion.Event.MARKER_DISTANCE_CHANGED = Fusion.Event.lastEventId++;
 
 Fusion.Widget.Measure.DistanceMarker = Class.create();
 Fusion.Widget.Measure.DistanceMarker.prototype = {
     calculatingImg: null,
     isCalculating: false,
+    distance: null,
     initialize: function( units ) {
+        Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
         this.domObj = document.createElement('div');
         this.domObj.className = 'divMeasureMarker';
         this.setUnits(units);
@@ -426,6 +433,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     },
     
     destroy: function() {
+        Fusion.Lib.EventMgr.destroy.apply(this, []);
         if (this.domObj.parentNode) {
             this.domObj.parentNode.removeChild(this.domObj);
         }
@@ -434,18 +442,26 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     setUnits: function(units) {
         this.unit = units;
         this.unitAbbr = Fusion.unitAbbr(units);
+        if (this.distance) {
+            this.setDistance(distance);
+        }
+    },
+    
+    getDistance: function() {
+        return this.distance;
     },
     
     setDistance: function(distance) {
-        this.distance = distance;
         if (this.calculatingImg.parentNode) {
             this.calculatingImg.parentNode.removeChild(this.calculatingImg);
         }
         if (this.unit != Fusion.METERS) {
             distance = Fusion.fromMeter(this.unit, distance);
         }
+        this.distance = distance;
         this.domObj.innerHTML = distance + ' ' + this.unitAbbr;
         this.isCalculating = false;
+        this.triggerEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, this);
     },
     
     setCalculating: function() {
@@ -453,6 +469,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
             this.isCalculating = true;
             this.domObj.innerHTML = '';
             this.domObj.appendChild(this.calculatingImg);
+            this.distance = false;
         }
     },
     getSize: function() {
