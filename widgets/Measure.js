@@ -443,7 +443,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         this.unit = units;
         this.unitAbbr = Fusion.unitAbbr(units);
         if (this.distance) {
-            this.setDistance(distance);
+            this.setDistance(this.distance);
         }
     },
     
@@ -455,10 +455,10 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         if (this.calculatingImg.parentNode) {
             this.calculatingImg.parentNode.removeChild(this.calculatingImg);
         }
+        this.distance = distance;
         if (this.unit != Fusion.METERS) {
             distance = Fusion.fromMeter(this.unit, distance);
         }
-        this.distance = distance;
         this.domObj.innerHTML = distance + ' ' + this.unitAbbr;
         this.isCalculating = false;
         this.triggerEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, this);
