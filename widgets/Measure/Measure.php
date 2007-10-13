@@ -9,23 +9,23 @@
     </style>
     <script type="text/javascript" charset="utf-8">
         var Fusion;
-        var measureWidget;
-        var totalDistance = 0;
+        var measureWidgets;
+        var currentWidget;
         window.onload = function() {
             Fusion = window.top.Fusion;
-            var measureWidgets = Fusion.getWidgetsByType('Measure');
-            measureWidget = measureWidgets[0];
-            measureWidget.registerForEvent(Fusion.Event.MEASURE_NEW_SEGMENT, measureNewSegment);
-            measureWidget.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, measureSegmentUpdate);
-            measureWidget.registerForEvent(Fusion.Event.MEASURE_SEGMENT_COMPLETE, measureSegmentComplete);
-            measureWidget.registerForEvent(Fusion.Event.MEASURE_CLEAR, measureClear);  
+            measureWidgets = Fusion.getWidgetsByType('Measure');
+            for (var i=0; i<measureWidgets.length; i++) {
+              measureWidgets[i].registerForEvent(Fusion.Event.MEASURE_NEW_SEGMENT, measureNewSegment);
+              measureWidgets[i].registerForEvent(Fusion.Event.MEASURE_CLEAR, measureClear);  
+            }
         };
         
-        function measureNewSegment(eventId, widget, segment) {
+        function measureNewSegment(eventId, widget, marker) {
+            marker.registerForEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, measureSegmentUpdate)
             var tbody = document.getElementById('segmentTBody');
             var segmentId = tbody.childNodes.length + 1;
             var tr = document.createElement('tr');
-            tr.segment = segment;
+            tr.marker = marker;
             var td = document.createElement('td');
             td.innerHTML = 'Segment '+segmentId;
             tr.appendChild(td);
@@ -35,38 +35,35 @@
             tbody.appendChild(tr);
         }
         
-        function measureSegmentUpdate(eventId, widget, segment, distance) {
+        function measureSegmentUpdate(eventId, marker) {
             var distanceText = 'calculating ...';
             var distanceValue = 0;
+            var distance = marker.getDistanceLabel();
             if (distance) {
                 distanceText = distance;
                 distanceValue = parseFloat(distance);
-            } else {
-                
             }
+            var totalDistance = 0;
             var tbody = document.getElementById('segmentTBody');
             for (var i=0; i<tbody.childNodes.length; i++) {
-                if (tbody.childNodes[i].segment == segment) {
+                if (tbody.childNodes[i].marker == marker) {
                     tbody.childNodes[i].childNodes[1].innerHTML = distanceText;
                 }
+                totalDistance += parseFloat(tbody.childNodes[i].childNodes[1].innerHTML);
             }
             var tDist = document.getElementById('totalDistance');
-            tDist.innerHTML = totalDistance + distanceValue;
-        }
-        
-        function measureSegmentComplete(eventId, widget, segment, distance) {
-            measureSegmentUpdate(eventId, widget, segment, distance);
-            totalDistance += distance;
+            tDist.innerHTML = totalDistance + ' ' + marker.unitAbbr;
         }
         
         function measureClear() {
             var tbody = document.getElementById('segmentTBody');
             while(tbody.firstChild) {
+                tbody.firstChild.marker.deregisterForEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, measureSegmentUpdate);
+                tbody.firstChild.marker = null;
                 tbody.removeChild(tbody.firstChild);
             }
-            totalDistance = 0;
             var tDist = document.getElementById('totalDistance');
-            tDist.innerHTML = totalDistance;
+            tDist.innerHTML = '';
         }
     </script>
 </head>

@@ -307,7 +307,7 @@ Fusion.Widget.Measure.prototype = {
         this.feature.draw(this.context);
         this.delayUpdateTimer = window.setTimeout(this.delayUpdate.bind(this, lastSegment, e), 250);
         this.lastMarker.setCalculating();
-        this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this, lastSegment, null);
+        this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this, this.lastMarker, null);
         
         this.positionMarker(this.lastMarker, lastSegment);
     },
@@ -346,9 +346,10 @@ Fusion.Widget.Measure.prototype = {
     
     positionMarker: function(marker, segment) {
         var oDomElem =  this.getMap().getDomObj();
-        if (marker.domObj.parentNode != oDomElem) {
+        if (!marker.domObj.parentNode || 
+            marker.domObj.parentNode != oDomElem) {
             oDomElem.appendChild(marker.domObj);
-            this.triggerEvent(Fusion.Event.MEASURE_NEW_SEGMENT, this, segment);
+            this.triggerEvent(Fusion.Event.MEASURE_NEW_SEGMENT, this, marker);
         }
         var size = marker.getSize();
         var t = (segment.from.py + segment.to.py - size.height)/2 ;
@@ -388,9 +389,9 @@ Fusion.Widget.Measure.prototype = {
                 marker.setDistance(d);
                 this.positionMarker(marker, segment);
                 if (segment == this.feature.lastSegment()) {
-                    this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this, segment, d);                    
+                    this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this, marker, d);                    
                 } else {
-                    this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_COMPLETE, this, segment, d);
+                    this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_COMPLETE, this, marker, d);
                 }
             }
         }
@@ -422,6 +423,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     distance: null,
     initialize: function( units ) {
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
+        this.registerEventID(Fusion.Event.MARKER_DISTANCE_CHANGED);
         this.domObj = document.createElement('div');
         this.domObj.className = 'divMeasureMarker';
         this.setUnits(units);
@@ -451,15 +453,24 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         return this.distance;
     },
     
+    getDistanceLabel: function() {
+        if (this.distance) {
+            var distance = this.distance;
+            if (this.unit != Fusion.METERS) {
+                distance = Fusion.fromMeter(this.unit, distance);
+            }
+            return distance + ' ' + this.unitAbbr;            
+        } else {
+            return false;
+        }
+    },
+    
     setDistance: function(distance) {
         if (this.calculatingImg.parentNode) {
             this.calculatingImg.parentNode.removeChild(this.calculatingImg);
         }
         this.distance = distance;
-        if (this.unit != Fusion.METERS) {
-            distance = Fusion.fromMeter(this.unit, distance);
-        }
-        this.domObj.innerHTML = distance + ' ' + this.unitAbbr;
+        this.domObj.innerHTML = this.getDistanceLabel();
         this.isCalculating = false;
         this.triggerEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, this);
     },
@@ -470,6 +481,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
             this.domObj.innerHTML = '';
             this.domObj.appendChild(this.calculatingImg);
             this.distance = false;
+            this.triggerEvent(Fusion.Event.MARKER_DISTANCE_CHANGED, this);
         }
     },
     getSize: function() {
