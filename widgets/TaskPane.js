@@ -151,10 +151,10 @@ Fusion.Widget.TaskPane.prototype =
      *
      */
     setTaskMenu : function() {
-        var taskWidgets = Fusion.getWidgetsByType("InvokeURL");
+        var taskWidgets = this.getMap().widgetSet.widgetInstances;
         for (var i=0; i<taskWidgets.length; ++i) {
             var task = taskWidgets[i];
-            if (task.sTarget == this.sName) {
+            if (task.sTarget == this.sName && task.execute) {
                 var taskAction = new Jx.Action(task.execute.bind(task));
                 this.taskMenu.add( new Jx.MenuItem(taskAction, {label: task.sLabel, image: task.sImageURL}));
                 task.action = taskAction;
