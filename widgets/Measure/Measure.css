@@ -1,5 +1,5 @@
 
-html, body {
+body#MeasurementWidgetResults  {
     font-family: Arial, Helvetica, sans-serif;
     margin: 0px;
     padding: 0px;
@@ -16,16 +16,18 @@ html, body {
   z-index: 200;
 }
 
-#MeasurementWidgetResults {
-}
-
-table, tbody, thead, tfoot, tr {
+#MeasurementWidgetResults table, 
+#MeasurementWidgetResults tbody, 
+#MeasurementWidgetResults thead, 
+#MeasurementWidgetResults tfoot, 
+#MeasurementWidgetResults tr {
   padding: 0px;
   margin: 0px;
   border: 0px;
 }
 
-td, th {
+#MeasurementWidgetResults td, 
+#MeasurementWidgetResults th {
   text-align: left;
   font-size: 11px;
   padding: 10px;
@@ -33,11 +35,11 @@ td, th {
   border: 0px;
 }
 
-th {
+#MeasurementWidgetResults th {
   font-weight: bold;
 }
 
-h1 {
+#MeasurementWidgetResults h1 {
   font-size: 14px;
   font-weight: bold;
   margin: 0px;
