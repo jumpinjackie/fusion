@@ -511,6 +511,13 @@ Fusion.Maps.MapServer.prototype = {
     
     loadEnd: function() {
         this.mapWidget._removeWorker();
+    },
+    
+    pingServer: function() {
+        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
+        var params = {};
+        params.parameters = 'session='+this.getSessionID();
+        Fusion.ajaxRequest(s, params);
     }
 };
 
@@ -549,13 +556,6 @@ Fusion.Maps.MapServer.Group.prototype = {
     
     isVisible: function() {
         return this.visible;
-    },
-    
-    pingServer: function() {
-        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
-        var params = {};
-        params.parameters = 'session='+this.getSessionID();
-        Fusion.ajaxRequest(s, params);
     }
     
 };
