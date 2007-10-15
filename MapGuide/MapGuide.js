@@ -76,7 +76,7 @@ Fusion.Maps.MapGuide.prototype = {
         
         this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
 
-        this.keepAliveInterval = parseInt(json.KeepAliveInterval ? json.KeepAliveInterval[0] : 300);
+        this.keepAliveInterval = parseInt(extension.KeepAliveInterval ? extension.KeepAliveInterval[0] : 300);
         
         var sid = Fusion.getQueryParam("session");
         if (sid) {
