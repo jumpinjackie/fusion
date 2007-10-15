@@ -31,7 +31,6 @@ include ('Common.php');
 include ('Utilities.php');
 
 try {
-    header('content-type: text/xml');
     if (!isset($_REQUEST['session']) || 
         !isset($_REQUEST['mapname']) ||
         !isset($_REQUEST['x1']) || 
@@ -57,6 +56,8 @@ try {
         $distance = $srsMap->MeasureEuclideanDistance($x1, $y1, $x2, $y2);
     }
     $distance = $srsMap->ConvertCoordinateSystemUnitsToMeters($distance);   
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
     echo "{distance:$distance}";
     exit;
 } catch (MgException $e) {
