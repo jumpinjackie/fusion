@@ -18,4 +18,12 @@
     <DefaultValue>widgets/TaskPane/TaskPane.html</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
+  <Parameter>
+    <Name>MenuContainer</Name>
+    <Description>The name of a menu container for the task list</Description>
+    <Type>String</Type>
+    <Label>Menu container</Label>
+    <DefaultValue></DefaultValue>
+    <IsMandatory>false</IsMandatory>
+  </Parameter>
 </WidgetInfo>
