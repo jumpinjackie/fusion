@@ -56,7 +56,6 @@ Fusion.Widget.Scalebar.prototype = {
         this.maxWidth = json.MaxWidth ? json.MaxWidth[0] : this.maxWidth;
         this.divisions = json.Divisions ? json.Divisions[0] : this.divisions;
         this.subdivisions = json.SubDivisions ? json.SubDivisions[0] : this.subdivisions;
-        this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         this.showMinorMeasures = (json.ShowMinorMeasures && json.ShowMinorMeasures[0]) == 'false' ? false : true;
         this.abbreviateLabel = (json.AbbreviateLabel && json.AbbreviateLabel[0]) == 'true' ? true : false;
         this.singleLine = (json.SingleLine && json.SingleLine[0]) == 'true' ? true : false;

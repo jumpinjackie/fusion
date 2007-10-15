@@ -1,11 +1,13 @@
 <WidgetInfo>
-  <Type>Select</Type>
-  <Description>A widget that allows selection of features on a map</Description>
+  <Type>PanQuery</Type>
+  <Description>A widget that combines pan and query actions.  If the mouse did
+  not move, a query is issued, otherwise a pan is performed.
+  </Description>
   <Location></Location>
-  <Label>Select</Label>
-  <Tooltip>Click to select features</Tooltip>
+  <Label>Pan query</Label>
+  <Tooltip>Darg the mouse to pan, click to query</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select.png</ImageUrl>
+  <ImageUrl>String</ImageUrl>
   <ImageClass></ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
