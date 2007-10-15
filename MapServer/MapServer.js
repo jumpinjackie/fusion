@@ -78,7 +78,7 @@ Fusion.Maps.MapServer.prototype = {
 
         this.bSingleTile = mapTag.singleTile;// this is set by the AppDef.Map object
 
-        this.keepAliveInterval = parseInt(json.KeepAliveInterval ? json.KeepAliveInterval[0] : 300);
+        this.keepAliveInterval = parseInt(extension.KeepAliveInterval ? extension.KeepAliveInterval[0] : 300);
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
