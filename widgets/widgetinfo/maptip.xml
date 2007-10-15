@@ -1,18 +1,4 @@
 <WidgetInfo>
-    <Type>Maptips</Type>
-    <Label>MapTips</Label>
-    <Parameter>
-    <Name>Delay</Name>
-    <Type>integer</Type>
-    <Label>Delay (ms)</Label>
-    <Description>The delay in milliseconds before showing a map tip</Description>
-    <DefaultValue>350</DefaultValue>
-    <Min>0</Min>
-    <Max>10000</Max>
-    <IsMandatory>0</IsMandatory>
-    </Parameter>
-</WidgetInfo>
-<WidgetInfo>
   <Type>Maptip</Type>
   <Description>A widget to display information about features under the mouse 
   as it hovers over the map

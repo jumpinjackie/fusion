@@ -10,15 +10,15 @@
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>
-      <Name>Target</Name>
-      <Label>The name of a task pane widget or a popup window</Label>
-      <Type>string</Type>
-      <Description>If this is a TaskPane widget, this widget will set a URL
-      in the TaskPane to gather user input, otherwise it looks for an HTML
-      element with this name, otherwise it will open a popup window to gather 
-      user input.
-      </Description>
-      <IsMandatory>true</IsMandatory>
+    <Name>Target</Name>
+    <Label>The name of a task pane widget or a popup window</Label>
+    <Type>string</Type>
+    <Description>If this is a TaskPane widget, this widget will set a URL
+    in the TaskPane to gather user input, otherwise it looks for an HTML
+    element with this name, otherwise it will open a popup window to gather 
+    user input.
+    </Description>
+    <IsMandatory>true</IsMandatory>
   </Parameter>
   <Parameter>
     <Name>Prompt</Name>
@@ -30,7 +30,7 @@
   </Parameter>
   <Parameter>
     <Name>Layer</Name>
-    <Description>Layer name in the map on which to carry out thee search</Description>
+    <Description>Layer name in the map on which to carry out the search</Description>
     <Type>String</Type>
     <Label>Layer</Label>
     <DefaultValue></DefaultValue>
@@ -56,7 +56,7 @@
   <Parameter>
     <Name>ResultColumns</Name>
     <Description>An XML structure describing the columns to be returned as part 
-    of the seearch and their labels
+    of the search and their labels
     </Description>
     <Type>XML</Type>
     <Label>ResultColumns</Label>

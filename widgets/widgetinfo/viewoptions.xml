@@ -1,9 +1,9 @@
 <WidgetInfo>
   <Type>ViewOptions</Type>
-  <Description>A widget to alllow selection of the displlay units for various widgets</Description>
+  <Description>A widget to allow selection of the display units for various widgets</Description>
   <Location></Location>
   <Label>ViewOptions</Label>
-  <Tooltip>Click o change the units displayed</Tooltip>
+  <Tooltip>Click to change the units displayed</Tooltip>
   <StatusText></StatusText>
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>

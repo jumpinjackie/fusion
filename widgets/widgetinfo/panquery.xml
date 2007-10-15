@@ -5,7 +5,7 @@
   </Description>
   <Location></Location>
   <Label>Pan query</Label>
-  <Tooltip>Darg the mouse to pan, click to query</Tooltip>
+  <Tooltip>Drag the mouse to pan, click to query</Tooltip>
   <StatusText></StatusText>
   <ImageUrl>String</ImageUrl>
   <ImageClass></ImageClass>
@@ -21,7 +21,7 @@
   </Parameter>
   <Parameter>
     <Name>Tolerance</Name>
-    <Description>pixel tolernace for a point click</Description>
+    <Description>pixel tolerance for a point click</Description>
     <Type>integer</Type>
     <Label>Tolerance</Label>
     <Min>1</Min>
