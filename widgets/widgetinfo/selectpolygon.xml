@@ -19,7 +19,7 @@
   </Parameter>
   <Parameter>
     <Name>Tolerance</Name>
-    <Description>pixel tolernace for a point click</Description>
+    <Description>pixel tolerance for a point click</Description>
     <Type>integer</Type>
     <Label>Tolerance</Label>
     <Min>1</Min>

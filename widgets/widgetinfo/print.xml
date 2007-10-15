@@ -8,9 +8,9 @@
   <ContainableBy>Any</ContainableBy>
   <Parameter>
     <Name>ShowPrintUI</Name>
-    <Description>Show the print UI to allow configuration before printing</Description>
+    <Description>Show the print dialog to allow configuration before printing</Description>
     <Type>boolean</Type>
-    <Label>Show print UI:</Label>
+    <Label>Show print dialog</Label>
     <DefaultValue>true</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>

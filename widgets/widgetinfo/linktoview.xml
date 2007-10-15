@@ -8,6 +8,6 @@
   <StatusText></StatusText>
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>
-  <StandardUi>true</StandardUi>
+  <StandardUi>false</StandardUi>
   <ContainableBy></ContainableBy>
 </WidgetInfo>

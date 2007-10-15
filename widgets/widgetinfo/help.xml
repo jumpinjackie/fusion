@@ -1,14 +1,6 @@
 <WidgetInfo>
-     <Type>Help</Type>
-     <Label>Help</Label>
-     <Tooltip>Launch help</Tooltip>
-     <ImageUrl>images/icons/help.png</ImageUrl>
-    <ContainableBy>Any</ContainableBy>
-     <StandardUi>true</StandardUi>
-</WidgetInfo>
-<WidgetInfo>
   <Type>Help</Type>
-  <Description>Ouptuts a user help page</Description>
+  <Description>Outputs a user help page</Description>
   <Location></Location>
   <Label>Help</Label>
   <Tooltip>Click to get help</Tooltip>
@@ -21,7 +13,7 @@
     <Name>Target</Name>
     <Description>location to display the help page.  If the Target is a Task 
     Pane widget name, help will be displayed there, otherwise if it is a page
-    DOM element, it will display in taht element, otherwise it will open a popup
+    DOM element, it will display in that element, otherwise it will open a popup
     window with the target name.
     </Description>
     <Type>String</Type>

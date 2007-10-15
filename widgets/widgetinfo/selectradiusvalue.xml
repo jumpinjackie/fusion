@@ -1,17 +1,11 @@
 <WidgetInfo>
-     <Type>SelectRadiusValue</Type>
-     <Label>SelectRadiusValue</Label>
-     <RadiusName>SelectRadius</RadiusName>
-     <ClassName></ClassName>
-</WidgetInfo>
-<WidgetInfo>
   <Type>SelectRadiusValue</Type>
   <Description>A widget to allow the user can manually enter a radius for 
   the SelectRadius widget
   </Description>
   <Location></Location>
   <Label>Select radius value</Label>
-  <Tooltip>enter the radius for the Select by radius tool</Tooltip>
+  <Tooltip>enter the radius for the Select by Radius tool</Tooltip>
   <StatusText></StatusText>
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>
