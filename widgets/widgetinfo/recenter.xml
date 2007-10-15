@@ -1,6 +1,9 @@
 <WidgetInfo>
-     <Type>Recenter</Type>
-     <Label>Recenter</Label>
-     <ImageUrl>images/icons/view-recenter.png</ImageUrl>
-     <StandardUi>true</StandardUi>
+  <Type>Recenter</Type>
+  <Description>A widget that re-centers the map</Description>
+  <Label>Recenter</Label>
+  <Tooltip>Click to recenter the map</Tooltip>
+  <ImageUrl>images/icons/view-recenter.png</ImageUrl>
+  <StandardUi>true</StandardUi>
+  <ContainableBy>Any</ContainableBy>
 </WidgetInfo>

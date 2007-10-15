@@ -4,3 +4,25 @@
      <Tooltip>Choose a Map Theme.</Tooltip>
      <Folder>Library://Themes/</Folder>
 </WidgetInfo>
+<WidgetInfo>
+  <Type>MapMenu</Type>
+  <Description>A widget that displays a list of maps that can be laoded into 
+  the application
+  </Description>
+  <Location></Location>
+  <Label>Map Menu</Label>
+  <Tooltip>Choose a map theme</Tooltip>
+  <StatusText></StatusText>
+  <ImageUrl>images/icons/map-manager.png</ImageUrl>
+  <ImageClass></ImageClass>
+  <StandardUi>true</StandardUi>
+  <ContainableBy>Any</ContainableBy>
+  <Parameter>
+    <Name>Folder</Name>
+    <Description>The location from which the list of maps will be </Description>
+    <Type>String</Type>
+    <Label>map list source</Label>
+    <DefaultValue>Library://</DefaultValue>
+    <IsMandatory>true</IsMandatory>
+  </Parameter>
+</WidgetInfo>
