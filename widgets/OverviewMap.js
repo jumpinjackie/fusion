@@ -23,8 +23,7 @@
  * **********************************************************************/
 Fusion.Widget.OverviewMap = Class.create();
 Fusion.Widget.OverviewMap.prototype = {
-    nWidth : 200,
-    nHeight : 100,
+    oSize: null,
     nMinRatio : 32,
     nMaxRatio : 128,
   
@@ -46,17 +45,14 @@ Fusion.Widget.OverviewMap.prototype = {
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
-            var size = Element.getContentBoxSize(this.domObj);
-              this.nHeight = size.height;
-              this.nWidth = size.width;
+              var size = Element.getContentBoxSize(this.domObj);
+              this.oSize = new OpenLayers.Size(size.width, size.height)
               this.domObj.style.overflow = 'hidden';
-        }
-        //but you can also override these with values form AppDef
-        if (json.Width) {
-            this.nWidth = json.Width;
-        }
-        if (json.Height) {
-            this.nHeight = json.Height;
+              if (this.domObj.jxLayout) {
+                  this.domObj.jxLayout.addSizeChangeListener(this);
+              } else {
+                  this.domObj.resize = this.sizeChanged.bind(this);
+              }
         }
 
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
@@ -86,7 +82,6 @@ Fusion.Widget.OverviewMap.prototype = {
 
     loadOverview: function(aLayers) 
     {
-        this.oSize = new OpenLayers.Size(this.nWidth, this.nHeight);
         aLayers[0].ratio = 1.0;
 
         var mapOpts = {
@@ -101,6 +96,16 @@ Fusion.Widget.OverviewMap.prototype = {
         this.control = new OpenLayers.Control.OverviewMap(mapOpts);
         this.getMap().oMapOL.addControl(this.control);
         //console.log('OverviewMap mapLoaded');
+    },
+    
+    sizeChanged: function() {
+        var size = Element.getContentBoxSize(this.domObj);
+        this.oSize = new OpenLayers.Size(size.width, size.height)
+        this.control.size = this.oSize.clone();
+        this.control.mapDiv.style.width = this.oSize.w + 'px';
+        this.control.mapDiv.style.height = this.oSize.h + 'px';
+        this.control.mapDiv.updateSize();
+        this.control.update();
     }
 
 };
