@@ -100,12 +100,14 @@ Fusion.Widget.OverviewMap.prototype = {
     
     sizeChanged: function() {
         var size = Element.getContentBoxSize(this.domObj);
-        this.oSize = new OpenLayers.Size(size.width, size.height)
-        this.control.size = this.oSize.clone();
-        this.control.mapDiv.style.width = this.oSize.w + 'px';
-        this.control.mapDiv.style.height = this.oSize.h + 'px';
-        this.control.mapDiv.updateSize();
-        this.control.update();
+        this.oSize = new OpenLayers.Size(size.width, size.height);
+        if (this.control) {
+            this.control.size = new OpenLayers.Size(size.width, size.height);
+            this.control.mapDiv.style.width = this.oSize.w + 'px';
+            this.control.mapDiv.style.height = this.oSize.h + 'px';
+            this.control.ovmap.updateSize();
+            this.control.update();
+        }
     }
 
 };
