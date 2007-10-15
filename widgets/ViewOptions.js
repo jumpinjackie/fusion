@@ -58,9 +58,6 @@ Fusion.Widget.ViewOptions.prototype =
         
         var json = widgetTag.extension;
         
-        this._sLabel = json.Label ? json.Label[0] : '';
-        this._sImageURL = json.ImageURL ? json.ImageURL[0] : '';
-        
         //set up the root menu
         
         for (var key in this.options) {
