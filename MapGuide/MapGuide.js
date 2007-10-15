@@ -76,6 +76,8 @@ Fusion.Maps.MapGuide.prototype = {
         
         this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
 
+        this.keepAliveInterval = parseInt(json.KeepAliveInterval ? json.KeepAliveInterval[0] : 300);
+        
         var sid = Fusion.getQueryParam("session");
         if (sid) {
             this.session[0] = sid;
@@ -116,6 +118,7 @@ Fusion.Maps.MapGuide.prototype = {
         if (this.sMapResourceId != '') {
             this.loadMap(this.sMapResourceId);
         }
+        window.setInterval(this.pingServer.bind(this), this.keepAliveInterval * 1000);
     },
 
     sessionReady: function() {
@@ -813,6 +816,13 @@ Fusion.Maps.MapGuide.prototype = {
 
     loadEnd: function() {
         this.mapWidget._removeWorker();
+    },
+    
+    pingServer: function() {
+        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
+        var params = {};
+        params.parameters = 'session='+this.getSessionID();
+        Fusion.ajaxRequest(s, params);
     }
 };
     

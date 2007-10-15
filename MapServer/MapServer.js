@@ -78,6 +78,8 @@ Fusion.Maps.MapServer.prototype = {
 
         this.bSingleTile = mapTag.singleTile;// this is set by the AppDef.Map object
 
+        this.keepAliveInterval = parseInt(json.KeepAliveInterval ? json.KeepAliveInterval[0] : 300);
+
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
             this.mapSessionCreated();
@@ -114,6 +116,7 @@ Fusion.Maps.MapServer.prototype = {
         if (this.sMapFile != '') {
             this.loadMap(this.sMapFile);
         }
+        window.setInterval(this.pingServer.bind(this), this.keepAliveInterval * 1000);
     },
 
     sessionReady: function() {
@@ -546,7 +549,15 @@ Fusion.Maps.MapServer.Group.prototype = {
     
     isVisible: function() {
         return this.visible;
+    },
+    
+    pingServer: function() {
+        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
+        var params = {};
+        params.parameters = 'session='+this.getSessionID();
+        Fusion.ajaxRequest(s, params);
     }
+    
 };
 
 var MSLAYER_POINT_TYPE = 0;
