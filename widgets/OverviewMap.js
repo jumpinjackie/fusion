@@ -46,7 +46,7 @@ Fusion.Widget.OverviewMap.prototype = {
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
               var size = Element.getContentBoxSize(this.domObj);
-              this.oSize = new OpenLayers.Size(size.width, size.height)
+              this.oSize = new OpenLayers.Size(size.width, size.height);
               this.domObj.style.overflow = 'hidden';
               if (this.domObj.jxLayout) {
                   this.domObj.jxLayout.addSizeChangeListener(this);
