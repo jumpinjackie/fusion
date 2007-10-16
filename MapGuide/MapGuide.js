@@ -23,8 +23,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * MapGuide : MapGuide map widget 
+/***************************************************************************
+* Class: Fusion.Maps.MapGuide
+*
+* Implements the map widget for MapGuide Open Source services.
 */
 
 Fusion.Maps.MapGuide = Class.create();
@@ -484,13 +486,6 @@ Fusion.Maps.MapGuide.prototype = {
       */
     zoomToSelection: function(r) {
       var xmlDoc = r.responseXML.documentElement;
-/*
-<?xml version="1.0" encoding="UTF-8"?>
-<Envelope>
-<LowerLeftCoordinate><X>-87.757810292102718</X><Y>43.782755760427854</Y></LowerLeftCoordinate>
-<UpperRightCoordinate><X>-87.755035756736021</X><Y>43.78514149703846</Y></UpperRightCoordinate>
-</Envelope>
-*/
       var x = xmlDoc.getElementsByTagName('X');
       var y = xmlDoc.getElementsByTagName('Y');
       //double the veiwport
@@ -838,6 +833,12 @@ Fusion.Maps.MapGuide.prototype = {
     }
 };
     
+/***************************************************************************
+* Class: Fusion.Maps.MapGuide.Group
+*
+* Implements the map layer groups for MapGuide services
+*/
+
 Fusion.Maps.MapGuide.Group = Class.create();
 Fusion.Maps.MapGuide.Group.prototype = {
     oMap: null,
@@ -881,6 +882,12 @@ Fusion.Maps.MapGuide.Group.prototype = {
         return this.visible;
     }
 };
+
+/***************************************************************************
+* Class: Fusion.Maps.MapGuide
+*
+* Implements individual map legend layers for MapGuide services
+*/
 
 Fusion.Maps.MapGuide.Layer = Class.create();
 Fusion.Maps.MapGuide.Layer.prototype = {
@@ -962,6 +969,12 @@ Fusion.Maps.MapGuide.Layer.prototype = {
     }
 };
 
+/***************************************************************************
+* Class: Fusion.Maps.MapGuide
+*
+* Implements a scale range object for MapGuide services
+*/
+
 Fusion.Maps.MapGuide.ScaleRange = Class.create();
 Fusion.Maps.MapGuide.ScaleRange.prototype = {
     styles: null,
@@ -981,6 +994,12 @@ Fusion.Maps.MapGuide.ScaleRange.prototype = {
         return fScale >= this.minScale && fScale <= this.maxScale;
     }
 };
+
+/***************************************************************************
+* Class: Fusion.Maps.MapGuide
+*
+* Implements the legend style items to get a legend icon from the server
+*/
 
 Fusion.Maps.MapGuide.StyleItem = Class.create();
 Fusion.Maps.MapGuide.StyleItem.prototype = {

@@ -23,8 +23,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * Fusion.Maps.MapServer : MapServer map widget 
+/******************************************************************************
+ * Class: Fusion.Maps.MapServer 
+ *
+ * Implementation of the map widget for MapServer CGI interface services
 */
 
 Fusion.Maps.MapServer = Class.create();
@@ -529,6 +531,12 @@ Fusion.Maps.MapServer.prototype = {
 };
 
     
+/******************************************************************************
+ * Class: Fusion.Maps.MapServer.Group
+ *
+ * Implements the map layer groups for MapServer CGI services
+*/
+
 Fusion.Maps.MapServer.Group = Class.create();
 Fusion.Maps.MapServer.Group.prototype = {
     oMap: null,
@@ -572,6 +580,12 @@ var MSLAYER_LINE_TYPE = 1;
 var MSLAYER_POLYGON_TYPE = 2;
 var MSLAYER_SOLID_TYPE = 3;
 var MSLAYER_RASTER_TYPE = 4;
+
+/******************************************************************************
+ * Class: Fusion.Maps.MapServer.Layer
+ *
+* Implements individual map legend layers for MapServer services
+*/
 
 Fusion.Maps.MapServer.Layer = Class.create();
 Fusion.Maps.MapServer.Layer.prototype = {
@@ -646,6 +660,12 @@ Fusion.Maps.MapServer.Layer.prototype = {
     }
 };
 
+/******************************************************************************
+ * Class: Fusion.Maps.MapServer.ScaleRange
+ *
+* Implements a scale range object for MapServer services
+*/
+
 Fusion.Maps.MapServer.ScaleRange = Class.create();
 Fusion.Maps.MapServer.ScaleRange.prototype = {
     styles: null,
@@ -665,6 +685,12 @@ Fusion.Maps.MapServer.ScaleRange.prototype = {
         return fScale >= this.minScale && fScale <= this.maxScale;
     }
 };
+
+/******************************************************************************
+ * Class: Fusion.Maps.MapServer.StyleItem
+ *
+* Implements the legend style items to get a legend icon from the server
+*/
 
 Fusion.Maps.MapServer.StyleItem = Class.create();
 Fusion.Maps.MapServer.StyleItem.prototype = {
