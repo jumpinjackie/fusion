@@ -40,8 +40,12 @@ Fusion.Widget.LinkToView.prototype = {
         var queryParams = Fusion.parseQueryString();
         var join = '';
         for (var param in queryParams) {
-          if (typeof queryParams[param] == 'function') continue;
-          if (param == 'extent') continue;
+          if (typeof queryParams[param] == 'function') {
+              continue;
+          }
+          if (param == 'extent') {
+              continue;
+          }
           this.baseUrl += join + param + '=' + queryParams[param];
           join = '&';
         }

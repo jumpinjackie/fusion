@@ -25,7 +25,9 @@
  * **********************************************************************/
 
 
-if (!ScaleBarTool) Fusion.require('widgets/scalebar/scalebartool.js');
+if (!ScaleBarTool) {
+    Fusion.require('widgets/scalebar/scalebartool.js');
+}
 
 Fusion.Widget.Scalebar = Class.create();
 Fusion.Widget.Scalebar.prototype = {

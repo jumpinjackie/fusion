@@ -124,7 +124,9 @@ Fusion.Widget.SelectPolygon.prototype = {
      */
     mouseMove: function(e) {
         //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) return;
+        if (!this.isDigitizing) {
+            return;
+        }
     
         var p = this.getMap().getEventPosition(e);
         var seg = this.polygon.lastSegment();
@@ -143,7 +145,9 @@ Fusion.Widget.SelectPolygon.prototype = {
      */
     dblClick: function(e) {
         //console.log('Digitizer.dblClick');
-        if (!this.isDigitizing) return;
+        if (!this.isDigitizing) {
+            return;
+        }
         this.event = e;
         var p = this.getMap().getEventPosition(e);
         var point = this.getMap().pixToGeo(p.x, p.y);
