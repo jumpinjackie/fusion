@@ -88,7 +88,7 @@ Fusion.Widget.ViewOptions.prototype =
           var widget = widgetSet.widgetInstances[j];
           for (var k=0; k<widget.paramRegister.length; ++k) {
             if (widget.paramRegister[k] == 'Units') {
-              widget.setParameter('Units', data)
+              widget.setParameter('Units', data);
             }
           }
         }
