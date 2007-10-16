@@ -1,13 +1,19 @@
-/********************************************************************** * 
- * @project Fusion
- * @revision $Id$
- * @purpose display the current cursor position on the map.
- * @author pspencer@dmsolutions.ca
- * Copyright (c) 2007 DM Solutions Group Inc.
- *****************************************************************************
- * This code shall not be copied or used without the expressed written consent
- * of DM Solutions Group Inc.
- * 
+/**
+ * Fusion.Widget.CursorPosition
+ *
+ * $Id$
+ *
+ * Copyright (c) 2007, DM Solutions Group Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -15,45 +21,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- ********************************************************************
+ */
+
+ /********************************************************************
+ * Class: Fusion.Widget.CursorPosition
  *
  * Displays the geographic position of the cursor when it is over the map.
- *
- * Place a CursorPosition widget in your application by first adding a
- * CursorPosition widget to your WebLayout as follows:
- *
- * <Command xsi:type="CursorPositionCommandType">
- *  <Name>MyCursorPosition</Name>
- *  <Label>Cursor Position</Label>
- *  <TargetViewer>All</TargetViewer>
- *  <Action>CursorPosition</Action>
- *  <Precision>4</Precision>
- *  <Template>x: {x}&lt;br/&gt;y: {y}</Template>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (mandatory) 
- * 
- * an element with an id that is the same as this name must be in
- * the application.  For instance:
- *
- * <div id="MyCursorPosition"></div>
- *
- * It can appear anywhere inside the <body>.  You can style this div using
- * css, for instance:
- *
- * #MyCursorPosition {
- *    background-color: white;
- *    border: 1px solid black;
- *    padding: 2px;
- *    font-family: Arial;
- *    font-size: 12px;
- *    text-align: left;
- * }
  *
  * Precision (integer, optional)
  *

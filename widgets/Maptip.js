@@ -1,13 +1,19 @@
-/********************************************************************** * 
- * @project Fusion
- * @revision $Id$
- * @purpose Maptip presents floating info on layers when the mouse hovers
- * @author pspencer@dmsolutions.ca
- * Copyright (c) 2007 DM Solutions Group Inc.
- *****************************************************************************
- * This code shall not be copied or used without the expressed written consent
- * of DM Solutions Group Inc.
- * 
+/**
+ * Fusion.Widget.Maptip
+ *
+ * $Id$
+ *
+ * Copyright (c) 2007, DM Solutions Group Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -15,49 +21,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- ********************************************************************
+ */
+
+ /********************************************************************
+ * Class: Fusion.Widget.Maptip
  *
  * Displays tooltips over the map when the mouse is hovered for some 
  * time.  You must configure tooltips for each layer using Studio
  * or Web Studio by editing the LayerDefinition Settings and
  * specifying an expression for the tooltip.
  *
- * Place a Maptip widget in your application by first adding a
- * Maptip widget to your WebLayout as follows:
- *
- * <Command xsi:type="MaptipCommandType">
- *  <Name>MyMaptip</Name>
- *  <Label>Map Tips</Label>
- *  <TargetViewer>All</TargetViewer>
- *  <Action>Maptip</Action>
- *  <Delay>350</Delay>
- *  <Layer>Parks</Layer>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (mandatory) 
- * 
- * an element with an id that is the same as this name must be in
- * the application.  For instance:
- *
- * <div id="MyMaptip"></div>
- *
- * It can appear anywhere inside the <body>.  You can style this div using
- * css, for instance:
- *
- * #Maptip {
- *    display: none;
- *    background-color: yellow;
- *    border: 1px solid black;
- *    padding: 2px;
- *    font-family: Arial;
- *    font-size: 12px;
- *    text-align: left;
- * }
  *
  * Delay (optional)
  *
