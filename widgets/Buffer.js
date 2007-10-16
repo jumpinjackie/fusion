@@ -143,7 +143,7 @@ Fusion.Widget.Buffer.prototype = {
             }
         }
         if (input.tagName.toLowerCase() == 'textarea') {
-            return input.value
+            return input.value;
         }
         if (input.tagName.toLowerCase() == 'select') {
             return input.options[input.selectedIndex].value;
