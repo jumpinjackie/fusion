@@ -61,7 +61,9 @@ Fusion.Maps.MapServer.prototype = {
 
         this.mapWidget = map;
         this.oSelection = null;
-        if (isMapWidgetLayer != null) this.bIsMapWidgetLayer = isMapWidgetLayer;
+        if (isMapWidgetLayer != null) {
+            this.bIsMapWidgetLayer = isMapWidgetLayer;
+        }
 
         var extension = mapTag.extension;
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
@@ -196,7 +198,9 @@ Fusion.Maps.MapServer.prototype = {
                 }
             }
             
-            if (o.dpi) OpenLayers.DOTS_PER_INCH = o.dpi;
+            if (o.dpi) {
+                OpenLayers.DOTS_PER_INCH = o.dpi;
+            }
 
             var layerOptions = {singleTile: true, ratio: 1.5};
             layerOptions.maxExtent = this._oMaxExtent;
@@ -341,7 +345,9 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     drawMap: function() {
-        if (!this.bMapLoaded) return;
+        if (!this.bMapLoaded) {
+            return;
+        }
 
         var params = { layers: this.aVisibleLayers.join(' '), ts : (new Date()).getTime()};
         if (this.hasSelection()) {

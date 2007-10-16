@@ -153,7 +153,9 @@ Fusion.Widget.SelectRadius.prototype = {
      */
     mouseMove: function(e) {
         //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) return;
+        if (!this.isDigitizing) {
+            return;
+        }
     
         var p = this.getMap().getEventPosition(e);
         var center = this.circle.center;

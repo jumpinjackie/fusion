@@ -59,8 +59,10 @@ Fusion.Maps.MapGuide.prototype = {
 
         this.mapWidget = map;
         this.oSelection = null;
-        if (isMapWidgetLayer != null) this.bIsMapWidgetLayer = isMapWidgetLayer;
-
+        if (isMapWidgetLayer != null) {
+            this.bIsMapWidgetLayer = isMapWidgetLayer;
+        }
+        
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
@@ -380,7 +382,9 @@ Fusion.Maps.MapGuide.prototype = {
     },
     
     drawMap: function() {
-        if (!this.bMapLoaded) return;
+        if (!this.bMapLoaded) {
+            return;
+        }
         
         var options = {
           showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
@@ -529,7 +533,9 @@ Fusion.Maps.MapGuide.prototype = {
       if (which & 1) {
         var selectionChanged = false;
         var prevCount = selection.count;
-        if(!append) selection = new Selection();
+        if(!append) {
+            selection = new Selection();
+        }
         try
         {
             var layers = xmlIn.getElementsByTagName("Layer");
@@ -543,16 +549,18 @@ Fusion.Maps.MapGuide.prototype = {
                 var layer = null, newLayer = null;
                 if(append)
                 {
-                    if((layer = selection.layers.getItem(layerId)) == null)
+                    if((layer = selection.layers.getItem(layerId)) == null) {
                         newLayer = layer = new SelLayer(className);
+                    }
                 }
                 else
                 {
                     newLayer = layer = new SelLayer(className);
                     selectionChanged = true;
                 }
-                if(newLayer)
+                if(newLayer) {
                     selection.layers.setItem(layerId, layer);
+                }
 
                 var features = classElt.getElementsByTagName("ID");
                 for(var j=0; j < features.length; j++)
@@ -623,14 +631,17 @@ Fusion.Maps.MapGuide.prototype = {
       if(which & 4) {
         try {
             var hlinkElt = xmlIn.getElementsByTagName("Hyperlink")[0];
-            if(hlinkElt != null)
+            if(hlinkElt != null) {
                 hlData.url = hlinkElt.childNodes[0].nodeValue;
+            }
         } catch(e) {
             hlData.url = "";
         }
         try {
             var ttipElt = xmlIn.getElementsByTagName("Tooltip")[0];
-            if(ttipElt != null) hlData.ttip = ttipElt.childNodes[0].nodeValue;
+            if(ttipElt != null) {
+                hlData.ttip = ttipElt.childNodes[0].nodeValue;
+            }
         }
         catch(e) {}
       }
