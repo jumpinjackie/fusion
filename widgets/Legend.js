@@ -86,14 +86,14 @@ Fusion.Widget.Legend.prototype = {
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
         this.refreshAction = new Jx.Action(this.update.bind(this));
-        this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: 'refresh'});
+        this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: 'Refresh'});
         this.expandAction = new Jx.Action(this.expand.bind(this));
-        this.expandItem = new Jx.MenuItem(this.expandAction, {label: 'expand'});
+        this.expandItem = new Jx.MenuItem(this.expandAction, {label: 'Expand'});
         this.collapseAllAction = new Jx.Action(this.collapseAll.bind(this));
-        this.collapseAllItem = new Jx.MenuItem(this.expandAction, {label: 'expand'});
+        this.collapseAllItem = new Jx.MenuItem(this.collapseAllAction, {label: 'Collapse All'});
         
         this.contextMenu = new Jx.ContextMenu();
-        
+        this.contextMenu.add(this.refreshItem, this.expandItem, this.collapseAllItem);
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
         if (this.showMapFolder) {
             var opt = {};
@@ -102,6 +102,7 @@ Fusion.Widget.Legend.prototype = {
             opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
             opt.isOpen = true;
+            opt.contextMenu = opt.contextMenu = this.contextMenu;
             this.oRoot = new Jx.TreeFolder(opt);
             this.oTree.append(this.oRoot);
         } else {
@@ -118,11 +119,21 @@ Fusion.Widget.Legend.prototype = {
     },
     
     expand: function() {
-        debugger;
+        this.recurseTree('expand', this.oRoot);
     },
     
     collapseAll: function() {
-        
+        this.recurseTree('collapse', this.oRoot);
+    },
+    
+    recurseTree: function(op, folder) {
+        for (var i=0; i<folder.nodes.length; i++) {
+            var item = folder.nodes[i];
+            if (item instanceof Jx.TreeFolder) {
+                this.recurseTree(op, item);
+                item[op]();
+            }
+        }
     },
    
     mapLoading: function() {
@@ -183,6 +194,7 @@ Fusion.Widget.Legend.prototype = {
             var opt = {};
             opt.label = group.legendLabel;
             opt.data = group;
+            opt.contextMenu = opt.contextMenu = this.contextMenu;
             opt.isOpen = group.expandInLegend;
             group.legend.treeItem = new Jx.TreeFolder(opt);
             folder.append(group.legend.treeItem);
@@ -373,6 +385,7 @@ Fusion.Widget.Legend.prototype = {
         opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
         opt.data = layer;
         opt.isOpen = layer.expandInLegend;
+        opt.contextMenu = opt.contextMenu = this.contextMenu;
         opt.imgTreeFolderOpen = layer.themeIcon;
         opt.imgTreeFolder = layer.themeIcon;
         var folder = new Jx.TreeFolder(opt);
@@ -400,6 +413,7 @@ Fusion.Widget.Legend.prototype = {
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
         }
         opt.data = layer;
+        opt.contextMenu = opt.contextMenu = this.contextMenu;
         if (layer.supportsType(4)) {
             opt.imgIcon = this.imgLayerRasterIcon;
         } else if (!style) {
