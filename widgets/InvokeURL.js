@@ -1,13 +1,19 @@
-/********************************************************************** * 
- * @project Fusion
- * @revision $Id: InvokeURL.js 665 2007-06-29 14:49:06Z pspencer $
- * @purpose InvokeURL widget
- * @author madair@dmsolutions.ca
- * Copyright (c) 2007 DM Solutions Group Inc.
- *****************************************************************************
- * This code shall not be copied or used without the expressed written consent
- * of DM Solutions Group Inc.
- * 
+/**
+ * Fusion.Widget.InvokeURL
+ *
+ * $Id: $
+ *
+ * Copyright (c) 2007, DM Solutions Group Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -15,30 +21,17 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- ********************************************************************
+ */
+
+ /***************************************************************************
+ * Class: Fusion.Widget.InvokeURL
  *
- * To put a InvokeURL control in your application, you first need to add
- * a widget to your WebLayout as follows:
- *
- * <Command xsi:type="">
- *   <Name>InvokeURL</Name>
- *   <Label>Keep Session Alive/Label>
- *   <TargetViewer>All</TargetViewer>
- *   <Action>KeepSessionAlive</Action>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (string, mandatory) 
+ * A widget that will open the configured URL in the target element.
  * 
  * If the Target property points to TaskPane widget, the task will be listed in
  * the menu list of the TaskPane and loaded there.
- * Otherwise if the target is an existing IFrame in the page it will be loaded 
- * there, otherwise it will open a new window with that name.
- *
+ * Otherwise if the target is an existing HTML elementt in the page it will be 
+ * loaded there, otherwise it will open a new window with that name.
  *
  * **********************************************************************/
 

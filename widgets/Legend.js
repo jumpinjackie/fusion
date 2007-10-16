@@ -1,13 +1,19 @@
-/********************************************************************** *
- * @project Fusion
- * @revision $Id$
- * @purpose Legend widget
- * @author pspencer@dmsolutions.ca
- * Copyright (c) 2007 DM Solutions Group Inc.
- *****************************************************************************
- * This code shall not be copied or used without the expressed written consent
- * of DM Solutions Group Inc.
- * 
+/**
+ * Fusion.Widget.Legend
+ *
+ * $Id$
+ *
+ * Copyright (c) 2007, DM Solutions Group Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -15,37 +21,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
+ */
+
+ /***************************************************************************
+ * Class: Fusion.Widget.Legend
  * 
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- ********************************************************************
- *
- * Legend and layer control
- *
- * To put a Legend control in your application, you first need to add a
- * widget to your WebLayout as follows:
- *
- * <Command xsi:type="LegendCommandType">
- *   <Name>MyLegend</Name>
- *   <Label>Legend</Label>
- *   <TargetViewer>All</TargetViewer>
- *   <Action>Legend</Action>
- *   <ShowRootFolder>false</ShowRootFolder>
- *   <LayerThemeIcon>images/tree_map.png</LayerThemeIcon>
- *   <DisabledLayerIcon>images/tree_layer.png</DisabledLayerIcon>
- *   <RootFolderIcon>images/tree_map.png</RootFolderIcon>
- * </Command>
- *
- * The important parts of this Command are:
- *
- * Name (string, mandatory)
- *
- * an element with an id that is the same as this name must be in
- * the application.  For instance:
- *
- * <div id="MyLegend"></div>
- *
- * The legend will appear inside the element you provide.
+ * Displays a legend of all the layers in the map as a collapsable tree.
  *
  * ShowRootFolder (boolean, optional)
  *
@@ -68,7 +49,6 @@
  * The url to an image to use for layers that are out of scale.
  *
  * **********************************************************************/
-//Fusion.require('jx/tree/jxtree.js');
 
 Fusion.Widget.Legend = Class.create();
 Fusion.Widget.Legend.prototype = {
