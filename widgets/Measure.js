@@ -285,14 +285,8 @@ Fusion.Widget.Measure.prototype = {
         var offset = {x:0,y:0};
         var oElement = this.getMap().getDomObj();
         var target = e.target || e.srcElement;
-        if (target.id != 'featureDigitizer') { //'_oEventDiv_'+oElement.id) {
+        if (target.id != 'featureDigitizer') { 
             return;
-            var target = Event.findElement(e, 'div');
-            if (!Element.hasClassName(target, 'divMeasureMarker')) {
-                return;
-            } else {
-                debugger;
-            }
         }
         if (this.delayUpdateTimer) {
             window.clearTimeout(this.delayUpdateTimer);

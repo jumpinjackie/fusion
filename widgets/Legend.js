@@ -105,6 +105,15 @@ Fusion.Widget.Legend.prototype = {
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
+        this.refreshAction = new Jx.Action(this.update.bind(this));
+        this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: 'refresh'});
+        this.expandAction = new Jx.Action(this.expand.bind(this));
+        this.expandItem = new Jx.MenuItem(this.expandAction, {label: 'expand'});
+        this.collapseAllAction = new Jx.Action(this.collapseAll.bind(this));
+        this.collapseAllItem = new Jx.MenuItem(this.expandAction, {label: 'expand'});
+        
+        this.contextMenu = new Jx.ContextMenu();
+        
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
         if (this.showMapFolder) {
             var opt = {};
@@ -119,12 +128,21 @@ Fusion.Widget.Legend.prototype = {
             this.oRoot = this.oTree;
         }
         this.extentsChangedWatcher = this.update.bind(this);
+        
        
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.draw.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, this.mapLoading.bind(this));
        
         //this.getLayers();
+    },
+    
+    expand: function() {
+        debugger;
+    },
+    
+    collapseAll: function() {
+        
     },
    
     mapLoading: function() {
