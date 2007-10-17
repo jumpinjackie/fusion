@@ -609,10 +609,6 @@ Fusion.Maps.MapServer.Layer.prototype = {
         this.visible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
-        //TODO: make this configurable
-        this.themeIcon = 'images/legend-theme.png';
-        this.disabledLayerIcon = 'images/legend-layer.png';
-        
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
         for (var i=0; i<o.scaleRanges.length; i++) {
