@@ -61,6 +61,7 @@ Fusion.Maps.MapServer.prototype = {
         this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
         this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
         this.registerEventID(Fusion.Event.MAP_LOADED);
+        this.registerEventID(Fusion.Event.MAP_LOADING);
 
         this.mapWidget = map;
         this.oSelection = null;
@@ -150,7 +151,11 @@ Fusion.Maps.MapServer.prototype = {
             return;
         }
         
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
+        if (this.bIsMapWidgetLayer) {
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
+        } else {
+            this.triggerEvent(Fusion.Event.MAP_LOADING);
+        }
         this.mapWidget._addWorker();
         
         this._fScale = -1;
