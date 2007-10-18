@@ -414,7 +414,7 @@ Fusion.Widget.Legend.prototype = {
         }
         opt.data = layer;
         opt.contextMenu = opt.contextMenu = this.contextMenu;
-        if (layer.supportsType(4) && !style) {
+        if (layer.supportsType(4) || typeof style != 'object') {
             opt.imgIcon = this.imgLayerRasterIcon;
         } else if (!style) {
             opt.imgIcon = this.imgDisabledLayerIcon;
