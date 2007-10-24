@@ -364,6 +364,32 @@ Fusion.Maps.MapGuide.prototype = {
         this.mapWidget._removeWorker();
     },
     
+    reorderLayers: function(aLayerIndex) {
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/SetLayers.' + sl;
+        
+        var sessionid = this.getSessionID();
+        
+        var params = 'mapname='+this._sMapname+"&session="+sessionid;
+		params += '&layerindex=' + aLayerIndex.join();
+		
+        var options = {onSuccess: this.mapLayersReset.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+    mapLayersReset: function(r,json) {  
+        if (json) {
+            var o;
+            eval('o='+r.responseText);
+			if (o.success) {
+				this.reloadMap();
+			} else {
+				alert("setLayers failure:"+o.layerindex);
+			}
+		}
+	},
+			
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
             var group = new Fusion.Maps.MapGuide.Group(o.groups[i], this);

@@ -1,0 +1,24 @@
+
+.layerMgr ul {
+  font-size: 80%;
+}
+
+.layerMgr li {
+  margin: 0px;
+  padding: 2px;
+}
+
+.layerMgrBlock ul {
+  margin: 0px;
+  background-color: 0x222;
+}
+
+.layerMgrBlock li {
+  margin: 0px;
+  padding: 4px;
+}
+
+.layerMgrBlockHandle {
+  font-size: 14px;
+  font-weight: bold;
+}
