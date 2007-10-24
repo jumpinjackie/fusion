@@ -303,12 +303,39 @@ Fusion.Maps.MapServer.prototype = {
             this.drawMap();
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
         } else {
-            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
+						'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
     },
     
-    parseMapLayersAndGroups: function(o) {
+    reorderLayers: function(aLayerIndex) {
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/SetLayers.' + sl;
+        
+        var sessionid = this.getSessionID();
+        
+        var params = 'mapname='+this._sMapname+"&session="+sessionid;
+		params += '&layerindex=' + aLayerIndex.join();
+		
+        var options = {onSuccess: this.mapLayersReset.bind(this), 
+                                     parameters: params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+    mapLayersReset: function(r,json) {  /* update this with OL code */
+        if (json) {
+            var o;
+            eval('o='+r.responseText);
+			if (o.success) {
+				this.reloadMap();
+			} else {
+				alert("setLayers failure:"+o.layerindex);
+			}
+		}
+	},
+			
+	parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
             var group = new Fusion.Maps.MapServer.Group(o.groups[i], this);
             var parent;
