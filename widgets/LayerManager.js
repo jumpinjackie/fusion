@@ -57,12 +57,16 @@ Fusion.Widget.LayerManager.prototype = {
     initialize : function(widgetTag) {
         //console.log('LayerManager.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-       
+
+        var json = widgetTag.extension;
+        this.delIcon = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
+		
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
         
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.mapLoaded.bind(this));
     },
     
    
@@ -71,43 +75,45 @@ Fusion.Widget.LayerManager.prototype = {
         this.draw();
     },
     
-    /**
-     * the map state has become invalid in some way (layer added, removed,
-     * ect).  For now, we just re-request the map state from the server
-     * which calls draw which recreates the entire legend from scratch
-     *
-     * TODO: more fine grained updating of the legend would be nice
-     */
-    invalidate: function() {
-        this.draw();
-    },
    
+   /**
+     * remove the dom objects representing the legend layers and groups
+     */
+    clear: function(node) {
+        while (node.childNodes.length > 0) {
+	        this.clear(node.childNodes[0]);
+            node.remove(node.childNodes[0]);
+        }
+    },
+	
     /**
-     * Callback for legend XML response. Creates a list of layers and sets up event
-     * handling. Create groups if applicable.
-     * TODO: error handling
+     * Draws the layer manager
      *
      * @param r Object the reponse xhr object
      */
     draw: function(r) {
 		if (this.mapList) {
-			//TODO clear the list?
-		} else {
-			this.mapList = document.createElement('ul');
-			Element.addClassName(this.mapList, 'layerMgr');
-			this.domObj.appendChild(this.mapList);
+			this.mapList.remove();
+//			this.clear(this.mapList);
+			this.mapList = null;
 		}
        
+		//create the master UL element to hold the list of layers
+		this.mapList = document.createElement('ul');
+		Element.addClassName(this.mapList, 'jxLman');
+		this.domObj.appendChild(this.mapList);
+			
 		//this processes the OL layers
 		var map = this.getMap();
 		for (var i=0; i<map.aMaps.length; ++i) {
 			var mapBlock = document.createElement('li');
+			Element.addClassName(this.mapList, 'jxLmanMap');
 			mapBlock.id = 'mapBlock_'+i;
 			
 			//add a handle so the map blocks can be re-arranged
-			var handle = document.createElement('span');
+			var handle = document.createElement('a');
 			handle.innerHTML = map.getMapName();
-			Element.addClassName(handle, 'layerMgrBlockHandle');
+			Element.addClassName(handle, 'jxLmanHandle');
 			mapBlock.appendChild(handle);
 			
 			this.mapList.appendChild(mapBlock);
@@ -117,26 +123,25 @@ Fusion.Widget.LayerManager.prototype = {
 		if (map.aMaps.length >1) {
 			var options = [];
 			options.onUpdate = this.updateMapBlock.bind(this, map);
-			options.handle = 'layerMgrBlockHandle';
+			options.handle = 'jxLmanHandle';
 			Sortable.create(this.mapList.id);
 		}
     },
 
     processMapBlock: function(blockDom, map) {
 		var mapBlockList = document.createElement('ul');
-		Element.addClassName(mapBlockList, 'layerMgrBlock');
+		Element.addClassName(mapBlockList, 'jxLmanSet');
 		mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
 		map.layerPrefix = 'layer_';		//TODO make this unique for each block
 		
 		//this process all layers within an OL layer
 		for (var i=0; i<map.aLayers.length; ++i) {
-			var layer = document.createElement('li');
-			//Element.addClassName(layer, 'layerMgrBlockItem');
-			layer.id = map.layerPrefix+i;
-			var layerDisplay = this.createItemHtml(map.aLayers[i]);
-			layer.appendChild(layerDisplay);
-			//layer.layer = map.aLayers[i];
-			mapBlockList.appendChild(layer);
+			var blockItem = document.createElement('li');
+			Element.addClassName(blockItem, 'jxLmanLayer');
+			blockItem.id = map.layerPrefix+i;
+			this.createItemHtml(blockItem, map.aLayers[i]);
+			blockItem.layer = map.aLayers[i];
+			mapBlockList.appendChild(blockItem);
 		}
 		blockDom.appendChild(mapBlockList);
 		
@@ -145,13 +150,6 @@ Fusion.Widget.LayerManager.prototype = {
 		Sortable.create(mapBlockList.id, options);
     },
    
-    processMapLayer: function(layer, folder) {
-    },
-   
-    layerMoved: function(o) {
-		alert(o);
-    },
-
     updateLayer: function(map, ul) {
 		//reorder the layers in the client as well as the session
 		var aLayerIndex = [];
@@ -175,14 +173,12 @@ Fusion.Widget.LayerManager.prototype = {
 		//reorder the OL layers
 	},
 	
-	createItemHtml: function(layer) {
-		var span = document.createElement('span');
-		
+	createItemHtml: function(parent, layer) {
 		var delIcon = document.createElement('img');
-		delIcon.src = 'images/icons/select-delete.png';
+		delIcon.src = this.delIcon;
 		delIcon.onclick = this.deleteLayer.bind(this, layer);
 		delIcon.style.visibility = 'hidden';
-		span.appendChild(delIcon);
+		parent.appendChild(delIcon);
 		
 		var visSelect = document.createElement('input');
 		visSelect.type = 'checkbox';
@@ -191,17 +187,16 @@ Fusion.Widget.LayerManager.prototype = {
 		} else {
 			visSelect.checked = false;
 		}
-        Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
-		span.appendChild(visSelect);
+		visSelect.onchange = this.visChanged.bind(this, layer);
+		parent.appendChild(visSelect);
 		
-		var label = document.createElement('span');
+		var label = document.createElement('a');
 		label.innerHTML = layer.legendLabel;
-		span.onmouseover = this.setGrabCursor.bind(this, layer, delIcon);
-		span.onmousedown = this.setDragCursor.bind(this, layer, delIcon);
-		span.onmouseout = this.setNormalCursor.bind(this, layer, delIcon);
-		span.appendChild(label);
+		parent.appendChild(label);
 		
-		return span;
+		parent.onmouseover = this.setGrabCursor.bind(this, layer, delIcon);
+		parent.onmousedown = this.setDragCursor.bind(this, layer, delIcon);
+		parent.onmouseout = this.setNormalCursor.bind(this, layer, delIcon);
 	},
 	
 	setGrabCursor: function(layer, delIcon, ev) {
@@ -235,7 +230,7 @@ Fusion.Widget.LayerManager.prototype = {
     },
 	
 	deleteLayer: function(layer, ev) {
-		alert('deleting: '+layer.legendLabel);
+		layer.deleteLayer();
 	},
 	
 	visChanged: function(layer, ev) {

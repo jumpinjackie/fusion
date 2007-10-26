@@ -393,6 +393,18 @@ Fusion.Maps.MapServer.prototype = {
         this.oLayerOL.mergeNewParams(params);
     },
     
+    deleteLayer: function( sLayer ) {
+        for (var i=0; i<this.aLayers.length; i++) {
+            if (this.aLayers[i].layerName == sLayer) {
+                this.aLayers.splice(i,1);
+                this.aVisibleLayers.splice(i,1);
+				//TODO delete on the server too and reload
+                break;
+            }
+        }
+        this.drawMap();
+    },
+
     showLayer: function( sLayer ) {
         this.aVisibleLayers.push(sLayer);
         this.drawMap();
@@ -678,6 +690,10 @@ Fusion.Maps.MapServer.Layer.prototype = {
     hide: function() {
         this.oMap.hideLayer(this.layerName);
         this.set('visible',false);
+    },
+
+    deleteLayer: function() {
+        this.oMap.deleteLayer(this.layerName);
     },
 
     isVisible: function() {
