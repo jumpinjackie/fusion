@@ -1,24 +1,24 @@
 
-.layerMgr ul {
+.jxLman {
   font-size: 80%;
 }
 
-.layerMgr li {
+.jxLmanMap {
   margin: 0px;
   padding: 2px;
 }
 
-.layerMgrBlock ul {
+.jxLmanMapSet {
   margin: 0px;
   background-color: 0x222;
 }
 
-.layerMgrBlock li {
+.jxLmanLayer li {
   margin: 0px;
   padding: 4px;
 }
 
-.layerMgrBlockHandle {
+.jxLmanHandle {
   font-size: 14px;
   font-weight: bold;
 }

@@ -45,13 +45,12 @@ if ($_REQUEST['layerindex'] != '') {
 }
 
 $res = $oMap->setlayersdrawingorder($layers);
-$oMap->save($_SESSION['maps'][$mapName]);
-
-$tmp = $oMap->getlayersdrawingorder();
 
 header('Content-type: text/x-json');
 header('X-JSON: true');
 if ($res) {
+	$oMap->save($_SESSION['maps'][$mapName]);
+	$tmp = $oMap->getlayersdrawingorder();
     echo "{success: true, layerindex: [".implode(",",$tmp)."]}";
 } else {
     echo "{success: false, layerindex: [".$_REQUEST['layerindex']."]}";
