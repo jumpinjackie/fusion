@@ -175,7 +175,7 @@ Fusion.Widget.LayerManager.prototype = {
 	createItemHtml: function(parent, layer) {
 		var delIcon = document.createElement('img');
 		delIcon.src = this.delIconSrc;
-		delIcon.onclick = this.deleteLayer.bind(this, layer);
+        Event.observe(delIcon, 'click', this.deleteLayer.bind(this, layer));
 		delIcon.style.visibility = 'hidden';
 		parent.appendChild(delIcon);
 		
@@ -186,38 +186,38 @@ Fusion.Widget.LayerManager.prototype = {
 		} else {
 			visSelect.checked = false;
 		}
-		visSelect.onchange = this.visChanged.bind(this, layer);
+        Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
 		parent.appendChild(visSelect);
 		
 		var label = document.createElement('a');
 		label.innerHTML = layer.legendLabel;
-		label.onmouseover = this.setGrabCursor.bind(this);
-		label.onmousedown = this.setDragCursor.bind(this);
-		label.onmouseout = this.setNormalCursor.bind(this);
+        Event.observe(label, 'mouseover', this.setGrabCursor.bind(this));
+        Event.observe(label, 'mousedown', this.setDragCursor.bind(this));
+        Event.observe(label, 'mouseout', this.setNormalCursor.bind(this));
 		parent.appendChild(label);
 		
-		parent.onmouseover = this.setHandleVis.bind(this, delIcon);
-		parent.onmouseout = this.setHandleHide.bind(this, delIcon);	
+        Event.observe(parent, 'mouseover', this.setHandleVis.bind(this, delIcon));
+        Event.observe(parent, 'mouseout', this.setHandleHide.bind(this, delIcon));
 	},
 	
-	setHandleVis: function(delIcon, ev) {
+	setHandleVis: function(delIcon) {
 		delIcon.style.visibility = 'visible';
 	},
 	
-	setHandleHide: function(delIcon, ev) {
+	setHandleHide: function(delIcon) {
 		delIcon.style.visibility = 'hidden';
 	},
 	
 	setGrabCursor: function(ev) {
-		this.setCursor(this.cursorNormal, ev.target);
+		this.setCursor(this.cursorNormal, Event.element(ev) );
 	},
 	
 	setDragCursor: function(ev) {
-		this.setCursor(this.cursorDrag, ev.target);
+		this.setCursor(this.cursorDrag, Event.element(ev) );
 	},
 	
 	setNormalCursor: function(ev) {
-		this.setCursor('auto', ev.target);
+		this.setCursor('auto', Event.element(ev) );
 	},
 	
     setCursor : function(cursor, domObj) {
@@ -241,7 +241,8 @@ Fusion.Widget.LayerManager.prototype = {
 	},
 	
 	visChanged: function(layer, ev) {
-		if (ev.target.checked) {
+		var target = Event.element(ev);
+		if (target.checked) {
 			layer.show();
 		} else {
 			layer.hide();
