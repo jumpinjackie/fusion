@@ -131,6 +131,7 @@ Fusion.Widget.LayerManager.prototype = {
 		var mapBlockList = document.createElement('ul');
 		Element.addClassName(mapBlockList, 'jxLmanSet');
 		mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
+		blockDom.appendChild(mapBlockList);
 		map.layerPrefix = 'layer_';		//TODO make this unique for each block
 		
 		//this process all layers within an OL layer
@@ -138,11 +139,10 @@ Fusion.Widget.LayerManager.prototype = {
 			var blockItem = document.createElement('li');
 			Element.addClassName(blockItem, 'jxLmanLayer');
 			blockItem.id = map.layerPrefix+i;
+			mapBlockList.appendChild(blockItem);
 			this.createItemHtml(blockItem, map.aLayers[i]);
 			blockItem.layer = map.aLayers[i];
-			mapBlockList.appendChild(blockItem);
 		}
-		blockDom.appendChild(mapBlockList);
 		
 		var options = [];
 		options.onUpdate = this.updateLayer.bind(this, map);
@@ -181,13 +181,13 @@ Fusion.Widget.LayerManager.prototype = {
 		
 		var visSelect = document.createElement('input');
 		visSelect.type = 'checkbox';
+        Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
+		parent.appendChild(visSelect);
 		if (layer.visible) {
 			visSelect.checked = true;
 		} else {
 			visSelect.checked = false;
 		}
-        Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
-		parent.appendChild(visSelect);
 		
 		var label = document.createElement('a');
 		label.innerHTML = layer.legendLabel;
@@ -240,13 +240,14 @@ Fusion.Widget.LayerManager.prototype = {
 		layer.oMap.deleteLayer();
 	},
 	
-	visChanged: function(layer, ev) {
+	visChanged: function(layer2, ev) {
 		var target = Event.element(ev);
+		var layer = target.parentNode.layer;
 		if (target.checked) {
 			layer.show();
 		} else {
 			layer.hide();
 		}
 	}
-   
+
 };
