@@ -28,6 +28,7 @@
  *
  * Implementation of the map widget for MapServer CGI interface services
 */
+Fusion.Event.MAP_LAYER_ORDER_CHANGED = Fusion.Event.lastEventId++;
 
 Fusion.Maps.MapServer = Class.create();
 Fusion.Maps.MapServer.prototype = {
@@ -62,6 +63,7 @@ Fusion.Maps.MapServer.prototype = {
         this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
         this.registerEventID(Fusion.Event.MAP_LOADED);
         this.registerEventID(Fusion.Event.MAP_LOADING);
+        this.registerEventID(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
 
         this.mapWidget = map;
         this.oSelection = null;
@@ -200,6 +202,8 @@ Fusion.Maps.MapServer.prototype = {
             this.layerRoot.legendLabel = this._sMapname;
             
             this.parseMapLayersAndGroups(o);
+			var maxScale = 0;
+			var minScale = 1.0e10;
             for (var i=0; i<this.aLayers.length; i++) {
                 if (this.aLayers[i].visible) {
                     this.aVisibleLayers.push(this.aLayers[i].layerName);
@@ -213,6 +217,8 @@ Fusion.Maps.MapServer.prototype = {
             var layerOptions = {singleTile: true, ratio: 1.5};
             layerOptions.maxExtent = this._oMaxExtent;
             layerOptions.maxResolution = 'auto';
+			layerOptions.maxScale = 50000000;
+			layerOptions.minScale = 2000000;
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
@@ -318,17 +324,30 @@ Fusion.Maps.MapServer.prototype = {
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
 		params += '&layerindex=' + aLayerIndex.join();
 		
-        var options = {onSuccess: this.mapLayersReset.bind(this), 
+        var options = {onSuccess: this.mapLayersReset.bind(this, aLayerIndex), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapLayersReset: function(r,json) {  /* update this with OL code */
+    mapLayersReset: function(aLayerIndex,r,json) {  
         if (json) {
             var o;
             eval('o='+r.responseText);
 			if (o.success) {
-				this.reloadMap();
+				var layerCopy = this.aLayers.clone();
+				this.aLayers = [];
+				this.aVisibleLayers = [];
+			
+			    for (var i=0; i<aLayerIndex.length; ++i) {
+					this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+	                if (this.aLayers[i].visible) {
+	                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+	                }
+				}
+				this.layerRoot.clear();
+			
+				this.mapWidget.redraw();
+				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
 			} else {
 				alert("setLayers failure:"+o.layerindex);
 			}
@@ -398,7 +417,6 @@ Fusion.Maps.MapServer.prototype = {
             if (this.aLayers[i].layerName == sLayer) {
                 this.aLayers.splice(i,1);
                 this.aVisibleLayers.splice(i,1);
-				//TODO delete on the server too and reload
                 break;
             }
         }
@@ -690,10 +708,6 @@ Fusion.Maps.MapServer.Layer.prototype = {
     hide: function() {
         this.oMap.hideLayer(this.layerName);
         this.set('visible',false);
-    },
-
-    deleteLayer: function() {
-        this.oMap.deleteLayer(this.layerName);
     },
 
     isVisible: function() {

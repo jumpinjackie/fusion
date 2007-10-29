@@ -53,7 +53,7 @@ try {
     $map->Open($resourceService, $mapName);
 	$mapLayers = $map->GetLayers();
 	
-	/*
+	
 	$nIndex = count($layers);
 	$nLayers = $mapLayers->GetCount();
     for ($i=0; $i<$nLayers; $i++) {
@@ -69,15 +69,16 @@ try {
 		}
 		if ($found >= 0) {
 			$layerToMove = $mapLayers->GetItem($i);
-			$layerDef = $layerToMove->GetLayerDefinition();
+			//$layerDef = $layerToMove->GetLayerDefinition();
+			//$mapLayers->Insert($found, new MgLayerBase($layerDef,$resourceService));
 			$mapLayers->RemoveAt($i);
-			$mapLayers->Insert($found, new MgLayerBase($layerDef,$resourceService));
+			$mapLayers->Insert($found, $layerToMove);
 		} else {
 			$mapLayers->RemoveAt($i);
 		}
 		break;
 	}
-	*/
+	/*
 	$nLayers = count($layers);
 	$layerDefs = array();
     for ($i=0; $i<$nLayers; $i++) {
@@ -91,6 +92,7 @@ try {
 		$layer = new MgLayer(new MgResourceIdentifier($layerDefs[$i]), $resourceService);
 		$mapLayers->Add($layer);
 	}
+	*/
 
     $map->Save($resourceService);
     echo "success: true";
