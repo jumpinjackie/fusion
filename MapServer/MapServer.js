@@ -344,7 +344,7 @@ Fusion.Maps.MapServer.prototype = {
 	                    this.aVisibleLayers.push(this.aLayers[i].layerName);
 	                }
 				}
-				this.layerRoot.clear();
+				//this.layerRoot.clear();
 			
 				this.mapWidget.redraw();
 				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
