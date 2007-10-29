@@ -94,7 +94,7 @@ Fusion.Widget.Legend.prototype = {
         
         this.contextMenu = new Jx.ContextMenu();
         this.contextMenu.add(this.refreshItem, this.expandItem, this.collapseAllItem);
-        this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0]) == 'true' ? true : false;
+        this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true : false;
         if (this.showMapFolder) {
             var opt = {};
             opt.label = 'Map';
