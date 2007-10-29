@@ -217,8 +217,8 @@ Fusion.Maps.MapServer.prototype = {
             var layerOptions = {singleTile: true, ratio: 1.5};
             layerOptions.maxExtent = this._oMaxExtent;
             layerOptions.maxResolution = 'auto';
-			layerOptions.maxScale = 50000000;
-			layerOptions.minScale = 2000000;
+			//layerOptions.maxScale = 50000000;
+			//layerOptions.minScale = 2000000;
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
