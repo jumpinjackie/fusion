@@ -59,7 +59,7 @@ Fusion.Widget.LayerManager.prototype = {
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
 
         var json = widgetTag.extension;
-        this.delIcon = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
+        this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
 		
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
@@ -71,7 +71,6 @@ Fusion.Widget.LayerManager.prototype = {
     
    
     mapLoaded: function() {
-        //this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.draw();
     },
     
@@ -175,7 +174,7 @@ Fusion.Widget.LayerManager.prototype = {
 	
 	createItemHtml: function(parent, layer) {
 		var delIcon = document.createElement('img');
-		delIcon.src = this.delIcon;
+		delIcon.src = this.delIconSrc;
 		delIcon.onclick = this.deleteLayer.bind(this, layer);
 		delIcon.style.visibility = 'hidden';
 		parent.appendChild(delIcon);
@@ -192,25 +191,33 @@ Fusion.Widget.LayerManager.prototype = {
 		
 		var label = document.createElement('a');
 		label.innerHTML = layer.legendLabel;
+		label.onmouseover = this.setGrabCursor.bind(this);
+		label.onmousedown = this.setDragCursor.bind(this);
+		label.onmouseout = this.setNormalCursor.bind(this);
 		parent.appendChild(label);
 		
-		parent.onmouseover = this.setGrabCursor.bind(this, layer, delIcon);
-		parent.onmousedown = this.setDragCursor.bind(this, layer, delIcon);
-		parent.onmouseout = this.setNormalCursor.bind(this, layer, delIcon);
+		parent.onmouseover = this.setHandleVis.bind(this, delIcon);
+		parent.onmouseout = this.setHandleHide.bind(this, delIcon);	
 	},
 	
-	setGrabCursor: function(layer, delIcon, ev) {
-		this.setCursor(this.cursorNormal, ev.target);
+	setHandleVis: function(delIcon, ev) {
 		delIcon.style.visibility = 'visible';
 	},
 	
-	setDragCursor: function(layer, delIcon, ev) {
+	setHandleHide: function(delIcon, ev) {
+		delIcon.style.visibility = 'hidden';
+	},
+	
+	setGrabCursor: function(ev) {
+		this.setCursor(this.cursorNormal, ev.target);
+	},
+	
+	setDragCursor: function(ev) {
 		this.setCursor(this.cursorDrag, ev.target);
 	},
 	
-	setNormalCursor: function(layer, delIcon, ev) {
+	setNormalCursor: function(ev) {
 		this.setCursor('auto', ev.target);
-		delIcon.style.visibility = 'hidden';
 	},
 	
     setCursor : function(cursor, domObj) {
@@ -230,7 +237,7 @@ Fusion.Widget.LayerManager.prototype = {
     },
 	
 	deleteLayer: function(layer, ev) {
-		layer.deleteLayer();
+		layer.oMap.deleteLayer();
 	},
 	
 	visChanged: function(layer, ev) {
