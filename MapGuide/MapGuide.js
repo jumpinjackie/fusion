@@ -47,6 +47,7 @@ Fusion.Maps.MapGuide.prototype = {
     bExpandInLegend: true,   //TODO: set this in AppDef?
     bMapLoaded : false,
     bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
+	bLayersReversed: false,     //MGOS returns layers top-most layer first
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -373,17 +374,29 @@ Fusion.Maps.MapGuide.prototype = {
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
 		params += '&layerindex=' + aLayerIndex.join();
 		
-        var options = {onSuccess: this.mapLayersReset.bind(this), 
+        var options = {onSuccess: this.mapLayersReset.bind(this, aLayerIndex), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapLayersReset: function(r,json) {  
+    mapLayersReset: function(aLayerIndex,r,json) {  
         if (json) {
             var o;
             eval('o='+r.responseText);
 			if (o.success) {
-				this.reloadMap();
+				var layerCopy = this.aLayers.clone();
+				this.aLayers = [];
+				this.aVisibleLayers = [];
+			
+			    for (var i=0; i<aLayerIndex.length; ++i) {
+					this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+	                if (this.aLayers[i].visible) {
+	                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+	                }
+				}
+			
+				this.drawMap();
+				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
 			} else {
 				alert("setLayers failure:"+o.layerindex);
 			}
@@ -553,125 +566,6 @@ Fusion.Maps.MapGuide.prototype = {
       params += '&seq=' + Math.random();
       var options = {onSuccess: this.processSelection.bind(this, selText, requery, zoomTo), parameters:params, asynchronous:false};
       Fusion.ajaxRequest(setSelectionScript, options);
-    },
-
-    //TODO: the following method is copied from ajaxmappane.templ and can probably be reworked for fusion
-    processFeatureInfo: function(xmlIn, append, which) {
-      if (which & 1) {
-        var selectionChanged = false;
-        var prevCount = selection.count;
-        if(!append) {
-            selection = new Selection();
-        }
-        try
-        {
-            var layers = xmlIn.getElementsByTagName("Layer");
-            for(var i=0; i < layers.length; i++)
-            {
-                var layerId = layers[i].getAttribute("id");
-
-                var classElt = layers[i].getElementsByTagName("Class")[0];
-                var className = classElt.getAttribute("id");
-
-                var layer = null, newLayer = null;
-                if(append)
-                {
-                    if((layer = selection.layers.getItem(layerId)) == null) {
-                        newLayer = layer = new SelLayer(className);
-                    }
-                }
-                else
-                {
-                    newLayer = layer = new SelLayer(className);
-                    selectionChanged = true;
-                }
-                if(newLayer) {
-                    selection.layers.setItem(layerId, layer);
-                }
-
-                var features = classElt.getElementsByTagName("ID");
-                for(var j=0; j < features.length; j++)
-                {
-                    var id = features[j].childNodes[0].nodeValue;
-                    if(append && newLayer == null)
-                    {
-                        if(layer.featIds.hasItem(id))
-                        {
-                            layer.featIds.removeItem(id);
-                            selection.count --;
-                        }
-                        else
-                        {
-                            layer.featIds.setItem(id, layer);
-                            selection.count ++;
-                        }
-                        selectionChanged = true;
-                    }
-                    else
-                    {
-                        layer.featIds.setItem(id, layer);
-                        selection.count ++;
-                    }
-                }
-            }
-        }
-        catch(e) {}
-
-        if(selectionChanged || prevCount != selection.count)
-        {
-            xmlSelection = null;
-            if(appending)
-            {
-                fi = SetSelection(selectionToXml(), selection.count == 1);
-                if(selection.count == 1)
-                {
-                    ProcessFeatureInfo(fi, false, 2);
-                    which &= ~2;
-                }
-            }
-            parent.OnSelectionChanged();
-            RequestMapImage(++ mapId);
-        }
-      }
-      if(which & 2) {
-        properties = new Array();
-        if(selection.count == 1)
-        {
-            try
-            {
-                var props = xmlIn.getElementsByTagName("Property");
-                if(props != null)
-                {
-                    for(var i=0; i < props.length; i++)
-                    {
-                        var name = props[i].getAttribute("name");
-                        var value = props[i].getAttribute("value");
-                        properties.push(new Property(name, value));
-                    }
-                }
-            }
-            catch(e) {}
-        }
-        properties.sort(CompareProperties);
-        GetPropertyCtrl().SetProperties(selection.count, properties);
-      }
-      if(which & 4) {
-        try {
-            var hlinkElt = xmlIn.getElementsByTagName("Hyperlink")[0];
-            if(hlinkElt != null) {
-                hlData.url = hlinkElt.childNodes[0].nodeValue;
-            }
-        } catch(e) {
-            hlData.url = "";
-        }
-        try {
-            var ttipElt = xmlIn.getElementsByTagName("Tooltip")[0];
-            if(ttipElt != null) {
-                hlData.ttip = ttipElt.childNodes[0].nodeValue;
-            }
-        }
-        catch(e) {}
-      }
     },
 
 
