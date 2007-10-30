@@ -414,11 +414,11 @@ Fusion.Widget.Legend.prototype = {
         }
         opt.data = layer;
         opt.contextMenu = opt.contextMenu = this.contextMenu;
-        if (layer.supportsType(4) && !style.getLegendImageURL) {
-            opt.imgIcon = this.imgLayerRasterIcon;
-        } else if (!style) {
+        if (!style) {
             opt.imgIcon = this.imgDisabledLayerIcon;
             opt.enabled = false;
+        } else if (layer.supportsType(4) && !style.getLegendImageURL) {
+            opt.imgIcon = this.imgLayerRasterIcon;
         } else {
             opt.imgIcon = style.getLegendImageURL(scale, layer);
         }
