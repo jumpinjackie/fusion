@@ -43,15 +43,32 @@ if ($_REQUEST['layerindex'] != '') {
 } else {
 	$layers = array();
 }
+$currentLayers = $oMap->getlayersdrawingorder();
 
-$res = $oMap->setlayersdrawingorder($layers);
+if (count($currentLayers) != count($layers) ) {
+	for ($i=0; $i<count($layers); $i++) {
+		if ($i != $layers[$i]) {
+			$layer = $oMap->getLayer($i);
+			$tmp = $layer->set('status', 'MS_DELETE');
+			if ($tmp >= 0) {
+				$res = true;
+			} else {
+				$res = false;
+			}
+			break;
+		}
+		$res = false;
+	}
+} else {
+	$res = $oMap->setlayersdrawingorder($layers);
+}
 
 header('Content-type: text/x-json');
 header('X-JSON: true');
 if ($res) {
 	$oMap->save($_SESSION['maps'][$mapName]);
-	$tmp = $oMap->getlayersdrawingorder();
-    echo "{success: true, layerindex: [".implode(",",$tmp)."]}";
+	$currentLayers = $oMap->getlayersdrawingorder();
+    echo "{success: true, layerindex: [".implode(",",$currentLayers)."]}";
 } else {
     echo "{success: false, layerindex: [".$_REQUEST['layerindex']."]}";
 }

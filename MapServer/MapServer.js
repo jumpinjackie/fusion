@@ -47,6 +47,7 @@ Fusion.Maps.MapServer.prototype = {
     oSelection: null,
     bMapLoaded : false,
     bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
+	bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
 
     //the map file
     sMapFile: null,
@@ -320,7 +321,6 @@ Fusion.Maps.MapServer.prototype = {
         var loadmapScript = this.arch + '/' + sl  + '/SetLayers.' + sl;
         
         var sessionid = this.getSessionID();
-        
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
 		params += '&layerindex=' + aLayerIndex.join();
 		
@@ -346,7 +346,7 @@ Fusion.Maps.MapServer.prototype = {
 				}
 				//this.layerRoot.clear();
 			
-				this.mapWidget.redraw();
+				this.drawMap();
 				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
 			} else {
 				alert("setLayers failure:"+o.layerindex);
@@ -412,17 +412,6 @@ Fusion.Maps.MapServer.prototype = {
         this.oLayerOL.mergeNewParams(params);
     },
     
-    deleteLayer: function( sLayer ) {
-        for (var i=0; i<this.aLayers.length; i++) {
-            if (this.aLayers[i].layerName == sLayer) {
-                this.aLayers.splice(i,1);
-                this.aVisibleLayers.splice(i,1);
-                break;
-            }
-        }
-        this.drawMap();
-    },
-
     showLayer: function( sLayer ) {
         this.aVisibleLayers.push(sLayer);
         this.drawMap();

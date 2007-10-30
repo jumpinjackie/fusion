@@ -135,13 +135,17 @@ Fusion.Widget.LayerManager.prototype = {
 		map.layerPrefix = 'layer_';		//TODO make this unique for each block
 		
 		//this process all layers within an OL layer
-		for (var i=0; i<map.aLayers.length; ++i) {
+		var processArray = map.aLayers;
+		if (map.bLayersReversed) {
+			processArray.reverse();
+		}
+		for (var i=0; i<processArray.length; ++i) {
 			var blockItem = document.createElement('li');
 			Element.addClassName(blockItem, 'jxLmanLayer');
 			blockItem.id = map.layerPrefix+i;
 			mapBlockList.appendChild(blockItem);
-			this.createItemHtml(blockItem, map.aLayers[i]);
-			blockItem.layer = map.aLayers[i];
+			this.createItemHtml(blockItem, processArray[i]);
+			blockItem.layer = processArray[i];
 		}
 		
 		var options = [];
@@ -149,29 +153,6 @@ Fusion.Widget.LayerManager.prototype = {
 		Sortable.create(mapBlockList.id, options);
     },
    
-    updateLayer: function(map, ul) {
-		//reorder the layers in the client as well as the session
-		var aLayerIndex = [];
-		var aIds = []
-		for (var i=0; i<ul.childNodes.length; ++i) {
-			aIds[i] = ul.childNodes[i].id.split('_');
-			var index = aIds[i].pop();
-			aLayerIndex.push(index);
-			ul.childNodes[i].id = '';
-		}
-		
-		//reset the ID's on the LI elements to be in order
-		for (var i=0; i<ul.childNodes.length; ++i) {
-			aIds[i].push(i);
-			ul.childNodes[i].id = aIds[i].join('_');
-		}
-		map.reorderLayers(aLayerIndex);
-    },
-   
-    updateMapBlock: function(map, ul) {
-		//reorder the OL layers
-	},
-	
 	createItemHtml: function(parent, layer) {
 		var delIcon = document.createElement('img');
 		delIcon.src = this.delIconSrc;
@@ -236,8 +217,43 @@ Fusion.Widget.LayerManager.prototype = {
         }
     },
 	
+    updateLayer: function(map, ul) {
+		//reorder the layers in the client as well as the session
+		var aLayerIndex = [];
+		var aIds = [];
+		var nLayers = ul.childNodes.length;
+		for (var i=0; i<nLayers; ++i) {
+			aIds[i] = ul.childNodes[i].id.split('_');
+			var index = parseInt(aIds[i].pop());
+			if (map.bLayersReversed) {
+				index = nLayers - (index+1);
+			}
+			aLayerIndex.push(index);
+			ul.childNodes[i].id = '';
+		}
+		
+		//reset the ID's on the LI elements to be in order
+		for (var i=0; i<ul.childNodes.length; ++i) {
+			var node = ul.childNodes[i];
+			aIds[i].push(i);
+			node.id = aIds[i].join('_');
+			node.childNodes[1].checked = node.layer.isVisible()
+		}
+		if (map.bLayersReversed) {
+			aLayerIndex.reverse();
+		}
+		map.reorderLayers(aLayerIndex);
+    },
+   
+    updateMapBlock: function(map, ul) {
+		//reorder the OL layers
+	},
+	
 	deleteLayer: function(layer, ev) {
-		layer.oMap.deleteLayer();
+		var targetLI = Event.element(ev).parentNode;
+		var ul = targetLI.parentNode;
+		Element.remove(targetLI.id);
+		this.updateLayer(layer.oMap, ul);
 	},
 	
 	visChanged: function(layer2, ev) {
