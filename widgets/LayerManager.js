@@ -60,7 +60,7 @@ Fusion.Widget.LayerManager.prototype = {
 
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
-		
+    
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
@@ -80,127 +80,127 @@ Fusion.Widget.LayerManager.prototype = {
      */
     clear: function(node) {
         while (node.childNodes.length > 0) {
-	        this.clear(node.childNodes[0]);
+          this.clear(node.childNodes[0]);
             node.remove(node.childNodes[0]);
         }
     },
-	
+  
     /**
      * Draws the layer manager
      *
      * @param r Object the reponse xhr object
      */
     draw: function(r) {
-		if (this.mapList) {
-			this.mapList.remove();
-//			this.clear(this.mapList);
-			this.mapList = null;
-		}
+    if (this.mapList) {
+      this.mapList.remove();
+//      this.clear(this.mapList);
+      this.mapList = null;
+    }
        
-		//create the master UL element to hold the list of layers
-		this.mapList = document.createElement('ul');
-		Element.addClassName(this.mapList, 'jxLman');
-		this.domObj.appendChild(this.mapList);
-			
-		//this processes the OL layers
-		var map = this.getMap();
-		for (var i=0; i<map.aMaps.length; ++i) {
-			var mapBlock = document.createElement('li');
-			Element.addClassName(this.mapList, 'jxLmanMap');
-			mapBlock.id = 'mapBlock_'+i;
-			
-			//add a handle so the map blocks can be re-arranged
-			var handle = document.createElement('a');
-			handle.innerHTML = map.getMapName();
-			Element.addClassName(handle, 'jxLmanHandle');
-			mapBlock.appendChild(handle);
-			
-			this.mapList.appendChild(mapBlock);
-			this.processMapBlock(mapBlock, map.aMaps[i]);
-		}
-		
-		if (map.aMaps.length >1) {
-			var options = [];
-			options.onUpdate = this.updateMapBlock.bind(this, map);
-			options.handle = 'jxLmanHandle';
-			Sortable.create(this.mapList.id);
-		}
+    //create the master UL element to hold the list of layers
+    this.mapList = document.createElement('ul');
+    Element.addClassName(this.mapList, 'jxLman');
+    this.domObj.appendChild(this.mapList);
+      
+    //this processes the OL layers
+    var map = this.getMap();
+    for (var i=0; i<map.aMaps.length; ++i) {
+      var mapBlock = document.createElement('li');
+      Element.addClassName(this.mapBlock, 'jxLmanMap');
+      mapBlock.id = 'mapBlock_'+i;
+      
+      //add a handle so the map blocks can be re-arranged
+      var handle = document.createElement('a');
+      handle.innerHTML = map.getMapName();
+      Element.addClassName(handle, 'jxLmanHandle');
+      mapBlock.appendChild(handle);
+      
+      this.mapList.appendChild(mapBlock);
+      this.processMapBlock(mapBlock, map.aMaps[i]);
+    }
+    
+    if (map.aMaps.length >1) {
+      var options = [];
+      options.onUpdate = this.updateMapBlock.bind(this, map);
+      options.handle = 'jxLmanHandle';
+      Sortable.create(this.mapList.id);
+    }
     },
 
     processMapBlock: function(blockDom, map) {
-		var mapBlockList = document.createElement('ul');
-		Element.addClassName(mapBlockList, 'jxLmanSet');
-		mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
-		blockDom.appendChild(mapBlockList);
-		map.layerPrefix = 'layer_';		//TODO make this unique for each block
-		
-		//this process all layers within an OL layer
-		var processArray = map.aLayers;
-		if (map.bLayersReversed) {
-			processArray.reverse();
-		}
-		for (var i=0; i<processArray.length; ++i) {
-			var blockItem = document.createElement('li');
-			Element.addClassName(blockItem, 'jxLmanLayer');
-			blockItem.id = map.layerPrefix+i;
-			mapBlockList.appendChild(blockItem);
-			this.createItemHtml(blockItem, processArray[i]);
-			blockItem.layer = processArray[i];
-		}
-		
-		var options = [];
-		options.onUpdate = this.updateLayer.bind(this, map);
-		Sortable.create(mapBlockList.id, options);
+    var mapBlockList = document.createElement('ul');
+    Element.addClassName(mapBlockList, 'jxLmanSet');
+    mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
+    blockDom.appendChild(mapBlockList);
+    map.layerPrefix = 'layer_';   //TODO make this unique for each block
+    
+    //this process all layers within an OL layer
+    var processArray = map.aLayers;
+    if (map.bLayersReversed) {
+      processArray.reverse();
+    }
+    for (var i=0; i<processArray.length; ++i) {
+      var blockItem = document.createElement('li');
+      Element.addClassName(blockItem, 'jxLmanLayer');
+      blockItem.id = map.layerPrefix+i;
+      mapBlockList.appendChild(blockItem);
+      this.createItemHtml(blockItem, processArray[i]);
+      blockItem.layer = processArray[i];
+    }
+    
+    var options = [];
+    options.onUpdate = this.updateLayer.bind(this, map);
+    Sortable.create(mapBlockList.id, options);
     },
    
-	createItemHtml: function(parent, layer) {
-		var delIcon = document.createElement('img');
-		delIcon.src = this.delIconSrc;
+  createItemHtml: function(parent, layer) {
+    var delIcon = document.createElement('img');
+    delIcon.src = this.delIconSrc;
         Event.observe(delIcon, 'click', this.deleteLayer.bind(this, layer));
-		delIcon.style.visibility = 'hidden';
-		parent.appendChild(delIcon);
-		
-		var visSelect = document.createElement('input');
-		visSelect.type = 'checkbox';
+    delIcon.style.visibility = 'hidden';
+    parent.appendChild(delIcon);
+    
+    var visSelect = document.createElement('input');
+    visSelect.type = 'checkbox';
         Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
-		parent.appendChild(visSelect);
-		if (layer.visible) {
-			visSelect.checked = true;
-		} else {
-			visSelect.checked = false;
-		}
-		
-		var label = document.createElement('a');
-		label.innerHTML = layer.legendLabel;
+    parent.appendChild(visSelect);
+    if (layer.visible) {
+      visSelect.checked = true;
+    } else {
+      visSelect.checked = false;
+    }
+    
+    var label = document.createElement('a');
+    label.innerHTML = layer.legendLabel;
         Event.observe(label, 'mouseover', this.setGrabCursor.bind(this));
         Event.observe(label, 'mousedown', this.setDragCursor.bind(this));
         Event.observe(label, 'mouseout', this.setNormalCursor.bind(this));
-		parent.appendChild(label);
-		
+    parent.appendChild(label);
+    
         Event.observe(parent, 'mouseover', this.setHandleVis.bind(this, delIcon));
         Event.observe(parent, 'mouseout', this.setHandleHide.bind(this, delIcon));
-	},
-	
-	setHandleVis: function(delIcon) {
-		delIcon.style.visibility = 'visible';
-	},
-	
-	setHandleHide: function(delIcon) {
-		delIcon.style.visibility = 'hidden';
-	},
-	
-	setGrabCursor: function(ev) {
-		this.setCursor(this.cursorNormal, Event.element(ev) );
-	},
-	
-	setDragCursor: function(ev) {
-		this.setCursor(this.cursorDrag, Event.element(ev) );
-	},
-	
-	setNormalCursor: function(ev) {
-		this.setCursor('auto', Event.element(ev) );
-	},
-	
+  },
+  
+  setHandleVis: function(delIcon) {
+    delIcon.style.visibility = 'visible';
+  },
+  
+  setHandleHide: function(delIcon) {
+    delIcon.style.visibility = 'hidden';
+  },
+  
+  setGrabCursor: function(ev) {
+    this.setCursor(this.cursorNormal, Event.element(ev) );
+  },
+  
+  setDragCursor: function(ev) {
+    this.setCursor(this.cursorDrag, Event.element(ev) );
+  },
+  
+  setNormalCursor: function(ev) {
+    this.setCursor('auto', Event.element(ev) );
+  },
+  
     setCursor : function(cursor, domObj) {
         this.cursor = cursor;
         if (cursor && cursor.length && typeof cursor == 'object') {
@@ -216,54 +216,54 @@ Fusion.Widget.LayerManager.prototype = {
             domObj.style.cursor = 'auto';  
         }
     },
-	
+  
     updateLayer: function(map, ul) {
-		//reorder the layers in the client as well as the session
-		var aLayerIndex = [];
-		var aIds = [];
-		var nLayers = ul.childNodes.length;
-		for (var i=0; i<nLayers; ++i) {
-			aIds[i] = ul.childNodes[i].id.split('_');
-			var index = parseInt(aIds[i].pop());
-			if (map.bLayersReversed) {
-				index = nLayers - (index+1);
-			}
-			aLayerIndex.push(index);
-			ul.childNodes[i].id = '';
-		}
-		
-		//reset the ID's on the LI elements to be in order
-		for (var i=0; i<ul.childNodes.length; ++i) {
-			var node = ul.childNodes[i];
-			aIds[i].push(i);
-			node.id = aIds[i].join('_');
-			node.childNodes[1].checked = node.layer.isVisible()
-		}
-		if (map.bLayersReversed) {
-			aLayerIndex.reverse();
-		}
-		map.reorderLayers(aLayerIndex);
+    //reorder the layers in the client as well as the session
+    var aLayerIndex = [];
+    var aIds = [];
+    var nLayers = ul.childNodes.length;
+    for (var i=0; i<nLayers; ++i) {
+      aIds[i] = ul.childNodes[i].id.split('_');
+      var index = parseInt(aIds[i].pop());
+      if (map.bLayersReversed) {
+        index = nLayers - (index+1);
+      }
+      aLayerIndex.push(index);
+      ul.childNodes[i].id = '';
+    }
+    
+    //reset the ID's on the LI elements to be in order
+    for (var i=0; i<ul.childNodes.length; ++i) {
+      var node = ul.childNodes[i];
+      aIds[i].push(i);
+      node.id = aIds[i].join('_');
+      node.childNodes[1].checked = node.layer.isVisible()
+    }
+    if (map.bLayersReversed) {
+      aLayerIndex.reverse();
+    }
+    map.reorderLayers(aLayerIndex);
     },
    
     updateMapBlock: function(map, ul) {
-		//reorder the OL layers
-	},
-	
-	deleteLayer: function(layer, ev) {
-		var targetLI = Event.element(ev).parentNode;
-		var ul = targetLI.parentNode;
-		Element.remove(targetLI.id);
-		this.updateLayer(layer.oMap, ul);
-	},
-	
-	visChanged: function(layer2, ev) {
-		var target = Event.element(ev);
-		var layer = target.parentNode.layer;
-		if (target.checked) {
-			layer.show();
-		} else {
-			layer.hide();
-		}
-	}
+    //reorder the OL layers
+  },
+  
+  deleteLayer: function(layer, ev) {
+    var targetLI = Event.element(ev).parentNode;
+    var ul = targetLI.parentNode;
+    Element.remove(targetLI.id);
+    this.updateLayer(layer.oMap, ul);
+  },
+  
+  visChanged: function(layer2, ev) {
+    var target = Event.element(ev);
+    var layer = target.parentNode.layer;
+    if (target.checked) {
+      layer.show();
+    } else {
+      layer.hide();
+    }
+  }
 
 };
