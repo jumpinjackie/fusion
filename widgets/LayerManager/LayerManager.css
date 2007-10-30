@@ -1,24 +1,52 @@
+/* ================ */
+/* LAYER MAN STYLES */
+/* ================ */
 
-.jxLman {
-  font-size: 80%;
-}
+/* The layer manager is built out of nested ULs
+   For this to work visually, the margins and padding need 
+   to be flattened out, and the list marker needs to be hidden.
+   This method is borrowed from JX.Tree
+*/
 
-.jxLmanMap {
+ul.jxLman,
+ul.jxLmanSet {
   margin: 0px;
-  padding: 2px;
+  padding: 0px;
+  background-color: transparent;
 }
 
-.jxLmanMapSet {
+li.jxLmanMap,
+li.jxLmanLayer {
   margin: 0px;
-  background-color: 0x222;
+  padding: 0px;
+  white-space: nowrap;
 }
 
-.jxLmanLayer li {
+ul.jxLman a, 
+ul.jxLman img, 
+ul.jxLman input {
+  vertical-align: middle;
+}
+
+ul.jxLman a {
   margin: 0px;
-  padding: 4px;
+  padding: 0px;
+  padding-left: 2px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  color: #000;
+  text-decoration: none;
+  line-height: 20px;
 }
 
-.jxLmanHandle {
+ul.jxLman img {
+  border: 0px;
+  width: 16px;
+  height: 16px;
+}
+
+a.jxLmanHandle {
   font-size: 14px;
   font-weight: bold;
 }
+
