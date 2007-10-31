@@ -81,7 +81,7 @@ Fusion.Maps.MapGuide.prototype = {
         };
         this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
         
-        this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class ? (mapTag.singleTile[0] == 'false' ? false : true) : true;
+        this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class
 
         this.keepAliveInterval = parseInt(extension.KeepAliveInterval ? extension.KeepAliveInterval[0] : 300);
         
@@ -202,6 +202,12 @@ Fusion.Maps.MapGuide.prototype = {
             this.layerRoot.legendLabel = this._sMapname;
             
             this.parseMapLayersAndGroups(o);
+            var minScale = 1.0e10;
+            var maxScale = 0;
+            for (var i=0; i<this.aLayers.length; i++) {
+              minScale = Math.min(minScale, this.aLayers[i].minScale);
+              maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
+            }
             
             for (var i=0; i<this.aShowLayers.length; i++) {
                 var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]);
@@ -241,9 +247,10 @@ Fusion.Maps.MapGuide.prototype = {
             //TODO: get this from the layerTag.extension
             //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
-            var layerOptions = {};
-            layerOptions.maxExtent = this._oMaxExtent;
-            layerOptions.maxResolution = 'auto';
+            var layerOptions = {
+              maxExtent : this._oMaxExtent,
+              maxResolution : 'auto'
+            };
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
@@ -257,9 +264,9 @@ Fusion.Maps.MapGuide.prototype = {
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
               layerOptions.scales = o.FiniteDisplayScales;
             } else {
-              //layerOptions.maxScale = 1;     //TODO: Get these values form the Map info
+              layerOptions.minScale = maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+              layerOptions.maxScale = minScale
             }
-            //this.mapWidget.setMapOptions(layerOptions);  //TODO: only do this for BaseLayers?
 
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
@@ -316,9 +323,8 @@ Fusion.Maps.MapGuide.prototype = {
 
             this.bMapLoaded = true;
         } else {
-            //TBD: something funky going on with Fusion.Error object
-            //Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
-            alert( 'Failed to load requested map:\n'+r.responseText );
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
+						'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
     },
@@ -843,9 +849,13 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
+        this.minScale = 1.0e10;
+        this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
             var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
+            this.minScale = Math.min(this.minScale, scaleRange.minScale);
+            this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
         }
     },
     
