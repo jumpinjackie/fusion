@@ -47,7 +47,7 @@ Fusion.Maps.MapServer.prototype = {
     oSelection: null,
     bMapLoaded : false,
     bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
-	bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
+    bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
 
     //the map file
     sMapFile: null,
@@ -193,6 +193,7 @@ Fusion.Maps.MapServer.prototype = {
             eval('o='+r.responseText); 
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName; 
+            this.sTitle = o.title; 
             this._fMetersperunit = o.metersPerUnit; 
             this.mapWidget._fMetersperunit = this._fMetersperunit;
             this._sImageType = o.imagetype; 
@@ -200,7 +201,7 @@ Fusion.Maps.MapServer.prototype = {
             this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
             
             this.layerRoot.clear();
-            this.layerRoot.legendLabel = this._sMapname;
+            this.layerRoot.legendLabel = this.sTitle;
             
             this.parseMapLayersAndGroups(o);
       			var minScale = 1.0e10;

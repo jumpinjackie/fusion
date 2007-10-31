@@ -111,7 +111,7 @@ Fusion.Widget.LayerManager.prototype = {
       
       //add a handle so the map blocks can be re-arranged
       var handle = document.createElement('a');
-      handle.innerHTML = map.getMapName();
+      handle.innerHTML = map.aMaps[i].sTitle;
       Element.addClassName(handle, 'jxLmanHandle');
       mapBlock.appendChild(handle);
       
@@ -156,13 +156,13 @@ Fusion.Widget.LayerManager.prototype = {
   createItemHtml: function(parent, layer) {
     var delIcon = document.createElement('img');
     delIcon.src = this.delIconSrc;
-        Event.observe(delIcon, 'click', this.deleteLayer.bind(this, layer));
+    Event.observe(delIcon, 'click', this.deleteLayer.bind(this, layer));
     delIcon.style.visibility = 'hidden';
     parent.appendChild(delIcon);
     
     var visSelect = document.createElement('input');
     visSelect.type = 'checkbox';
-        Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
+    Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
     parent.appendChild(visSelect);
     if (layer.visible) {
       visSelect.checked = true;
@@ -172,13 +172,13 @@ Fusion.Widget.LayerManager.prototype = {
     
     var label = document.createElement('a');
     label.innerHTML = layer.legendLabel;
-        Event.observe(label, 'mouseover', this.setGrabCursor.bind(this));
-        Event.observe(label, 'mousedown', this.setDragCursor.bind(this));
-        Event.observe(label, 'mouseout', this.setNormalCursor.bind(this));
+    Event.observe(label, 'mouseover', this.setGrabCursor.bind(this));
+    Event.observe(label, 'mousedown', this.setDragCursor.bind(this));
+    Event.observe(label, 'mouseout', this.setNormalCursor.bind(this));
     parent.appendChild(label);
     
-        Event.observe(parent, 'mouseover', this.setHandleVis.bind(this, delIcon));
-        Event.observe(parent, 'mouseout', this.setHandleHide.bind(this, delIcon));
+    Event.observe(parent, 'mouseover', this.setHandleVis.bind(this, delIcon));
+    Event.observe(parent, 'mouseout', this.setHandleHide.bind(this, delIcon));
   },
   
   setHandleVis: function(delIcon) {
