@@ -203,23 +203,28 @@ Fusion.Maps.MapServer.prototype = {
             this.layerRoot.legendLabel = this._sMapname;
             
             this.parseMapLayersAndGroups(o);
-			var maxScale = 0;
-			var minScale = 1.0e10;
+      			var minScale = 1.0e10;
+      			var maxScale = 0;
             for (var i=0; i<this.aLayers.length; i++) {
-                if (this.aLayers[i].visible) {
-                    this.aVisibleLayers.push(this.aLayers[i].layerName);
-                }
+              if (this.aLayers[i].visible) {
+                  this.aVisibleLayers.push(this.aLayers[i].layerName);
+              }
+      				minScale = Math.min(minScale, this.aLayers[i].minScale);
+      				maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
             }
             
             if (o.dpi) {
                 OpenLayers.DOTS_PER_INCH = o.dpi;
             }
 
-            var layerOptions = {singleTile: true, ratio: 1.5};
-            layerOptions.maxExtent = this._oMaxExtent;
-            layerOptions.maxResolution = 'auto';
-			//layerOptions.maxScale = 50000000;
-			//layerOptions.minScale = 2000000;
+            var layerOptions = {
+      				singleTile: true, 
+      				ratio: 1.5,
+      				maxExtent : this._oMaxExtent,
+              maxResolution : 'auto',
+      				minScale : maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+      				maxScale : minScale
+      			};
 
             //set projection units and code if supplied
             if (o.metersPerUnit == 1) {
@@ -228,10 +233,6 @@ Fusion.Maps.MapServer.prototype = {
             } else {
               //TBD need to do anything here? OL defaults to degrees
             }
-
-            //add in scales array if supplied
-            //oMapOptions.maxScale = 1;     //TBD Do a better job of seetting scale ranges, 
-                                          //perhaps from layer scale ranges min and max
 
             //this.mapWidget.setMapOptions(oMapOptions);
 
@@ -270,7 +271,8 @@ Fusion.Maps.MapServer.prototype = {
         }  
         else 
         {
-            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
+					'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
     },
@@ -322,39 +324,39 @@ Fusion.Maps.MapServer.prototype = {
         
         var sessionid = this.getSessionID();
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
-		params += '&layerindex=' + aLayerIndex.join();
+        params += '&layerindex=' + aLayerIndex.join();
 		
         var options = {onSuccess: this.mapLayersReset.bind(this, aLayerIndex), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    mapLayersReset: function(aLayerIndex,r,json) {  
-        if (json) {
-            var o;
-            eval('o='+r.responseText);
-			if (o.success) {
-				var layerCopy = this.aLayers.clone();
-				this.aLayers = [];
-				this.aVisibleLayers = [];
+    mapLayersReset: function(aLayerIndex,r,json) {
+      if (json) {
+        var o;
+        eval('o='+r.responseText);
+  			if (o.success) {
+  				var layerCopy = this.aLayers.clone();
+  				this.aLayers = [];
+  				this.aVisibleLayers = [];
+  			
+          for (var i=0; i<aLayerIndex.length; ++i) {
+            this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+            if (this.aLayers[i].visible) {
+                this.aVisibleLayers.push(this.aLayers[i].layerName);
+            }
+  				}
+  				//this.layerRoot.clear();
+  			
+  				this.drawMap();
+  				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+  			} else {
+  				alert("setLayers failure:"+o.layerindex);
+  			}
+      }
+    },
 			
-			    for (var i=0; i<aLayerIndex.length; ++i) {
-					this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
-	                if (this.aLayers[i].visible) {
-	                    this.aVisibleLayers.push(this.aLayers[i].layerName);
-	                }
-				}
-				//this.layerRoot.clear();
-			
-				this.drawMap();
-				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-			} else {
-				alert("setLayers failure:"+o.layerindex);
-			}
-		}
-	},
-			
-	parseMapLayersAndGroups: function(o) {
+    parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
             var group = new Fusion.Maps.MapServer.Group(o.groups[i], this);
             var parent;
@@ -659,9 +661,13 @@ Fusion.Maps.MapServer.Layer.prototype = {
         this.editable = o.editable;
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
+    		this.minScale = 1.0e10;
+    		this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
             var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i]);
             this.scaleRanges.push(scaleRange);
+      			this.minScale = Math.min(this.minScale, scaleRange.minScale);
+      			this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
         }
     },
     
