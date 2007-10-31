@@ -242,7 +242,6 @@ Fusion.Maps.MapServer.prototype = {
               layers: this.aVisibleLayers.join(' '),
               session : this.getSessionID(),
               map : this._sMapFile,
-              seq : Math.random(),
               map_imagetype : this._sImageType
             };
 
