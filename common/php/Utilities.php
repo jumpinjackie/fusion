@@ -44,7 +44,9 @@ function var2json($var) {
         }
         $result .= "]";
     } else if (is_string($var)) {
-        $result = "'".str_replace("\n", '\n', $var)."'";
+        $tmpStr = str_replace("'", "\'", $var);
+        $tmpStr = str_replace('"', '\"', $tmpStr);
+        $result = "'".str_replace("\n", '\n', $tmpStr)."'";
     } else if (is_bool($var)) {
         $result = $var ? 'true' : 'false';
     } else if (is_null($var)) {
