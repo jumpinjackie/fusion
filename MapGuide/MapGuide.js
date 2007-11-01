@@ -47,7 +47,7 @@ Fusion.Maps.MapGuide.prototype = {
     bExpandInLegend: true,   //TODO: set this in AppDef?
     bMapLoaded : false,
     bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
-	bLayersReversed: false,     //MGOS returns layers top-most layer first
+    bLayersReversed: false,     //MGOS returns layers top-most layer first
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -366,7 +366,8 @@ Fusion.Maps.MapGuide.prototype = {
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
             this.drawMap();
         } else {
-            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 'Failed to load requested map:\n'+r.responseText));
+            Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
+                            'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
     },
@@ -378,7 +379,7 @@ Fusion.Maps.MapGuide.prototype = {
         var sessionid = this.getSessionID();
         
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
-		params += '&layerindex=' + aLayerIndex.join();
+        params += '&layerindex=' + aLayerIndex.join();
 		
         var options = {onSuccess: this.mapLayersReset.bind(this, aLayerIndex), 
                                      parameters: params};
@@ -418,7 +419,7 @@ Fusion.Maps.MapGuide.prototype = {
             } else {
                 parent = this.layerRoot;
             }
-            parent.addGroup(group);
+            parent.addGroup(group, this.bLayersReversed);
         }
 
         for (var i=0; i<o.layers.length; i++) {
@@ -429,7 +430,7 @@ Fusion.Maps.MapGuide.prototype = {
             } else {
                 parent = this.layerRoot;
             }
-            parent.addLayer(layer);
+            parent.addLayer(layer, this.bLayersReversed);
             this.aLayers.push(layer);
         }
     },
