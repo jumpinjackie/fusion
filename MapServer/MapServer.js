@@ -365,7 +365,7 @@ Fusion.Maps.MapServer.prototype = {
             } else {
                 parent = this.layerRoot;
             }
-            parent.addGroup(group);
+            parent.addGroup(group, this.bLayersReversed);
         }
 
         for (var i=0; i<o.layers.length; i++) {
@@ -376,7 +376,7 @@ Fusion.Maps.MapServer.prototype = {
             } else {
                 parent = this.layerRoot;
             }
-            parent.addLayer(layer);
+            parent.addLayer(layer, this.bLayersReversed);
             this.aLayers.push(layer);
         }
     },
