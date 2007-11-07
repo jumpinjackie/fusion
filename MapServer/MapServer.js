@@ -73,6 +73,7 @@ Fusion.Maps.MapServer.prototype = {
         }
 
         var extension = mapTag.extension;
+        this.ratio = extension.MapRatio ? extension.MapRatio[0] : '1.0';
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         
         rootOpts = {
@@ -222,7 +223,7 @@ Fusion.Maps.MapServer.prototype = {
 
             var layerOptions = {
       				singleTile: true, 
-      				ratio: 1.5,
+      				ratio: this.ratio,
       				maxExtent : this._oMaxExtent,
               maxResolution : 'auto',
       				minScale : maxScale,	//OL interpretation of min/max scale is reversed from Fusion
@@ -251,6 +252,7 @@ Fusion.Maps.MapServer.prototype = {
             if (this.oLayerOL) {
                 this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
                 this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
+                this.oLayerOL.events.unregister("loadcancel", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
 
@@ -258,6 +260,7 @@ Fusion.Maps.MapServer.prototype = {
             this.oLayerOL = new OpenLayers.Layer.MapServer( o.mapName, url, params, layerOptions);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
+            this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
 
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
@@ -567,11 +570,11 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     loadStart: function() {
-        this.mapWidget._addWorker();
+      this.mapWidget._addWorker();
     },
     
     loadEnd: function() {
-        this.mapWidget._removeWorker();
+      this.mapWidget._removeWorker();
     },
     
     pingServer: function() {
