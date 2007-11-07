@@ -141,7 +141,9 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     loadMap: function(mapfile, options) {
-        
+        while (this.mapWidget.isBusy()) {
+	        this.mapWidget._removeWorker(); 
+		}
         this.bMapLoaded = false;
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
