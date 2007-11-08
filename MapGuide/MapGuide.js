@@ -70,6 +70,7 @@ Fusion.Maps.MapGuide.prototype = {
         
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
+        this.ratio = extension.MapRatio ? extension.MapRatio[0] : '1.0';
         
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         
@@ -202,11 +203,11 @@ Fusion.Maps.MapGuide.prototype = {
             this.layerRoot.legendLabel = this._sMapname;
             
             this.parseMapLayersAndGroups(o);
-            var minScale = 1.0e10;
-            var maxScale = 0;
+            this.minScale = 1.0e10;
+            this.maxScale = 0;
             for (var i=0; i<this.aLayers.length; i++) {
-              minScale = Math.min(minScale, this.aLayers[i].minScale);
-              maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
+              this.minScale = Math.min(this.minScale, this.aLayers[i].minScale);
+              this.maxScale = Math.max(this.maxScale, this.aLayers[i].maxScale);
             }
             
             for (var i=0; i<this.aShowLayers.length; i++) {
@@ -244,72 +245,45 @@ Fusion.Maps.MapGuide.prototype = {
                 }
             }
             
-            //TODO: get this from the layerTag.extension
-            //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
-
-            var layerOptions = {
-              maxExtent : this._oMaxExtent,
-              maxResolution : 'auto'
-            };
-
-            //set projection units and code if supplied
-            if (o.metersPerUnit == 1) {
-              layerOptions.units = 'm';
-              //layerOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
-            } else {
-              //TBD need to do anything here? OL defaults to degrees
-            }
-
-            //add in scales array if supplied
-            if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
-              layerOptions.scales = o.FiniteDisplayScales;
-            } else {
-              layerOptions.minScale = maxScale,	//OL interpretation of min/max scale is reversed from Fusion
-              layerOptions.maxScale = minScale
-            }
-
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
                 this.bSingleTile = false;
+                this.groupName = o.groups[0].groupName  //assumes only one group for now
               } else {
                 this.bSingleTile = true;
               }
             }
 
-            //create the OL layer for this Map layer
-            var params = {};
-            if ( this.bSingleTile ) {
-              params = {        //single tile params
-                session : this.getSessionID(),
-                mapname : this._sMapname
-              };
-              layerOptions.singleTile = true;   
-              layerOptions.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
-              layerOptions.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
-              layerOptions.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
-              layerOptions.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
-              layerOptions.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
+            //TODO: get this from the layerTag.extension
+            //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
+            //set projection units and code if supplied
+            if (o.metersPerUnit == 1) {
+              this.units = 'm';
+              //layerOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
             } else {
-              params = {      //tiled version
-                mapdefinition: this._sResourceId,
-                basemaplayergroupname: o.groups[0].groupName  //assumes only one group for now
-              };
-              layerOptions.singleTile = false;
+              this.units = 'degrees';
+              //TBD need to do anything here? OL defaults to degrees
             }
-
+            
+            //add in scales array if supplied
+            if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
+              this.scales = o.FiniteDisplayScales;
+            }
+            
             //remove this layer if it was already created
             if (this.oLayerOL) {
                 this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
                 this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
+                this.oLayerOL.events.unregister("loadcancel", this, this.loadEnd);
                 this.oLayerOL.destroy();
             }
 
-            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-            this.oLayerOL = new OpenLayers.Layer.MapGuide( "MapGuide OS layer", url, params, layerOptions );
+            this.oLayerOL = this.createOLLayer(this._sMapname, true, this.bSingleTile);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
-
+            this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
+            
             //this is to distinguish between a regular map and an overview map
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
@@ -387,28 +361,27 @@ Fusion.Maps.MapGuide.prototype = {
     },
     
     mapLayersReset: function(aLayerIndex,r,json) {  
-        if (json) {
-            var o;
-            eval('o='+r.responseText);
-			if (o.success) {
-				var layerCopy = this.aLayers.clone();
-				this.aLayers = [];
-				this.aVisibleLayers = [];
-			
-			    for (var i=0; i<aLayerIndex.length; ++i) {
-					this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
-	                if (this.aLayers[i].visible) {
-	                    this.aVisibleLayers.push(this.aLayers[i].layerName);
-	                }
-				}
-			
-				this.drawMap();
-				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-			} else {
-				alert("setLayers failure:"+o.layerindex);
-			}
-		}
-	},
+      if (json) {
+        var o;
+        eval('o='+r.responseText);
+  			if (o.success) {
+  				var layerCopy = this.aLayers.clone();
+  				this.aLayers = [];
+  				this.aVisibleLayers = [];
+          for (var i=0; i<aLayerIndex.length; ++i) {
+            this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+            if (this.aLayers[i].visible) {
+                this.aVisibleLayers.push(this.aLayers[i].layerName);
+            }
+          } 
+  			
+  				this.drawMap();
+  				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+  			} else {
+  				alert("setLayers failure:"+o.layerindex);
+  			}
+  		}
+  	},
 			
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
@@ -456,8 +429,56 @@ Fusion.Maps.MapGuide.prototype = {
         this.oLayerOL.addOptions(options);
         this.oLayerOL.mergeNewParams({ts : (new Date()).getTime()});
         this.oLayerOL.redraw();
+        if (this.queryLayer) this.queryLayer.redraw();
     },
 
+    /**
+     * Function: createOLLayer
+     * 
+     * Returns an OpenLayers MapGuide layer object
+     */
+    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile) {
+      var layerOptions = {
+        units : this.units,
+        isBaseLayer : bIsBaseLayer,
+        maxExtent : this._oMaxExtent,
+        maxResolution : 'auto',
+        ratio : this.ratio
+      };
+
+      //add in scales array if supplied
+      if (this.scales && this.scales.length>0) {
+        layerOptions.scales = this.scales;
+      }
+      layerOptions.minScale = this.maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+      layerOptions.maxScale = this.minScale
+
+      layerOptions.singleTile = bSingleTile;   
+      
+      var params = {};
+      if ( bSingleTile ) {
+        params = {        //single tile params
+          session : this.getSessionID(),
+          mapname : this._sMapname
+        };
+        layerOptions.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
+        layerOptions.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
+        layerOptions.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
+        layerOptions.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
+        layerOptions.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
+
+      } else {
+        params = {      //tiled version
+          mapdefinition: this._sResourceId,
+          basemaplayergroupname: this.groupName  //assumes only one group for now
+        };
+      }
+
+      var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+      var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
+      return oLayerOL;
+    },
+            
     /**
      * Function: isMapLoaded
      * 
@@ -625,6 +646,9 @@ Fusion.Maps.MapGuide.prototype = {
         }
 
         this.bSelectionOn = true;
+        if (this.queryLayer) {
+          this.queryLayer.setVisibility(false);
+        }
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
         this.drawMap();
         this.oSelection = null;
@@ -639,6 +663,16 @@ Fusion.Maps.MapGuide.prototype = {
         Fusion.ajaxRequest(s, params);
     },
 
+    /**
+       removes the queryLayer from the map
+    */
+    removeQueryLayer : function() {
+      if (this.queryLayer) {
+        this.queryLayer.destroy();
+        this.queryLayer = null;
+      }
+    },
+
 
     /**
        Call back function when slect functions are called (eg queryRect)
@@ -650,6 +684,15 @@ Fusion.Maps.MapGuide.prototype = {
             eval('oNode='+r.responseText);
             
             if (oNode.hasSelection) {
+              if (!this.bSingleTile) {
+                if (!this.queryLayer) {
+                  this.queryLayer = this.createOLLayer("query layer", false, true);
+                  this.mapWidget.oMapOL.addLayer(this.queryLayer);
+                  this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING, this.removeQueryLayer.bind(this));
+                } else {
+                  this.queryLayer.setVisibility(true);
+                }
+              }
 
               // set the feature count on each layer making up this map
               for (var i=0; i<oNode.layers.length; ++i) {
@@ -697,6 +740,7 @@ Fusion.Maps.MapGuide.prototype = {
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
+    
     showLayer: function( layer ) {
         if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
             var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
@@ -714,6 +758,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.aShowLayers.push(layer.uniqueId);
         this.drawMap();
     },
+    
     hideLayer: function( layer ) {
         if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
             var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
