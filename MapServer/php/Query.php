@@ -99,6 +99,11 @@ for ($i=0; $i<$nLayers; $i++) {
         $oLayer = $oMap->GetLayer($i);
     }
     $oLayer->set('tolerance', 0);
+    if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
+        $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART)
+      continue;
+
+    
     if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
         $result->hasSelection = true;
         $layerName = $oLayer->name;
@@ -131,6 +136,7 @@ if ($result->hasSelection)
     $totalmaxy = 0;
     
     $bFirstElement = 1;
+    $nLayers = $oMap->numlayers;
     for ($i=0; $i<$nLayers; $i++)
     {
         $oLayer = $oMap->GetLayer($i);
