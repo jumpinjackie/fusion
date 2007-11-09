@@ -556,6 +556,10 @@ Fusion.Maps.MapServer.prototype = {
         var selectionType = options.selectionType || this.selectionType;
         var filter = options.filter ? '&filter='+options.filter : '';
         var layers = options.layers || '';
+        /* if no layes are given, query only visible layers. This is ususally the most common case*/
+        if (layers == '') {
+          layers = this.aVisibleLayers.join(',');
+        }
         var extend = options.extendSelection ? '&extendselection=true' : '';
 
         var sl = Fusion.getScriptLanguage();
