@@ -495,6 +495,43 @@ Fusion.Maps.MapServer.prototype = {
     },
 
     /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectedFeatureCount : function() {
+      var total = 0;
+      for (var j=0; j<this.aLayers.length; ++j) {
+        total += this.aLayers[j].selectedFeatureCount;
+      }
+      return total;
+    },
+
+    /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectedLayers : function() {
+      var layers = [];
+      for (var j=0; j<this.aLayers.length; ++j) {
+        if (this.aLayers[j].selectedFeatureCount>0) {
+          layers.push(this.aLayers[j]);
+        }
+      }
+      return layers;
+    },
+
+    /**
+     * Returns the number of features selected for this map layer
+     */
+    getSelectableLayers : function() {
+      var layers = [];
+      for (var j=0; j<this.aLayers.length; ++j) {
+        if (this.aLayers[j].selectable) {
+          layers.push(this.aLayers[j]);
+        }
+      }
+      return layers;
+    },
+
+    /**
      * asynchronously load the current selection.  When the current
      * selection changes, the selection is not loaded because it
      * could be a lengthy process.  The user-supplied function will
@@ -529,6 +566,13 @@ Fusion.Maps.MapServer.prototype = {
        Utility function to clear current selection
     */
     clearSelection : function() {
+      if (!this.aLayers) return;
+      
+        //clear the selection count for the layers
+        for (var j=0; j<this.aLayers.length; ++j) {
+          this.aLayers[j].selectedFeatureCount = 0;
+        }
+
         this.bSelectionOn = false;
         this._sQueryfile = "";
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
@@ -568,6 +612,11 @@ Fusion.Maps.MapServer.prototype = {
     query : function(options) {
         this.mapWidget._addWorker();
         
+        //clear the selection count for the layers
+        for (var j=0; j<this.aLayers.length; ++j) {
+          this.aLayers[j].selectedFeatureCount = 0;
+        }
+
         var geometry = options.geometry || '';
         var maxFeatures = options.maxFeatures || -1;
         var bPersistant = options.persistent || true;
@@ -680,6 +729,7 @@ Fusion.Maps.MapServer.Layer.prototype = {
         this.resourceId = o.resourceId;
         this.legendLabel = o.legendLabel;
         this.selectable = o.selectable;
+        this.selectedFeatureCount = 0;
         this.layerTypes = [].concat(o.layerTypes);
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
