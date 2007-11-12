@@ -77,7 +77,8 @@ Fusion.Maps.MapGuide.prototype = {
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
           expandInLegend: this.bExpandInLegend,
-          legendLabel: this._sMapname
+          legendLabel: this._sMapname,
+          groupName: 'layerRoot'
           //TODO: set other opts for group initialization as required
         };
         this.layerRoot = new Fusion.Maps.MapGuide.Group(rootOpts,this);
@@ -208,6 +209,10 @@ Fusion.Maps.MapGuide.prototype = {
             for (var i=0; i<this.aLayers.length; i++) {
               this.minScale = Math.min(this.minScale, this.aLayers[i].minScale);
               this.maxScale = Math.max(this.maxScale, this.aLayers[i].maxScale);
+            }
+            //a scale value of 0 is undefined
+            if (this.minScale <= 0) {
+              this.minScale = 1.0;
             }
             
             for (var i=0; i<this.aShowLayers.length; i++) {
@@ -705,7 +710,7 @@ Fusion.Maps.MapGuide.prototype = {
               }
               this.newSelection();
             } else {
-              this.drawMap();
+              //this.drawMap();
               return;
             }
         }
@@ -777,12 +782,20 @@ Fusion.Maps.MapGuide.prototype = {
         this.drawMap();
     },
     showGroup: function( group ) {
+      if (group.groupName == 'layerRoot') {
+        this.oLayerOL.setVisibility(true);
+      } else {
         this.aShowGroups.push(group.uniqueId);
         this.drawMap();
+      }
     },
     hideGroup: function( group ) {
+      if (group.groupName == 'layerRoot') {
+        this.oLayerOL.setVisibility(false);
+      } else {
         this.aHideGroups.push(group.uniqueId);
         this.drawMap();
+      }
     },
     refreshLayer: function( layer ) {
         this.aRefreshLayers.push(layer.uniqueId);        
@@ -898,7 +911,7 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         this.minScale = 1.0e10;
         this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i]);
+            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], false);
             this.scaleRanges.push(scaleRange);
             this.minScale = Math.min(this.minScale, scaleRange.minScale);
             this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
@@ -959,15 +972,16 @@ Fusion.Maps.MapGuide.Layer.prototype = {
 Fusion.Maps.MapGuide.ScaleRange = Class.create();
 Fusion.Maps.MapGuide.ScaleRange.prototype = {
     styles: null,
-    initialize: function(o) {
+    initialize: function(o, bRaster) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         this.styles = [];
         if (!o.styles) {
             return;
         }
+        var staticIcon = o.styles.length>1 ? false : bRaster;
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new Fusion.Maps.MapGuide.StyleItem(o.styles[i]);
+            var styleItem = new Fusion.Maps.MapGuide.StyleItem(o.styles[i], staticIcon);
             this.styles.push(styleItem);
         }
     },
@@ -984,7 +998,7 @@ Fusion.Maps.MapGuide.ScaleRange.prototype = {
 
 Fusion.Maps.MapGuide.StyleItem = Class.create();
 Fusion.Maps.MapGuide.StyleItem.prototype = {
-    initialize: function(o) {
+    initialize: function(o, staticIcon) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
         this.geometryType = o.geometryType;
@@ -995,6 +1009,7 @@ Fusion.Maps.MapGuide.StyleItem.prototype = {
         if (this.categoryindex == '') {
             this.categoryindex = -1;
         }
+        this.staticIcon = false;
     },
     getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
