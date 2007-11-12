@@ -79,7 +79,11 @@ Fusion.Maps.MapServer.prototype = {
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
           expandInLegend: this.bExpandInLegend,
-          legendLabel: this._sMapname
+          legendLabel: this._sMapname,
+          uniqueId: 'layerRoot',
+          groupName: 'layerRoot',
+          visible: true,
+          actuallyVisible: true
           //TODO: set other opts for group initialization as required
         };
         this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
@@ -215,6 +219,10 @@ Fusion.Maps.MapServer.prototype = {
               }
       				minScale = Math.min(minScale, this.aLayers[i].minScale);
       				maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
+            }
+            //a scale value of 0 is undefined
+            if (minScale <= 0) {
+              minScale = 1.0;
             }
             
             if (o.dpi) {
@@ -435,18 +443,28 @@ Fusion.Maps.MapServer.prototype = {
     },
 
     showGroup: function( sGroup ) {
+      if (sGroup == 'layerRoot') {
+        this.oLayerOL.setVisibility(true);
+      } else {
         this.aVisibleGroups.push(sGroup);
+        //TODO: manipulate aVisibleLayers based on layers in the group
         this.drawMap();
+      }
     },
 
     hideGroup: function( sGroup ) {
+      if (sGroup == 'layerRoot') {
+        this.oLayerOL.setVisibility(false);
+      } else {
         for (var i=0; i<this.aVisibleGroups.length; i++) {
             if (this.aVisibleGroups[i] == sGroup) {
                 this.aVisibleGroups.splice(i,1);
                 break;
             }
-        }        
+        }
+        //TODO: manipulate aVisibleLayers based on layers in the group
         this.drawMap();
+      }
     },
 
     refreshLayer: function( sLayer ) {
@@ -528,7 +546,7 @@ Fusion.Maps.MapServer.prototype = {
             var o;
             eval("o="+r.responseText);
             if (!o.hasSelection) { 
-                this.drawMap();
+                //this.drawMap();
                 return;
             } else {
                 this._sQueryfile = o.queryFile;
@@ -615,7 +633,7 @@ Fusion.Maps.MapServer.Group.prototype = {
     
     clear: function() {
         Fusion.Widget.Map.Group.prototype.clear.apply(this, []);
-        this.oMap = null;
+        //this.oMap = null;
     },
      
     show: function() {
@@ -673,7 +691,7 @@ Fusion.Maps.MapServer.Layer.prototype = {
     		this.minScale = 1.0e10;
     		this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i]);
+            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i], this.supportsType(4));
             this.scaleRanges.push(scaleRange);
       			this.minScale = Math.min(this.minScale, scaleRange.minScale);
       			this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
@@ -728,15 +746,16 @@ Fusion.Maps.MapServer.Layer.prototype = {
 Fusion.Maps.MapServer.ScaleRange = Class.create();
 Fusion.Maps.MapServer.ScaleRange.prototype = {
     styles: null,
-    initialize: function(o) {
+    initialize: function(o, bRaster) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         this.styles = [];
         if (!o.styles) {
             return;
         }
+        var staticIcon = o.styles.length>1 ? false : bRaster;
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new Fusion.Maps.MapServer.StyleItem(o.styles[i]);
+            var styleItem = new Fusion.Maps.MapServer.StyleItem(o.styles[i], staticIcon);
             this.styles.push(styleItem);
         }
     },
@@ -753,10 +772,11 @@ Fusion.Maps.MapServer.ScaleRange.prototype = {
 
 Fusion.Maps.MapServer.StyleItem = Class.create();
 Fusion.Maps.MapServer.StyleItem.prototype = {
-    initialize: function(o) {
+    initialize: function(o, staticIcon) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
         this.index = o.index;
+        this.staticIcon = staticIcon;
     },
     getLegendImageURL: function(fScale, layer) {
         var sl = Fusion.getScriptLanguage();

@@ -61,6 +61,7 @@ Fusion.Widget.Legend.prototype = {
         this.defRootFolderIcon = 'images/icons/legend-map.png';
         this.defLayerInfoIcon = 'images/icons/tree_layer_info.png';
         this.defGroupInfoIcon = 'images/icons/tree_group_info.png';
+        this.bIncludeVisToggle = true;
        
         //console.log('Legend.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
@@ -291,7 +292,6 @@ Fusion.Widget.Legend.prototype = {
         }   
     },
     updateLayer: function(layer, fScale) {
-        //var bFirstDisplay = false;  //removed for bug#5170
         if (!layer.displayInLegend) {
             return;
         }
@@ -306,7 +306,6 @@ Fusion.Widget.Legend.prototype = {
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
                 if (!layer.legend.treeItem) {
-                    //bFirstDisplay = true;
                     layer.legend.treeItem = this.createFolderItem(layer);
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
@@ -326,35 +325,15 @@ Fusion.Widget.Legend.prototype = {
             } else {
                
                 //tree item is really a tree item
-                if (!layer.legend.treeItem) {
-                    //bFirstDisplay = true;
-                    var style;
-                    if (layer.supportsType(4)) {
-                        style = true;
-                    } else {
-                        style = range.styles[0];
-                    }
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
-                } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
-                    this.clearTreeItem(layer);
-                    var style;
-                    if (layer.supportsType(4)) {
-                        style = true;
-                    } else {
-                        style = range.styles[0];
-                    }
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else {
-                    if (range.styles.length > 0) {
-                        Jx.addToImgQueue({
-                            domElement:layer.legend.treeItem.domObj.childNodes[2], 
-                            src: range.styles[0].getLegendImageURL(fScale, layer, this.getMap())
-                        });
-                    }
-                    Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
+                if (layer.legend.treeItem) {
+                  this.clearTreeItem(layer);
                 }
+                
+                //bFirstDisplay = true;
+                var style = range.styles[0];
+                layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
+                layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
+                //Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
             }
            
         } else {
@@ -366,7 +345,7 @@ Fusion.Widget.Legend.prototype = {
             } else {
                 layer.legend.checkBox.disabled = true;
                 this.clearTreeItem(layer);
-                var newTreeItem = this.createTreeItem(layer, null, null, true);
+                var newTreeItem = this.createTreeItem(layer, null, null, this.bIncludeVisToggle);
                 if (layer.legend.treeItem) {
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
                     layer.legend.treeItem.finalize();
@@ -417,10 +396,12 @@ Fusion.Widget.Legend.prototype = {
         if (!style) {
             opt.imgIcon = this.imgDisabledLayerIcon;
             opt.enabled = false;
-        } else if (layer.supportsType(4) && !style.getLegendImageURL) {
-            opt.imgIcon = this.imgLayerRasterIcon;
         } else {
+          if (style.staticIcon) {
+            opt.imgIcon = this.imgLayerRasterIcon;
+          } else {
             opt.imgIcon = style.getLegendImageURL(scale, layer);
+          }
         }
        
         var item = new Jx.TreeItem(opt);
