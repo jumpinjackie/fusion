@@ -663,9 +663,11 @@ Fusion.Maps.MapGuide.prototype = {
        Utility function to clear current selection
     */
     clearSelection : function() {
+      if (this.hasSelection()) {
         var s = this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
         var params = {parameters:'session='+this.getSessionID()+'&mapname='+ this._sMapname, onComplete: this.selectionCleared.bind(this)};
         Fusion.ajaxRequest(s, params);
+      }
     },
 
     /**
