@@ -99,7 +99,16 @@ Fusion.Widget.SelectionPanel.prototype = {
         var nLayers = this.oSelection.getNumLayers();
         for (var i=0; i<nLayers; i++) {
             var layerObj = this.oSelection.getLayer(i);
-            var opt = new Option(layerObj.getName(), i);
+            //find the legend label from the Map layer objects
+            var mapLayers = this.getMap().aMaps[0].aLayers; //TODO: allow multiple maps
+            var labelName = layerObj.getName();
+            for (var j=0; j<mapLayers.length; ++j) {
+              if (mapLayers[j].layerName == labelName) {
+                labelName = mapLayers[j].legendLabel;
+                break;
+              }
+            }
+            var opt = new Option(labelName, i);
             this.layerList.options[i] = opt;
         }
         this.layerList.selectedIndex = 0;
