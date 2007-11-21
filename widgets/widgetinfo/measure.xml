@@ -135,4 +135,16 @@
     <DefaultValue>15</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
+  <Parameter>
+      <Name>Target</Name>
+      <Label>Target</Label>
+      <Type>target</Type>
+      <Description>If this is a TaskPane widget, this widget will set a URL
+      in the TaskPane to gather user input, otherwise it looks for an HTML
+      element with this name, otherwise it will open a popup window to gather 
+      user input.
+      </Description>
+      <IsMandatory>true</IsMandatory>
+      <DefaultValue>TaskPane</DefaultValue>
+  </Parameter>
 </WidgetInfo>
