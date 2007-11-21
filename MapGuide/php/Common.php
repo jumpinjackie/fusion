@@ -31,15 +31,14 @@
 
 /* 
  * If MapGuide Web Server Extensions are not installed in the default
- * location, you must edit these values to reflect the actual installation
- * path.  You do not need to modify any other values to configure Fusion.
+ * location, you may need to edit these values to reflect the actual 
+ * installation path.  You do not need to modify any other values in 
+ * this file to configure Fusion.
  */
  
-//$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
-//$defaultInstallDir = "C:/Program Files/Autodesk/MapGuideEnterprise2008/";
-$defaultInstallDir = "../../../../../";
+$defaultInstallDir = dirname(__FILE__)."/../../../../../";
 $defaultExtensionDir = realpath($defaultInstallDir . "WebServerExtensions/www/");
-//echo realpath($defaultExtensionDir);
+
 /**
  * Developer's notes:
  *
@@ -56,15 +55,12 @@ $defaultExtensionDir = realpath($defaultInstallDir . "WebServerExtensions/www/")
  */
 
 //widgets outside Fusion can set the $extensionDir before including Common.php
-
+//TODO: I don't think this is necessary anymore (PS)
 if (!isset($extensionDir)){
     $installDir = $defaultInstallDir;
     $extensionDir = $defaultExtensionDir;
 }
 
-$viewDir = $extensionDir."/mapviewerphp/";
-
-//include $viewDir . "common.php";
 include dirname(__FILE__)."/Constants.php";
 // Initialize
 
