@@ -263,13 +263,9 @@ Fusion.Maps.MapGuide.prototype = {
             //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
             //set projection units and code if supplied
-            if (o.metersPerUnit == 1) {
-              this.units = 'm';
-              //layerOptions.projection = 'EPSG:42304';  //TBD not necessary, but can this be supplied by LoadMap?
-            } else {
-              this.units = 'degrees';
-              //TBD need to do anything here? OL defaults to degrees
-            }
+            //TODO: consider passing the metersPerUnit value into the framework
+            //to allow for scaling that doesn't match any of the pre-canned units
+            this.units = this.getClosestUnits(o.metersPerUnit);
             
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
@@ -303,9 +299,25 @@ Fusion.Maps.MapGuide.prototype = {
             this.bMapLoaded = true;
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
-						'Failed to load requested map:\n'+r.responseText));
+                        'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
+    },
+    
+    getClosestUnits: function(metrsPerUnit) {
+        
+        var units = "degrees";
+        var minDiff = 100000000;
+        for (var key in OpenLayers.INCHES_PER_UNIT)        
+        {
+            var newDiff = Math.abs((metrsPerUnit * 39.3701) - OpenLayers.INCHES_PER_UNIT[key]);
+            if(newDiff < minDiff)
+            {
+                minDiff = newDiff;
+                units = key;
+            }
+        }
+        return units;
     },
 
 //TBD: this function not yet converted for OL    
@@ -359,7 +371,7 @@ Fusion.Maps.MapGuide.prototype = {
         
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
         params += '&layerindex=' + aLayerIndex.join();
-		
+        
         var options = {onSuccess: this.mapLayersReset.bind(this, aLayerIndex), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
@@ -369,25 +381,25 @@ Fusion.Maps.MapGuide.prototype = {
       if (json) {
         var o;
         eval('o='+r.responseText);
-  			if (o.success) {
-  				var layerCopy = this.aLayers.clone();
-  				this.aLayers = [];
-  				this.aVisibleLayers = [];
+            if (o.success) {
+                var layerCopy = this.aLayers.clone();
+                this.aLayers = [];
+                this.aVisibleLayers = [];
           for (var i=0; i<aLayerIndex.length; ++i) {
             this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
             if (this.aLayers[i].visible) {
                 this.aVisibleLayers.push(this.aLayers[i].layerName);
             }
           } 
-  			
-  				this.drawMap();
-  				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-  			} else {
-  				alert("setLayers failure:"+o.layerindex);
-  			}
-  		}
-  	},
-			
+            
+                this.drawMap();
+                this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+            } else {
+                alert("setLayers failure:"+o.layerindex);
+            }
+        }
+    },
+            
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
             var group = new Fusion.Maps.MapGuide.Group(o.groups[i], this);
@@ -455,7 +467,7 @@ Fusion.Maps.MapGuide.prototype = {
       if (this.scales && this.scales.length>0) {
         layerOptions.scales = this.scales;
       }
-      layerOptions.minScale = this.maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+      layerOptions.minScale = this.maxScale,    //OL interpretation of min/max scale is reversed from Fusion
       layerOptions.maxScale = this.minScale
 
       layerOptions.singleTile = bSingleTile;   
