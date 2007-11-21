@@ -559,6 +559,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                 $dimension = $geom->GetDimension();
                             
                 if ($geom->GetDimension() > 0) {
+                    $srsXform = null;
                     if ($bNeedsTransform) {
                         $srsTarget = $srsFactory->Create(getUtmWkt($centroid->GetX(),
                                                                    $centroid->GetY()));
