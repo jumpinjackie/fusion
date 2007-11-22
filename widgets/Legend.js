@@ -103,7 +103,7 @@ Fusion.Widget.Legend.prototype = {
             opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
             opt.isOpen = true;
-            opt.contextMenu = opt.contextMenu = this.contextMenu;
+            opt.contextMenu = this.contextMenu;
             this.oRoot = new Jx.TreeFolder(opt);
             this.oTree.append(this.oRoot);
         } else {
@@ -195,7 +195,7 @@ Fusion.Widget.Legend.prototype = {
             var opt = {};
             opt.label = group.legendLabel;
             opt.data = group;
-            opt.contextMenu = opt.contextMenu = this.contextMenu;
+            opt.contextMenu = this.contextMenu;
             opt.isOpen = group.expandInLegend;
             group.legend.treeItem = new Jx.TreeFolder(opt);
             folder.append(group.legend.treeItem);
@@ -324,16 +324,25 @@ Fusion.Widget.Legend.prototype = {
                 }
             } else {
                
-                //tree item is really a tree item
-                if (layer.legend.treeItem) {
-                  this.clearTreeItem(layer);
-                }
-                
-                //bFirstDisplay = true;
                 var style = range.styles[0];
-                layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
-                layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
-                //Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
+                if (!layer.legend.treeItem) {
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
+                } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
+                    this.clearTreeItem(layer);
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
+                } else {
+                    if (range.styles.length > 0) {
+                        Jx.addToImgQueue({
+                            domElement:layer.legend.treeItem.domObj.childNodes[2], 
+                            src: range.styles[0].getLegendImageURL(fScale, layer, this.getMap())
+                        });
+                        Element.removeClassName(layer.legend.treeItem.domObj, 'jxDisabled');
+                    } else {
+                        Element.addClassName(layer.legend.treeItem.domObj, 'jxDisabled');
+                    }
+                }               
             }
            
         } else {
@@ -344,7 +353,7 @@ Fusion.Widget.Legend.prototype = {
                 }
             } else {
                 layer.legend.checkBox.disabled = true;
-                this.clearTreeItem(layer);
+                //this.clearTreeItem(layer);
                 var newTreeItem = this.createTreeItem(layer, null, null, this.bIncludeVisToggle);
                 if (layer.legend.treeItem) {
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
@@ -355,16 +364,15 @@ Fusion.Widget.Legend.prototype = {
                 layer.legend.treeItem = newTreeItem;
             }
         }
-        //if (bFirstDisplay) {
-            layer.legend.checkBox.checked = layer.visible?true:false;
-        //}
+        layer.legend.checkBox.checked = layer.visible?true:false;
     },
+    
     createFolderItem: function(layer) {
         var opt = {};
         opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
         opt.data = layer;
         opt.isOpen = layer.expandInLegend;
-        opt.contextMenu = opt.contextMenu = this.contextMenu;
+        opt.contextMenu = this.contextMenu;
         opt.imgTreeFolderOpen = layer.themeIcon;
         opt.imgTreeFolder = layer.themeIcon;
         var folder = new Jx.TreeFolder(opt);
@@ -392,7 +400,7 @@ Fusion.Widget.Legend.prototype = {
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
         }
         opt.data = layer;
-        opt.contextMenu = opt.contextMenu = this.contextMenu;
+        opt.contextMenu = this.contextMenu;
         if (!style) {
             opt.imgIcon = this.imgDisabledLayerIcon;
             opt.enabled = false;
