@@ -33,8 +33,8 @@
 Fusion.Widget.OverviewMap = Class.create();
 Fusion.Widget.OverviewMap.prototype = {
     oSize: null,
-    nMinRatio : 32,
-    nMaxRatio : 128,
+    nMinRatio : 4,
+    nMaxRatio : 32,
   
     initialize : function(widgetTag) {
         //console.log('OverviewMap.initialize');
@@ -44,6 +44,10 @@ Fusion.Widget.OverviewMap.prototype = {
 
         if (json.MapId) {
           this.sMapGroupId = json.MapId;
+          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroupId);
+          var mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
+          this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
+          this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.keymapLoaded.bind(this));
         }
         if (json.MinRatio) {
             this.nMinRatio = json.MinRatio[0];
@@ -63,7 +67,7 @@ Fusion.Widget.OverviewMap.prototype = {
                   this.domObj.resize = this.sizeChanged.bind(this);
               }
         }
-
+        
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapWidgetLoaded.bind(this));
@@ -71,12 +75,10 @@ Fusion.Widget.OverviewMap.prototype = {
     
     mapWidgetLoaded: function() 
     {
-        if (this.sMapGroupId) {
-          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroupId);
-          var mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
-          this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
-          this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.keymapLoaded.bind(this));
-	} else {
+        var mapWidget = this.getMap();
+        if (this.sMapGroupId && (mapWidget.projection == this.mapObject.projection) ) {
+          this.loadOverview([this.mapObject.oLayerOL]);
+        } else {
           //just use the base map layer
           var extent = this.oMap._oCurrentExtents;
           this.loadOverview([this.getMap().oMapOL.baseLayer.clone()]);
@@ -86,13 +88,20 @@ Fusion.Widget.OverviewMap.prototype = {
     keymapLoaded: function() 
     {
         this.mapObject.oLayerOL.isBaseLayer = true;  
-        this.loadOverview([this.mapObject.oLayerOL]);
     },
 
     loadOverview: function(aLayers) 
     {
-        aLayers[0].ratio = 1.0;
+        var OLMap = this.getMap().oMapOL;
+        if (this.control) {
+          this.control.destroy();
+        }
+        
+        if (aLayers[0].singleTile) {
+          this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
+        }
 
+        aLayers[0].ratio = 1.0;
         var mapOpts = {
           div: this.domObj,
           size: this.oSize,
@@ -103,7 +112,7 @@ Fusion.Widget.OverviewMap.prototype = {
         };
 
         this.control = new OpenLayers.Control.OverviewMap(mapOpts);
-        this.getMap().oMapOL.addControl(this.control);
+        OLMap.addControl(this.control);
         //console.log('OverviewMap mapLoaded');
     },
     
