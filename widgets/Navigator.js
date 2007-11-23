@@ -46,7 +46,7 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan East';
         a.title = 'Pan East';
         a.coords = '27,176, 27,177, 40,190, 44,182, 44,159';
-        a.onclick = this.pan.bind(this, this.panAmount/100, 0);
+        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, this.panAmount/100, 0) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -54,7 +54,8 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan West';
         a.title = 'Pan West';
         a.coords = '24,177, 24,176, 7,159, 7,182, 11,190';
-        a.onclick = this.pan.bind(this, -this.panAmount/100, 0);
+        //a.onclick = this.pan.bindAsEventListener(this, -this.panAmount/100, 0);
+        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, -this.panAmount/100, 0) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -62,7 +63,7 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan South';
         a.title = 'Pan South';
         a.coords = '25,178, 12,191, 21,197, 30,197, 39,191, 26,178';
-        a.onclick = this.pan.bind(this, 0, -this.panAmount/100);
+        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, 0, -this.panAmount/100) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -70,7 +71,7 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Pan North';
         a.title = 'Pan North';
         a.coords = '26,175, 43,158, 8,158, 25,175';
-        a.onclick = this.pan.bind(this, 0, this.panAmount/100);
+        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, 0, this.panAmount/100) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -79,6 +80,7 @@ Fusion.Widget.Navigator.prototype = {
         a.title = 'Zoom Out';
         a.coords = '25,142,8';
         a.onclick = this.zoom.bind(this, 1/this.zoomFactor);
+        Event.observe(a, 'mouseup', this.zoom.bindAsEventListener(this, 1/this.zoomFactor) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -86,7 +88,7 @@ Fusion.Widget.Navigator.prototype = {
         a.alt = 'Zoom In';
         a.title = 'Zoom In';
         a.coords = '25,34,8';
-        a.onclick = this.zoom.bind(this, this.zoomFactor);
+        Event.observe(a, 'mouseup', this.zoom.bindAsEventListener(this, this.zoomFactor) );
         m.appendChild(a);
 
         this.domObj.appendChild(m);
@@ -145,17 +147,17 @@ Fusion.Widget.Navigator.prototype = {
 
         var checkPosition = this.checkPosition.bind(this);
 
-    if (this.domObj.currentStyle) {
-      if (this.domObj.currentStyle.left == 'auto' && this.domObj.currentStyle.right != 'auto') {
-        var pDim = Element.getDimensions(this.domObj.parentNode);
-        var nRight = parseInt(this.domObj.currentStyle.right);
-        if (isNaN(nRight)) {
-            nRight = 0;
+        if (this.domObj.currentStyle) {
+          if (this.domObj.currentStyle.left == 'auto' && this.domObj.currentStyle.right != 'auto') {
+            var pDim = Element.getDimensions(this.domObj.parentNode);
+            var nRight = parseInt(this.domObj.currentStyle.right);
+            if (isNaN(nRight)) {
+                nRight = 0;
+            }
+            var navDim = Element.getDimensions(this.domObj);
+            this.domObj.style.left = (pDim.width - nRight - navDim.width) + 'px';
+          }
         }
-        var navDim = Element.getDimensions(this.domObj);
-        this.domObj.style.left = (pDim.width - nRight - navDim.width) + 'px';
-      }
-    }
         //set up the navigator as draggable
         new Draggable(this.domObj, {handle: handleDiv, starteffect: false, endeffect: false});
         //this observer pins the navigator to the top right after a drag so
@@ -173,7 +175,7 @@ Fusion.Widget.Navigator.prototype = {
         options.axis = 'vertical';
         options.range = $R(1, 91);
         options.sliderValue = 91;
-        options.onChange = this.scaleChanged.bind(this);
+        options.onChange = this.scaleChanged.bindAsEventListener(this);
         this.slider = new Control.Slider(sliderHandle,sliderDiv, options);
         this.slider.setDisabled();
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.updateSlider.bind(this));
@@ -181,7 +183,11 @@ Fusion.Widget.Navigator.prototype = {
         this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
     },
 
-    scaleChanged: function(value) {
+    scaleChanged: function(e, value) {
+        var map = this.getMap();
+        if (map.oActiveWidget) {
+          map.deactivateWidget(map.oActiveWidget);
+        }
         if (!this.bInternalChange) {
             var map = this.getMap();
             var center = map.getCurrentCenter();
@@ -193,15 +199,17 @@ Fusion.Widget.Navigator.prototype = {
                                                center.x + w_deg / 2,
                                                center.y + h_deg / 2));
         }
+        Event.stop(e);
+        return false;
     },
 
     checkPosition: function() {
         var nav = this.domObj;
         var pDim = Element.getDimensions(nav.parentNode);
         var nLeft, nTop;
-    nLeft = parseInt(nav.style.left);
-    nTop = parseInt(nav.style.top);
-    if (nLeft + nav.width > pDim.width) {
+        nLeft = parseInt(nav.style.left);
+        nTop = parseInt(nav.style.top);
+        if (nLeft + nav.width > pDim.width) {
             nLeft = pDim.width - nav.width;
             nav.style.left = nLeft + 'px';
         }
@@ -246,20 +254,30 @@ Fusion.Widget.Navigator.prototype = {
         this.bInternalChange = false;
     },
 
-    pan: function(x,y) {
+    pan: function(e,x,y) {
         //console.log('pan by : ' + x + ', ' + y);
         var map = this.getMap();
+        if (map.oActiveWidget) {
+          map.deactivateWidget(map.oActiveWidget);
+        }
         var center = map.getCurrentCenter();
         var res = map.oMapOL.getResolution();
         var size = map.oMapOL.getSize();
         map.zoom(center.x + (x * size.w * res), center.y + (y * size.h * res), 1);
+        Event.stop(e);
+        return false;
     },
 
-    zoom: function(factor) {
+    zoom: function(e, factor) {
         //console.log('zoom by factor: ' + factor);
         var map = this.getMap();
+        if (map.oActiveWidget) {
+          map.deactivateWidget(map.oActiveWidget);
+        }
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);
+        Event.stop(e);
+        return false;
     },
     
     busyChanged: function() {
