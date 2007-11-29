@@ -80,6 +80,11 @@ if (isset($_REQUEST['mapfile'])) {
             for ($j=0; $j<$oLayer->numclasses; $j++)
             {
                 $oClass = $oLayer->GetClass($j);
+                /* if keyimage is defined, change the path*/
+                if ($oClass->keyimage && strlen($oClass->keyimage) > 0)
+                {
+                     $oClass->set("keyimage", realpath($oClass->keyimage));
+                }
                 for ($k=0; $k<$oClass->numstyles; $k++)
                 {
                     $oStyle = $oClass->getStyle($k);
