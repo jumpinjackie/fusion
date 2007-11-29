@@ -803,10 +803,26 @@ Fusion.Maps.MapServer.ScaleRange.prototype = {
         if (!o.styles) {
             return;
         }
-        var staticIcon = o.styles.length>1 ? false : bRaster;
-        for (var i=0; i<o.styles.length; i++) {
+        
+        /*special case : if there are no classes and it is a raster layer
+          we set it to use the default static raster icon*/
+        if (o.styles.length == 0 && bRaster)
+        {
+          var tmpsyle = [];
+          tmpsyle.legendLabel = "raster";
+          tmpsyle.filter = "";
+          tmpsyle.index = 0;
+          tmpsyle.staticIcon = true;
+          var styleItem = new Fusion.Maps.MapServer.StyleItem(tmpsyle, tmpsyle.staticIcon);
+          this.styles.push(tmpsyle);
+        }    
+        else
+        {
+          var staticIcon = o.styles.length>=1 ? false : bRaster;
+          for (var i=0; i<o.styles.length; i++) {
             var styleItem = new Fusion.Maps.MapServer.StyleItem(o.styles[i], staticIcon);
             this.styles.push(styleItem);
+          }
         }
     },
     contains: function(fScale) {
