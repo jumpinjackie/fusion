@@ -37,8 +37,8 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
     $oLayer = $oMap->getLayerByName($REQUEST_VARS['layername']);
     $oClass = $oLayer->getClass($REQUEST_VARS['classindex']);
-    $width = $oMap->reference->width;
-    $height = $oMap->reference->height;
+    $width = $oMap->legend->keysizex;
+    $height = $oMap->legend->keysizey;
     if ($width <=0)
       $width = 16;
     if ($height <=0)
