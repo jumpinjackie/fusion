@@ -662,7 +662,7 @@ Fusion.Maps.MapGuide.prototype = {
           this.aLayers[j].selectedFeatureCount = 0;
         }
 
-        this.bSelectionOn = true;
+        this.bSelectionOn = false;
         if (this.queryLayer) {
           this.queryLayer.setVisibility(false);
         }
