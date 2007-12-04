@@ -238,13 +238,20 @@ Fusion.Maps.MapServer.prototype = {
       				maxScale : minScale
       			};
 
-            //set projection units and code if supplied
-            if (o.metersPerUnit == 1) {
-              layerOptions.units = 'm';
-              //layerOptions.projection = 'EPSG:42304';  //TODO: not necessary, but can this be supplied by LoadMap?
-            } else {
-              //TBD need to do anything here? OL defaults to degrees
-            }
+            //set OpenLayer projection units and code if supplied (OL defaults units to degrees)
+            if (o.metersPerUnit == 0.0254)
+               layerOptions.units = 'inches';
+            else if (o.metersPerUnit == 0.3048)
+               layerOptions.units = 'ft';
+            else if (o.metersPerUnit == 1609.344)
+               layerOptions.units = 'mi';
+            else if (o.metersPerUnit == 1)
+               layerOptions.units = 'm';
+               //layerOptions.projection = 'EPSG:42304';  //TODO: not necessary, but can this be supplied by LoadMap?
+            else if (o.metersPerUnit == 1000)
+               layerOptions.units = 'km';
+            else if (o.metersPerUnit == 111118.7516)
+               layerOptions.units = 'dd';
 
             //this.mapWidget.setMapOptions(oMapOptions);
 
