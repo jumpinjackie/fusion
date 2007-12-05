@@ -93,7 +93,7 @@ Fusion.Widget.Legend.prototype = {
         this.collapseAllAction = new Jx.Action(this.collapseAll.bind(this));
         this.collapseAllItem = new Jx.MenuItem(this.collapseAllAction, {label: 'Collapse All'});
         
-        this.contextMenu = new Jx.ContextMenu();
+        this.contextMenu = new Jx.ContextMenu(this.sName);
         this.contextMenu.add(this.refreshItem, this.expandItem, this.collapseAllItem);
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true : false;
         if (this.showMapFolder) {
