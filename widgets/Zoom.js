@@ -41,7 +41,7 @@ Fusion.Widget.Zoom.prototype =
         //console.log('Zoom.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
+        //Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
 
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         var json = widgetTag.extension;
@@ -53,6 +53,11 @@ Fusion.Widget.Zoom.prototype =
         
         this.keypressWatcher = this.keypressHandler.bind(this);
         
+        //this.control = new OpenLayers.Control.ZoomBox();
+        //this.getMap().oMapOL.addControl(this.control);
+        this.map = this.getMap().oMapOL;
+        this.handler = new OpenLayers.Handler.Box(this,
+                            {done: this.execute});//, {keyMask: this.keyMask} );
     },
 
     /**
@@ -74,7 +79,9 @@ Fusion.Widget.Zoom.prototype =
     activate : function()
     {
         //console.log('Zoom.activate');
-        this.activateRectTool();
+        //this.activateRectTool();
+        //this.control.activate();
+        this.handler.activate();
         /*cursor*/
         if (this.zoomIn) {
             this.getMap().setCursor(this.zoomInCursor);
@@ -93,12 +100,35 @@ Fusion.Widget.Zoom.prototype =
     deactivate : function()
     {
         //console.log('Zoom.deactivate');
-        this.deactivateRectTool();
+        //this.deactivateRectTool();
+        //this.control.deactivate();
+        this.handler.deactivate();
         this.getMap().setCursor('auto');
         /*icon button*/
         this._oButton.deactivateTool();
         Event.stopObserving(document, 'keypress', this.keypressWatcher);
         
+    },
+
+    /**
+     * Method: zoomBox
+     *
+     * Parameters:
+     * position - {<OpenLayers.Bounds>} or {<OpenLayers.Pixel>}
+     */
+    execute: function (position) {
+        if (position instanceof OpenLayers.Bounds) {
+            var minXY = this.map.getLonLatFromPixel(
+                            new OpenLayers.Pixel(position.left, position.bottom));
+            var maxXY = this.map.getLonLatFromPixel(
+                            new OpenLayers.Pixel(position.right, position.top));
+            var bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
+                                               maxXY.lon, maxXY.lat);
+            this.getMap().setExtents(bounds);
+        } else { // it's a pixel
+            var center = this.map.getLonLatFromPixel(position);
+            this.map.zoom(center.lon, center.lat, this.nFactor);
+        }
     },
 
     /**
@@ -110,7 +140,7 @@ Fusion.Widget.Zoom.prototype =
      * @param nRight integer pixel coordinates of the right (maxx)
      * @param nTop integer pixel coordinates of the top (maxy)
      */
-    execute : function(nLeft, nBottom, nRight, nTop)
+    old_execute : function(nLeft, nBottom, nRight, nTop)
     {
         /* if the last event had a shift modifier, swap the sense of this
            tool - zoom in becomes out and zoom out becomes in */
@@ -151,8 +181,8 @@ Fusion.Widget.Zoom.prototype =
     keypressHandler: function(e) {
         var charCode=(e.charCode)?e.charCode:e.keyCode;
         if (charCode == Event.KEY_ESC) {
-            this.deactivateRectTool();
-            this.activateRectTool();
+            //this.deactivateRectTool();
+            //this.activateRectTool();
         }
     }
 };
