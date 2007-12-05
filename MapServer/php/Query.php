@@ -81,6 +81,8 @@ if ($bExtendSelection) {
     $oMap->loadquery(getSessionSavePath()."query.qry");
 }
 
+$bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['computed'], 'true') == 0;
+
 $bAllLayers = false;
 $nLayers = count($layers);
 $nSelections = 0;

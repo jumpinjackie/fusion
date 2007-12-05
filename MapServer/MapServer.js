@@ -635,6 +635,7 @@ Fusion.Maps.MapServer.prototype = {
           layers = this.aVisibleLayers.join(',');
         }
         var extend = options.extendSelection ? '&extendselection=true' : '';
+        var computed = options.computedProperties ? '&computed=true' : '';
 
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;

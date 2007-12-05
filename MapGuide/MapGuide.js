@@ -748,13 +748,13 @@ Fusion.Maps.MapGuide.prototype = {
         var filter = options.filter ? '&filter='+options.filter : '';
         var layers = options.layers || '';
         var extend = options.extendSelection ? '&extendselection=true' : '';
-
+        var computed = options.computedProperties ? '&computed=true' : '';
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
 
         var sessionid = this.getSessionID();
 
-        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend;
+        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend+computed;
         var options = {onSuccess: this.processQueryResults.bind(this), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
