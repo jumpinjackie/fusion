@@ -202,7 +202,6 @@ Fusion.Widget.Navigator.prototype = {
         var nLeft, nTop;
         nLeft = parseInt(nav.style.left);
         nTop = parseInt(nav.style.top);
-        alert(nTop+':'+nLeft);
         if (nLeft + nav.getWidth() > pDim.width) {
             nLeft = pDim.width - nav.getWidth();
             nav.style.left = nLeft + 'px';
