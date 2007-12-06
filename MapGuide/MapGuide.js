@@ -296,7 +296,6 @@ Fusion.Maps.MapGuide.prototype = {
             } else {
               this.triggerEvent(Fusion.Event.MAP_LOADED);
             }
-alert(this._sMapname);
             this.bMapLoaded = true;
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
