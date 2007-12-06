@@ -33,7 +33,7 @@
  * **********************************************************************/
 
 
-if (!ScaleBarTool) {
+if (typeof(ScaleBarTool)=='undefined') {
     Fusion.require('widgets/scalebar/scalebartool.js');
 }
 
