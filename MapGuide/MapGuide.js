@@ -70,7 +70,7 @@ Fusion.Maps.MapGuide.prototype = {
         
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
-        this.ratio = extension.MapRatio ? extension.MapRatio[0] : '1.0';
+        this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
         
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         
@@ -204,6 +204,7 @@ Fusion.Maps.MapGuide.prototype = {
             this.layerRoot.legendLabel = this._sMapname;
             
             this.parseMapLayersAndGroups(o);
+            
             this.minScale = 1.0e10;
             this.maxScale = 0;
             for (var i=0; i<this.aLayers.length; i++) {
@@ -295,7 +296,7 @@ Fusion.Maps.MapGuide.prototype = {
             } else {
               this.triggerEvent(Fusion.Event.MAP_LOADED);
             }
-
+alert(this._sMapname);
             this.bMapLoaded = true;
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
@@ -339,13 +340,16 @@ Fusion.Maps.MapGuide.prototype = {
         var sessionid = this.getSessionID();
         
         var params = 'mapname='+this._sMapname+"&session="+sessionid;
-        var options = {onSuccess: this.mapReloaded.bind(this), onException: this.reloadFailed.bind(this),
-                                     parameters: params};
+        var options = {onSuccess: this.mapReloaded.bind(this), 
+                      onException: this.reloadFailed.bind(this),
+                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
-    reloadFailed: function(r,json) {
-      alert(r.transport.responseText);
+    reloadFailed: function(r) {
+      Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
+                      'Failed to reload requested map:\n'+r.transport.responseText));
+      this.mapWidget._removeWorker();
     },
 
 //TBD: this function not yet converted for OL    
@@ -467,8 +471,10 @@ Fusion.Maps.MapGuide.prototype = {
       if (this.scales && this.scales.length>0) {
         layerOptions.scales = this.scales;
       }
-      layerOptions.minScale = this.maxScale,    //OL interpretation of min/max scale is reversed from Fusion
-      layerOptions.maxScale = this.minScale
+      if (this.maxScale != Infinity) {
+        layerOptions.minScale = this.maxScale;    //OL interpretation of min/max scale is reversed from Fusion
+      }
+      layerOptions.maxScale = this.minScale;
 
       layerOptions.singleTile = bSingleTile;   
       
@@ -989,6 +995,9 @@ Fusion.Maps.MapGuide.ScaleRange.prototype = {
     initialize: function(o, bRaster) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
+        if (this.maxScale == 'infinity') {
+          this.maxScale = Infinity;
+        }
         this.styles = [];
         if (!o.styles) {
             return;
