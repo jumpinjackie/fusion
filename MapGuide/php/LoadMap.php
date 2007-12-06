@@ -181,7 +181,7 @@ function buildScaleRanges($layer) {
         $minElt = $scaleRange->getElementsByTagName('MinScale');
         $maxElt = $scaleRange->getElementsByTagName('MaxScale');
         $minScale = "0";
-        $maxScale = "100000000.0";  // as MDF's VectorScaleRange::MAX_MAP_SCALE
+        $maxScale = "'infinity'";  // as MDF's VectorScaleRange::MAX_MAP_SCALE
         if($minElt->length > 0)
             $minScale = $minElt->item(0)->nodeValue;
         if($maxElt->length > 0)
