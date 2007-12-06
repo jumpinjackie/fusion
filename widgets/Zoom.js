@@ -118,22 +118,22 @@ Fusion.Widget.Zoom.prototype =
      */
     execute: function (position) {
         if (position instanceof OpenLayers.Bounds) {
+            var minXY = this.map.getLonLatFromPixel(
+                            new OpenLayers.Pixel(position.left, position.bottom));
+            var maxXY = this.map.getLonLatFromPixel(
+                            new OpenLayers.Pixel(position.right, position.top));
+            var bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
+                                            maxXY.lon, maxXY.lat);
             if (this.zoomIn) {
-                var minXY = this.map.getLonLatFromPixel(
-                                new OpenLayers.Pixel(position.left, position.bottom));
-                var maxXY = this.map.getLonLatFromPixel(
-                                new OpenLayers.Pixel(position.right, position.top));
-                var bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
-                                                maxXY.lon, maxXY.lat);
                 this.getMap().setExtents(bounds);
             } else {
-                var newWidth = position.getWidth();
-                var newHeight = position.getHeight();
+                var newWidth = bounds.getWidth();
+                var newHeight = bounds.getHeight();
                 var currentExtents = this.getMap().getCurrentExtents();
                 var currentWidth = currentExtents.getWidth();
                 var currentHeight = currentExtents.getHeight();
                 var factor = Math.min(newWidth/currentWidth, newHeight/currentHeight);
-                var center = position.getCenterLonLat();
+                var center = bounds.getCenterLonLat();
                 this.getMap().zoom(center.lon, center.lat, factor);
             }
         } else { // it's a pixel
