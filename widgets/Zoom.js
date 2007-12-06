@@ -118,25 +118,32 @@ Fusion.Widget.Zoom.prototype =
      */
     execute: function (position) {
         if (position instanceof OpenLayers.Bounds) {
-			if (this.zoomIn) {
-				var minXY = this.map.getLonLatFromPixel(
-								new OpenLayers.Pixel(position.left, position.bottom));
-				var maxXY = this.map.getLonLatFromPixel(
-								new OpenLayers.Pixel(position.right, position.top));
-				var bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
-												maxXY.lon, maxXY.lat);
-				this.getMap().setExtents(bounds);
-			} else {
-				
-			}
+            if (this.zoomIn) {
+                var minXY = this.map.getLonLatFromPixel(
+                                new OpenLayers.Pixel(position.left, position.bottom));
+                var maxXY = this.map.getLonLatFromPixel(
+                                new OpenLayers.Pixel(position.right, position.top));
+                var bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
+                                                maxXY.lon, maxXY.lat);
+                this.getMap().setExtents(bounds);
+            } else {
+                var newWidth = position.getWidth();
+                var newHeight = position.getHeight();
+                var currentExtents = this.getMap().getCurrentExtents();
+                var currentWidth = currentExtents.getWidth();
+                var currentHeight = currentExtents.getHeight();
+                var factor = Math.min(newWidth/currentWidth, newHeight/currentHeight);
+                var center = position.getCenterLonLat();
+                this.getMap().zoom(center.lon, center.lat, factor);
+            }
         } else { // it's a pixel
             var center = this.map.getLonLatFromPixel(position);
-			var factor;
-			if(!this.zoomIn && this.nFactor > 1) {
-				factor = 1/this.nFactor;
-			} else {
-				factor = this.nFactor;
-			}
+            var factor;
+            if(!this.zoomIn && this.nFactor > 1) {
+                factor = 1/this.nFactor;
+            } else {
+                factor = this.nFactor;
+            }
             this.getMap().zoom(center.lon, center.lat, factor);
         }
     },
