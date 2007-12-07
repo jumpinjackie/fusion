@@ -117,30 +117,32 @@ Fusion.Widget.Print.prototype = {
     },
     
     contentLoaded: function() {
-        this.dialog.registerIds(['dialog.print.showtitle', 
-                                 'dialog.print.title',
-                                 'dialog.print.showlegend',
-                                 'dialog.print.shownortharrow'], this.dialog.content);
-        this.dialog.getObj('dialog.print.showtitle').checked = this.showTitle;
-        this.dialog.getObj('dialog.print.title').value = this.pageTitle;
-        this.dialog.getObj('dialog.print.title').disabled = !this.showTitle;
-        this.dialog.getObj('dialog.print.showlegend').checked = this.showLegend;
-        this.dialog.getObj('dialog.print.shownortharrow').checked = this.showNorthArrow;
+        //    debugger;
+        //alert(this.dialog.id);
+        this.dialog.registerIds(['dialogPrintShowtitle', 
+                                 'dialogPrintTitle',
+                                 'dialogPrintShowlegend',
+                                 'dialogPrintShowNorthArrow'], this.dialog.content);
+        this.dialog.getObj('dialogPrintShowtitle').checked = this.showTitle;
+        this.dialog.getObj('dialogPrintTitle').value = this.pageTitle;
+        this.dialog.getObj('dialogPrintTitle').disabled = !this.showTitle;
+        this.dialog.getObj('dialogPrintShowlegend').checked = this.showLegend;
+        this.dialog.getObj('dialogPrintShowNorthArrow').checked = this.showNorthArrow;
         
-        Event.observe(this.dialog.getObj('dialog.print.showtitle'), 'click', this.controlTitle.bind(this));
+        Event.observe(this.dialog.getObj('dialogPrintShowtitle'), 'click', this.controlTitle.bind(this));
     },
     
     controlTitle: function() {
-        this.dialog.getObj('dialog.print.title').disabled = !this.dialog.getObj('dialog.print.showtitle').checked;
+        this.dialog.getObj('dialogPrintTitle').disabled = !this.dialog.getObj('dialogPrintShowtitle').checked;
         
     },
     
     handler: function(button) {
         if (button == 'generate') {
-            this.showTitle = this.dialog.getObj('dialog.print.showtitle').checked;
-            this.pageTitle = this.dialog.getObj('dialog.print.title').value;
-            this.showLegend = this.dialog.getObj('dialog.print.showlegend').checked;
-            this.showNorthArrow = this.dialog.getObj('dialog.print.shownortharrow').checked;
+            this.showTitle = this.dialog.getObj('dialogPrintShowtitle').checked;
+            this.pageTitle = this.dialog.getObj('dialogPrintTitle').value;
+            this.showLegend = this.dialog.getObj('dialogPrintShowlegend').checked;
+            this.showNorthArrow = this.dialog.getObj('dialogPrintShowNorthArrow').checked;
             this.openPrintable();
             
         }
