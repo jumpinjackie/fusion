@@ -10,8 +10,12 @@
         font-weight:bold;
     }
     </style>
-    <script language="javascript" src="../viewerfiles/browserdetect.js"></script>
     <script language="javascript">
+    var agent = navigator.userAgent.toLowerCase();
+    var msie = agent.indexOf("msie") != -1;
+    var safari = agent.indexOf("safari") != -1;
+    var firefox = agent.indexOf("firefox") != -1;
+    
     var webAgent = '%s';
     var scale = %s;
     var centerX = %s;
