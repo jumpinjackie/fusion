@@ -54,8 +54,10 @@ Fusion.Widget.Print.prototype = {
         var showNorthArrow =json.ShowNorthArrow ? json.ShowNorthArrow[0] : 'false';
         this.showNorthArrow = (showNorthArrow.toLowerCase() == 'true' || showNorthArrow == '1');
         
-        //this.dialogContentURL = Fusion.getRedirectScript() + '?s=' + Fusion.getFusionURL() + widgetTag.location + 'html/Print.html';
-        this.dialogContentURL = Fusion.getFusionURL() + widgetTag.location + 'html/Print.html';
+        this.dialogContentURL = Fusion.getFusionURL() + widgetTag.location + 'Print/Print.html';
+        this.printablePageURL = Fusion.getFusionURL() + widgetTag.location + 'Print/printablepage.php';
+        Fusion.addWidgetStyleSheet(widgetTag.location + 'Print/Print.css');
+        
         
         /*
          * TODO: this is bad, why did we do this?
@@ -70,8 +72,6 @@ Fusion.Widget.Print.prototype = {
     execute : function() {
         if (this.showPrintUI) {
             this.openPrintUI();
-        } else if (this.resultsLayer){
-            this.createResultLayer();  
         } else {
             this.openPrintable();
         }
@@ -149,55 +149,9 @@ Fusion.Widget.Print.prototype = {
         this.dialog.close();
     },
     
-    /* retrieve the results from the attributeQuery widget */
-    /* triggered by a Fusion.Event.SELECTION_COMPLETE event */
-    /*
-     TODO: this is bad, we are directly dependent on the AttributeQuery widget
-    getSelection: function() {
-        var widget = Fusion.getWidgetById('AttributeQuery');
-        var count = widget.getNumberOfResults();
-        this.selectionString = '';
-        var sep = '';
-        for (var i=0; i < count; i++) {
-            this.selectionString += '(' + widget.getResult(i) + ')';
-            sep = ' AND ';
-        };
-        
-    },
-    */
-    /* call the server to create a layer with search results if needed*/
-    /* the layer to use is specified in the weblayout */ 
-    createResultLayer: function() {
-        if (!this.resultsLayer) {
-            return;
-        }
-        
-        var maps = this.getMap().getAllMaps();
-        var printFeaturesUrl = 'ext/nanaimo/' + this.getMap().arch + '/' + Fusion.getScriptLanguage() +
-                      '/PrintFeatures.' + Fusion.getScriptLanguage();
-        var session = 'session='+maps[0].getSessionID();
-        var mapname = '&mapname='+this.getMap().getMapName();
-        var layer = '&layer='+ this.resultsLayer;
-        var selection = '&selection=' + this.selectionString;
-        var params = {};
-        params.parameters = session + mapname + layer + selection;
-        params.onComplete = this.resultLayerCB.bind(this);
-        Fusion.ajaxRequest(printFeaturesUrl, params);
-        
-    },
-    
-    resultLayerCB: function( r, json) {
-        if (json) {
-            var o;
-            eval('o=' + r.responseText);
-            //TODO: test result
-            this.openPrintable();
-        }
-    },
-    
     openPrintable: function() {
         var mainMap = this.getMap();
-        var url = Fusion.getConfigurationItem('mapguide', 'webTierUrl') + 'mapviewerphp/printablepage.php?';
+        var url = this.printablePageURL+'?';
         var extents = mainMap.getCurrentExtents();
         var centerX = (extents.left + extents.right)/ 2;
         var centerY = (extents.top + extents.bottom)/ 2;

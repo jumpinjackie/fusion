@@ -1,27 +1,13 @@
-<!--
-User interface for print options
--->
-<style type="text/css">
-#PrintUI select, #PrintUI .inputText {
-  width: 300px;
-}
-
-#PrintUI .block {
-  display: block;
-	float: none;
-}
-</style>
-
-<div id="PrintUI">
-  <fieldset id="PrintOptions">
+<div class="PrintDialogForm">
+  <fieldset class="PrintDialogOptions">
 	  <legend>Options</legend>
-	  	<label class="block"><input name="dialogPrintShowtitle" id="dialogPrintShowtitle" type="checkbox" value="showtitle" checked>
+	  	<label class="block" for="dialogPrintShowtitle"><input name="dialogPrintShowtitle" id="dialogPrintShowtitle" type="checkbox" value="showtitle" checked>
 			Show Title?</label>
-		<label class="block">Title</label>
-		<input id="dialogPrintTitle" type="text" class="inputText" />
-		<label class="block"><input name="dialogPrintShowlegend" id="dialogPrintShowlegend" type="checkbox" value="showlegend" checked>
+		<label class="block" for="dialogPrintTitle">Title</label>
+		<input name="dialogPrintTitle" id="dialogPrintTitle" type="text" class="inputText" />
+		<label class="block" for="dialogPrintShowlegend"><input name="dialogPrintShowlegend" id="dialogPrintShowlegend" type="checkbox" value="showlegend" checked>
 			Show Legend?</label>
-		<label class="block"><input name="dialogPrintShowNorthArrow" id="dialogPrintShowNorthArrow" type="checkbox" value="shownortharrow" checked>
+		<label class="block" for="dialogPrintShowNorthArrow"><input name="dialogPrintShowNorthArrow" id="dialogPrintShowNorthArrow" type="checkbox" value="shownortharrow" checked>
 			Show North Arrow?</label>
   </fieldset>
 </div>
