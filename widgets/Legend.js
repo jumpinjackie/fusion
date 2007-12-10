@@ -54,6 +54,7 @@ Fusion.Widget.Legend = Class.create();
 Fusion.Widget.Legend.prototype = {
     currentNode: null,
     bIsDrawn: false,
+    targetFolder: null,
     initialize : function(widgetTag) {
         this.defLayerRasterIcon = 'images/icons/legend-raster.png';
         this.defLayerThemeIcon = 'images/icons/legend-theme.png';
@@ -88,13 +89,22 @@ Fusion.Widget.Legend.prototype = {
         
         this.refreshAction = new Jx.Action(this.update.bind(this));
         this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: 'Refresh'});
-        this.expandAction = new Jx.Action(this.expand.bind(this));
-        this.expandItem = new Jx.MenuItem(this.expandAction, {label: 'Expand'});
+        this.expandAllAction = new Jx.Action(this.expandAll.bind(this));
+        this.expandAllItem = new Jx.MenuItem(this.expandAllAction, {label: 'Expand All'});
+        this.expandBranchAction = new Jx.Action(this.expandBranch.bind(this));
+        this.expandBranchItem = new Jx.MenuItem(this.expandBranchAction, {label: 'Expand'});
         this.collapseAllAction = new Jx.Action(this.collapseAll.bind(this));
         this.collapseAllItem = new Jx.MenuItem(this.collapseAllAction, {label: 'Collapse All'});
+        this.collapseBranchAction = new Jx.Action(this.collapseBranch.bind(this));
+        this.collapseBranchItem = new Jx.MenuItem(this.collapseBranchAction, {label: 'Collapse'});
+        //this.collapseBranchItem.disable();
         
         this.contextMenu = new Jx.ContextMenu(this.sName);
-        this.contextMenu.add(this.refreshItem, this.expandItem, this.collapseAllItem);
+        this.contextMenu.add(this.collapseBranchItem, 
+                              this.expandBranchItem, 
+                              this.refreshItem, 
+                              this.expandAllItem, 
+                              this.collapseAllItem );
         this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true : false;
         if (this.showMapFolder) {
             var opt = {};
@@ -115,11 +125,9 @@ Fusion.Widget.Legend.prototype = {
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.draw.bind(this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, this.mapLoading.bind(this));
-       
-        //this.getLayers();
     },
     
-    expand: function() {
+    expandAll: function() {
         this.recurseTree('expand', this.oRoot);
     },
     
@@ -127,6 +135,24 @@ Fusion.Widget.Legend.prototype = {
         this.recurseTree('collapse', this.oRoot);
     },
     
+    collapseBranch: function() {
+        if (this.targetFolder && this.targetFolder instanceof Jx.TreeFolder) {
+          this.targetFolder.collapse();
+        }
+    },
+    
+    expandBranch: function() {
+        if (this.targetFolder && this.targetFolder instanceof Jx.TreeFolder) {
+          this.targetFolder.expand();
+        }
+    },
+    
+  /**
+     * recursively descend the tree applying the request operation which is either 'collapse' or 'expand'
+     *
+     * @param op the operation to execute
+     * @param the folder to operate on
+     */
     recurseTree: function(op, folder) {
         for (var i=0; i<folder.nodes.length; i++) {
             var item = folder.nodes[i];
@@ -137,6 +163,18 @@ Fusion.Widget.Legend.prototype = {
         }
     },
    
+  /**
+     * mouseover action handler for tree folders.  Sets the folder to be collapsed/expanded for 
+     * collapsing individual branches.  Adding a mouseout action handler to clear the target folder
+     * doesn't work because the action of right clicking the context menu issues a mouseout.
+     *
+     * @param evt the browser event object that occured
+     */
+    setFolder: function(evt) {
+      var element = Event.element(evt);
+      this.targetFolder = element.jxTreeItem;
+    },
+    
     mapLoading: function() {
         this.getMap().deregisterForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
@@ -204,6 +242,7 @@ Fusion.Widget.Legend.prototype = {
             group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
             group.legend.checkBox.checked = group.visible?true:false;
             Event.observe(group.legend.checkBox, 'click', this.stateChanged.bind(this, group));
+            Event.observe(group.legend.treeItem.domObj, 'mouseover', this.setFolder.bind(this));
             var groupInfo = this.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
                 var a = document.createElement('a');
@@ -393,6 +432,7 @@ Fusion.Widget.Legend.prototype = {
             folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
         }
         folder.addSelectionListener(this);
+        Event.observe(folder.domObj, 'mouseover', this.setFolder.bind(this));
        
         return folder;
     },
