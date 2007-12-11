@@ -816,13 +816,13 @@ Fusion.Maps.MapServer.ScaleRange.prototype = {
           we set it to use the default static raster icon*/
         if (o.styles.length == 0 && bRaster)
         {
-          var tmpsyle = [];
+          var tmpsyle = {};
           tmpsyle.legendLabel = "raster";
           tmpsyle.filter = "";
           tmpsyle.index = 0;
           tmpsyle.staticIcon = true;
           var styleItem = new Fusion.Maps.MapServer.StyleItem(tmpsyle, tmpsyle.staticIcon);
-          this.styles.push(tmpsyle);
+          this.styles.push(styleItem);
         }    
         else
         {
