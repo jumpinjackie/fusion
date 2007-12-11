@@ -930,10 +930,11 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         this.minScale = 1.0e10;
         this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], false);
-            this.scaleRanges.push(scaleRange);
-            this.minScale = Math.min(this.minScale, scaleRange.minScale);
-            this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
+          var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], 
+                                (this.supportsType(4)||this.supportsType(5)) );
+          this.scaleRanges.push(scaleRange);
+          this.minScale = Math.min(this.minScale, scaleRange.minScale);
+          this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
         }
     },
     
@@ -999,7 +1000,9 @@ Fusion.Maps.MapGuide.ScaleRange.prototype = {
         }
         this.styles = [];
         if (!o.styles) {
-            return;
+          var styleItem = new Fusion.Maps.MapGuide.StyleItem({legendLabel:'DWF'}, bRaster);
+          this.styles.push(styleItem);
+          return;
         }
         var staticIcon = o.styles.length>1 ? false : bRaster;
         for (var i=0; i<o.styles.length; i++) {
@@ -1031,7 +1034,7 @@ Fusion.Maps.MapGuide.StyleItem.prototype = {
         if (this.categoryindex == '') {
             this.categoryindex = -1;
         }
-        this.staticIcon = false;
+        this.staticIcon = staticIcon;
     },
     getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');

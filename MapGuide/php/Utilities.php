@@ -596,7 +596,7 @@ function GetLayerTypes($featureService, $layer) {
     	}
     	else
     	{
-    				array_push($aLayerTypes, '4' /* raster */);
+    				array_push($aLayerTypes, '5' /* DWF */);
 
     	}
     } catch (MgException $e) { }
