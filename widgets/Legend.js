@@ -105,8 +105,9 @@ Fusion.Widget.Legend.prototype = {
                               this.refreshItem, 
                               this.expandAllItem, 
                               this.collapseAllItem );
-        this.showMapFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true : false;
-        if (this.showMapFolder) {
+        this.showRootFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'false') ? false:true;
+        this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
+        if (this.showRootFolder) {
             var opt = {};
             opt.label = 'Map';
             opt.data = null;
@@ -116,6 +117,7 @@ Fusion.Widget.Legend.prototype = {
             opt.contextMenu = this.contextMenu;
             this.oRoot = new Jx.TreeFolder(opt);
             this.oTree.append(this.oRoot);
+            Event.observe(this.oRoot.domObj, 'mouseover', this.setFolder.bind(this));
         } else {
             this.oRoot = this.oTree;
         }
@@ -207,20 +209,24 @@ Fusion.Widget.Legend.prototype = {
         this.bIsDrawn = false;
         this.clear();
         var map = this.getMap();
-        if (this.showMapFolder) {
+        if (this.showRootFolder) {
             this.oRoot.setName(map.getMapName());
         }
         this.oMapInfo = map.oMapInfo;
-        if (!map.layerRoot.legend) {
-            map.layerRoot.legend = {};
-            map.layerRoot.legend.treeItem = this.oRoot;
+        var startGroup = map.layerRoot;
+        if (!this.showMapFolder) {
+          startGroup = map.layerRoot.groups[0];
         }
-        for (var i=0; i<map.layerRoot.groups.length; i++) {
-            map.layerRoot.groups[i].visible = true;
-            this.processMapGroup(map.layerRoot.groups[i], this.oRoot);
+        if (!startGroup.legend) {
+            startGroup.legend = {};
+            startGroup.legend.treeItem = this.oRoot;
         }
-        for (var i=0; i<map.layerRoot.layers.length; i++) {
-            this.processMapLayer(map.layerRoot.layers[i], this.oRoot);
+        for (var i=0; i<startGroup.groups.length; i++) {
+            startGroup.groups[i].visible = true;
+            this.processMapGroup(startGroup.groups[i], this.oRoot);
+        }
+        for (var i=0; i<startGroup.layers.length; i++) {
+            this.processMapLayer(startGroup.layers[i], this.oRoot);
         }
         this.bIsDrawn = true;
         this.update();
