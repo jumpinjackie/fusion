@@ -269,8 +269,7 @@ Fusion.Widget.Measure.prototype = {
                 this.updateMarker(this.lastMarker, lastSegment, e);
             }
             //create a new marker
-            this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units, 
-                                                                       Fusion.unitFromName(this.getMap().getUnits()));
+            this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units);
             this.distanceMarkers.push(this.lastMarker);
             this.clearContext();
             this.feature.draw(this.context);
@@ -385,8 +384,13 @@ Fusion.Widget.Measure.prototype = {
             var o;
             eval('o='+r.responseText);
             if (o.distance) {
+              var mapUnits = Fusion.unitFromName(this.getMap().getUnits());
+              if (mapUnits != this.units)
+                o.distance = Fusion.convert(mapUnits, this.units, o.distance);
                 var p = Math.pow(1,this.distPrecision);
                 var d = Math.round(o.distance*p)/p;
+                /* convert the distance from map units to the units set bu the use*/
+                
                 marker.setDistance(d);
                 this.positionMarker(marker, segment);
                 if (segment == this.feature.lastSegment()) {
@@ -422,7 +426,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     calculatingImg: null,
     isCalculating: false,
     distance: null,
-    initialize: function( units, mapUnit ) {
+    initialize: function( units) {
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
         this.registerEventID(Fusion.Event.MARKER_DISTANCE_CHANGED);
         this.domObj = document.createElement('div');
@@ -433,7 +437,6 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         this.calculatingImg.width = 19;
         this.calculatingImg.height = 4;
         this.setCalculating();
-        this.mapUnit = mapUnit;
     },
     
     destroy: function() {
@@ -458,11 +461,6 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     getDistanceLabel: function() {
         if (this.distance) {
             var distance = this.distance;
-
-            if (this.unit != this.mapUnit) 
-            {
-              distance = Fusion.convert(this.mapUnit, this.unit, distance);
-            }
             return distance + ' ' + this.unitAbbr;            
         } else {
             return false;
