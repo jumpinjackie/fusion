@@ -269,7 +269,8 @@ Fusion.Widget.Measure.prototype = {
                 this.updateMarker(this.lastMarker, lastSegment, e);
             }
             //create a new marker
-            this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units);
+            this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units, 
+                                                                       Fusion.unitFromName(this.getMap().getUnits()));
             this.distanceMarkers.push(this.lastMarker);
             this.clearContext();
             this.feature.draw(this.context);
@@ -340,6 +341,7 @@ Fusion.Widget.Measure.prototype = {
         }
         if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
         }  
+
         this.isDigitizing = false;
     },
     
@@ -420,7 +422,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     calculatingImg: null,
     isCalculating: false,
     distance: null,
-    initialize: function( units ) {
+    initialize: function( units, mapUnit ) {
         Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
         this.registerEventID(Fusion.Event.MARKER_DISTANCE_CHANGED);
         this.domObj = document.createElement('div');
@@ -431,6 +433,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         this.calculatingImg.width = 19;
         this.calculatingImg.height = 4;
         this.setCalculating();
+        this.mapUnit = mapUnit;
     },
     
     destroy: function() {
@@ -455,8 +458,10 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     getDistanceLabel: function() {
         if (this.distance) {
             var distance = this.distance;
-            if (this.unit != Fusion.METERS) {
-                distance = Fusion.fromMeter(this.unit, distance);
+
+            if (this.unit != this.mapUnit) 
+            {
+              distance = Fusion.convert(this.mapUnit, this.unit, distance);
             }
             return distance + ' ' + this.unitAbbr;            
         } else {
