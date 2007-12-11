@@ -244,6 +244,22 @@ if ($oMap) {
     echo var2json($mapObj);
 }
 
+function getGroupObject() {
+    $group = NULL;
+    $group->groupName = '';
+    $group->legendLabel = '';
+    $group->uniqueId = '';
+    $group->displayInLegend = '';
+    $group->expandInLegend = '';
+    $group->layerGroupType = '';
+    $group->parentUniqueId = '';
+    $group->parent = '';
+    $group->visible = '';
+    $group->actuallyVisible = '';
+  
+    return $group;
+}
+
 function GetMetersPerUnit($unit)
 {
     if ($unit == MS_INCHES)
