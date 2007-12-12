@@ -33,6 +33,7 @@ Fusion.Maps.MapGuide = Class.create();
 Fusion.Maps.MapGuide.prototype = {
     arch: 'MapGuide',
     session: [null],
+    mapsLoaded: [],
     bSingleTile: null,
     aShowLayers: null,
     aHideLayers: null,
@@ -65,7 +66,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.mapWidget = map;
         this.oSelection = null;
         if (isMapWidgetLayer != null) {
-            this.bIsMapWidgetLayer = isMapWidgetLayer;
+          this.bIsMapWidgetLayer = isMapWidgetLayer;
         }
         
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
@@ -149,6 +150,7 @@ Fusion.Maps.MapGuide.prototype = {
         if (this._sResourceId == resourceId) {
             return;
         }
+        this._sResourceId = resourceId;
 
         if (!this.sessionReady()) {
             this.sMapResourceId = resourceId;
@@ -178,13 +180,39 @@ Fusion.Maps.MapGuide.prototype = {
         this.oSelection = null;
         this.aSelectionCallbacks = [];
         this._bSelectionIsLoading = false;
-
+        
+        //Check to see if a map with this resource ID has already been loaded
+        //if it has, then MapLoad must be called with a mapname parameter rather
+        //than mapid so that unique layer Id's don't get redefined
+        for (var i=0; i<this.mapsLoaded.length; ++i) {
+          var otherMap = this.mapsLoaded[i];
+          if (otherMap._sResourceId == resourceId) {
+            if (otherMap.bMapLoaded) {
+              this.secondMapLoad(otherMap);
+            } else {
+              otherMap.mapWidget.registerForEvent(Fusion.Event.MAP_LOADED, this.secondMapLoad.bind(this, otherMap));
+            }
+            return;
+          }
+        }
+        
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
-        
-        var sessionid = this.getSessionID();
-        
-        var params = 'mapid='+resourceId+"&session="+sessionid;
+        var params = {'session': this.getSessionID(), 'mapid': resourceId};
+        this.mapsLoaded.push(this);
+        var options = {onSuccess: this.mapLoaded.bind(this), parameters:params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+    
+  /*
+    * This is essentially the same as loadMap, but depends on another map being loaded
+    * so that the map name is available.
+    * TODO: combine this with reloadMap? need to make sure the OL Layer is created though
+    */
+    secondMapLoad: function(otherMap) {
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
+        var params = {'session': this.getSessionID(), 'mapname': otherMap.getMapName() };
         var options = {onSuccess: this.mapLoaded.bind(this), parameters:params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
@@ -193,7 +221,6 @@ Fusion.Maps.MapGuide.prototype = {
         if (json) {
             var o;
             eval('o='+r.responseText);
-            this._sResourceId = o.mapId;
             this._sMapname = o.mapName;
             this._fMetersperunit = o.metersPerUnit;
             this.mapWidget._fMetersperunit = this._fMetersperunit;
