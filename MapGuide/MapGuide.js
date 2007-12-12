@@ -448,7 +448,6 @@ Fusion.Maps.MapGuide.prototype = {
 
         this.oLayerOL.addOptions(options);
         this.oLayerOL.mergeNewParams({ts : (new Date()).getTime()});
-        this.oLayerOL.redraw();
         if (this.queryLayer) this.queryLayer.redraw();
     },
 
@@ -750,16 +749,28 @@ Fusion.Maps.MapGuide.prototype = {
         var maxFeatures = options.maxFeatures || -1;
         var bPersistant = options.persistent || true;
         var selectionType = options.selectionType || this.selectionType;
-        var filter = options.filter ? '&filter='+options.filter : '';
         var layers = options.layers || '';
-        var extend = options.extendSelection ? '&extendselection=true' : '';
-        var computed = options.computedProperties ? '&computed=true' : '';
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
 
         var sessionid = this.getSessionID();
 
-        var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend+computed;
+        var params = {
+          'mapname': this._sMapname,
+          'session': sessionid,
+          'spatialfilter': geometry,
+          'maxfeatures': maxFeatures,
+          'layers': layers,
+          'variant': selectionType};
+        if (options.filter) {
+          params.filter = options.filter;
+        }
+        if (options.extendSelection) {
+          params.extendselection = true;
+        }
+        if (options.computedProperties) {
+          params.computed = true;
+        }
         var options = {onSuccess: this.processQueryResults.bind(this), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
