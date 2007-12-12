@@ -49,8 +49,8 @@ try
 
         $map->Create($resourceService, $resourceID, $mapName);
 
-
-        $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $map->GetName() . "." . MgResourceType::Map);
+        $mapName = uniqid($mapName);
+        $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $mapName . "." . MgResourceType::Map);
 
 
         //create an empty selection object and store it in the session repository
@@ -66,7 +66,7 @@ try
     }
 
     //$sessionId =  $map->GetSessionId();
-    $mapName = $map->GetName() ;
+    //$mapName = $map->GetName() ;
     $extents = $map->GetMapExtent();
     @$oMin = $extents->GetLowerLeftCoordinate();
     @$oMax = $extents->GetUpperRightCoordinate();
