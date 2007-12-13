@@ -43,13 +43,13 @@ try
         //echo $mapid;
         $resourceID = new  MgResourceIdentifier($mapid);
         $map = new MgMap();
-        $mapName = $resourceID->GetName();
+        $mapTitle = $resourceID->GetName();
 
         //echo "<br> maname $mapName <br>";
 
-        $map->Create($resourceService, $resourceID, $mapName);
+        $map->Create($resourceService, $resourceID, $mapTitle);
 
-        $mapName = uniqid($mapName);
+        $mapName = uniqid($mapTitle);
         $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $mapName . "." . MgResourceType::Map);
 
 
@@ -62,6 +62,7 @@ try
     } else {
         $map = new MgMap();
         $map->Open($resourceService, $mapName);
+        $mapTitle = $map->GetName();
         $mapid = $map->GetMapDefinition()->ToString();
     }
 
@@ -92,6 +93,7 @@ try
     echo "sessionId:'$sessionID',";
     echo "mapId:'$mapid',";
     echo "metersPerUnit:$metersPerUnit,";
+    echo "mapTitle:'".addslashes(htmlentities($mapTitle))."',";
     echo "mapName:'".addslashes(htmlentities($mapName))."',";
     echo "extent:[";
     echo $oMin->GetX().",";

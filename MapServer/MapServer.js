@@ -200,7 +200,7 @@ Fusion.Maps.MapServer.prototype = {
             eval('o='+r.responseText); 
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName; 
-            this.sTitle = o.title; 
+            this._sMapTitle = o.mapTitle;
             this._fMetersperunit = o.metersPerUnit; 
             this.mapWidget._fMetersperunit = this._fMetersperunit;
             this._sImageType = o.imagetype; 
@@ -208,7 +208,7 @@ Fusion.Maps.MapServer.prototype = {
             this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
             
             this.layerRoot.clear();
-            this.layerRoot.legendLabel = this.sTitle;
+            this.layerRoot.legendLabel = this._sMapTitle;
             
             this.parseMapLayersAndGroups(o);
       			var minScale = 1.0e10;
