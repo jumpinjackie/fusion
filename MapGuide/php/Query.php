@@ -124,6 +124,11 @@ try {
         $layers = array();
     }
 
+    $maxFeatures = 0;
+    if (isset($_REQUEST['maxfeatures'])) {
+      $maxFeatures = $_REQUEST['maxfeatures'];
+    }
+    
     // echo "<!--";
     //     print_r($_REQUEST);
     //     echo "-->";
@@ -256,7 +261,7 @@ try {
             if ($bExtendSelection) {
                 /* possibly toggle features in the map */
                 $newSelection = new MgSelection($map);
-                $newSelection->AddFeatures($layerObj, $featureReader, 0);
+                $newSelection->AddFeatures($layerObj, $featureReader, $maxFeatures);
                 $aLayers = selectionToArray($newSelection, $aLayers);
             } else {
                 try {
@@ -296,7 +301,7 @@ try {
                 }
 
                 /* add the features to the map */
-                $selection->AddFeatures($layerObj, $featureReader, 0);
+                $selection->AddFeatures($layerObj, $featureReader, $maxFeatures);
                 $featureReader->Close();
 
 
@@ -340,7 +345,7 @@ try {
 
                 /* select the features */
                 $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-                $selection->AddFeatures($oLayer, $featureReader,0);
+                $selection->AddFeatures($oLayer, $featureReader, $maxFeatures);
 
                 $layerName = $oLayer->GetName();
                 array_push($properties->layers, $layerName);
