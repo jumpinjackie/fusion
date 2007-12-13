@@ -35,6 +35,8 @@ Fusion.Widget.Select.prototype =  {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
+    maxFeatures: 0,   //deafult of 0 selects all features (i.e. no maximum)
+    
     initialize : function(widgetTag) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
@@ -52,6 +54,10 @@ Fusion.Widget.Select.prototype =  {
             nTolerance = parseInt(json.Tolerance[0]);
         }
 
+        if (json.MaxFeatures) {
+            this.maxFeatures = parseInt(json.MaxFeatures[0]);
+        }
+        
         this.bActiveOnly = (json.QueryActiveLayer &&
                            (json.QueryActiveLayer[0] == 'true' ||
                             json.QueryActiveLayer[0] == '1')) ? true : false;
@@ -155,6 +161,7 @@ Fusion.Widget.Select.prototype =  {
         
         options.geometry = 'POLYGON(('+ sMin.x + ' ' +  sMin.y + ', ' +  sMax.x + ' ' +  sMin.y + ', ' + sMax.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMin.y + '))';
         options.selectionType = this.selectionType;
+        options.maxFeatures = this.maxFeatures;
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();

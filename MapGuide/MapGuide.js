@@ -747,7 +747,7 @@ Fusion.Maps.MapGuide.prototype = {
         }
 
         var geometry = options.geometry || '';
-        var maxFeatures = options.maxFeatures || -1;
+        var maxFeatures = options.maxFeatures || 0; //zero means select all features
         var bPersistant = options.persistent || true;
         var selectionType = options.selectionType || this.selectionType;
         var filter = options.filter ? '&filter='+options.filter : '';
