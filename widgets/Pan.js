@@ -63,5 +63,5 @@ Fusion.Widget.Pan.prototype = {
         this.getMap().setCursor('auto');
         /*icon button*/
         this._oButton.deactivateTool();
-    },
+    }
 };
