@@ -205,7 +205,9 @@ try {
                 $layerObj = $mapLayers->GetItem($i);
             }
 
-            if (!$layerObj->GetSelectable() || !$layerObj->IsVisible()) {
+            $className = $layerObj->GetFeatureClassName();
+            if (!$layerObj->GetSelectable() || !$layerObj->IsVisible() ||
+                !$className || $className=='rasters:RasterType' ||$className=='') {
                 continue;
             }
 
