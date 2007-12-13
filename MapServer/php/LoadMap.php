@@ -131,7 +131,7 @@ if ($oMap) {
     $minScale = $oMap->web->minscale == -1 ? MIN_SCALE : $oMap->web->minscale;
     $maxScale = $oMap->web->maxscale == -1 ? MAX_SCALE : $oMap->web->maxscale;
     $title = $oMap->getmetadata('legend_title');
-    $mapObj->title = $title == -1 ? $mapObj->mapName : $title;
+    $mapObj->mapTitle = $title == -1 ? $mapObj->mapName : $title;
     //layers
     $mapObj->layers = array();
     for ($i=0;$i<$oMap->numlayers;$i++)

@@ -210,7 +210,7 @@ Fusion.Widget.Legend.prototype = {
         this.clear();
         var map = this.getMap();
         if (this.showRootFolder) {
-            this.oRoot.setName(map.getMapName());
+            this.oRoot.setName(map.getMapTitle());
         }
         this.oMapInfo = map.oMapInfo;
         var startGroup = map.layerRoot;
