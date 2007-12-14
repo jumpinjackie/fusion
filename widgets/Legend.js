@@ -56,6 +56,7 @@ Fusion.Widget.Legend.prototype = {
     bIsDrawn: false,
     targetFolder: null,
     initialize : function(widgetTag) {
+        this.defLayerDWFIcon = 'images/icons/legend-DWF.png';
         this.defLayerRasterIcon = 'images/icons/legend-raster.png';
         this.defLayerThemeIcon = 'images/icons/legend-theme.png';
         this.defDisabledLayerIcon = 'images/icons/legend-layer.png';
@@ -69,14 +70,11 @@ Fusion.Widget.Legend.prototype = {
        
         var json = widgetTag.extension;
        
+        this.imgLayerDWFIcon = json.LayerDWFIcon ? json.LayerDWFIcon[0] : this.defLayerDWFIcon;
         this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.defLayerRasterIcon;
-       
         this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.defLayerThemeIcon;
-
         this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.defDisabledLayerIcon;       
-       
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.defLayerInfoIcon;
-
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.defGroupInfoIcon;
        
         //not used?
@@ -422,8 +420,8 @@ Fusion.Widget.Legend.prototype = {
         opt.data = layer;
         opt.isOpen = layer.expandInLegend;
         opt.contextMenu = this.contextMenu;
-        opt.imgTreeFolderOpen = layer.themeIcon;
-        opt.imgTreeFolder = layer.themeIcon;
+        opt.imgTreeFolderOpen = this.imgLayerThemeIcon;
+        opt.imgTreeFolder = this.imgLayerThemeIcon;
         var folder = new Jx.TreeFolder(opt);
         folder.domObj.insertBefore(layer.legend.checkBox, folder.domObj.childNodes[1]);
         var layerInfo = this.getLayerInfoUrl(layer.layerName);
@@ -456,7 +454,11 @@ Fusion.Widget.Legend.prototype = {
             opt.enabled = false;
         } else {
           if (style.staticIcon) {
-            opt.imgIcon = this.imgLayerRasterIcon;
+            if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
+              opt.imgIcon = this.imgLayerDWFIcon;
+            } else {
+              opt.imgIcon = this.imgLayerRasterIcon;
+            }
           } else {
             opt.imgIcon = style.getLegendImageURL(scale, layer);
           }

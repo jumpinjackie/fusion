@@ -902,7 +902,6 @@ Fusion.Maps.MapGuide.Layer = Class.create();
 Fusion.Maps.MapGuide.Layer.prototype = {
     
     scaleRanges: null,
-    
     oMap: null,
     
     initialize: function(o, oMap) {
@@ -921,9 +920,14 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         this.visible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
-        //TODO: make this configurable
-        this.themeIcon = 'images/legend-theme.png';
-        this.disabledLayerIcon = 'images/legend-layer.png';
+        
+        //determine the layer type so that the correct icon can be displayed in the legend
+        this.layerType = null;
+        if (this.supportsType(Fusion.Constant.LAYER_RASTER_TYPE)) {   //raster layers
+          this.layerType = Fusion.Constant.LAYER_RASTER_TYPE;
+        } else if (this.supportsType(Fusion.Constant.LAYER_DWF_TYPE)) {  //DWF layers
+          this.layerType = Fusion.Constant.LAYER_DWF_TYPE;
+        }
         
         this.parentGroup = o.parentGroup;
         this.scaleRanges = [];
@@ -931,7 +935,7 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         this.maxScale = 0;
         for (var i=0; i<o.scaleRanges.length; i++) {
           var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], 
-                                (this.supportsType(4)||this.supportsType(5)) );
+                                this.layerType);
           this.scaleRanges.push(scaleRange);
           this.minScale = Math.min(this.minScale, scaleRange.minScale);
           this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
@@ -992,7 +996,7 @@ Fusion.Maps.MapGuide.Layer.prototype = {
 Fusion.Maps.MapGuide.ScaleRange = Class.create();
 Fusion.Maps.MapGuide.ScaleRange.prototype = {
     styles: null,
-    initialize: function(o, bRaster) {
+    initialize: function(o, layerType) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity') {
@@ -1000,11 +1004,11 @@ Fusion.Maps.MapGuide.ScaleRange.prototype = {
         }
         this.styles = [];
         if (!o.styles) {
-          var styleItem = new Fusion.Maps.MapGuide.StyleItem({legendLabel:'DWF'}, bRaster);
+          var styleItem = new Fusion.Maps.MapGuide.StyleItem({legendLabel:'DWF'}, layerType);
           this.styles.push(styleItem);
           return;
         }
-        var staticIcon = o.styles.length>1 ? false : bRaster;
+        var staticIcon = o.styles.length>1 ? false : layerType;
         for (var i=0; i<o.styles.length; i++) {
             var styleItem = new Fusion.Maps.MapGuide.StyleItem(o.styles[i], staticIcon);
             this.styles.push(styleItem);
