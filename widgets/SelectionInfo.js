@@ -52,10 +52,10 @@ Fusion.Widget.SelectionInfo.prototype = {
         //console.log('SelectionInfo.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
                 
-        this.emptyText = this.domObj.innerHTML;
         
         var json = widgetTag.extension;
         
+        this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
         
         this.domSpan = document.createElement('span');
