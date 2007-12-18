@@ -66,10 +66,10 @@ Fusion.Widget.CursorPosition.prototype = {
         //console.log('CursorPosition.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
                 
-        this.emptyText = this.domObj.innerHTML;
         
         var json = widgetTag.extension;
         
+        this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
         this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;
         this.units = json.Units ? Fusion.unitFromName(json.Units[0]) : Fusion.UNKOWN;
