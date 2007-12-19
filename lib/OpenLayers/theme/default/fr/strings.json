@@ -1,0 +1,7 @@
+﻿OpenLayers.Strings.fr = {
+'test1': 'ceci est un test',
+'test2': 'et une autre avec des accents: è.ééééé^çà',
+'test3': 'arg un:{0} arg deux: {1} ',
+'overlays': "&#60;u&#62;Couches de superposition&#60;&#47;u&#62;",
+'end': ''
+};
