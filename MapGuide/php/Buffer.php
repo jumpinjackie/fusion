@@ -193,7 +193,7 @@ try {
 
         // calculate great circle unless data source srs is arbitrary
         if(!$arbitraryDsSrs) {
-            $measure = $layerCs->GetMeasure();
+            $measure = new MgCoordinateSystemMeasure($layerCs);
         } else {
             $measure = null;
         }
