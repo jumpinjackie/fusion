@@ -317,7 +317,7 @@ function BuildLayerDefinitionContent($dataSource, $featureName, $tip)
 /////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
-function DataSourceExists($resourceSrvc, $dataSourceId)
+function ResourceExists($resourceSrvc, $dataSourceId)
 {
     try
     {
@@ -328,6 +328,10 @@ function DataSourceExists($resourceSrvc, $dataSourceId)
     {
         return false;
     }
+}
+
+function DataSourceExists($resourceSrvc, $dataSourceId) {
+    return ResourceExists($resourceSrvc, $dataSourceId);
 }
 //------------------------------------------------------------------------------
 //create a new MgResourceIdentifier for the session from a Library MgResourceIdentifier
