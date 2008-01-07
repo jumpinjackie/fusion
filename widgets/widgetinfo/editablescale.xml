@@ -7,7 +7,7 @@
   <Tooltip>Allows display and entry of map scale</Tooltip>
   <ImageUrl></ImageUrl>
   <StandardUi>false</StandardUi>
-  <ContainableBy>Toolbar</ContainableBy>
+  <ContainableBy>Splitterbar</ContainableBy>
   <Parameter>
     <Name>Precision</Name>
     <Type>integer</Type>
