@@ -9,7 +9,7 @@
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>
   <StandardUi>false</StandardUi>
-  <ContainableBy>Toolbar</ContainableBy>
+  <ContainableBy>Splitterbar</ContainableBy>
   <Parameter>
     <Name>Units</Name>
     <Description>the units to display the size in</Description>

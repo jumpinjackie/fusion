@@ -9,7 +9,7 @@
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>
   <StandardUi>false</StandardUi>
-  <ContainableBy></ContainableBy>
+  <ContainableBy>Splitterbar</ContainableBy>
   <Parameter>
     <Name>Template</Name>
     <Description>The format of the output string.</Description>
