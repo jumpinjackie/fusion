@@ -333,7 +333,7 @@ Fusion.Maps.MapServer.prototype = {
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
-						'Failed to load requested map:\n'+r.responseText));
+                OpenLayers.String.translate('mapLoadError', r.responseText)));
         }
         this.mapWidget._removeWorker();
     },
@@ -371,7 +371,7 @@ Fusion.Maps.MapServer.prototype = {
   				this.drawMap();
   				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
   			} else {
-  				alert("setLayers failure:"+o.layerindex);
+          alert(OpenLayers.String.translate('setLayersError', o.layerindex));
   			}
       }
     },
