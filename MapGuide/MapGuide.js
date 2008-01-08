@@ -300,7 +300,7 @@ Fusion.Maps.MapGuide.prototype = {
             this.bMapLoaded = true;
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
-                        'Failed to load requested map:\n'+r.responseText));
+                OpenLayers.String.translate('mapLoadError', r.responseText)));
         }
         this.mapWidget._removeWorker();
     },
@@ -348,7 +348,7 @@ Fusion.Maps.MapGuide.prototype = {
 
     reloadFailed: function(r) {
       Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
-                      'Failed to reload requested map:\n'+r.transport.responseText));
+        OpenLayers.String.translate('mapLoadError', r.transport.responseText)));
       this.mapWidget._removeWorker();
     },
 
@@ -362,7 +362,7 @@ Fusion.Maps.MapGuide.prototype = {
             this.drawMap();
         } else {
             Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL, 
-                            'Failed to load requested map:\n'+r.responseText));
+                OpenLayers.String.translate('mapLoadError', r.responseText)));
         }
         this.mapWidget._removeWorker();
     },
@@ -399,7 +399,7 @@ Fusion.Maps.MapGuide.prototype = {
                 this.drawMap();
                 this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
             } else {
-                alert("setLayers failure:"+o.layerindex);
+                alert(OpenLayers.String.translate('setLayersError', o.layerindex));
             }
         }
     },

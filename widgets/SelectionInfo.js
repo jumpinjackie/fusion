@@ -45,7 +45,7 @@
 
 Fusion.Widget.SelectionInfo = Class.create();
 Fusion.Widget.SelectionInfo.prototype = {
-    defaultTemplate: '{features} features selected on {layers} layers',
+    defaultTemplate: 'selectionInfo',
     domSpan: null,
     
     initialize : function(widgetTag) {
@@ -60,7 +60,7 @@ Fusion.Widget.SelectionInfo.prototype = {
         
         this.domSpan = document.createElement('span');
         this.domSpan.className = 'spanSelectionInfo';
-        this.domSpan.innerHTML = this.emptyText;
+        this.domSpan.innerHTML = OpenLayers.String.translate(this.emptyText);
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.domSpan);
 
@@ -76,9 +76,9 @@ Fusion.Widget.SelectionInfo.prototype = {
             var layers = map.getSelectedLayers();
             var nLayers = layers.length;
             var nFeatures = map.getSelectedFeatureCount();
-            this.domSpan.innerHTML = this.template.replace('{layers}',nLayers).replace('{features}',nFeatures);
+            this.domSpan.innerHTML = OpenLayers.String.translate(this.template,nLayers,nFeatures);
         } else {
-            this.domSpan.innerHTML = this.emptyText;
+            this.domSpan.innerHTML = OpenLayers.String.translate(this.emptyText);
         }
     }
 };

@@ -82,7 +82,7 @@ Fusion.Widget.Print.prototype = {
 
             var size = Element.getPageDimensions();
             var o = {
-                title: 'Printable Page ',
+                title: OpenLayers.String.translate('printTitle'),
                 id: 'printablePage',
                 contentURL : this.dialogContentURL,
                 onContentLoaded: this.contentLoaded.bind(this),
