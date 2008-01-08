@@ -164,10 +164,10 @@ if ($oMap) {
          $layerObj->displayInLegend = $displayInLegend == 'false' ? false : true;
          
          $expandInLegend = strtolower($layer->getMetaData('expandInLegend'));
-         $layerObj->expandInLegend = $expandInLegend == 'false' ? false : true;;
+         $layerObj->expandInLegend = $expandInLegend == 'false' ? false : true;
          $layerObj->resourceId = $layer->name;
-         $layerObj->parentGroup = '';
-         
+         $layerObj->parentGroup = $layer->group;
+                  
          $legendLabel = $layer->getMetaData('legendLabel');
          if ($legendLabel == '') {
              $legendLabel = $layer->name;
@@ -241,21 +241,33 @@ if ($oMap) {
          array_push($mapObj->layers, $layerObj);
     } 
     $mapObj->groups = array();
+    $aGroups = $oMap->getAllGroupNames();
+    foreach($aGroups as $groupName) {
+        $aLayerIndexes = $oMap->getLayersIndexByGroup($groupName);
+        if (count($aLayerIndexes) > 0) {
+            array_push($mapObj->groups, getGroupObject($oMap->getLayer($aLayerIndexes[0])));
+        }
+    }
     echo var2json($mapObj);
 }
 
-function getGroupObject() {
+function getGroupObject($layer) {
     $group = NULL;
-    $group->groupName = '';
-    $group->legendLabel = '';
-    $group->uniqueId = '';
-    $group->displayInLegend = '';
-    $group->expandInLegend = '';
+    $group->groupName = $layer->group;
+    $ll = $layer->getMetaData('groupLegendLabel');
+    $group->legendLabel = $ll != '' ? $ll : $group->groupName;
+    $group->uniqueId = $group->groupName;
+    $b = $layer->getMetaData('groupDisplayInLegend');
+    $group->displayInLegend = ($b == 'false') ? false : true;
+    $b = $layer->getMetaData('groupExpandInLegend');
+    $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
+    /* parent is always not set for mapserver since we can't have nested groups */
     $group->parentUniqueId = '';
     $group->parent = '';
-    $group->visible = '';
-    $group->actuallyVisible = '';
+    $b = $layer->getMetaData('groupVisible');
+    $group->visible = ($b == 'false') ? false : true;
+    $group->actuallyVisible = $layer->isVisible();
   
     return $group;
 }
