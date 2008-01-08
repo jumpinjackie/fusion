@@ -22,6 +22,9 @@
 'nextTask': 'go to next task executed',
 'taskList': 'Task List',
 'taskPane': 'Task Pane',
+'imperial': 'Imperial',
+'metric': 'Metric',
+'deg': 'Degrees',
 
 'end': ''
 };
