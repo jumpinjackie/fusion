@@ -547,6 +547,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
             $geomName = $classDef->GetDefaultGeometryPropertyName();
             if ($geomName != '') {
                 $geomByteReader = $featureReader->GetGeometry($geomName);
+                /* is this needed? We declare one outside the loop too?*/
                 $agf = new MgAgfReaderWriter();
                 $geom = $agf->Read($geomByteReader);
 
