@@ -58,9 +58,7 @@
   </Parameter>
   <Parameter>
     <Name>Template</Name>
-    <Description>A template string to display the size.  Values in {} will be 
-    replaced by actual values
-    </Description>
+    <Description>A template string to display the size. Values in {} will be replaced by actual values</Description>
     <Type>String</Type>
     <Label>Template</Label>
     <DefaultValue>{w} x {h} {units}</DefaultValue>
