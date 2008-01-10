@@ -29,28 +29,13 @@
  * Save the current map image on the client's computer
  *
  * usage:
- * DWF format support requires a structure like this in the weblayout:
- * scales
- * <Command xsi:type="FusionCommandType">
- *    <Name>SaveDWF</Name>
- *    <Label>Save as DWF</Label>
- *    <Tooltip>Click to save the current map as a DWF document</Tooltip>
- *    <TargetViewer>All</TargetViewer>
- *    <PrintLayout>
- *        <Name>My Layout</Name>
- *        <ResourceId>Library://PrintLayouts/first.PrintLayout</ResourceId>
- *        <Scale>25000</Scale>
- *        <Scale>10000</Scale>
- *    </PrintLayout>
- *    <PrintLayout>
- *        <Name>My Other Layout</Name>
- *        <ResourceId>Library://PrintLayouts/second.PrintLayout</ResourceId>
- *    </PrintLayout>
- *    <Action>SaveMap</Action>
- *    <Format>DWF</Format>
- * </Command>
- *
-
+ * DWF format support requires a structure like this in the application
+ * definition's widget tag extension:
+ *    <Extension>
+ *      <Format></Format>
+ *      <ResourceId></ResourceId>
+ *      <Scale></Scale>
+ *    </Extension>
  * **********************************************************************/
 
 Fusion.Widget.SaveMap = Class.create();
@@ -67,10 +52,17 @@ Fusion.Widget.SaveMap.prototype = {
                        json.Format[0] : 'png';
         
         //for DWF, parse printLayouts and build menu
-        if (this.format == 'DWF' && json.PrintLayout.length) {
-            
-            this.printLayout = json.PrintLayout[0];
-            this.printScale =  this.printLayout.Scale[0];
+        if (this.format == 'DWF') {
+            if (json.ResourceId) {
+                this.printLayout = json.ResourceId[0];
+                if (json.Scale) {
+                    this.printScale =  json.Scale[0];
+                }
+            } else {
+                //TODO: Warning that the widget is improperly configured
+                //because we need  print layout for this to work.
+                //TODO: deactivate the widget?
+            }
         }
 
         this.enable = Fusion.Widget.SaveMap.prototype.enable;
@@ -84,8 +76,7 @@ Fusion.Widget.SaveMap.prototype = {
      * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      * prompts user to save the map.
      */
-    activateTool : function()
-    {
+    activateTool : function() {
         if (!this.iframe) {
             this.iframe = document.createElement('iframe');
             this.iframe.id = 'w';
@@ -95,8 +86,15 @@ Fusion.Widget.SaveMap.prototype = {
         var szLayout = '';
         var szScale = '';
         if (this.format === 'DWF') {
-            szLayout = '&layout=' + this.printLayout;
-            szScale = '&scale=' + this.printScale;
+            if (this.printLayout) {
+                szLayout = '&layout=' + this.printLayout;                
+            } else {
+                //TODO: issue an error?
+                return;
+            }
+            if (this.printScale) {
+                szScale = '&scale=' + this.printScale;
+            }
         }
         //TODO: revisit Fusion.getWebAgentURL
 		var m = this.getMap().aMaps[0];
