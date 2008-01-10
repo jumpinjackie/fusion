@@ -87,7 +87,7 @@ Fusion.Maps.MapGuide.prototype = {
 
         this.keepAliveInterval = parseInt(extension.KeepAliveInterval ? extension.KeepAliveInterval[0] : 300);
         
-        var sid = Fusion.getQueryParam("session");
+        var sid = Fusion.sessionId;
         if (sid) {
             this.session[0] = sid;
             this.mapSessionCreated();
