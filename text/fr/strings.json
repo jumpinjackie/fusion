@@ -25,6 +25,16 @@
 'imperial': 'Imperial',
 'metric': 'Metric',
 'deg': 'Degrees',
+'refresh': 'Refresh',
+'expandAll': 'Expand All',
+'expand': 'Expand',
+'collapseAll': 'Collapse All',
+'collapse': 'Collapse',
+'defaultMapTitle': 'Map',
+'legendTitle': 'Legend',
+'selectionPanelTitle': 'Sélection',
+'ovmapTitle': 'Overview Map',
+'taskPaneTitle': 'Tasks',
 
 'end': ''
 };
