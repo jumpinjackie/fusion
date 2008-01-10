@@ -35,6 +35,8 @@
 'selectionPanelTitle': 'Selection',
 'ovmapTitle': 'Overview Map',
 'taskPaneTitle': 'Tasks',
+'segment': 'Segment {0}',
+'calculating': 'calculating ...',
 
 'end': ''
 };

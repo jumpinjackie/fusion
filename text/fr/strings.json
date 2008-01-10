@@ -14,7 +14,8 @@
 'setLayersError': "setLayers failure: {0}",
 'printTitle': 'Printable Page ',
 'noSelection': 'Aucun Sélection',
-'selectionInfo': '{0} features selected on {1} layers',
+'No Selection': 'Aucun Sélection',
+'selectionInfo': '{0} features selected on {1} layers - translate me',
 'attribute': 'Attribute',
 'value': 'Value',
 'taskHome': 'return to the task pane home',
@@ -35,6 +36,8 @@
 'selectionPanelTitle': 'Sélection',
 'ovmapTitle': 'Overview Map',
 'taskPaneTitle': 'Tasks',
+'segment': 'Segment {0}',
+'calculating': 'calculating ...',
 
 'end': ''
 };
