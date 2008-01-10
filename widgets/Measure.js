@@ -374,7 +374,7 @@ Fusion.Widget.Measure.prototype = {
         var s = aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage() ;
         var sessionId = aMaps[0].getSessionID();
         var params = {};
-        params.parameters = 'session='+sessionId+'&mapname='+ this.getMap().getMapName()+points;
+        params.parameters = 'session='+sessionId+'&locale='+Fusion.locale+'&mapname='+ this.getMap().getMapName()+points;
         params.onComplete = this.measureCompleted.bind(this, segment, marker);
         Fusion.ajaxRequest(s, params);
     },
