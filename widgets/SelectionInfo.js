@@ -77,7 +77,7 @@ Fusion.Widget.SelectionInfo.prototype = {
             var nLayers = layers.length;
             var nFeatures = map.getSelectedFeatureCount();
             if (this.template) {
-              this.domSpan.innerHTML = this.template.replace('{features}',nFeatures).replace('{layers}',nLayers);
+              this.domSpan.innerHTML = this.template.replace('{0}',nFeatures).replace('{1}',nLayers);
             } else {
               this.domSpan.innerHTML = OpenLayers.String.translate(this.defaultTemplate,nFeatures,nLayers);
             }
