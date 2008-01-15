@@ -116,8 +116,6 @@ Fusion.Widget.Print.prototype = {
     },
     
     contentLoaded: function(dialog) {
-        alert("Print widget: content loaded:"+this.crap);
-        debugger;
         dialog.registerIds(['dialogPrintShowtitle', 
                                  'dialogPrintTitle',
                                  'dialogPrintShowlegend',
