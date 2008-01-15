@@ -145,6 +145,10 @@ Fusion.Maps.MapServer.prototype = {
         return this._sMapname;
     },
     
+    getMapTitle: function() {
+        return this._sMapTitle;
+    },
+    
     loadMap: function(mapfile, options) {
         while (this.mapWidget.isBusy()) {
 	        this.mapWidget._removeWorker(); 

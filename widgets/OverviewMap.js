@@ -34,7 +34,7 @@ Fusion.Widget.OverviewMap = Class.create();
 Fusion.Widget.OverviewMap.prototype = {
     oSize: null,
     nMinRatio : 4,
-    nMaxRatio : 32,
+    nMaxRatio : 64,
     bDisplayed : false,
   
     initialize : function(widgetTag) {
@@ -101,12 +101,20 @@ Fusion.Widget.OverviewMap.prototype = {
         
         var size = Element.getContentBoxSize(this.domObj);
         this.oSize = new OpenLayers.Size(size.width, size.height);
+        var extent = this.mapObject.oLayerOL.maxExtent;
+        var wRes = extent.getWidth() / ((size.width!=0)?size.width:256);
+        var hRes = extent.getHeight()/ ((size.height!=0)?size.height:256);
+        var maxRes = Math.max(wRes, hRes);
         
-        this.mapObject.oLayerOL.isBaseLayer = true;  
+        //explicitly set the resolutions array for the overview map
         if (this.mapObject.oLayerOL.singleTile) {
-          this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
+          this.oMapOptions.resolutions = [ maxRes,
+            maxRes/(this.nMinRatio),
+            maxRes/(this.nMinRatio*this.nMinRatio)
+          ];
         }
 
+        this.mapObject.oLayerOL.isBaseLayer = true;  
         this.mapObject.oLayerOL.ratio = 1.0;
         var mapOpts = {
           div: this.domObj,
