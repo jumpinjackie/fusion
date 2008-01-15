@@ -59,7 +59,7 @@ function OnMouseDown(e)
 function ExecuteCommand()
 {
     //build the destination layer set
-    var layerSet = "";
+    layerSet = "";
     var list = document.getElementById("layers");
     var layerNames = document.getElementById("layerNames");
     var count = list.options.length;
@@ -69,9 +69,8 @@ function ExecuteCommand()
         var opt = list.options[i];
         if(opt.selected)
         {
-            if(selIndex > 0) {
-                layerSet += ",";
-            }
+            if(selIndex > 0)
+                layerSet = "," + layerSet;
             layerSet += layerNames.options[i].text;
             selIndex ++;
         }
@@ -79,51 +78,14 @@ function ExecuteCommand()
     if(layerSet == "")
         return;
 
-    var map = GetParent().Fusion.getMapByName(mapName);
     var params = "mapname=" + encodeURIComponent(mapName) + "&session=" + sessionId + "&layers=" + encodeURIComponent(layerSet);
     var options = {onSuccess: selected, onFailure: selectedError, parameters:params};
     GetParent().Fusion.ajaxRequest(webAgent, options);
 }
 
-    /**
-       Call back function when slect functions are called (eg queryRect)
-    */
 function selected(r) {
-    var mapWidget = GetParent().Fusion.getMapByName(mapName);
-	var map = mapWidget.aMaps[0];
-	mapWidget._removeWorker();
-	if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
-		var oNode;
-		eval('oNode='+r.responseText);
-		
-		if (oNode.hasSelection) {
-		  // set the feature count on each layer making up this map
-		  for (var i=0; i<oNode.layers.length; ++i) {
-			var layerName = oNode.layers[i];
-			for (var j=0; j<map.aLayers.length; ++j) {
-			  if (layerName == map.aLayers[j].layerName) {
-				map.aLayers[j].selectedFeatureCount = oNode[layerName].featureCount;
-			  }
-			}
-		  }
-		  map.newSelection();
-		} else {
-		  map.drawMap();
-		}
-	}
-	
-    if (popup) {
-      window.close();
-    } else {
-      var TaskPaneId=this.frameElement.taskPaneId;
-      GetParent().Fusion.getWidgetById(TaskPaneId).goHome();  
-    }
-}
-
-function selectedxx(r) {
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.triggerEvent(GetParent().Fusion.Event.MAP_SELECTION_ON);
-    //map.setSelection(r.responseText, true, false);
+    map.setSelection(r.responseText, true, false);
 
     if (popup) {
       window.close();

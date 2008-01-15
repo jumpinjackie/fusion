@@ -34,13 +34,9 @@ include('../../common/php/Utilities.php');
 include('Utilities.php');
 
 
-header('Content-type: text/x-json');
-header('X-JSON: true');
-
 $result = NULL;
 $result->layers = array();
 
-try {
 if (isset($_SESSION['selection_array']))
 {
     $bAllLayers = 1;
@@ -142,15 +138,10 @@ if (isset($_SESSION['selection_array']))
     }
 }
 
-echo var2json($result);
-} 
-catch (MgException $e)
-{
-  echo "ERROR: " . $e->GetMessage() . "\n";
-  echo $e->GetDetails() . "\n";
-  echo $e->GetStackTrace() . "\n";
-}
 
+header('Content-type: text/x-json');
+header('X-JSON: true');
+echo var2json($result);
 
 
 ?>
