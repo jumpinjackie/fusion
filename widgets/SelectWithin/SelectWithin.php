@@ -26,7 +26,6 @@
 
   $fusionMGpath = '../../MapGuide/php/';
   include $fusionMGpath . 'Common.php';
-  include('../../common/php/Utilities.php');
 
   $mapName = "";
   $sessionId = "";
@@ -43,76 +42,25 @@
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 
-    $selection = new MgSelection($map);
-    $selection->Open($resourceService, $mapName);
-	
     $layers = explode(",", $layers);
     if (count($layers) > 0) {
 
       $layerNames = new MgStringCollection();
-      for ($i = 0; $i < count($layers); $i++) {
+      for ($i = 0; $i < count($layers); $i++)
         $layerNames->Add($layers[$i]);
-	  }
+
       // create a multi-polygon or a multi-geometry containing the input selected features
-      $inputGeom = MultiGeometryFromSelection($featureSrvc, $selection, $map, $mapName);
+      $inputGeom = MultiGeometryFromSelection($featureSrvc, $resourceService, $map, $mapName);
       if ($inputGeom) {
-	  
         // Query all the features belonging the the layer list that intersects with the input geometries
         $fi = $renderingSrvc->QueryFeatures($map, $layerNames, $inputGeom, MgFeatureSpatialOperations::Intersects, -1);
         if ($fi) {
-          $selection = $fi->GetSelection();
-          if( $selection) {
-            $selection->Save($resourceService, $mapName);
+          $resultSel = $fi->GetSelection();
+          if( $resultSel) {
             //return XML
-            //header("Content-type: text/xml");
-            //echo $selection->ToXml();
-		
-    header('Content-type: text/x-json');
-    header('X-JSON: true');
-    $selection = new MgSelection($map);
-    $selection->Open($resourceService, $mapName);
-	  
-    $layers = $selection->GetLayers();
-    $result = NULL;
-    $result->hasSelection = false;
-    if ($layers && $layers->GetCount() >= 0) 
-    {
-        $result->hasSelection = true;
-        $oExtents = $selection->GetExtents($featureSrvc);
-        if ($oExtents) 
-        {
-            $oMin = $oExtents->GetLowerLeftCoordinate();
-            $oMax = $oExtents->GetUpperRightCoordinate();
-            $result->extents = NULL;
-            $result->extents->minx = $oMin->GetX();
-            $result->extents->miny = $oMin->GetY();
-            $result->extents->maxx = $oMax->GetX();
-            $result->extents->maxy = $oMax->GetY();
-
-            /*keep the full extents of the selection when saving the selection in the session*/
-            $properties->extents = NULL;
-            $properties->extents->minx = $oMin->GetX();
-            $properties->extents->miny = $oMin->GetY();
-            $properties->extents->maxx = $oMax->GetX();
-            $properties->extents->maxy = $oMax->GetY();
-        }
-        $result->layers = array();
-        for ($i=0; $i<$layers->GetCount(); $i++) {
-          $layer = $layers->GetItem($i);
-          $layerName = $layer->GetName();
-          array_push($result->layers, $layerName);
-          $layerClassName = $layer->GetFeatureClassName();
-          $filter = $selection->GenerateFilter($layer, $layerClassName);
-          $a = explode('OR', $filter);
-          $result->$layerName->featureCount = count($a);
-        }
-
-        /*save selection in the session*/
-        $_SESSION['selection_array'] = $properties; 
-    } 
-    echo var2json($result);
-
-			}
+            header("Content-type: text/xml");
+            echo $resultSel->ToXml();
+          }
         }
       }
     }
@@ -123,9 +71,11 @@
     return;
   }
 
-function MultiGeometryFromSelection($featureSrvc, $selection, $map, $mapName)
+function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
 {
-    $selLayers = $selection->GetLayers();
+    $sel = new MgSelection($map);
+    $sel->Open($resourceSrvc, $mapName);
+    $selLayers = $sel->GetLayers();
     $geomColl = new MgGeometryCollection();
     $agfRW = new MgAgfReaderWriter();
     $polyOnly = true;
@@ -133,7 +83,7 @@ function MultiGeometryFromSelection($featureSrvc, $selection, $map, $mapName)
     for($i = 0; $i < $selLayers->GetCount(); $i++)
     {
         $layer = $selLayers->GetItem($i);
-        $filter = $selection->GenerateFilter($layer, $layer->GetFeatureClassName());
+        $filter = $sel->GenerateFilter($layer, $layer->GetFeatureClassName());
         $query = new MgFeatureQueryOptions();
         $query->SetFilter($filter);
         $featureSource = new MgResourceIdentifier($layer->GetFeatureSourceId());
