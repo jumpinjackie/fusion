@@ -142,6 +142,10 @@ Fusion.Maps.MapGuide.prototype = {
         return this._sMapname;
     },
     
+    getMapTitle: function() {
+        return this._sMapTitle;
+    },
+    
     loadMap: function(resourceId, options) {
         this.bMapLoaded = false;
 

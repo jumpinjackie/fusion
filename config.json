@@ -24,7 +24,7 @@
        for MapServer. */
    mapserver: {
 	    /* The URL of the mapserver CGI that you want to use.  */
-	    cgi: '/cgi-bin/mapserv',
+	    cgi: '/cgi-bin/mapserv.exe',
 	    /* The file system path to where mapserver should put
 	        web-accessible temporary images. */
 	    imagePath: '/tmp/ms_tmp',
