@@ -336,6 +336,7 @@ Fusion.Maps.MapGuide.prototype = {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
         this.layerRoot.clear();
+        this.oldLayers = this.aLayers.clone();
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
@@ -348,6 +349,8 @@ Fusion.Maps.MapGuide.prototype = {
                       onException: this.reloadFailed.bind(this),
                       parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
+        
+        
     },
 
     reloadFailed: function(r) {
@@ -362,6 +365,16 @@ Fusion.Maps.MapGuide.prototype = {
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
+            for (var i=0; i<this.aLayers.length; ++i) {
+              var newLayer = this.aLayers[i];
+              for (var j=0; j<this.oldLayers.length; ++j){
+                if (this.oldLayers[j].uniqueId == newLayer.uniqueId) {
+                  newLayer.selectedFeatureCount = this.oldLayers[j].selectedFeatureCount;
+                  break;
+                }
+              }
+            }
+            this.oldLayers = null;
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
             this.drawMap();
         } else {
