@@ -93,7 +93,8 @@ Class MGUserManager {
             $siteConnection = new MgSiteConnection();
             $siteConnection->Open($user);
             $site = $siteConnection->GetSite();
-            $fullname = trim($firstName." ".$surName);
+            $username = trim($username);
+            $fullname = $username;
             $site->AddUser($username, $username, $password, $fullname);                
             //set author role
             $usersToGrant = new MgStringCollection();
