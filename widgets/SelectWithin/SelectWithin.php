@@ -26,6 +26,8 @@
 
   $fusionMGpath = '../../MapGuide/php/';
   include $fusionMGpath . 'Common.php';
+  include $fusionMGpath . 'Utilities.php';
+  include('../../common/php/Utilities.php');
 
   $mapName = "";
   $sessionId = "";
@@ -41,14 +43,23 @@
     //load the map runtime state
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
+    
+    //object to hold response
+    $result = NULL;
+    $result->hasSelection = false;
+
+    /*holds selection array*/
+    $properties = NULL;
+    $properties->layers = array();
 
     $layers = explode(",", $layers);
     if (count($layers) > 0) {
 
       $layerNames = new MgStringCollection();
-      for ($i = 0; $i < count($layers); $i++)
+      for ($i = 0; $i < count($layers); $i++) {
         $layerNames->Add($layers[$i]);
-
+      }
+      
       // create a multi-polygon or a multi-geometry containing the input selected features
       $inputGeom = MultiGeometryFromSelection($featureSrvc, $resourceService, $map, $mapName);
       if ($inputGeom) {
@@ -56,14 +67,70 @@
         $fi = $renderingSrvc->QueryFeatures($map, $layerNames, $inputGeom, MgFeatureSpatialOperations::Intersects, -1);
         if ($fi) {
           $resultSel = $fi->GetSelection();
+          $props = $fi->GetProperties();    //!!This only works for a single layer
+          $propertyNames = new MgStringCollection();
+          for ($k=0; $k<$props->GetCount(); $k++) {
+            $prop = $props->GetItem($k);
+            $propertyNames->Add($prop->GetName());
+          }
           if( $resultSel) {
             //return XML
-            header("Content-type: text/xml");
-            echo $resultSel->ToXml();
+            //header("Content-type: text/xml");
+            //$xmlString = $resultSel->ToXml();
+            $resultSel->Save($resourceService, $mapName);
+    
+            $resultSel = new MgSelection($map);
+            $resultSel->Open($resourceService, $mapName);
+            //echo $resultSel->ToXml();
+            //$xmlSel = new MgSelection($map, $xmlString);
+	  
+            $layers = $resultSel->GetLayers();
+            if ($layers && $layers->GetCount() >= 0) {
+              $result->hasSelection = true;
+              $oExtents = $resultSel->GetExtents($featureSrvc);
+              if ($oExtents) {
+                $oMin = $oExtents->GetLowerLeftCoordinate();
+                $oMax = $oExtents->GetUpperRightCoordinate();
+                $result->extents = NULL;
+                $result->extents->minx = $oMin->GetX();
+                $result->extents->miny = $oMin->GetY();
+                $result->extents->maxx = $oMax->GetX();
+                $result->extents->maxy = $oMax->GetY();
+
+                /*keep the full extents of the selection when saving the selection in the session*/
+                $properties->extents = NULL;
+                $properties->extents->minx = $oMin->GetX();
+                $properties->extents->miny = $oMin->GetY();
+                $properties->extents->maxx = $oMax->GetX();
+                $properties->extents->maxy = $oMax->GetY();
+              }
+              $result->layers = array();
+              for ($i=0; $i<$layers->GetCount(); $i++) {
+                $layer = $layers->GetItem($i);
+                $layerName = $layer->GetName();
+                $layerClassName = $layer->GetFeatureClassName();
+                echo "before feature reader:".$layerClassName.":";
+                $featureReader = $resultSel->GetSelectedFeatures($layer, $layerClassName, false);
+                echo "after feature reader";
+                $properties = BuildSelectionArray($featureReader, $layerName, $properties, false, NULL, false, $layer);
+                
+                array_push($result->layers, $layerName);
+                array_push($properties->layers, $layerName);
+                $count = $resultSel->GetSelectedFeaturesCount($layer, $layerClassName);
+                $result->$layerName->featureCount = $count;
+              }
+
+              /*save selection in the session*/
+              $_SESSION['selection_array'] = $properties; 
+            }
           }
         }
       }
     }
+    
+    header('Content-type: text/x-json');
+    header('X-JSON: true');
+    echo var2json($result);
   } catch(MgException $e) {
     echo "\nException: " . $e->GetDetails();
     return;
