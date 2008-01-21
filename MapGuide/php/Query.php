@@ -505,28 +505,15 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
     array_push($properties->$layerName->metadatanames, 'area');
     array_push($properties->$layerName->metadatanames, 'length');
 
-    $propCount = $featureReader->GetPropertyCount();
-    $numproperties =0;
-    for($j=0; $j<$propCount; $j++)
+    $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];
+    foreach($mappings as $name => $value)
     {
-        $propName = $featureReader->GetPropertyName($j);
-        $propType = $featureReader->GetPropertyType($propName);
-        if ($propType == MgPropertyType::Geometry) {
-            continue;
-        }
-        $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];
-        if (count($mappings) > 0)
-        {
-          if (!in_array($propName, array_keys($mappings)))
-            continue;
-        }
-        $mapping = isset($mappings[$propName]) ? $mappings[$propName] : $propName;
-        array_push($properties->$layerName->propertynames, $propName);
-        array_push($properties->$layerName->propertyvalues, $mapping);
+        $propType = $featureReader->GetPropertyType($name);
+        array_push($properties->$layerName->propertynames, $name);
+        array_push($properties->$layerName->propertyvalues, $value);
         array_push($properties->$layerName->propertytypes, $propType);
-        $numproperties++;
-
     }
+
 
     $srsTarget = null;
     $srsXform = null;
@@ -589,7 +576,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
         array_push($properties->$layerName->metadata[$properties->$layerName->numelements], $area);
         array_push($properties->$layerName->metadata[$properties->$layerName->numelements], $length);
 
-
+        $numproperties = count($properties->$layerName->propertynames);
         for($j=0; $j<$numproperties; $j++)
         {
             $propname = $properties->$layerName->propertynames[$j];
