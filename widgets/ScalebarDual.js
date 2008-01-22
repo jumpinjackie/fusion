@@ -41,17 +41,25 @@ Fusion.Widget.ScalebarDual.prototype = {
         
         this.content = $(this.getName());
         
+        var scaleDiv = document.createElement('div');
+        Element.addClassName(scaleDiv, 'scaleDiv');
+        Element.addClassName(scaleDiv, 'scaleMetric');
+        this.content.appendChild(scaleDiv);
+        
         this.metricDiv = document.createElement('div');
         this.metricDiv.style.backgroundColor = 'olive';//remove this when css is done
-        Element.addClassName(this.metricDiv, 'scaleDiv');
-        Element.addClassName(this.metricDiv, 'scaleMetric');
-        this.content.appendChild(this.metricDiv);
+        Element.addClassName(this.metricDiv, 'scaleLabel');
+        scaleDiv.appendChild(this.metricDiv);
+        
+        scaleDiv = document.createElement('div');
+        Element.addClassName(scaleDiv, 'scaleDiv');
+        Element.addClassName(scaleDiv, 'scaleImperial');
+        this.content.appendChild(scaleDiv);
         
         this.imperialDiv = document.createElement('div');
         this.imperialDiv.style.backgroundColor = 'green';//remove this when css is done
-        Element.addClassName(this.imperialDiv, 'scaleDiv');
-        Element.addClassName(this.imperialDiv, 'scaleImperial');
-        this.content.appendChild(this.imperialDiv);
+        Element.addClassName(this.imperialDiv, 'scaleLabel');
+        scaleDiv.appendChild(this.imperialDiv);
         
         Element.addClassName(this.domObj, 'dualScalebar');
         
