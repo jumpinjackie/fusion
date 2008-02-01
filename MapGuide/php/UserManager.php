@@ -506,23 +506,6 @@ class FusionUser {
     }
 }
 
-
-function ByteReaderToString($byteReader)
-{
-    $buffer = '';
-    do
-    {
-        $data = str_pad("\0", 50000, "\0");
-        $len = $byteReader->Read($data, 50000);
-        if ($len > 0)
-        {
-            $buffer = $buffer . substr($data, 0, $len);
-        }
-    } while ($len > 0);
-
-    return $buffer;
-}
-
 function Test() {
     $manager = new MGUserManager(NULL);
     $prefId = $manager->AddPref('map', 'Sheboygan');

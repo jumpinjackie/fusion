@@ -669,6 +669,9 @@ function ByteReaderToString($byteReader)
 function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName)
 {
     $val = "";
+    if ($propertyType == null) {
+      $propertyType = $featureReader->GetPropertyType($propertyName);
+    }
 
     switch ($propertyType)
     {
