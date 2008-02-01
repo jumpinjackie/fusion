@@ -519,6 +519,25 @@ Fusion.Maps.MapGuide.prototype = {
     },
             
     /**
+     * Function: getLayerByName
+     * 
+     * Returns the MapGuide layer object as identified by the layer name
+     */
+    getLayerByName : function(name)
+    {
+        var oLayer = null;
+        for (var i=0; i<this.aLayers.length; i++)
+        {
+            if (this.aLayers[i].layerName == name)
+            {
+                oLayer = this.aLayers[i];
+                break;
+            }
+        }
+        return oLayer;
+    },
+
+    /**
      * Function: isMapLoaded
      * 
      * Returns true if the Map has been laoded succesfully form the server
