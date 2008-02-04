@@ -818,7 +818,12 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                     if ($bNeedsTransform && $srsTarget == null && $srsXform == null) {
                         $srsTarget = $srsFactory->Create(getUtmWkt($centroid->GetX(),
                                                                    $centroid->GetY()));
-                        $srsXform = $srsFactory->GetTransform($srsLayer, $srsTarget);
+                        $verMajor = subStr(GetSiteVersion(), 0,1);
+                        if ($verMajor == '1') {
+                          $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
+                        } else {
+                          $srsXform = $srsFactory->GetTransform($srsLayer, $srsTarget);
+                        }
                     }
                     if ($srsXform != null) {
                         try {
@@ -866,5 +871,15 @@ function getUtmWkt($lon, $lat) {
     $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
 
     return sprintf( $epsg42003, $lon, $lat);
+}
+
+function GetSiteVersion() {
+    global $user;
+    $serverAdmin = new MgServerAdmin();
+    $serverAdmin->Open($user);
+    $infoProps = $serverAdmin->GetInformationProperties();
+    $versionProp = $infoProps->GetItem(MgServerInformationProperties::ServerVersion);
+    $serverVersion = $versionProp->GetValue();
+    return $serverVersion;
 }
 ?>
