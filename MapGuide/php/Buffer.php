@@ -200,7 +200,12 @@ try {
 
         // create a SRS transformer if necessary.
         if($layerSrsWkt != $srsDefMap) {
-            $srsXform = $srsFactory->GetTransform($layerCs, $srsMap);
+            $verMajor = subStr(GetSiteVersion(), 0,1);
+            if ($verMajor == '1') {
+              $srsXform = new MgCoordinateSystemTransform($layerCs, $srsMap);
+            } else {
+              $srsXform = $srsFactory->GetTransform($layerCs, $srsMap);
+            }
         } else {
             $srsXform = null;
         }
