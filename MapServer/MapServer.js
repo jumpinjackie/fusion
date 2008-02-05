@@ -458,7 +458,10 @@ Fusion.Maps.MapServer.prototype = {
         this.oLayerOL.setVisibility(true);
       } else {
         this.aVisibleGroups.push(sGroup);
-        //TODO: manipulate aVisibleLayers based on layers in the group
+        var group = this.layerRoot.findGroup(sGroup);
+        for (var i=0; i<group.layers.length; ++i) {
+          group.layers[i].show();
+        }
         this.drawMap();
       }
     },
@@ -473,7 +476,10 @@ Fusion.Maps.MapServer.prototype = {
                 break;
             }
         }
-        //TODO: manipulate aVisibleLayers based on layers in the group
+        var group = this.layerRoot.findGroup(sGroup);
+        for (var i=0; i<group.layers.length; ++i) {
+          group.layers[i].hide();
+        }
         this.drawMap();
       }
     },
