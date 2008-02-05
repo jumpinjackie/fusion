@@ -33,7 +33,53 @@ include(dirname(__FILE__).'/Common.php');
 if (!isset($mapName)) {
     die('mapname not set');
 }
+
+$legendIconCacheFile = "";
+
 if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
+    /* json decode only in PHP 5.2 and later */
+    if (function_exists('json_decode')) {
+        $configFile = realpath(dirname(__FILE__)."/../../config.json");
+        if (file_exists($configFile)) {
+            $configStr = file_get_contents($configFile);
+            /* replace single quotes with double quotes */
+            $configStr = str_replace("'", '"', $configStr);
+            /* get rid of new lines, it just complicates things */
+            $configStr = str_replace("\n", '', $configStr);
+            /* get rid of embedded comments */
+            $configStr = preg_replace("/\/\*.*\*\//U", "", $configStr);
+            /* the regex after this one can't handle http: as a value, so mangle it. */
+            $configStr = preg_replace("/http:/U", "http_", $configStr);
+            /* quote unquoted attribute names */
+            $configStr = preg_replace("/[^\"]{1}(\w*):/U", "\"$1\":", $configStr);
+            /* decode the whole thing */
+            $configObj = json_decode($configStr, false);
+            /* if the legendIconCache dir is set */
+            if (isset($configObj->mapserver->legendIconCacheDir)) {
+              $legendIconCacheDir = $configObj->mapserver->legendIconCacheDir;
+              $cacheLegendIcons = true;
+              $str = file_get_contents($_SESSION['maps'][$mapName]);
+              /* create a unique location for the map icons based on
+               * the content of the of map file.  If the content changes
+               * then the icons should be rebuilt anyway
+               */
+              $legendIconCacheDir = $legendIconCacheDir.md5($str)."/";
+              if (!is_dir($legendIconCacheDir)) {
+                mkdir($legendIconCacheDir);
+              }
+              /* TODO: can we figure out what the content type is? */
+              $legendIconCacheFile = $legendIconCacheDir."_".$REQUEST_VARS['layername']."_".$REQUEST_VARS['classindex'].".png";
+              /* if the icon exists, return it */
+              if (file_exists($legendIconCacheFile)) {
+                  /* TODO: can we figure out what the content type is? */
+                  header('Content-type: image/png');
+                  readfile($legendIconCacheFile);
+                  exit;
+              }
+            }
+        }
+    }
+
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
     $oLayer = $oMap->getLayerByName($REQUEST_VARS['layername']);
     $oClass = $oLayer->getClass($REQUEST_VARS['classindex']);
@@ -47,7 +93,12 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oImg = $oClass->createLegendIcon($width, $height);
     /* TODO: can we figure out what the content type is? */
     header('Content-type: image/png');
-    $oImg->saveImage("");
+    if ($cacheLegendIcons) {
+        $oImg->saveImage($legendIconCacheFile);
+        readfile($legendIconCacheFile);
+    } else {
+      $oImg->saveImage("");
+    }
     $oImg->free();
 }
 ?>
