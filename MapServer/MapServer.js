@@ -425,7 +425,7 @@ Fusion.Maps.MapServer.prototype = {
     },
     
     drawMap: function() {
-        if (!this.bMapLoaded) {
+        if (!this.bMapLoaded || this.deferredDraw) {
             return;
         }
 
@@ -459,9 +459,11 @@ Fusion.Maps.MapServer.prototype = {
       } else {
         this.aVisibleGroups.push(sGroup);
         var group = this.layerRoot.findGroup(sGroup);
+        this.deferredDraw = true;
         for (var i=0; i<group.layers.length; ++i) {
           group.layers[i].show();
         }
+        this.deferredDraw = false;
         this.drawMap();
       }
     },
@@ -477,9 +479,11 @@ Fusion.Maps.MapServer.prototype = {
             }
         }
         var group = this.layerRoot.findGroup(sGroup);
+        this.deferredDraw = true;
         for (var i=0; i<group.layers.length; ++i) {
           group.layers[i].hide();
         }
+        this.deferredDraw = false;
         this.drawMap();
       }
     },
