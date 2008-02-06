@@ -635,6 +635,7 @@ Fusion.Maps.MapGuide.prototype = {
         //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
         //this.processFeatureInfo(xmlOut, false, 2);
       }
+      this.newSelection();
       if (zoomTo) {
         var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
         Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection.bind(this));
