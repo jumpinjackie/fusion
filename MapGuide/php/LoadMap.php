@@ -275,7 +275,7 @@ function OutputLayerInfo($layer, $resourceService, $featureService)
     echo "propertyMappings:{";
     $sep = '';
     foreach($mappings as $name => $value) {
-        echo $sep."$name:'$value'";
+        echo $sep."'$name':'$value'";
         $sep = ',';
     }
     echo "},";
