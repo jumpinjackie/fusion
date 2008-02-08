@@ -187,6 +187,14 @@ Fusion.Widget.Measure.prototype = {
     showPanel : function() {
         if (this.sTarget) {
             var url = this.sBaseUrl;
+            var queryStr = 'locale='+Fusion.locale;
+            if (url.indexOf('?') < 0) {
+                url += '?';
+            } else if (url.slice(-1) != '&') {
+                url += '&';
+            }
+            url += queryStr;
+            
             var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
             var pageElement = $(this.sTarget);
             if ( taskPaneTarget ) {
