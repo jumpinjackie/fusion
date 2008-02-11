@@ -74,16 +74,6 @@ try {
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
 
-
-
-
-    /* add the spatial filter if provided.  It is expected to come as a
-       WKT string, so we need to convert it to an MgGeometry */
-    if ($spatialFilter !== false ) {
-        //echo 'setting spatial filter<br>';
-        $wktRW = new MgWktReaderWriter();
-        $geom = $wktRW->Read($spatialFilter);
-    }
     /* add the features to the map selection and save it*/
     $selection = new MgSelection($map);
     
@@ -163,6 +153,25 @@ try {
             }
 
             if ($spatialFilter !== false ) {
+                $spatialContext = $featureService->GetSpatialContexts($featureResId, true);
+                $srsLayerWkt = false;
+                if ($spatialContext != null && $spatialContext->ReadNext() != null) {
+                    $srsLayerWkt = $spatialContext->GetCoordinateSystemWkt();
+                    /* skip this layer if the srs is empty */
+                }
+                if ($srsLayerWkt == null) {
+                    $srsLayerWkt = $srsDefMap;
+                }
+                /* create a coordinate system from the layer's SRS wkt */
+                $srsLayer = $srsFactory->Create($srsLayerWkt);
+                $verMajor = subStr(GetSiteVersion(), 0,1);
+                if ($verMajor == '1') {
+                  $srsXform = new MgCoordinateSystemTransform($srsMap, $srsLayer);
+                } else {
+                  $srsXform = $srsFactory->GetTransform($srsMap, $srsLayer);
+                }
+                $wktRW = new MgWktReaderWriter();
+                $geom = $wktRW->Read($spatialFilter, $srsXform);
                 $queryOptions->SetSpatialFilter($featureGeometryName, $geom, $variant);
             }
 
@@ -174,6 +183,13 @@ try {
                 echo $e->GetDetails() . "\n";
                 echo $e->GetStackTrace() . "\n";
             }
+            
+            //debug block
+            //$testSelection = new MgSelection($map);
+            //$testSelection->AddFeatures($layerObj, $featureReader, $maxFeatures);
+            //$featureReader->Close();
+            //echo "/* features selected:".$testSelection->ToXML()."*/";
+            //$featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
 
             $layerName = $layerObj->GetName();
             array_push($properties->layers, $layerName);
@@ -312,7 +328,7 @@ try {
     $selection->Save($resourceService, $mapName);
 
     //print_r($properties);
-    //echo var2json($properties);
+    //echo "/* SelectionXML:".$selection->ToXML()."*/";
 
     header('Content-type: text/x-json');
     header('X-JSON: true');
