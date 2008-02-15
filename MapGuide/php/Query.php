@@ -61,7 +61,7 @@ try {
         }
     }
     /* a filter expression to apply, in the form of an FDO SQL statement */
-    $filter = isset($_REQUEST['filter']) ? str_replace(array('*', '"'), array('%', "'"),html_entity_decode(urldecode( $_REQUEST['filter']))) : false;
+    $filter = isset($_REQUEST['filter']) ? str_replace(array('*', '"'), array('%', "'"),html_entity_decode(urldecode( $_REQUEST['filter']))) : '';
     //echo "<!-- filter: $filter -->\n";
     /* a spatial filter in the form on a WKT geometry */
     $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
@@ -146,10 +146,25 @@ try {
                 $queryOptions->AddFeatureProperty($geomName);
             }
 
-            /* add the attribute query if provided */
-            if ($filter !== false) {
-                //echo "<!-- setting filter $filter -->\n";
-                $queryOptions->SetFilter($filter);
+            //get the layer filter value if supplied
+            $layerReader = $resourceService->GetResourceContent($layerObj->GetLayerDefinition());
+            $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerReader));
+            $xpathObj = new domXPath($xmldoc);
+            $xpathStr = "/LayerDefinition/VectorLayerDefinition/Filter"; //TODO: need this for DWF or Grid layers?
+            $xpathQuery = $xpathObj->query($xpathStr);
+            $layerFilter = '';
+            if ($xpathQuery->length > 0) {
+              $layerFilter = $xpathQuery->item(0)->nodeValue;
+            }
+            /* create the combined filter value*/
+            if ($filter!='' && $layerFilter!='') {
+                $filter = "(".$filter.") AND (".$layerFilter.")";
+            } else {
+                $filter = $filter.$layerFilter;
+            }
+            if ($filter!='') {
+              //echo "/* setting filter:".$filter."*/";
+              $queryOptions->SetFilter($filter);
             }
 
             if ($spatialFilter !== false ) {
