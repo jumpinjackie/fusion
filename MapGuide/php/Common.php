@@ -84,7 +84,8 @@ try {
          * credentials.  Handle this here, but keep the session the same.
          */
         $sessionID = $_REQUEST['session'];
-        session_start($sessionID);
+        session_id(str_replace('_', '-', $sessionID));
+        session_start();
         
         /* current user is re-authenticating or not? */
         if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
