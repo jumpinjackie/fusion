@@ -37,6 +37,7 @@ Fusion.Widget.Pan.prototype = {
         Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
+        this.control.handler.keyMask = 0;
         
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];

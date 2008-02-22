@@ -72,6 +72,22 @@ Fusion.Maps.MapGuide.prototype = {
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
         
+        //add in the handler for CTRL-click actions for the map, not an overviewmap
+        if (this.bIsMapWidgetLayer) {
+          var ctrlClickEnabled = true;
+          if (extension.DisableCtrlClick && extension.DisableCtrlClick[0] == 'true') {
+              ctrlClickEnabled = false;
+          }
+          if (ctrlClickEnabled) {
+            this.map = this.mapWidget.oMapOL;
+            this.handler = new OpenLayers.Handler.Click(this,
+                                  {click: this.mouseUpCRTLClick.bind(this)},
+                                  {keyMask: OpenLayers.Handler.MOD_CTRL});
+            this.handler.activate();
+            this.nTolerance = 2; //pixels, default pixel tolernace for a point click; TBD make this configurable
+          }
+        }
+       
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         
         rootOpts = {
@@ -869,6 +885,50 @@ Fusion.Maps.MapGuide.prototype = {
 
     loadEnd: function() {
         this.mapWidget._removeWorker();
+    },
+    
+  /**
+     * called when there is a click on the map holding the CTRL key: query features at that postion.
+     **/
+    mouseUpCRTLClick: function(evt) {
+      if (evt.ctrlKey) {
+        var min = this.mapWidget.pixToGeo(evt.xy.x-this.nTolerance, evt.xy.y-this.nTolerance);
+        var max = this.mapWidget.pixToGeo(evt.xy.x+this.nTolerance, evt.xy.y+this.nTolerance);
+        if (!min) {
+          return;
+        }   
+        var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
+        //var sGeometry = 'POINT('+ min.x + ' ' +  min.y + ')';
+
+        var maxFeatures = 1;
+        var persist = 0;
+        var selection = 'INTERSECTS';
+        var layerNames = '';
+        var sep = '';
+        for (var i=0; i<this.aLayers.length; ++i) {
+          layerNames += sep + this.aLayers[i].layerName;
+          sep = ',';
+        }
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.mapWidget.getSessionID(),
+                                                            this._sMapname,
+                                                            sGeometry,
+                                                            maxFeatures, persist, selection, layerNames);
+        Fusion.oBroker.dispatchRequest(r, this.crtlClickDisplay.bind(this));
+      }
+    },
+
+    /**
+     * open a window if a URL is defined for the feature.
+     **/
+    crtlClickDisplay: function(r) {
+        //console.log('ctrlclcik  _display');
+        if (r.responseXML) {
+            var d = new DomNode(r.responseXML);
+            var h = d.getNodeText('Hyperlink');
+            if (h != '') {
+                window.open(h, "");
+            }
+        }
     },
     
     pingServer: function() {

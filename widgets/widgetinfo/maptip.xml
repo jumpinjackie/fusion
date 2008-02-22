@@ -27,4 +27,20 @@
     <Label>Layers</Label>
     <IsMandatory>false</IsMandatory>
   </Parameter>
+  <Parameter>
+    <Name>Target</Name>
+    <Label>Target</Label>
+    <Type>String</Type>
+    <Description>The frame, window, or TaskPane in which to open hyperlinks. If empty, a new window is used</Description>
+    <IsMandatory>false</IsMandatory>
+    <DefaultValue>MaptipWindow</DefaultValue>
+  </Parameter>
+  <Parameter>
+    <Name>WinFeatures</Name>
+    <Label>Window Features</Label>
+    <Type>String</Type>
+    <Description>Options for opening hyperlinks new window, if used</Description>
+    <IsMandatory>false</IsMandatory>
+    <DefaultValue>menubar=no,location=no,resizable=no,status=no</DefaultValue>
+  </Parameter>
 </WidgetInfo>
