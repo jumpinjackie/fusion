@@ -766,7 +766,7 @@ Fusion.Maps.MapGuide.prototype = {
               }
               this.newSelection();
             } else {
-              //this.drawMap();
+              this.clearSelection();
               return;
             }
         }
