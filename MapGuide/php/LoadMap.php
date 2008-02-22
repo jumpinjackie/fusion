@@ -175,8 +175,8 @@ function buildScaleRanges($layer) {
             $type = 1;
         }
     }
-    $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle");
-    $ruleNames = array("PointRule", "LineRule", "AreaRule", );
+    $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle", "CompositeTypeStyle");
+    $ruleNames = array("PointRule", "LineRule", "AreaRule", "CompositeRule");
     $output = 'scaleRanges: [';
     $scaleSep = '';
     for($sc = 0; $sc < $scaleRanges->length; $sc++)
