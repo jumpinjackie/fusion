@@ -69,6 +69,7 @@ Fusion.Widget.Maptip.prototype =
           this.sWinFeatures = json.WinFeatures[0];
         }
         this.delay = json.Delay ? parseInt(json.Delay[0]) : 350;
+        this.nTolerance = json.Tolerance ? parseInt(json.Tolerance[0]) : 2;
         
         this.aLayers = [];
         if (json.Layer) {
@@ -139,33 +140,27 @@ Fusion.Widget.Maptip.prototype =
         if (map == null) {
           return;
         }
-        var cellSize = map._nCellSize;
-        cellSize = 1e-6;
 
         var oBroker = Fusion.oBroker;
         var x = this.oCurrentPosition.x;
         var y = this.oCurrentPosition.y;
-        var min = map.pixToGeo(x, y);
+        var min = map.pixToGeo(x-this.nTolerance, y-this.nTolerance);
+        var max = map.pixToGeo(x+this.nTolerance, y+this.nTolerance);
         //this can fail if no map is loaded
         if (!min) {
             return;
         }
-        min.x -= cellSize;
-        min.y -= cellSize;
-        var max = map.pixToGeo(x, y);
-        max.x += cellSize;
-        max.y += cellSize;
         var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
 
         //var sGeometry = 'POINT('+ min.x + ' ' +  min.y + ')';
 
-         var maxFeatures = 1;
-         var persist = 0;
-         var selection = 'INTERSECTS';
+        var maxFeatures = 1;
+        var persist = 0;
+        var selection = 'INTERSECTS';
         var maps = this.getMap().getAllMaps();
-         //TODO: possibly make the layer names configurable?
-         var layerNames = this.aLayers.toString();
-         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(maps[0].getSessionID(),
+        //TODO: possibly make the layer names configurable?
+        var layerNames = this.aLayers.toString();
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(maps[0].getSessionID(),
                                         maps[0]._sMapname,
                                         sGeometry,
                                         maxFeatures, persist, selection, layerNames);
