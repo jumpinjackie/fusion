@@ -28,6 +28,16 @@
     <IsMandatory>false</IsMandatory>
   </Parameter>
   <Parameter>
+    <Name>Tolerance</Name>
+    <Description>The number of screen pixels around the cursor to query</Description>
+    <Type>integer</Type>
+    <Label>Tolerance</Label>
+    <Min>0</Min>
+    <Max>10</Max>
+    <DefaultValue>2</DefaultValue>
+    <IsMandatory>false</IsMandatory>
+  </Parameter>
+  <Parameter>
     <Name>Target</Name>
     <Label>Target</Label>
     <Type>String</Type>
