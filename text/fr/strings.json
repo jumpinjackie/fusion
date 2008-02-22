@@ -39,6 +39,12 @@ Fusion.Strings.fr = {
 'taskPaneTitle': 'Tasks',
 'segment': 'Segment {0}',
 'calculating': 'calculating ...',
+'panWest': 'Ouest',
+'panEast': 'Est',
+'panSouth': 'Sud',
+'panNorth': 'Nord',
+'zoomOut': 'Cliquer pour réduire',
+'zoomIn': 'Cliquer pour agrandir',
 
 'end': ''
 };
