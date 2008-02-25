@@ -630,12 +630,7 @@ Fusion.Maps.MapGuide.prototype = {
       *
       * sets a Selection XML back to the server
       */
-    zoomToSelection: function(r) {
-      var xmlDoc = r.responseXML.documentElement;
-      var x = xmlDoc.getElementsByTagName('X');
-      var y = xmlDoc.getElementsByTagName('Y');
-      //double the veiwport
-      var extent = new OpenLayers.Bounds(x[0].firstChild.nodeValue,y[0].firstChild.nodeValue,x[1].firstChild.nodeValue,y[1].firstChild.nodeValue);
+    zoomToSelection: function(extent) {
       var center = extent.getCenterPixel();
       var size = extent.getSize();
       extent.left = center.x - 2*size.w;
@@ -645,29 +640,14 @@ Fusion.Maps.MapGuide.prototype = {
       this.mapWidget.setExtents(extent);
     },  
 
-    processSelection: function(sel, requery, zoomTo, json) {
-      if (requery) {
-        //xmlDoc = (new DOMParser()).parseFromString(r.responseXML, "text/xml");
-        //this.processFeatureInfo(xmlDoc.documentElement, false, 1);
-        //this.processFeatureInfo(xmlOut, false, 2);
-      }
-      this.newSelection();
-      if (zoomTo) {
-        var mgRequest = new Fusion.Lib.MGRequest.MGGetFeatureSetEnvelope(this.getSessionID(), this.getMapName(), sel );
-        Fusion.oBroker.dispatchRequest(mgRequest, this.zoomToSelection.bind(this));
-      } else {
-        this.mapWidget.redraw();
-      }
-    },
-
-    setSelection: function (selText, requery, zoomTo) {
+    setSelection: function (selText, zoomTo) {
+      this.mapWidget._addWorker();
       var sl = Fusion.getScriptLanguage();
       var setSelectionScript = this.arch + '/' + sl  + '/SetSelection.' + sl;
       var params = 'mapname='+this.getMapName()+"&session="+this.getSessionID();
       params += '&selection=' + encodeURIComponent(selText);
-      params += '&queryinfo=' + (requery? "1": "0");
       params += '&seq=' + Math.random();
-      var options = {onSuccess: this.processSelection.bind(this, selText, requery, zoomTo), parameters:params, asynchronous:false};
+      var options = {onSuccess: this.processQueryResults.bind(this, zoomTo), parameters:params, asynchronous:false};
       Fusion.ajaxRequest(setSelectionScript, options);
     },
 
@@ -754,7 +734,7 @@ Fusion.Maps.MapGuide.prototype = {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(r) {
+    processQueryResults : function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -779,6 +759,12 @@ Fusion.Maps.MapGuide.prototype = {
                     this.aLayers[j].selectedFeatureCount = oNode[layerName].featureCount;
                   }
                 }
+              }
+              
+              if (zoomTo) {
+                var ext = oNode.extents
+                var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
+                this.zoomToSelection(extents);
               }
               this.newSelection();
             } else {
@@ -813,7 +799,7 @@ Fusion.Maps.MapGuide.prototype = {
         var sessionid = this.getSessionID();
 
         var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend+computed;
-        var options = {onSuccess: this.processQueryResults.bind(this), 
+        var options = {onSuccess: this.processQueryResults.bind(this, false), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
