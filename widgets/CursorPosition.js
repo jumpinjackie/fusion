@@ -83,14 +83,14 @@ Fusion.Widget.CursorPosition.prototype = {
         this.enable = Fusion.Widget.CursorPosition.prototype.enable;
         this.disable = Fusion.Widget.CursorPosition.prototype.enable;
         
-        this.mouseMoveWatcher = this.mouseMove.bind(this);
-        this.mouseOutWatcher = this.mouseOut.bind(this);
-
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
         this.registerParameter('Units');
     },
     
     enable: function() {
+        this.mouseMoveWatcher = this.mouseMove.bind(this);
+        this.mouseOutWatcher = this.mouseOut.bind(this);
+
         this.getMap().observeEvent('mousemove', this.mouseMoveWatcher);
         this.getMap().observeEvent('mouseout', this.mouseOutWatcher);
     },
