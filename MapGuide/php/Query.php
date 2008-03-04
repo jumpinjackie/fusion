@@ -273,7 +273,9 @@ try {
             echo $onfe->GetStackTrace() . "\n";
         } catch (MgException $e) {
             //what should we do with general exceptions?
-            echo "general exception";
+            echo "/*general exception:";
+            echo "ERROR: " . $e->GetMessage();
+            echo $e->GetDetails() . "*/";
         }
     }
 
