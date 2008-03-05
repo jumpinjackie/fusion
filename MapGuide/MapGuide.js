@@ -793,13 +793,14 @@ Fusion.Maps.MapGuide.prototype = {
         var layers = options.layers || '';
         var extend = options.extendSelection ? '&extendselection=true' : '';
         var computed = options.computedProperties ? '&computed=true' : '';
+        var zoomTo = options.zoomTo ?  true : false;
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
 
         var sessionid = this.getSessionID();
 
         var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend+computed;
-        var options = {onSuccess: this.processQueryResults.bind(this, false), 
+        var options = {onSuccess: this.processQueryResults.bind(this, zoomTo), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
