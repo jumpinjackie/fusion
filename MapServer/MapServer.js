@@ -605,7 +605,7 @@ Fusion.Maps.MapServer.prototype = {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(r, json) {
+    processQueryResults : function(zoomTo, r, json) {
         this.mapWidget._removeWorker();
         if (json) {
             var o;
@@ -624,6 +624,11 @@ Fusion.Maps.MapServer.prototype = {
                   }
                 }
                 this.newSelection();
+                if (zoomTo) {
+                var ext = oNode.extents
+                var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
+                this.zoomToSelection(extents);
+              }
             }
         }
     },
@@ -650,14 +655,14 @@ Fusion.Maps.MapServer.prototype = {
         }
         var extend = options.extendSelection ? '&extendselection=true' : '';
         var computed = options.computedProperties ? '&computed=true' : '';
-
+        var zoomTo = options.zoomTo || false;
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = this.arch + '/' + sl  + '/Query.' + sl;
 
         var sessionid = this.getSessionID();
 
         var params = 'mapname='+this._sMapname+"&session="+sessionid+'&spatialfilter='+geometry+'&maxfeatures='+maxFeatures+filter+'&layers='+layers+'&variant='+selectionType+extend;
-        var options = {onSuccess: this.processQueryResults.bind(this), 
+        var options = {onSuccess: this.processQueryResults.bind(this, zoomTo), 
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
