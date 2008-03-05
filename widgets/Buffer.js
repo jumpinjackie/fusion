@@ -212,6 +212,7 @@ Fusion.Widget.Buffer.prototype = {
         var s = aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage();
         var params = {};
         params.parameters = 'locale='+Fusion.locale +
+                            '&merge=1' +
                             '&session='+aMaps[0].getSessionID() +
                             '&mapname='+ aMaps[0].getMapName()+
                             layer+distance+borderColor+fillColor; 
