@@ -43,11 +43,10 @@ try {
         exit;
     }
 
-    /* currently no way to set this, but if we did provide a way, it
-       would allow creation of multiple buffers on individual objects
-       in the selection rather than a combined buffer */
-    $merge = false;
-
+    /* if merge is set, buffer the entire selection as one instead of creating buffers
+           * on each selected feature
+           */
+    $merge = ((isset($_REQUEST['merge'])) && $_REQUEST['merge'] == 1)?true:false;
     $layerName = $_REQUEST['layer'];
     $distance = $_REQUEST['distance'];
     $fillColor = $_REQUEST['fillcolor'];
@@ -241,7 +240,12 @@ try {
         if($inputGeometries->GetCount() > 0) {
             $dist = $srsMap->ConvertMetersToCoordinateSystemUnits($distance);
             if(!$arbitraryMapSrs) {
-                $measure = $srsMap->GetMeasure();
+                $verMajor = subStr(GetSiteVersion(), 0,1);
+                if ($verMajor == '1') {
+                    $measure = new MgCoordinateSystemMeasure($srsMap);
+                } else {
+                    $measure = $srsMap->GetMeasure();
+                }
             } else {
                 $measure = null;
             }
