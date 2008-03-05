@@ -2,7 +2,7 @@
 /**
  * Query
  *
- * $Id: Query.php 963 2007-10-16 15:37:30Z madair $
+ * $Id$
  *
  * Copyright (c) 2007, DM Solutions Group Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a

@@ -1,7 +1,7 @@
 /**
  * Fusion.Widget.ScalebarDual
  *
- * $Id: Scalebar.js 1084 2007-12-06 16:58:52Z madair $
+ * $Id$
  *
  * Copyright (c) 2007, DM Solutions Group Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a
