@@ -428,8 +428,14 @@ Fusion.Maps.MapServer.prototype = {
         if (!this.bMapLoaded || this.deferredDraw) {
             return;
         }
-
-        var params = { layers: this.aVisibleLayers.join(' '), ts : (new Date()).getTime()};
+        var aLayers = [];
+        for (var i=0; i<this.aLayers.length; i++) {
+            var l = this.aLayers[i];
+            if (l.isVisible()) {
+                aLayers.push(l.layerName);
+            }
+        }
+        var params = { layers: /*this.aVisibleLayers */aLayers.join(' '), ts : (new Date()).getTime()};
         if (this.hasSelection()) {
             params['queryfile']=this._sQueryfile;
         } else {
@@ -723,7 +729,8 @@ Fusion.Maps.MapServer.Group.prototype = {
     },
     
     isVisible: function() {
-        return this.visible;
+        var bParentVisible = (this.parentGroup && this.parentGroup.isVisible) ? this.parentGroup.isVisible() : true;
+        return this.visible && bParentVisible;
     }
     
 };
@@ -810,7 +817,8 @@ Fusion.Maps.MapServer.Layer.prototype = {
     },
 
     isVisible: function() {
-        return this.visible;
+        var bParentVisible = this.parentGroup ? this.parentGroup.isVisible() : true;
+        return this.visible && bParentVisible;
     }
 };
 

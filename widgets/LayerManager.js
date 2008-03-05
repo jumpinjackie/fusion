@@ -1,7 +1,7 @@
 /**
  * Fusion.Widget.LayerManager
  *
- * $Id: LayerManager.js 978 2007-10-17 18:24:46Z pspencer $
+ * $Id$
  *
  * Copyright (c) 2007, DM Solutions Group Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a

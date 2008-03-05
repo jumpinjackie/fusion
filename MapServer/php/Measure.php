@@ -1,7 +1,7 @@
 <?php
 /*****************************************************************************
  *
- * $Id: $
+ * $Id$
  *
  * Purpose: Measure a line segment and return the distance
  *

@@ -1,7 +1,7 @@
 /**
  * Fusion API AjaxViewer API layer
  *
- * $Id: MapGuide.js 1204 2008-02-01 19:41:53Z madair $
+ * $Id$
  *
  * Copyright (c) 2007, DM Solutions Group Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a
