@@ -105,6 +105,8 @@ Fusion.Widget.SelectRadius.prototype = {
         if (!this.circle) {
             this.circle = new Fusion.Tool.Canvas.Circle(this.getMap());
         }
+        /*map units for tool tip*/
+        this.units = this.getMap().getAllMaps()[0].units;
     },
 
     /**
@@ -147,7 +149,10 @@ Fusion.Widget.SelectRadius.prototype = {
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
             var r = this.getMap().pixToGeoMeasure(this.circle.radius);
-            this.radiusTip.innerHTML = r;
+            if (this.units == 'm' || this.units == 'ft') {
+                r = Math.round(r * 100)/100;
+            }
+            this.radiusTip.innerHTML = r + this.units;
         }
     },
 
@@ -182,7 +187,10 @@ Fusion.Widget.SelectRadius.prototype = {
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
             var r = map.pixToGeoMeasure(this.circle.radius);
-            this.radiusTip.innerHTML = r;
+            if (this.units == 'm' || this.units == 'ft') {
+                r = Math.round(r * 100)/100;
+            }
+            this.radiusTip.innerHTML = r + this.units;
         }
         
     },
