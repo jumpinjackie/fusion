@@ -56,8 +56,83 @@ Fusion.Widget.MapMenu.prototype =
             var menuItem = new Jx.MenuItem(action,opt);
             this.oMenu.add(menuItem);
         }
+        
+        //get the mapdefinitions as xml if there  is a folder specified
+        //in the widget tag. All subfolders will be enumerated.
+        //FIXME: this should be platform agnostic, Library:// isn't!
+        //FIXME: use JSON rather than XML        
+        this.arch = this.getMap().getAllMaps()[0].arch;
+        if (this.arch == 'MapGuide' && json.Folder) {
+            this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
+            var s =       this.arch + '/' + Fusion.getScriptLanguage() +
+                          '/MapMenu.' + Fusion.getScriptLanguage();
+            var params =  {parameters:'folder='+this.sRootFolder,
+                          onComplete: this.processMapMenu.bind(this)};
+            Fusion.ajaxRequest(s, params);
+        };
+
+    },
+
+    processMapMenu: function(r) {
+        if (r.responseXML) {
+            this.aMenus = {};
+            var node = new DomNode(r.responseXML);
+            var mapNode = node.findFirstNode('MapDefinition');
+            while (mapNode) {
+                
+                var sId = mapNode.getNodeText('ResourceId');
+                var sPath = sId.replace(this.sRootFolder, '');
+                sPath = sPath.slice(0, sPath.lastIndexOf('/'));
+                this.createFolders(sPath);
+                var opt = {};
+                opt.label = mapNode.getNodeText('Name');
+                // create a maptag that will be passed to the map
+                // widget constructor
+                var data = {maps:[{'resourceId':mapNode.getNodeText('ResourceId'),
+                            'singleTile':true,
+                            'type': this.arch,
+                            'extension':{'ResourceId': [mapNode.getNodeText('ResourceId')]}
+                           }]};
+                var action = new Jx.Action(this.switchMap.bind(this, data));
+                var menuItem = new Jx.MenuItem(action,opt);
+                
+                if (sPath == '') {
+                    this.oMenu.add(menuItem);
+                }else {
+                    this.aMenus[sPath].add(menuItem);
+                }
+                
+                mapNode = node.findNextNode('MapDefinition');
+            }
+        }
     },
     
+    createFolders: function(sId) {
+        var aPath = sId.split('/');
+        //loop through folders, creating them if they don't exist
+        var sParent = '';
+        var sSep = '';
+        for (var i=0; i < aPath.length; i++) {
+            if (!this.aMenus[sParent + sSep + aPath[i]]){
+                var opt = {label:aPath[i]};
+                var menu = new Jx.SubMenu(opt);
+                if (sParent == '') {
+                    this.oMenu.add(menu);
+                } else {
+                    this.aMenus[sParent].add(menu);
+                }
+                this.aMenus[sParent + sSep + aPath[i]] = menu;
+            }
+            sParent = sParent + sSep + aPath[i];
+            sSep = '/';
+        };
+    },
+    
+    //action to perform when the button is clicked
+    activateTool: function() {
+        this.oMenu.show();
+    },
+        
     switchMap: function(data) {
         this.getMap().loadMapGroup(data);
     }
