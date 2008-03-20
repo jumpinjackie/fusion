@@ -35,7 +35,7 @@
     <script type="text/javascript" charset="utf-8">
     function Save(){
         setTimeout(function(){
-            window.frames['theImage'].document.execCommand('SaveAs', true, "<?php echo $_REQUEST['mapname'].'.'.$REQUEST['format']?>");
+            window.frames['theImage'].document.execCommand('SaveAs', true, "<?php echo $_REQUEST['mapname'].'.'.$_REQUEST['format']?>");
         },2500);
     };
     </script>
@@ -43,11 +43,17 @@
 <body onload='Save()'>
 <H4>Preparing Image for download...</H4>
 <?php
-include('MGCommon.php');
-echo "<iframe style='visibility: hidden;' id='theImage' src='SaveMap.php?format=".$_REQUEST['format'].
-                            "&mapname=".$_REQUEST['mapname'].
-                            "&session=".$_REQUEST['session'].
-                            "'></iframe>";
+include('Common.php');
+
+$szLayout="";
+if (isset($_REQUEST['layout']) &&  $_REQUEST['layout'] != "")
+  $szLayout = "&layout=".$_REQUEST['layout'];
+
+$szScale="";
+if (isset($_REQUEST['scale']) &&  $_REQUEST['scale'] != "")
+  $szScale = "&scale=".$_REQUEST['scale'];
+
+echo "<iframe style='visibility: hidden;' id='theImage' src='SaveMap.php?format=".trim($_REQUEST['format'])."&mapname=".$_REQUEST['mapname']."&session=".$_REQUEST['session']. $szLayout . $szScale."'></iframe>";
 ?>
 </body>
 </html>
