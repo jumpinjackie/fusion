@@ -215,8 +215,9 @@ Fusion.Maps.MapServer.prototype = {
             this.layerRoot.legendLabel = this._sMapTitle;
             
             this.parseMapLayersAndGroups(o);
-      			var minScale = 1.0e10;
-      			var maxScale = 0;
+
+            var minScale = 1.0e10;
+            var maxScale = 0;
             for (var i=0; i<this.aLayers.length; i++) {
               if (this.aLayers[i].visible) {
                   this.aVisibleLayers.push(this.aLayers[i].layerName);
@@ -686,7 +687,16 @@ Fusion.Maps.MapServer.prototype = {
         var params = {};
         params.parameters = 'session='+this.getSessionID();
         Fusion.ajaxRequest(s, params);
-    }
+  },
+
+    getGroupInfoUrl: function(groupName) {
+      return null;
+   },
+
+    getLayerInfoUrl: function(layerName) {
+      return null;
+  }
+
 };
 
     

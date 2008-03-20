@@ -67,7 +67,7 @@ Fusion.Maps.MapGuide.prototype = {
         if (isMapWidgetLayer != null) {
             this.bIsMapWidgetLayer = isMapWidgetLayer;
         }
-        
+        this.mapInfo = mapTag.mapInfo;
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
@@ -280,9 +280,6 @@ Fusion.Maps.MapGuide.prototype = {
                 this.bSingleTile = true;
               }
             }
-
-            //TODO: get this from the layerTag.extension
-            //this.oMapInfo = Fusion.oConfigMgr.getMapInfo(this._sResourceId);
 
             //set projection units and code if supplied
             //TODO: consider passing the metersPerUnit value into the framework
@@ -805,56 +802,103 @@ Fusion.Maps.MapGuide.prototype = {
         Fusion.ajaxRequest(loadmapScript, options);
     },
     
-    showLayer: function( layer ) {
-        if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
-            var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
-            for (var i=0; i<layerEvent.onEnable.length; i++) {
-                var l = this.layerRoot.findLayer(layerEvent.onEnable[i].name);
-                if (l) {
-                    if (layerEvent.onEnable[i].enable) {
-                        l.show();
-                    } else {
-                        l.hide();
+    processLayerEvents: function(layer, isEnabling) {
+        if (this.mapInfo && this.mapInfo.mapEvents.layerEvents[layer.layerName]) {
+            var layerEvent = this.mapInfo.mapEvents.layerEvents[layer.layerName];
+            var events = isEnabling ? layerEvent.onEnable : layerEvent.onDisable;
+            for (var i=0; i<events.length; i++) {
+                var o = events[i];
+                if (o.type == 'layer') {
+                    var l = this.layerRoot.findLayer(o.name);
+                    if (l) {
+                        if (o.enable) {
+                            l.show(true);
+                        } else {
+                            l.hide(true);
+                        }
+                    }
+                    
+                } else if (o.type == 'group') {
+                    var g = this.layerRoot.findGroupByAttribute('groupName', o.name);
+                    if (g) {
+                        if (o.enable) {
+                            g.show(true);
+                        } else {
+                            g.hide(true);
+                        }
                     }
                 }
             }
         }
-        this.aShowLayers.push(layer.uniqueId);
-        this.drawMap();
     },
     
-    hideLayer: function( layer ) {
-        if (this.oMapInfo && this.oMapInfo.layerEvents[layer.layerName]) {
-            var layerEvent = this.oMapInfo.layerEvents[layer.layerName];
-            for (var i=0; i<layerEvent.onDisable.length; i++) {
-                var l = this.layerRoot.findLayer(layerEvent.onDisable[i].name);
-                if (l) {
-                    if (layerEvent.onDisable[i].enable) {
-                        l.show();
-                    } else {
-                        l.hide();
+    processGroupEvents: function(group, isEnabling) {
+        if (this.mapInfo && this.mapInfo.mapEvents.groupEvents[group.groupName]) {
+            var groupEvent = this.mapInfo.mapEvents.groupEvents[group.groupName];
+            var events = isEnabling ? groupEvent.onEnable : groupEvent.onDisable;
+            for (var i=0; i<events.length; i++) {
+                var o = events[i];
+                if (o.type == 'layer') {
+                    var l = this.layerRoot.findLayer(o.name);
+                    if (l) {
+                        if (o.enable) {
+                            l.show(true);
+                        } else {
+                            l.hide(true);
+                        }
+                    }
+                    
+                } else if (o.type == 'group') {
+                    var g = this.layerRoot.findGroupByAttribute('groupName', o.name);
+                    if (g) {
+                        if (o.enable) {
+                            g.show(true);
+                        } else {
+                            g.hide(true);
+                        }
                     }
                 }
             }
-        }        
+        }
+    },
+        
+    showLayer: function( layer, noDraw ) {
+        this.processLayerEvents(layer, true);
+        this.aShowLayers.push(layer.uniqueId);
+        if (!noDraw) {
+            this.drawMap();
+        }
+    },
+    
+    hideLayer: function( layer, noDraw ) {
+        this.processLayerEvents(layer, false);
         this.aHideLayers.push(layer.uniqueId);
-        this.drawMap();
+        if (!noDraw) {
+            this.drawMap();
+        }
     },
-    showGroup: function( group ) {
-      if (group.groupName == 'layerRoot') {
-        this.oLayerOL.setVisibility(true);
-      } else {
-        this.aShowGroups.push(group.uniqueId);
-        this.drawMap();
-      }
+    
+    showGroup: function( group, noDraw ) {
+        this.processGroupEvents(group, true);
+        if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(true);
+        } else {
+            this.aShowGroups.push(group.uniqueId);
+            if (!noDraw) {
+                this.drawMap();
+            }
+        }
     },
-    hideGroup: function( group ) {
-      if (group.groupName == 'layerRoot') {
-        this.oLayerOL.setVisibility(false);
-      } else {
-        this.aHideGroups.push(group.uniqueId);
-        this.drawMap();
-      }
+    hideGroup: function( group, noDraw ) {
+        this.processGroupEvents(group, false);
+        if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(false);
+        } else {
+            this.aHideGroups.push(group.uniqueId);
+            if (!noDraw) {
+                this.drawMap();
+            }
+        }
     },
     refreshLayer: function( layer ) {
         this.aRefreshLayers.push(layer.uniqueId);        
@@ -923,6 +967,28 @@ Fusion.Maps.MapGuide.prototype = {
         var params = {};
         params.parameters = 'session='+this.getSessionID();
         Fusion.ajaxRequest(s, params);
+    },
+    getGroupInfoUrl: function(groupName) {
+        if (this.mapInfo) {
+            var groups = this.mapInfo.links.groups;
+            for (var i=0; i<groups.length; i++) {
+                if (groups[i].name == groupName) {
+                    return groups[i].url;
+                }
+            }
+        }
+        return null;
+    },
+    getLayerInfoUrl: function(layerName) {
+        if (this.mapInfo) {
+            var layers = this.mapInfo.links.layers;
+            for (var i=0; i<layers.length; i++) {
+                if (layers[i].name == layerName) {
+                    return layers[i].url;
+                }
+            }
+        }
+        return null;
     }
 };
     
@@ -949,22 +1015,22 @@ Fusion.Maps.MapGuide.Group.prototype = {
         this.actuallyVisible = o.actuallyVisible;
     },
     
-    show: function() {
+    show: function(noDraw) {
         if (this.visible) {
             return;
         }
-        this.oMap.showGroup(this);
+        this.oMap.showGroup(this, noDraw ? true : false);
         this.visible = true;
         if (this.legend && this.legend.checkBox) {
             this.legend.checkBox.checked = true;
         }
     },
     
-    hide: function() {
+    hide: function(noDraw) {
         if (!this.visible) {
             return;
         }
-        this.oMap.hideGroup(this);
+        this.oMap.hideGroup(this, noDraw ? true : false);
         this.visible = false;
         if (this.legend && this.legend.checkBox) {
             this.legend.checkBox.checked = false;
@@ -1044,22 +1110,22 @@ Fusion.Maps.MapGuide.Layer.prototype = {
         return null;
     },
 
-    show: function() {
+    show: function(noDraw) {
         if (this.visible) {
             return;
         }
-        this.oMap.showLayer(this);
+        this.oMap.showLayer(this, noDraw ? true : false);
         this.set('visible', true);
         if (this.legend && this.legend.checkBox) {
             this.legend.checkBox.checked = true;
         }
     },
 
-    hide: function() {
+    hide: function(noDraw) {
         if (!this.visible) {
             return;
         }
-        this.oMap.hideLayer(this);
+        this.oMap.hideLayer(this, noDraw ? true : false);
         this.set('visible',false);
         if (this.legend && this.legend.checkBox) {
             this.legend.checkBox.checked = false;
