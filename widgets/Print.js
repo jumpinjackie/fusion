@@ -89,7 +89,7 @@ Fusion.Widget.Print.prototype = {
                 onContentLoaded: this.contentLoaded.bind(this),
                 imageBaseUrl: this.imageBaseUrl,
                 width: 350,
-                height: 250
+                height: 250,
                 resizeable: true,
                 top: (size.height-250)/2,
                 left: (size.width-350)/2,
