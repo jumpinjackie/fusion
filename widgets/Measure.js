@@ -84,6 +84,7 @@ Fusion.Widget.Measure.prototype = {
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
+        
         this.distPrecision = json.DistancePrecision ? parseInt(json.DistancePrecision[0]) : 4;
         this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;  
         
@@ -396,7 +397,7 @@ Fusion.Widget.Measure.prototype = {
               //var mapUnits = Fusion.unitFromName(this.getMap().getUnits());
               //if (mapUnits == Fusion.DEGREES || Fusion.DECIMALDEGREES)
               mapUnits = Fusion.METERS;
-
+              
               if (mapUnits != this.units) {
                 o.distance = Fusion.convert(mapUnits, this.units, o.distance);
               }
@@ -486,7 +487,6 @@ Fusion.Widget.Measure.prototype = {
     },
 
     setParameter: function(param, value) {
-      //console.log('setParameter: ' + param + ' = ' + value);
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
             for (var i=0; i<this.distanceMarkers.length; i++) {
@@ -536,7 +536,15 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     },
     
     getDistanceLabel: function() {
-      return this.label + ' ' + this.distance.toPrecision(this.precision) + ' ' + this.unitAbbr;            
+      var value;
+      if (this.precision == 0) {
+        value = Math.floor(this.distance);
+      }
+      else {
+          value = this.distance.toPrecision(this.precision);
+      }
+
+      return this.label + ' ' + value + ' ' + this.unitAbbr;            
     },
     
     setDistance: function(distance) {
