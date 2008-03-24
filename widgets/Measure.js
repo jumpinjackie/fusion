@@ -414,6 +414,7 @@ Fusion.Widget.Measure.prototype = {
     updateDisplay: function(outputWin) {
         var outputDoc = outputWin.document;
         var tbody = outputDoc.getElementById('segmentTBody');
+        var value;
         if (tbody) {
             this.clearDisplay(outputWin);
             var totalDistance = 0;
@@ -427,12 +428,24 @@ Fusion.Widget.Measure.prototype = {
                 td.innerHTML = OpenLayers.String.translate('segment',i+1);
                 tr.appendChild(td);
                 td = outputDoc.createElement('td');
-                td.innerHTML = distance.toPrecision(this.distPrecision)+ ' ' + units;
+                if (this.distPrecision == 0) {
+                  value = Math.floor(distance);
+                }
+                else {
+                  value = distance.toPrecision(this.distPrecision);
+                }
+                td.innerHTML = value + ' ' + units;
                 tr.appendChild(td);
                 tbody.appendChild(tr);
             }
             var tDist = outputDoc.getElementById('totalDistance');
-            tDist.innerHTML = totalDistance.toPrecision(this.distPrecision) + ' ' + units;
+            if (this.distPrecision == 0) {
+                  value = Math.floor(totalDistance);
+            }
+            else {
+              value = totalDistance.toPrecision(this.distPrecision);
+            }
+            tDist.innerHTML = value + ' ' + units;
         }
     },
     
@@ -536,7 +549,15 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
     },
     
     getDistanceLabel: function() {
-      return this.label + ' ' + this.distance.toPrecision(this.precision) + ' ' + this.unitAbbr;            
+      var value;
+      if (this.precision == 0) {
+        value = Math.floor(this.distance);
+      }
+      else {
+          value = this.distance.toPrecision(this.precision);
+      }
+
+      return this.label + ' ' + value + ' ' + this.unitAbbr;  
     },
     
     setDistance: function(distance) {
