@@ -48,6 +48,8 @@ Fusion.Maps.MapServer.prototype = {
     bMapLoaded : false,
     bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
     bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
+    mapMetadataKeys: null,
+    layerMetadataKeys: null,
 
     //the map file
     sMapFile: null,
@@ -89,6 +91,9 @@ Fusion.Maps.MapServer.prototype = {
         this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
 
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
+
+        this.mapMetadataKeys = extension.MapMetadata ? extension.MapMetadata[0] : null;
+        this.layerMetadataKeys = extension.LayerMetadata ? extension.LayerMetadata[0] : null;
 
         this.bSingleTile = mapTag.singleTile;// this is set by the AppDef.Map object
 
@@ -191,7 +196,15 @@ Fusion.Maps.MapServer.prototype = {
 
         var sessionid = this.getSessionID();
 
-        var params = 'mapfile='+mapfile+"&session="+sessionid;
+        var metadata = '';
+        if (this.mapMetadataKeys) {
+            metadata += '&map_metadata='+this.mapMetadataKeys;
+        }
+        if (this.layerMetadataKeys) {
+            metadata += '&layer_metadata='+this.layerMetadataKeys;
+        }
+
+        var params = 'mapfile='+mapfile+"&session="+sessionid+metadata;
         var options = {onSuccess: this.mapLoaded.bind(this),
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
@@ -208,6 +221,7 @@ Fusion.Maps.MapServer.prototype = {
             this._fMetersperunit = o.metersPerUnit;
             this.mapWidget._fMetersperunit = this._fMetersperunit;
             this._sImageType = o.imagetype;
+            this.metadata = o.metadata;
 
             this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
@@ -316,8 +330,15 @@ Fusion.Maps.MapServer.prototype = {
         var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
 
         var sessionid = this.getSessionID();
+        var metadata = '';
+        if (this.mapMetadataKeys) {
+            metadata += '&map_metadata='+this.mapMetadataKeys;
+        }
+        if (this.layerMetadataKeys) {
+            metadata += '&layer_metadata='+this.layerMetadataKeys;
+        }
 
-        var params = 'mapname='+this._sMapname+"&session="+sessionid;
+        var params = 'mapname='+this._sMapname+"&session="+sessionid+metadata;
         var options = {onSuccess: this.mapReloaded.bind(this),
                                      parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
@@ -327,6 +348,10 @@ Fusion.Maps.MapServer.prototype = {
         if (json) {
             var o;
             eval('o='+r.responseText);
+
+            //can metadata change?
+            //this.metadata = o.metadata;
+
             this.parseMapLayersAndGroups(o);
             this.aVisibleLayers = [];
             for (var i=0; i<this.aLayers.length; i++) {
@@ -695,6 +720,14 @@ Fusion.Maps.MapServer.prototype = {
 
     getLayerInfoUrl: function(layerName) {
       return null;
+  },
+
+  getMetadata: function(key) {
+      if (typeof this.metadata[key] != 'undefined') {
+          return this.metadata[key];
+      } else {
+          return '';
+      }
   }
 
 };
@@ -781,6 +814,7 @@ Fusion.Maps.MapServer.Layer.prototype = {
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
         this.parentGroup = o.parentGroup;
+        this.metadata = o.metadata;
         this.scaleRanges = [];
     		this.minScale = 1.0e10;
     		this.maxScale = 0;
@@ -829,6 +863,14 @@ Fusion.Maps.MapServer.Layer.prototype = {
     isVisible: function() {
         var bParentVisible = this.parentGroup ? this.parentGroup.isVisible() : true;
         return this.visible && bParentVisible;
+    },
+
+    getMetadata: function(key) {
+        if (typeof this.metadata[key] != 'undefined') {
+            return this.metadata[key];
+        } else {
+            return '';
+        }
     }
 };
 
