@@ -29,7 +29,7 @@
 	        web-accessible temporary images. */
 	    "imagePath": "/tmp/ms_tmp",
 	    /* The URL to the image path configured above. */
-	    "imageUrl": "http://localhost/tmp/ms_tmp"
+	    "imageUrl": "http://localhost/tmp/ms_tmp",
 	    /* The file system path to where mapserver should put
 	        web-accessible temporary legend images. */
 	    "legendIconCacheDir":"/tmp/ms_tmp"
