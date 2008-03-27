@@ -93,6 +93,10 @@ Fusion.Widget.MapMenu.prototype =
                             'type': this.arch,
                             'extension':{'ResourceId': [mapNode.getNodeText('ResourceId')]}
                            }]};
+                //set up needed accessor
+                data.getInitialView = function() {
+                    return this.initialView;
+                };
                 var action = new Jx.Action(this.switchMap.bind(this, data));
                 var menuItem = new Jx.MenuItem(action,opt);
                 
@@ -133,7 +137,14 @@ Fusion.Widget.MapMenu.prototype =
         this.oMenu.show();
     },
         
+    //change the map, preserving current extents
     switchMap: function(data) {
+        var ce = this.getMap().getCurrentExtents();
+        data.initialView = {minX:ce.left,
+                            minY:ce.bottom,
+                            maxX:ce.right,
+                            maxY:ce.top
+                            };        
         this.getMap().loadMapGroup(data);
     }
 };
