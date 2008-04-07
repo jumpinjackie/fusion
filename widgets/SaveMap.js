@@ -53,10 +53,11 @@ Fusion.Widget.SaveMap.prototype = {
         
         //for DWF, parse printLayouts and build menu
         if (this.format == 'DWF') {
-            if (json.ResourceId) {
-                this.printLayout = json.ResourceId[0];
-                if (json.Scale) {
-                    this.printScale =  json.Scale[0];
+            var config = json.PrintLayout && json.PrintLayout[0];
+            if (config && config.ResourceId) {
+                this.printLayout = config.ResourceId[0];
+                if (config.Scale) {
+                    this.printScale =  config.Scale[0];
                 }
             } else {
                 //TODO: Warning that the widget is improperly configured
@@ -89,7 +90,7 @@ Fusion.Widget.SaveMap.prototype = {
             if (this.printLayout) {
                 szLayout = '&layout=' + this.printLayout;                
             } else {
-                //TODO: issue an error?
+                alert('DWF Save is not properly configured.')
                 return;
             }
             if (this.printScale) {
