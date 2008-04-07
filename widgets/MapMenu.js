@@ -36,6 +36,7 @@ Fusion.Widget.MapMenu.prototype =
 {
     domObj: null,
     oMenu: null,
+    mapGroupData: null,
     sRootFolder: '',
     aMenus : null,
     initialize : function(widgetTag)
@@ -46,15 +47,26 @@ Fusion.Widget.MapMenu.prototype =
         this.enable();
         
         var json = widgetTag.extension;
+        
+        //If no folder is specified for enumeration, build a menu
+        //from the mapgroup alone. Folders are only supported with MapGuide.
+        //Otherwise, create a hash of mapgroup resourceId to mapGroup data
+        //to be used to assign mapgroup extensions to enumerated maps.
+        
         var mapGroups = Fusion.applicationDefinition.mapGroups;
+        this.mapGroupData = {};
         for (var i=0; i<mapGroups.length; i++) {
             var mapGroup = mapGroups[i];
-            var opt = {};
-            opt.label = mapGroup.mapId;
-            var data = mapGroup;
-            var action = new Jx.Action(this.switchMap.bind(this, data));
-            var menuItem = new Jx.MenuItem(action,opt);
-            this.oMenu.add(menuItem);
+            if (json.Folder) {
+                this.mapGroupData[mapGroup.maps[0].resourceId] = mapGroup; 
+            } else {
+                var opt = {};
+                opt.label = mapGroup.mapId;
+                var data = mapGroup;
+                var action = new Jx.Action(this.switchMap.bind(this, data));
+                var menuItem = new Jx.MenuItem(action,opt);
+                this.oMenu.add(menuItem);
+            }
         }
         
         //get the mapdefinitions as xml if there  is a folder specified
@@ -82,21 +94,32 @@ Fusion.Widget.MapMenu.prototype =
                 
                 var sId = mapNode.getNodeText('ResourceId');
                 var sPath = sId.replace(this.sRootFolder, '');
-                sPath = sPath.slice(0, sPath.lastIndexOf('/'));
-                this.createFolders(sPath);
+                if (sPath.lastIndexOf('/') > -1) {
+                    sPath = sPath.slice(0, sPath.lastIndexOf('/'));
+                    this.createFolders(sPath);
+                } else {
+                    sPath = '';
+                }
                 var opt = {};
                 opt.label = mapNode.getNodeText('Name');
+                
+                // check for mapgroup data and if there is none,
                 // create a maptag that will be passed to the map
-                // widget constructor
-                var data = {maps:[{'resourceId':mapNode.getNodeText('ResourceId'),
+                // widget constructor 
+                var data = null;
+                if (this.mapGroupData[mapNode.getNodeText('ResourceId')]) {
+                    data = this.mapGroupData[mapNode.getNodeText('ResourceId')];
+                } else {
+                    data = {maps:[{'resourceId':mapNode.getNodeText('ResourceId'),
                             'singleTile':true,
                             'type': this.arch,
                             'extension':{'ResourceId': [mapNode.getNodeText('ResourceId')]}
                            }]};
-                //set up needed accessor
-                data.getInitialView = function() {
-                    return this.initialView;
-                };
+                    //set up needed accessor
+                    data.getInitialView = function() {
+                        return this.initialView;
+                    };
+                }
                 var action = new Jx.Action(this.switchMap.bind(this, data));
                 var menuItem = new Jx.MenuItem(action,opt);
                 
