@@ -29,12 +29,13 @@
  * perform a selection by radius from a point
  * 
  * **********************************************************************/
+Fusion.Event.RADIUS_WIDGET_ACTIVATED = Fusion.Event.lastEventId++;
 
 Fusion.Widget.SelectRadius = Class.create();
 Fusion.Widget.SelectRadius.prototype = {
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
-    defaultRadius: 20,
+    defaultRadius: 20,    //this is in map units
     initialize : function(widgetTag) {
         //console.log('Select.initialize');
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
@@ -42,6 +43,7 @@ Fusion.Widget.SelectRadius.prototype = {
         Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
         
         this.asCursor = ['auto'];
+        this.isDigitizing = false;
 
         var json = widgetTag.extension;
         this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
@@ -70,6 +72,8 @@ Fusion.Widget.SelectRadius.prototype = {
                 this.radiusTip.style.zIndex = 101;
             }
         }
+        
+        this.registerEventID(Fusion.Event.RADIUS_WIDGET_ACTIVATED);
     },
     
     setRadius: function(r) {
@@ -107,6 +111,7 @@ Fusion.Widget.SelectRadius.prototype = {
         }
         /*map units for tool tip*/
         this.units = this.getMap().getAllMaps()[0].units;
+        this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, true);
     },
 
     /**
@@ -115,10 +120,11 @@ Fusion.Widget.SelectRadius.prototype = {
      * as a widget in the map
      **/
     deactivate : function() {
-         this.deactivateCanvas();
-         this.getMap().setCursor('auto');
-         /*icon button*/
-         this._oButton.deactivateTool();
+        this.deactivateCanvas();
+        this.getMap().setCursor('auto');
+        /*icon button*/
+        this._oButton.deactivateTool();
+        this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, false);
     },
     
     /**
@@ -129,11 +135,11 @@ Fusion.Widget.SelectRadius.prototype = {
      * @param e Event the event that happened on the mapObj
      */
     mouseDown: function(e) {
-        //console.log('SelectRadius.mouseDown');
+        //console.log('SelectRadius.mouseDown'+this.isDigitizing);
         if (Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
             var point = this.getMap().pixToGeo(p.x, p.y);
-            var radius = this.getMap().pixToGeoMeasure(this.defaultRadius);
+            var radius = this.defaultRadius;
             
             if (!this.isDigitizing) {
                 this.circle.setCenter(point.x, point.y);
@@ -148,7 +154,7 @@ Fusion.Widget.SelectRadius.prototype = {
             var size = Element.getDimensions(this.radiusTip);
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
-            var r = this.getMap().pixToGeoMeasure(this.circle.radius);
+            var r = this.circle.radius;
             if (this.units == 'm' || this.units == 'ft') {
                 r = Math.round(r * 100)/100;
             }
@@ -164,7 +170,7 @@ Fusion.Widget.SelectRadius.prototype = {
      * @param e Event the event that happened on the mapObj
      */
     mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove');
+        //console.log('SelectRadius.mouseMove'+this.isDigitizing);
         if (!this.isDigitizing) {
             return;
         }
@@ -175,7 +181,7 @@ Fusion.Widget.SelectRadius.prototype = {
         var center = this.circle.center;
         
         var radius = Math.sqrt(Math.pow(center.x-point.x,2) + Math.pow(center.y-point.y,2));
-        if (map.geoToPixMeasure(radius) > this.nTolerance) {
+        if (radius > this.nTolerance) {
             this.circle.setRadius(radius);
         }
         this.clearContext();
@@ -186,7 +192,7 @@ Fusion.Widget.SelectRadius.prototype = {
             var size = Element.getDimensions(this.radiusTip);
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
-            var r = map.pixToGeoMeasure(this.circle.radius);
+            var r = this.circle.radius;
             if (this.units == 'm' || this.units == 'ft') {
                 r = Math.round(r * 100)/100;
             }
@@ -196,9 +202,9 @@ Fusion.Widget.SelectRadius.prototype = {
     },
     
     mouseUp: function(e) {
+        //console.log('SelectRadius.mouseUp'+this.isDigitizing);
         if (this.isDigitizing) {
             this.event = e;
-            //this.circle.draw(this.context);
             this.clearContext();
             this.isDigitizing = false;
             var center = this.circle.center;
