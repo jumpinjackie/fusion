@@ -32,6 +32,8 @@ include('Common.php');
 $format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
 $layout = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
 $scale  = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
+$imgWidth  = isset($_REQUEST['width']) ? $_REQUEST['width'] : null;
+$imgHeight  = isset($_REQUEST['height']) ? $_REQUEST['height'] : null;
 
 try
 {
@@ -43,8 +45,14 @@ try
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     
+    //compute center
+    $extent = $map->GetMapExtent();
+    $centerX = $extent->GetLowerLeftCoordinate()->GetX() + ($extent->GetWidth())/2;
+    $centerY = $extent->GetLowerLeftCoordinate()->GetY() + ($extent->GetHeight())/2;
+    $geomFactory = new MgGeometryFactory();
+    $center = $geomFactory->CreateCoordinateXY($centerX, $centerY);
+
     if ($format == 'DWF') {
-        $extent = $map->GetMapExtent();
         $oLayout = null;
         if ($layout) {
             $layoutId = new MgResourceIdentifier($layout);
@@ -56,31 +64,17 @@ try
         $dwfVersion = new MgDwfVersion('6.01','1.2');
         
         if ($scale) {
-            //compute center point and plot with the passed scale
-        
-            $centerX = $extent->GetLowerLeftCoordinate()->GetX() + ($extent->GetWidth())/2;
-            $centerY = $extent->GetLowerLeftCoordinate()->GetY() + ($extent->GetHeight())/2;
-            $geomFactory = new MgGeometryFactory();
-            $center = $geomFactory->CreateCoordinateXY($centerX, $centerY);
+            //plot with the passed scale
             
-            //echo $centerX.", ".$centerY;exit;
-            //$metersPerUnit = $map->GetMetersPerUnit();
             $coordSysFactory = new MgCoordinateSystemFactory();
             $coordSystem = $coordSysFactory->Create($map->GetMapSRS());
             $metersPerUnit = $coordSystem->ConvertCoordinateSystemUnitsToMeters(1.0);
             $metersPerPixel = 1.0/(100.0 / 2.54 * $map->GetDisplayDpi());
-            //echo $metersPerPixel; exit;
 
             $height = $map->GetDisplayHeight();
             $width = $map->GetDisplayWidth();
             $mapWidth = $scale * $width * $metersPerPixel/$metersPerUnit;
             $mapHeight = $scale * $height * $metersPerPixel/$metersPerUnit;
-            //echo $mapWidth.", ".$mapHeight;exit;
-            
-            // $lowerLeft = $geomFactory->CreateCoordinateXY($center->GetX() - 0.5*$mapWidth,
-            //                                               $center->GetY() - 0.5*$mapHeight);
-            // $topRight = $geomFactory->CreateCoordinateXY($center->GetX() + 0.5*$mapWidth,
-            //                                               $center->GetY() + 0.5*$mapHeight);
             $extent = new MgEnvelope( 
                                       $center->GetX() - 0.5*$mapWidth,
                                       $center->GetY() - 0.5*$mapHeight,
@@ -113,8 +107,18 @@ try
                                               $dwfVersion);
         }
     } else {
-        $oImg = $renderingService->RenderMap($map, $selection, $format);
-    }    
+        //render as an image
+        if (isset($imgHeight) && isset($imgWidth)) {
+            $scale = $map->GetViewScale();
+            $oImg = $renderingService->RenderMap($map, $selection,
+                                                 $center, $scale,
+                                                 $imgWidth, $imgHeight,
+                                                 new MgColor(255,255,255),
+                                                 $format);
+        }else{
+            $oImg = $renderingService->RenderMap($map, $selection, $format);
+        };
+    };
 }
 catch (MgException $e)
 {
@@ -124,16 +128,8 @@ catch (MgException $e)
   exit;
 }
 
-/*
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // Date in the past
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-                                             // always modified
 header("Cache-Control: no-store, no-cache, must-revalidate");  // HTTP/1.1
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");                          // HTTP/1.0
-header( "Content-type: application/octet-stream" );
-header( "Content-Disposition: attachment; filename=$mapName.png" );
-*/
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // Date in the past
 header( "Content-type: image/$format" );
 header( "Content-disposition: attachment; filename=$mapName.$format" );
 
