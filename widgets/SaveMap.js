@@ -43,26 +43,54 @@ Fusion.Widget.SaveMap.prototype = {
     iframe : null,
     printLayout : null,
     printScale : null,
+    imageWidth : null,
+    imageHeight : null,
     initialize : function(widgetTag) {
         Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
         var json = widgetTag.extension;
         this.format = (json.Format && json.Format[0] != '')?
                        json.Format[0] : 'png';
         
         //for DWF, parse printLayouts and build menu
-        if (this.format == 'DWF') {
-            var config = json.PrintLayout && json.PrintLayout[0];
-            if (config && config.ResourceId) {
-                this.printLayout = config.ResourceId[0];
-                if (config.Scale) {
-                    this.printScale =  config.Scale[0];
-                }
-            } else {
-                //TODO: Warning that the widget is improperly configured
-                //because we need  print layout for this to work.
-                //TODO: deactivate the widget?
+        if (this.format == 'DWF' && json.PrintLayout.length) {
+            Object.inheritFrom(this, Fusion.Tool.MenuBase.prototype, []);
+            
+            var layouts = json.PrintLayout;
+            for (var i = 0; i < layouts.length; i++) {
+                var layout = layouts[i];
+                var opt = {};
+                opt.label = layout.Name[0];
+                var data = layout.ResourceId[0];
+                var menuItem = null;
+                if (layout.Scale) {
+                    //create entries for weblayout specified scales
+                    menuItem = new Jx.SubMenu(opt);
+                    for (var j=0; j < layout.Scale.length; j++) {
+                        var scale = layout.Scale[j];
+                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data, scale));
+                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:scale});
+                        menuItem.add(subMenuItem);
+                    }
+                    //add an entry for current scale
+                    var currentScaleAction = new Jx.Action(this.setLayout.bind(this, data));
+                    var currentScaleItem = new Jx.MenuItem(currentScaleAction,
+                                                         {label:'Current Scale'});
+                    menuItem.add(currentScaleItem);
+                } else {
+                    //if there are no scales, the layout is used with current scale
+                    var action = new Jx.Action(this.setLayout.bind(this, data));
+                    menuItem = new Jx.MenuItem(action,opt);
+                };
+                this.oMenu.add(menuItem);
+            }
+        } else {
+            Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+            if (json.Width && json.Width[0] != '') {
+                this.imageWidth = json.Width[0];
+            }
+            if (json.Height && json.Height[0] != '') {
+                this.imageHeight = json.Height[0];
             }
         }
 
@@ -73,6 +101,14 @@ Fusion.Widget.SaveMap.prototype = {
         Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
     },
     
+    setLayout: function(rid) {
+        if (arguments.length > 1) {
+            this.printScale = parseInt(arguments[1]);
+        }
+        this.printLayout = rid;
+        this.activateTool();
+    },
+
     /**
      * called when the button is clicked by the Fusion.Tool.ButtonBase widget
      * prompts user to save the map.
@@ -97,17 +133,20 @@ Fusion.Widget.SaveMap.prototype = {
                 szScale = '&scale=' + this.printScale;
             }
         }
-        //TODO: revisit Fusion.getWebAgentURL
-		var m = this.getMap().aMaps[0];
+        var szHeight = '';
+        if (this.imageHeight) {
+            szHeight = '&height=' + this.imageHeight;
+        };
+        var szWidth = '';
+        if (this.imageWidth) {
+            szWidth = '&width=' + this.imageWidth;
+        };
+        var m = this.getMap().aMaps[0];
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            //var url = Fusion.getWebAgentURL() + "OPERATION=GETDYNAMICMAPOVERLAYIMAGE&FORMAT=PNG&VERSION=1.0.0&SESSION=" + this.getMap().getSessionID() + "&MAPNAME=" + this.getMap().getMapName() + "&SEQ=" + Math.random();
-            
-            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout;
-            //this.iframe.src = url;
+            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout;
-            //console.log(s);
+            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight;
             
             this.iframe.src = s;
         }
