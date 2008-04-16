@@ -29,11 +29,14 @@
  *****************************************************************************/
 
 include('Common.php');
-$format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
-$layout = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
-$scale  = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
-$imgWidth  = isset($_REQUEST['width']) ? $_REQUEST['width'] : null;
+$format     = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
+$layout     = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
+$scale      = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
+$imgWidth   = isset($_REQUEST['width']) ? $_REQUEST['width'] : null;
 $imgHeight  = isset($_REQUEST['height']) ? $_REQUEST['height'] : null;
+$pageHeight = isset($_REQUEST['pageheight']) ? $_REQUEST['pageheight'] : 11;
+$pageWidth  = isset($_REQUEST['pagewidth']) ? $_REQUEST['pagewidth'] : 8.5;
+$aMargins = isset($_REQUEST['margins']) ? explode(',',$_REQUEST['margins']) : array(0,0,0,0);
 
 try
 {
@@ -58,8 +61,13 @@ try
             $layoutId = new MgResourceIdentifier($layout);
             $layoutId->Validate();
             $oLayout = new MgLayout($layoutId,'Map', 'meters');
-        }
-        $oPlotSpec = new MgPlotSpecification(8.5,11,MgPageUnitsType::Inches);
+        };
+        $oPlotSpec = new MgPlotSpecification($pageWidth,$pageHeight,MgPageUnitsType::Inches,
+                                            $aMargins[0],
+                                            $aMargins[1],
+                                            $aMargins[2],
+                                            $aMargins[3]
+                                            );
         
         $dwfVersion = new MgDwfVersion('6.01','1.2');
         
