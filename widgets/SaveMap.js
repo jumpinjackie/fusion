@@ -61,15 +61,27 @@ Fusion.Widget.SaveMap.prototype = {
                 var layout = layouts[i];
                 var opt = {};
                 opt.label = layout.Name[0];
-                var data = layout.ResourceId[0];
+                var data = {rid:layout.ResourceId[0]};
+                if (layout.PageHeight) {
+                    data.pageHeight = layout.PageHeight[0];
+                };
+                if (layout.PageWidth) {
+                    data.pageWidth = layout.PageWidth[0];
+                };
+                if (layout.Margins) {
+                    data.margins = [layout.Margins[0].Top[0],
+                                    layout.Margins[0].Left[0],
+                                    layout.Margins[0].Right[0],
+                                    layout.Margins[0].Bottom[0]];
+                };
                 var menuItem = null;
                 if (layout.Scale) {
                     //create entries for weblayout specified scales
                     menuItem = new Jx.SubMenu(opt);
                     for (var j=0; j < layout.Scale.length; j++) {
-                        var scale = layout.Scale[j];
-                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data, scale));
-                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:scale});
+                        data.scale = layout.Scale[j];
+                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data));
+                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:data.scale});
                         menuItem.add(subMenuItem);
                     }
                     //add an entry for current scale
@@ -101,11 +113,13 @@ Fusion.Widget.SaveMap.prototype = {
         Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
     },
     
-    setLayout: function(rid) {
-        if (arguments.length > 1) {
-            this.printScale = parseInt(arguments[1]);
-        }
-        this.printLayout = rid;
+    setLayout: function(data) {
+        this.printScale = data.scale;
+        this.printLayout = data.rid;
+        this.pageHeight = data.pageHeight;
+        this.pageWidth = data.pageWidth;
+        this.pageMargins = data.margins;
+
         this.activateTool();
     },
 
@@ -122,31 +136,43 @@ Fusion.Widget.SaveMap.prototype = {
         }
         var szLayout = '';
         var szScale = '';
+        var szPageHeight = '';
+        var szPageWidth = '';
+        var szPageMargins = '';
         if (this.format === 'DWF') {
             if (this.printLayout) {
                 szLayout = '&layout=' + this.printLayout;                
             } else {
-                alert('DWF Save is not properly configured.')
+                alert('DWF Save is not properly configured.');
                 return;
             }
             if (this.printScale) {
                 szScale = '&scale=' + this.printScale;
+            }            
+            if (this.pageHeight) {
+                szPageHeight = '&pageheight=' + this.pageHeight;
+            }
+            if (this.pageWidth) {
+                szPageWidth = '&pagewidth=' + this.pageWidth;
+            }
+            if (this.pageMargins) {
+                szPageMargins = '&margins=' + this.pageMargins.join(',');
             }
         }
         var szHeight = '';
         if (this.imageHeight) {
             szHeight = '&height=' + this.imageHeight;
-        };
+        }
         var szWidth = '';
         if (this.imageWidth) {
             szWidth = '&width=' + this.imageWidth;
-        };
+        }
         var m = this.getMap().aMaps[0];
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight;
+            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight;
+            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             
             this.iframe.src = s;
         }
