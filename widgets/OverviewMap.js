@@ -30,8 +30,8 @@
  * primary map.
  * **********************************************************************/
 
-Fusion.Widget.OverviewMap = Class.create();
-Fusion.Widget.OverviewMap.prototype = {
+Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget,
+{
     oSize: null,
     nMinRatio : 4,
     nMaxRatio : 32,
@@ -39,7 +39,8 @@ Fusion.Widget.OverviewMap.prototype = {
   
     initialize : function(widgetTag) {
         //console.log('OverviewMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         
         var json = widgetTag.extension;
         if (json.MinRatio) {
@@ -59,7 +60,7 @@ Fusion.Widget.OverviewMap.prototype = {
           mapTag = mainMap.mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
         }
         this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
-        this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, this.loadOverview.bind(this));
+        this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
@@ -67,13 +68,13 @@ Fusion.Widget.OverviewMap.prototype = {
               if (this.domObj.jxLayout) {
                   this.domObj.jxLayout.addSizeChangeListener(this);
               } else {
-                  this.domObj.resize = this.sizeChanged.bind(this);
+                  this.domObj.resize = OpenLayers.Function.bind(this.sizeChanged, this);
               }
         }
         
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
-        //this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapWidgetLoaded.bind(this));
+        //this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
     },
     
     mapWidgetLoaded: function() 
@@ -146,5 +147,5 @@ Fusion.Widget.OverviewMap.prototype = {
         }
     }
 
-};
+});
       

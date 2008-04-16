@@ -30,9 +30,7 @@
  * application.  The list of maps is configured in the ApplicationDefinition.
  * **********************************************************************/
 
-
-Fusion.Widget.MapMenu = Class.create();
-Fusion.Widget.MapMenu.prototype = 
+Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
 {
     domObj: null,
     oMenu: null,
@@ -42,8 +40,10 @@ Fusion.Widget.MapMenu.prototype =
     initialize : function(widgetTag)
     {
         //console.log('MapMenu.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.MenuBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.MenuBase.prototype.initialize.apply(this, []);
+
         this.enable();
         
         var json = widgetTag.extension;
@@ -78,8 +78,8 @@ Fusion.Widget.MapMenu.prototype =
             this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
             var s =       this.arch + '/' + Fusion.getScriptLanguage() +
                           '/MapMenu.' + Fusion.getScriptLanguage();
-            var params =  {parameters:'folder='+this.sRootFolder,
-                          onComplete: this.processMapMenu.bind(this)};
+            var params =  {parameters: {'folder': this.sRootFolder},
+                          onComplete: OpenLayers.Function.bind(this.processMapMenu, this)};
             Fusion.ajaxRequest(s, params);
         };
 
@@ -170,4 +170,4 @@ Fusion.Widget.MapMenu.prototype =
                             };        
         this.getMap().loadMapGroup(data);
     }
-};
+});

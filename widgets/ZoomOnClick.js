@@ -30,15 +30,16 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.ZoomOnClick = Class.create();
-Fusion.Widget.ZoomOnClick.prototype = 
+
+Fusion.Widget.ZoomOnClick = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
 {
-    nFactor: 2,
+    nFactor: 4,
     initialize : function(widgetTag)
     {
         //console.log('ZoomOnClick.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
                 
         var json = widgetTag.extension;
         this.nFactor = parseFloat(json.Factor ? json.Factor[0] : this.nFactor);
@@ -61,4 +62,4 @@ Fusion.Widget.ZoomOnClick.prototype =
             this.nFactor = value;
         }
     }
-};
+});

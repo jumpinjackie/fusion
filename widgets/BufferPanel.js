@@ -35,14 +35,14 @@
  * there, otherwise it will open a new window with that name.
  * **********************************************************************/
 
-Fusion.Widget.BufferPanel = Class.create();
-Fusion.Widget.BufferPanel.prototype = {
+Fusion.Widget.BufferPanel = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
     initialize : function(widgetTag) {
         //console.log('BufferPanel.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "BufferPanelWindow";
@@ -63,8 +63,8 @@ Fusion.Widget.BufferPanel.prototype = {
         }
         
         this.enable = Fusion.Widget.BufferPanel.prototype.enable;
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.enable, this));
         this.disable();
     },
 
@@ -130,4 +130,4 @@ Fusion.Widget.BufferPanel.prototype = {
             }
         }
     }
-};
+});

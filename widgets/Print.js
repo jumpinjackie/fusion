@@ -30,11 +30,12 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.Print = Class.create();
-Fusion.Widget.Print.prototype = {
+Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         
         var json = widgetTag.extension;
         
@@ -62,7 +63,7 @@ Fusion.Widget.Print.prototype = {
         
         /*
          * TODO: this is bad, why did we do this?
-         this.getMap().registerForEvent(Fusion.Event.SELECTION_COMPLETE, this.getSelection.bind(this));
+         this.getMap().registerForEvent(Fusion.Event.SELECTION_COMPLETE, OpenLayers.Function.bind(this.getSelection, this));
          */
         
     },
@@ -83,10 +84,10 @@ Fusion.Widget.Print.prototype = {
 
             var size = Element.getPageDimensions();
             var o = {
-                title: OpenLayers.String.translate('printTitle'),
+                title: OpenLayers.i18n('printTitle'),
                 id: 'printablePage',
                 contentURL : this.dialogContentURL,
-                onContentLoaded: this.contentLoaded.bind(this),
+                onContentLoaded: OpenLayers.Function.bind(this.contentLoaded, this),
                 imageBaseUrl: this.imageBaseUrl,
                 width: 350,
                 height: 250,
@@ -94,7 +95,7 @@ Fusion.Widget.Print.prototype = {
                 top: (size.height-250)/2,
                 left: (size.width-350)/2,
                 buttons: ['generate', 'cancel'],
-                handler: this.handler.bind(this)
+                handler: OpenLayers.Function.bind(this.handler, this)
             };
             this.dialog = new Jx.Dialog(o);
             
@@ -130,7 +131,7 @@ Fusion.Widget.Print.prototype = {
         dialog.getObj('dialogPrintShowlegend').checked = this.showLegend;
         dialog.getObj('dialogPrintShowNorthArrow').checked = this.showNorthArrow;
         
-        Event.observe(dialog.getObj('dialogPrintShowtitle'), 'click', this.controlTitle.bind(this));
+        Event.observe(dialog.getObj('dialogPrintShowtitle'), 'click', OpenLayers.Function.bind(this.controlTitle, this));
     },
     
     controlTitle: function() {
@@ -175,4 +176,4 @@ Fusion.Widget.Print.prototype = {
         window.open(url, 'printablepage', '');
         
     }
-};
+});

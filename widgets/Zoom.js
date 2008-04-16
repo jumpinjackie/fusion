@@ -30,8 +30,8 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.Zoom = Class.create();
-Fusion.Widget.Zoom.prototype = 
+
+Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
 {
     nTolerance : 5,
     nFactor : 2,
@@ -40,9 +40,10 @@ Fusion.Widget.Zoom.prototype =
     initialize : function(widgetTag)
     {
         //console.log('Zoom.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
 
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         var json = widgetTag.extension;
         this.nTolerance = json.Tolerance ? json.Tolerance[0] : this.nTolerance;
@@ -51,7 +52,7 @@ Fusion.Widget.Zoom.prototype =
         this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
         
-        this.keypressWatcher = this.keypressHandler.bind(this);
+        this.keypressWatcher = OpenLayers.Function.bind(this.keypressHandler, this);
         
         this.map = this.getMap().oMapOL;
         this.handler = new OpenLayers.Handler.Box(this, {done: this.execute}, {keyMask:0});
@@ -184,4 +185,4 @@ Fusion.Widget.Zoom.prototype =
             this.handler.activate();
         }
     }
-};
+});

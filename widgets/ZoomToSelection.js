@@ -30,12 +30,13 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.ZoomToSelection = Class.create();
-Fusion.Widget.ZoomToSelection.prototype = {
+Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     initialize : function(widgetTag) {
         //console.log('ZoomToSelection.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
@@ -43,8 +44,8 @@ Fusion.Widget.ZoomToSelection.prototype = {
  
         this.enable = Fusion.Widget.ZoomToSelection.prototype.enable;
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.disable, this));
     },
 
     /**
@@ -52,7 +53,7 @@ Fusion.Widget.ZoomToSelection.prototype = {
      * zoomToSelection is called when the selection is ready.
      */
     execute : function() {
-        this.getMap().getSelection(this.zoomToSelection.bind(this));
+        this.getMap().getSelection(OpenLayers.Function.bind(this.zoomToSelection, this));
     },
 
     /**
@@ -84,4 +85,4 @@ Fusion.Widget.ZoomToSelection.prototype = {
         }
     }
 
-};
+});

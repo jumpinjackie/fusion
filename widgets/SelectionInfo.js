@@ -43,15 +43,15 @@
  * & is &amp;
  * **********************************************************************/
 
-Fusion.Widget.SelectionInfo = Class.create();
-Fusion.Widget.SelectionInfo.prototype = {
+Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget,
+{
     defaultTemplate: 'selectionInfo',
     domSpan: null,
     
     initialize : function(widgetTag) {
         //console.log('SelectionInfo.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-                
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         
         var json = widgetTag.extension;
         
@@ -60,12 +60,12 @@ Fusion.Widget.SelectionInfo.prototype = {
         
         this.domSpan = document.createElement('span');
         this.domSpan.className = 'spanSelectionInfo';
-        this.domSpan.innerHTML = OpenLayers.String.translate(this.emptyText);
+        this.domSpan.innerHTML = OpenLayers.i18n(this.emptyText);
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.domSpan);
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.update.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.update.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.update, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.update, this));
     },
     
     update: function() {
@@ -79,10 +79,10 @@ Fusion.Widget.SelectionInfo.prototype = {
             if (this.template) {
               this.domSpan.innerHTML = this.template.replace('{0}',nFeatures).replace('{1}',nLayers);
             } else {
-              this.domSpan.innerHTML = OpenLayers.String.translate(this.defaultTemplate,nFeatures,nLayers);
+              this.domSpan.innerHTML = OpenLayers.i18n(this.defaultTemplate,{'features':nFeatures,'layers':nLayers});
             }
         } else {
-            this.domSpan.innerHTML = OpenLayers.String.translate(this.emptyText);
+            this.domSpan.innerHTML = OpenLayers.i18n(this.emptyText);
         }
     }
-};
+});

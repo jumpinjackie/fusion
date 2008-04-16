@@ -32,15 +32,15 @@
 
 Fusion.Event.HISTORY_CHANGED = Fusion.Event.lastEventId++;
 
-Fusion.Widget.ExtentHistory = Class.create();
-Fusion.Widget.ExtentHistory.prototype = {
+Fusion.Widget.ExtentHistory = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
     events: [],
     aHistory: [],
     sDirection: null,
     EPS: 0.00000001,  //percentage difference allowed in bounds values for test for equal
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         
         var json = widgetTag.extension;
         var sDirection = json.Direction ? json.Direction[0].toLowerCase() : 'previous';
@@ -53,8 +53,10 @@ Fusion.Widget.ExtentHistory.prototype = {
         if (!this.aHistory['history']) {
             this.aHistory['history'] = [];
             this.aHistory['index'] = -1;
-            this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChanged.bind(this));
-            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.reset.bind(this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
+                          OpenLayers.Function.bind(this.extentsChanged, this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, 
+                          OpenLayers.Function.bind(this.reset, this));
             
         }
         this.enable = Fusion.Widget.ExtentHistory.prototype.historyChanged;
@@ -63,7 +65,8 @@ Fusion.Widget.ExtentHistory.prototype = {
         
         this.registerEventID(Fusion.Event.HISTORY_CHANGED);
         
-        this.registerForEvent(Fusion.Event.HISTORY_CHANGED, this.historyChanged.bind(this));
+        this.registerForEvent(Fusion.Event.HISTORY_CHANGED, 
+                          OpenLayers.Function.bind(this.historyChanged, this));
         //console.log(this.events[Fusion.Event.HISTORY_CHANGED].length);
         this.disable();
     },
@@ -162,5 +165,5 @@ Fusion.Widget.ExtentHistory.prototype = {
                Math.abs(b1.right - b2.right)/b2.right < this.EPS);
       return equal;
     }
-};
+});
 

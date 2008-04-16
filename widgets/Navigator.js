@@ -29,64 +29,64 @@
  * A widget that immplements an in-map navigation control with zoom and pan.
  * **********************************************************************/
 
-Fusion.Widget.Navigator = Class.create();
-Fusion.Widget.Navigator.prototype = {
+Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget,
+{
     bInternalChange: false,
     zoomFactor: 2,
     panAmount: 50,
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
 
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         var m = document.createElement('map');
         m.name = 'Navigator_ImageMap';
         m.id = 'Navigator_ImageMap';
 
         var a = document.createElement('area');
         a.shape = 'poly';
-        a.alt = OpenLayers.String.translate('panEast');
-        a.title = OpenLayers.String.translate('panEast');
+        a.alt = OpenLayers.i18n('panEast');
+        a.title = OpenLayers.i18n('panEast');
         a.coords = '27,176, 27,177, 40,190, 44,182, 44,159';
-        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, this.panAmount/100, 0) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.pan, this, this.panAmount/100, 0) );
         m.appendChild(a);
 
         var a = document.createElement('area');
         a.shape = 'poly';
-        a.alt = OpenLayers.String.translate('panWest');
-        a.title = OpenLayers.String.translate('panWest');
+        a.alt = OpenLayers.i18n('panWest');
+        a.title = OpenLayers.i18n('panWest');
         a.coords = '24,177, 24,176, 7,159, 7,182, 11,190';
-        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, -this.panAmount/100, 0) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.pan, this, -this.panAmount/100, 0) );
         m.appendChild(a);
 
         var a = document.createElement('area');
         a.shape = 'poly';
-        a.alt = OpenLayers.String.translate('panSouth');
-        a.title = OpenLayers.String.translate('panSouth');
+        a.alt = OpenLayers.i18n('panSouth');
+        a.title = OpenLayers.i18n('panSouth');
         a.coords = '25,178, 12,191, 21,197, 30,197, 39,191, 26,178';
-        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, 0, -this.panAmount/100) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.pan, this, 0, -this.panAmount/100) );
         m.appendChild(a);
 
         var a = document.createElement('area');
         a.shape = 'poly';
-        a.alt = OpenLayers.String.translate('panNorth');
-        a.title = OpenLayers.String.translate('panNorth');
+        a.alt = OpenLayers.i18n('panNorth');
+        a.title = OpenLayers.i18n('panNorth');
         a.coords = '26,175, 43,158, 8,158, 25,175';
-        Event.observe(a, 'mouseup', this.pan.bindAsEventListener(this, 0, this.panAmount/100) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.pan, this, 0, this.panAmount/100) );
         m.appendChild(a);
 
         var a = document.createElement('area');
         a.shape = 'circle';
-        a.alt = OpenLayers.String.translate('zoomOut');
-        a.title = OpenLayers.String.translate('zoomOut');
+        a.alt = OpenLayers.i18n('zoomOut');
+        a.title = OpenLayers.i18n('zoomOut');
         a.coords = '25,142,8';
-        Event.observe(a, 'mouseup', this.zoom.bindAsEventListener(this, 1/this.zoomFactor) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.zoom, this, 1/this.zoomFactor) );
         m.appendChild(a);
 
         var a = document.createElement('area');
         a.shape = 'circle';
-        a.alt = OpenLayers.String.translate('zoomIn');
-        a.title = OpenLayers.String.translate('zoomIn');
+        a.alt = OpenLayers.i18n('zoomIn');
+        a.title = OpenLayers.i18n('zoomIn');
         a.coords = '25,34,8';
-        Event.observe(a, 'mouseup', this.zoom.bindAsEventListener(this, this.zoomFactor) );
+        Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(this.zoom, this, this.zoomFactor) );
         m.appendChild(a);
 
         this.domObj.appendChild(m);
@@ -143,7 +143,7 @@ Fusion.Widget.Navigator.prototype = {
         this.domObj.style.height = '204px';
         this.domObj.style.cursor = 'pointer';
 
-        var checkPosition = this.checkPosition.bind(this);
+        var checkPosition = OpenLayers.Function.bind(this.checkPosition, this);
 
         //set up the navigator as draggable
         new Draggable(this.domObj, {handle: handleDiv, starteffect: false, endeffect: false});
@@ -162,13 +162,13 @@ Fusion.Widget.Navigator.prototype = {
         options.axis = 'vertical';
         options.range = $R(1, 91);
         options.sliderValue = 91;
-        options.onChange = this.scaleChanged.bindAsEventListener(this);
+        options.onChange = OpenLayers.Function.bindAsEventListener(this.scaleChanged, this);
         this.slider = new Control.Slider(sliderHandle,sliderDiv, options);
         this.slider.setDisabled();
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.updateSlider.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, this.checkPosition.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateValue.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.updateSlider, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, OpenLayers.Function.bind(this.checkPosition, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateValue, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, OpenLayers.Function.bind(this.busyChanged, this));
     },
 
     scaleChanged: function(e, value) {
@@ -290,4 +290,4 @@ Fusion.Widget.Navigator.prototype = {
     }
     
 
-};
+});

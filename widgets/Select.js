@@ -30,8 +30,9 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.Select = Class.create();
-Fusion.Widget.Select.prototype =  {       
+
+Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     selectionType: 'INTERSECTS',
     nTolerance : 3,     //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
@@ -39,9 +40,10 @@ Fusion.Widget.Select.prototype =  {
     
     initialize : function(widgetTag) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        //Object.inheritFrom(this, Fusion.Tool.Rectangle.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+
         this.asCursor = ['auto'];
         
         this.enable = Fusion.Widget.Select.prototype.enable;
@@ -63,7 +65,7 @@ Fusion.Widget.Select.prototype =  {
                             json.QueryActiveLayer[0] == '1')) ? true : false;
         
         if (this.bActiveOnly) {
-            this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, this.enable.bind(this));
+            this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, OpenLayers.Function.bind(this.enable, this));
         }
         
         this.map = this.getMap().oMapOL;
@@ -226,4 +228,4 @@ Fusion.Widget.Select.prototype =  {
             this.selectionType = value;
         }
     }
-};
+});

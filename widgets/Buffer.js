@@ -34,9 +34,8 @@
  *
  * **************************************************************************/
 
- 
-Fusion.Widget.Buffer = Class.create();
-Fusion.Widget.Buffer.prototype = {
+Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     layerName: null,
     layerNameInput: null,
     bufferDistance: null,
@@ -49,8 +48,9 @@ Fusion.Widget.Buffer.prototype = {
     fillColorInput: null,
     initialize: function(widgetTag) {
         //console.log('Buffer.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         
         var json = widgetTag.extension;
         
@@ -90,8 +90,8 @@ Fusion.Widget.Buffer.prototype = {
         
         /* override selection behaviour */
         this.enable = Fusion.Widget.Buffer.prototype.enable;
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.disable, this));
     },
     
     setValue: function(input, value) {
@@ -216,7 +216,7 @@ Fusion.Widget.Buffer.prototype = {
                             '&session='+aMaps[0].getSessionID() +
                             '&mapname='+ aMaps[0].getMapName()+
                             layer+distance+borderColor+fillColor; 
-        params.onComplete = this.bufferCreated.bind(this);
+        params.onComplete = OpenLayers.Function.bind(this.bufferCreated, this);
         Fusion.ajaxRequest(s, params);
     },
     
@@ -225,4 +225,4 @@ Fusion.Widget.Buffer.prototype = {
         aMaps[0].reloadMap();
         aMaps[0].drawMap();
     }
-};
+});

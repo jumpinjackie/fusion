@@ -29,19 +29,18 @@
  * Clears the current selection, if any.
  * **********************************************************************/
 
+Fusion.Widget.ClearSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
 
-
-Fusion.Widget.ClearSelection = Class.create();
-Fusion.Widget.ClearSelection.prototype = {
     initialize : function(widgetTag) {
         //console.log('ClearSelection.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         
         this.enable = Fusion.Widget.ClearSelection.prototype.enable;
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.disable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.disable, this));
     },
     
     /**
@@ -58,4 +57,4 @@ Fusion.Widget.ClearSelection.prototype = {
             this.disable();
         }
     }
-};
+});

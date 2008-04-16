@@ -31,9 +31,7 @@
  *
  * **********************************************************************/
 
-
-Fusion.Widget.ColorPicker = Class.create();
-Fusion.Widget.ColorPicker.prototype = 
+Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
 {
     /* HTML input element that is used to store both the initial
        value for this widget and receives the color value as the
@@ -49,9 +47,8 @@ Fusion.Widget.ColorPicker.prototype =
     
     colorButton: null,
     
-    initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);        
-        
+    initialize : function(widgetTag) {      
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         var json = widgetTag.extension;
         if (json.ColorInputId) {
             this.colorInput = $(json.ColorInputId[0]);
@@ -79,4 +76,4 @@ Fusion.Widget.ColorPicker.prototype =
             this.colorInput.value = c;
         }
     }
-};
+});

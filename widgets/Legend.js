@@ -50,8 +50,7 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.Legend = Class.create();
-Fusion.Widget.Legend.prototype = {
+Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
     targetFolder: null,
@@ -66,8 +65,8 @@ Fusion.Widget.Legend.prototype = {
         this.bIncludeVisToggle = true;
        
         //console.log('Legend.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-       
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        
         var json = widgetTag.extension;
        
         this.imgLayerDWFIcon = json.LayerDWFIcon ? json.LayerDWFIcon[0] : this.defLayerDWFIcon;
@@ -85,16 +84,16 @@ Fusion.Widget.Legend.prototype = {
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
-        this.refreshAction = new Jx.Action(this.update.bind(this));
-        this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: OpenLayers.String.translate('refresh')});
-        this.expandAllAction = new Jx.Action(this.expandAll.bind(this));
-        this.expandAllItem = new Jx.MenuItem(this.expandAllAction, {label: OpenLayers.String.translate('expandAll')});
-        this.expandBranchAction = new Jx.Action(this.expandBranch.bind(this));
-        this.expandBranchItem = new Jx.MenuItem(this.expandBranchAction, {label: OpenLayers.String.translate('expand')});
-        this.collapseAllAction = new Jx.Action(this.collapseAll.bind(this));
-        this.collapseAllItem = new Jx.MenuItem(this.collapseAllAction, {label: OpenLayers.String.translate('collapseAll')});
-        this.collapseBranchAction = new Jx.Action(this.collapseBranch.bind(this));
-        this.collapseBranchItem = new Jx.MenuItem(this.collapseBranchAction, {label: OpenLayers.String.translate('collapse')});
+        this.refreshAction = new Jx.Action(OpenLayers.Function.bind(this.update, this));
+        this.refreshItem = new Jx.MenuItem(this.refreshAction, {label: OpenLayers.i18n('refresh')});
+        this.expandAllAction = new Jx.Action(OpenLayers.Function.bind(this.expandAll, this));
+        this.expandAllItem = new Jx.MenuItem(this.expandAllAction, {label: OpenLayers.i18n('expandAll')});
+        this.expandBranchAction = new Jx.Action(OpenLayers.Function.bind(this.expandBranch, this));
+        this.expandBranchItem = new Jx.MenuItem(this.expandBranchAction, {label: OpenLayers.i18n('expand')});
+        this.collapseAllAction = new Jx.Action(OpenLayers.Function.bind(this.collapseAll, this));
+        this.collapseAllItem = new Jx.MenuItem(this.collapseAllAction, {label: OpenLayers.i18n('collapseAll')});
+        this.collapseBranchAction = new Jx.Action(OpenLayers.Function.bind(this.collapseBranch, this));
+        this.collapseBranchItem = new Jx.MenuItem(this.collapseBranchAction, {label: OpenLayers.i18n('collapse')});
         //this.collapseBranchItem.disable();
         
         this.contextMenu = new Jx.ContextMenu(this.sName);
@@ -107,7 +106,7 @@ Fusion.Widget.Legend.prototype = {
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
         if (this.showRootFolder) {
             var opt = {};
-            opt.label = OpenLayers.String.translate('defaultMapTitle');
+            opt.label = OpenLayers.i18n('defaultMapTitle');
             opt.data = null;
             opt.imgTreeFolder = json.RootFolderIcon ? json.RootFolderIcon[0] : this.defRootFolderIcon;
             opt.imgTreeFolderOpen = opt.imgTreeFolder;
@@ -115,16 +114,16 @@ Fusion.Widget.Legend.prototype = {
             opt.contextMenu = this.contextMenu;
             this.oRoot = new Jx.TreeFolder(opt);
             this.oTree.append(this.oRoot);
-            Event.observe(this.oRoot.domObj, 'mouseover', this.setFolder.bind(this));
+            Event.observe(this.oRoot.domObj, 'mouseover', OpenLayers.Function.bind(this.setFolder, this));
         } else {
             this.oRoot = this.oTree;
         }
         this.extentsChangedWatcher = this.update.bind(this);
         
        
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.draw.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, this.mapLoading.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.draw, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, OpenLayers.Function.bind(this.mapLoading, this));
     },
     
     expandAll: function() {
@@ -244,8 +243,8 @@ Fusion.Widget.Legend.prototype = {
             group.legend.checkBox.type = 'checkbox';
             group.legend.treeItem.domObj.insertBefore(group.legend.checkBox, group.legend.treeItem.domObj.childNodes[1]);
             group.legend.checkBox.checked = group.visible?true:false;
-            Event.observe(group.legend.checkBox, 'click', this.stateChanged.bind(this, group));
-            Event.observe(group.legend.treeItem.domObj, 'mouseover', this.setFolder.bind(this));
+            Event.observe(group.legend.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, group));
+            Event.observe(group.legend.treeItem.domObj, 'mouseover', OpenLayers.Function.bind(this.setFolder, this));
             var groupInfo = group.oMap.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
                 var a = document.createElement('a');
@@ -275,9 +274,9 @@ Fusion.Widget.Legend.prototype = {
         layer.legend.parentItem = folder;
         layer.legend.checkBox = document.createElement('input');
         layer.legend.checkBox.type = 'checkbox';
-        Event.observe(layer.legend.checkBox, 'click', this.stateChanged.bind(this, layer));
+        Event.observe(layer.legend.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
         layer.legend.currentRange = null;
-        layer.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this.layerPropertyChanged.bind(this));
+        layer.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerPropertyChanged, this));
     },
    
     layerPropertyChanged: function(eventID, layer) {
@@ -286,7 +285,7 @@ Fusion.Widget.Legend.prototype = {
 
     update: function() {
         if (this.bIsDrawn) {
-            window.setTimeout(this._update.bind(this), 1);
+            window.setTimeout(OpenLayers.Function.bind(this._update, this), 1);
         }
     },
    
@@ -435,7 +434,7 @@ Fusion.Widget.Legend.prototype = {
             folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
         }
         folder.addSelectionListener(this);
-        Event.observe(folder.domObj, 'mouseover', this.setFolder.bind(this));
+        Event.observe(folder.domObj, 'mouseover', OpenLayers.Function.bind(this.setFolder, this));
        
         return folder;
     },
@@ -500,4 +499,4 @@ Fusion.Widget.Legend.prototype = {
             }
         }
     }
-};
+});

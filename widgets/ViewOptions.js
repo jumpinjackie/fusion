@@ -29,8 +29,7 @@
  * A widget to allow selection of the display units for various widgets
  ****************************************************************************/
 
-Fusion.Widget.ViewOptions = Class.create();
-Fusion.Widget.ViewOptions.prototype = 
+Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, Fusion.Tool.MenuBase,
 {
     displayUnits: false,
     options : {
@@ -41,8 +40,10 @@ Fusion.Widget.ViewOptions.prototype =
 
     initialize : function(widgetTag) {
         //console.log('ViewOptions.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.MenuBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.MenuBase.prototype.initialize.apply(this, []);
+        
         //this.enable();
         
         var json = widgetTag.extension;
@@ -50,13 +51,13 @@ Fusion.Widget.ViewOptions.prototype =
         //set up the root menu
         
         for (var key in this.options) {
-          var action = new Jx.Action(this.setViewOptions.bind(this, this.options[key]));
-          var menuItem = new Jx.MenuItem(action, {label: OpenLayers.String.translate(key)} );
+          var action = new Jx.Action(OpenLayers.Function.bind(this.setViewOptions, this, this.options[key]));
+          var menuItem = new Jx.MenuItem(action, {label: OpenLayers.i18n(key)} );
           this.oMenu.add(menuItem);
         }
 
         this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : false;
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setMapUnits.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setMapUnits, this));
     },
     
     //action to perform when the button is clicked
@@ -82,4 +83,4 @@ Fusion.Widget.ViewOptions.prototype =
         }
       }
     }
-};
+});

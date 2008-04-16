@@ -30,8 +30,8 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.PanOnClick = Class.create();
-Fusion.Widget.PanOnClick.prototype = 
+
+Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.ButtonBase,
 {
     fPercent: null,
     nDeltaX: null,
@@ -39,8 +39,9 @@ Fusion.Widget.PanOnClick.prototype =
     initialize : function(widgetTag)
     {
         //console.log('FitToWindow.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         
         var json = widgetTag.extension;
         
@@ -84,4 +85,4 @@ Fusion.Widget.PanOnClick.prototype =
         fY = center.y + this.nDeltaY * (extents[3] - extents[1]) * this.fPercent;
         this.getMap().zoom(fX, fY, 1);
     }
-};
+});

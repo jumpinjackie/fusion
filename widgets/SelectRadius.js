@@ -31,17 +31,19 @@
  * **********************************************************************/
 Fusion.Event.RADIUS_WIDGET_ACTIVATED = Fusion.Event.lastEventId++;
 
-Fusion.Widget.SelectRadius = Class.create();
-Fusion.Widget.SelectRadius.prototype = {
+
+Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.Canvas,
+{
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     defaultRadius: 20,    //this is in map units
     initialize : function(widgetTag) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
-        
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        Fusion.Tool.Canvas.prototype.initialize.apply(this, []);
+
         this.asCursor = ['auto'];
         this.isDigitizing = false;
 
@@ -271,4 +273,4 @@ Fusion.Widget.SelectRadius.prototype = {
             this.selectionType = value;
         }
     }
-};
+});

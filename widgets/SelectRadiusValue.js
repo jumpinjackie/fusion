@@ -31,14 +31,15 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.SelectRadiusValue = Class.create();
-Fusion.Widget.SelectRadiusValue.prototype =  {
+Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, 
+{
     radiusWidgetName: null,
     label: '',
     className: '',
     domLabel: null,
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+    
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         
         /* parse widget properties */
         var json = widgetTag.extension;
@@ -65,7 +66,10 @@ Fusion.Widget.SelectRadiusValue.prototype =  {
         
         /* put into page */
         this.domObj.appendChild(this.domLabel);
-        Event.observe(this.input, 'blur', this.onBlur.bind(this));
+        Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
+        
     },
     
     mapLoaded: function() {
@@ -112,4 +116,4 @@ Fusion.Widget.SelectRadiusValue.prototype =  {
             this.input.value = this.widget.getRadius();
         }
     }
-};
+});
