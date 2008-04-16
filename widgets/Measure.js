@@ -525,7 +525,7 @@ values and all markers are held in an array in the Measure widget for access.
 */
 //Fusion.Widget.Measure.DistanceMarker = Class.create();
 //Fusion.Widget.Measure.DistanceMarker.prototype = {
-Fusion.Widget.PanQuery = OpenLayers.Class(
+Fusion.Widget.Measure.DistanceMarker = OpenLayers.Class(
 {
     calculatingImg: null,
     distance: 0,
