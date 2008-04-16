@@ -50,14 +50,14 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.LayerManager = Class.create();
-Fusion.Widget.LayerManager.prototype = {
+Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
     initialize : function(widgetTag) {
         //console.log('LayerManager.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
 
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+         
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
     
@@ -65,8 +65,8 @@ Fusion.Widget.LayerManager.prototype = {
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, this.mapLoaded.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapLoaded, this));
     },
     
    
@@ -121,7 +121,7 @@ Fusion.Widget.LayerManager.prototype = {
       
       if (map.aMaps.length >1) {
         var options = [];
-        options.onUpdate = this.updateMapBlock.bind(this, map);
+        options.onUpdate = OpenLayers.Function.bind(this.updateMapBlock, this, map);
         options.handle = 'jxLmanHandle';
         options.scroll = this.domObj.id;
         Sortable.create(this.mapList.id, options);
@@ -150,7 +150,7 @@ Fusion.Widget.LayerManager.prototype = {
       }
       
       var options = [];
-      options.onUpdate = this.updateLayer.bind(this, map);
+      options.onUpdate = OpenLayers.Function.bind(this.updateLayer, this, map);
       options.scroll = this.domObj.id;    //docs for this at: http://wiki.script.aculo.us/scriptaculous/show/Sortable.create
       Position.includeScrollOffsets = true;
       Sortable.create(mapBlockList.id, options);
@@ -159,13 +159,13 @@ Fusion.Widget.LayerManager.prototype = {
   createItemHtml: function(parent, layer) {
     var delIcon = document.createElement('img');
     delIcon.src = this.delIconSrc;
-    Event.observe(delIcon, 'click', this.deleteLayer.bind(this, layer));
+    Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
     delIcon.style.visibility = 'hidden';
     parent.appendChild(delIcon);
     
     var visSelect = document.createElement('input');
     visSelect.type = 'checkbox';
-    Event.observe(visSelect, 'click', this.visChanged.bind(this, layer));
+    Event.observe(visSelect, 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
     parent.appendChild(visSelect);
     if (layer.visible) {
       visSelect.checked = true;
@@ -175,13 +175,13 @@ Fusion.Widget.LayerManager.prototype = {
     
     var label = document.createElement('a');
     label.innerHTML = layer.legendLabel;
-    Event.observe(label, 'mouseover', this.setGrabCursor.bind(this));
-    Event.observe(label, 'mousedown', this.setDragCursor.bind(this));
-    Event.observe(label, 'mouseout', this.setNormalCursor.bind(this));
+    Event.observe(label, 'mouseover', OpenLayers.Function.bind(this.setGrabCursor, this));
+    Event.observe(label, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
+    Event.observe(label, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
     parent.appendChild(label);
     
-    Event.observe(parent, 'mouseover', this.setHandleVis.bind(this, delIcon));
-    Event.observe(parent, 'mouseout', this.setHandleHide.bind(this, delIcon));
+    Event.observe(parent, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon));
+    Event.observe(parent, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon));
   },
   
   setHandleVis: function(delIcon) {
@@ -269,4 +269,4 @@ Fusion.Widget.LayerManager.prototype = {
     }
   }
 
-};
+});

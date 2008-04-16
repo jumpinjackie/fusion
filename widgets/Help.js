@@ -30,8 +30,7 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.Help = Class.create();
-Fusion.Widget.Help.prototype = {
+Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
     /* popup window initialization parameters */
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
@@ -47,8 +46,8 @@ Fusion.Widget.Help.prototype = {
     
     initialize : function(widgetTag) {
         //console.log('Help.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.target = json.Target ? json.Target[0] : "HelpWindow";
@@ -79,4 +78,4 @@ Fusion.Widget.Help.prototype = {
             }
         }
     }
-};
+});

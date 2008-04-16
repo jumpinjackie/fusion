@@ -33,14 +33,15 @@
  * (http://mapserver.commenspace.org/tools/scalebar/
  * **********************************************************************/
 
-Fusion.Widget.Search = Class.create();
-Fusion.Widget.Search.prototype = {
+Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     sFeatures : 'menubar=no,location=no,status=no,scrollbars=yes',
 
     initialize : function(widgetTag) {
         //console.log('Search.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "SearchWindow";
@@ -89,4 +90,4 @@ Fusion.Widget.Search.prototype = {
             }
         }
     }
-};
+});

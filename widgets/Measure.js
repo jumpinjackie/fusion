@@ -39,8 +39,8 @@ Fusion.Event.MEASURE_SEGMENT_UPDATE = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_CLEAR = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_COMPLETE = Fusion.Event.lastEventId++;
 
-Fusion.Widget.Measure = Class.create();
-Fusion.Widget.Measure.prototype = {
+Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.Canvas,
+{
     isDigitizing: false,
     //distance of each segment
     distances: null,
@@ -78,9 +78,11 @@ Fusion.Widget.Measure.prototype = {
     areaStyle: null,
     
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        Fusion.Tool.Canvas.prototype.initialize.apply(this, []);
+        
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
@@ -119,11 +121,11 @@ Fusion.Widget.Measure.prototype = {
         this.registerEventID(Fusion.Event.MEASURE_CLEAR);
         this.registerEventID(Fusion.Event.MEASURE_COMPLETE);
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.resetCanvas.bind(this));
-        this.keyHandler = this.onKeyPress.bind(this);
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.resetCanvas, this));
+        this.keyHandler = OpenLayers.Function.bind(this.onKeyPress, this);
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Measure/Measure.css');
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this, this.units));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this, this.units));
         this.registerParameter('Units');
     },
     
@@ -186,9 +188,9 @@ Fusion.Widget.Measure.prototype = {
             } else {
                 outputWin = window.open(url, this.sTarget, this.sWinFeatures);
             }
-            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, this.clearDisplay.bind(this, outputWin));  
-            this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this.updateDisplay.bind(this, outputWin));
-            this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, this.updateDisplay.bind(this, outputWin));
+            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearDisplay, this, outputWin));  
+            this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
+            this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
         } else {
             this.totalDistanceMarker = new Fusion.Widget.Measure.DistanceMarker(this.units, this.distPrecision, 'Total:');
             var oDomElem =  this.getMap().getDomObj();
@@ -198,9 +200,9 @@ Fusion.Widget.Measure.prototype = {
             }
             Element.addClassName(this.totalDistanceMarker.domObj, 'divMeasureTotal');
             this.totalDistanceMarker.domObj.style.display = 'none';
-            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, this.clearTotalDistance.bind(this));  
-            this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, this.updateTotalDistance.bind(this));
-            this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, this.updateTotalDistance.bind(this));
+            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));  
+            this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
+            this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateTotalDistance, this));
         }
     },    
     
@@ -305,7 +307,7 @@ Fusion.Widget.Measure.prototype = {
         this.clearContext();
         this.feature.draw(this.context);
         this.lastMarker.setCalculating();
-        this.delayUpdateTimer = window.setTimeout(this.delayUpdate.bind(this, lastSegment, e), 100);
+        this.delayUpdateTimer = window.setTimeout(OpenLayers.Function.bind(this.delayUpdate, this, lastSegment, e), 100);
         
         this.positionMarker(this.lastMarker, lastSegment);
         if (this.totalDistanceMarker) {
@@ -375,20 +377,25 @@ Fusion.Widget.Measure.prototype = {
     },
     
     measureSegment: function(segment, marker) {
-        var points = '&x1='+segment.from.x+'&y1='+segment.from.y+
-                     '&x2='+segment.to.x+'&y2='+segment.to.y;
-        var map = this.getMap();
-        var aMaps = map.getAllMaps();
+        var aMaps = this.getMap().getAllMaps();
         var s = aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage() ;
-        var sessionId = aMaps[0].getSessionID();
-        var params = {};
-        params.parameters = 'session='+sessionId+'&locale='+Fusion.locale+'&mapname='+ this.getMap().getMapName()+points;
-        params.onComplete = this.measureCompleted.bind(this, segment, marker);
-        Fusion.ajaxRequest(s, params);
+        var options = {
+            parameters: {
+                'session': aMaps[0].getSessionID(),
+                'locale': Fusion.locale,
+                'mapname': this.getMap().getMapName(),
+                'x1': segment.from.x,
+                'y1': segment.from.y,
+                'x2': segment.to.x,
+                'y2': segment.to.y
+            },
+            'onComplete': OpenLayers.Function.bind(this.measureCompleted, this, segment, marker)
+        };
+        Fusion.ajaxRequest(s, options);
     },
     
-    measureCompleted: function(segment, marker, r, json) {
-        if (json && r.status == 200) {
+    measureCompleted: function(segment, marker, r) {
+        if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
             if (o.distance) {
@@ -425,7 +432,7 @@ Fusion.Widget.Measure.prototype = {
             
                 var tr = outputDoc.createElement('tr');
                 var td = outputDoc.createElement('td');
-                td.innerHTML = OpenLayers.String.translate('segment',i+1);
+                td.innerHTML = OpenLayers.i18n('segment',{'seg':i+1});
                 tr.appendChild(td);
                 td = outputDoc.createElement('td');
                 if (this.distPrecision == 0) {
@@ -510,14 +517,16 @@ Fusion.Widget.Measure.prototype = {
             }
         }
     }
-};
+});
 
 /*
 * A class for handling the 'tooltip' for the distance measurement.  Markers also hold the distance
 values and all markers are held in an array in the Measure widget for access.
 */
-Fusion.Widget.Measure.DistanceMarker = Class.create();
-Fusion.Widget.Measure.DistanceMarker.prototype = {
+//Fusion.Widget.Measure.DistanceMarker = Class.create();
+//Fusion.Widget.Measure.DistanceMarker.prototype = {
+Fusion.Widget.PanQuery = OpenLayers.Class(
+{
     calculatingImg: null,
     distance: 0,
     initialize: function(units, precision, label) {
@@ -586,4 +595,4 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
         }
         return size;
     }
-};
+});

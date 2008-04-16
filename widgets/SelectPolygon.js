@@ -30,15 +30,18 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.SelectPolygon = Class.create();
-Fusion.Widget.SelectPolygon.prototype = {
+
+Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.ButtonBase, Fusion.Tool.Canvas,
+{
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     initialize : function(widgetTag) {
         //console.log('Select.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        Object.inheritFrom(this, Fusion.Tool.Canvas.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        Fusion.Tool.Canvas.prototype.initialize.apply(this, []);
+        
         this.asCursor = ['auto'];
 
         var json = widgetTag.extension;
@@ -206,4 +209,4 @@ Fusion.Widget.SelectPolygon.prototype = {
             this.selectionType = value;
         }
     }
-};
+});

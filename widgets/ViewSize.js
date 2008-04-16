@@ -29,8 +29,9 @@
  * Display the size of the current view in user-definable units
  ****************************************************************************/
 
-Fusion.Widget.ViewSize = Class.create();
-Fusion.Widget.ViewSize.prototype = {
+
+Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget,
+{
     defaultTemplate: 'x: {x}, y: {y}',
     domSpan: null,
     
@@ -38,8 +39,8 @@ Fusion.Widget.ViewSize.prototype = {
     units: Fusion.UNKNOWN,
 
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-                
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+             
         this.emptyText = this.domObj.innerHTML;
         
         var json = widgetTag.extension;
@@ -54,9 +55,9 @@ Fusion.Widget.ViewSize.prototype = {
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.domSpan);
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, this.updateViewSize.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateViewSize.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, OpenLayers.Function.bind(this.updateViewSize, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateViewSize, this));
         this.registerParameter('Units');
     },
     
@@ -93,4 +94,4 @@ Fusion.Widget.ViewSize.prototype = {
             this.updateViewSize();
         }
     }
-};
+});

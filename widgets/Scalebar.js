@@ -37,8 +37,8 @@ if (typeof(ScaleBarTool)=='undefined') {
     Fusion.require('widgets/scalebar/scalebartool.js');
 }
 
-Fusion.Widget.Scalebar = Class.create();
-Fusion.Widget.Scalebar.prototype = {
+Fusion.Widget.Scalebar = OpenLayers.Class(Fusion.Widget,
+{
     style: 'thin',
     displaySystem: 'metric',
     minWidth: 100,
@@ -50,7 +50,8 @@ Fusion.Widget.Scalebar.prototype = {
     singleLine: false,
     initialize : function(widgetTag) {
         //console.log('Scalebar.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
 
         var json = widgetTag.extension;
         this.style = json.Style ? json.Style[0].toLowerCase() : this.style;
@@ -98,13 +99,13 @@ Fusion.Widget.Scalebar.prototype = {
         //debugging using firebug, the problem doesn't occur.
         //this.oScaleBar.place(widgetTag.name);
         //A parameter or an operation is not supported by the underlying object"  code: "15
-        window.setTimeout(this.oScaleBar.place.bind(this.oScaleBar, widgetTag.name), 1);
+        window.setTimeout(OpenLayers.Function.bind(this.oScaleBar, widgetTag.name), 1);
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedCB.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.extentsChangedCB.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.extentsChangedCB, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.extentsChangedCB, this));
     },
 
     extentsChangedCB : function() {
         this.oScaleBar.update(this.getMap().getScale());
     }
-};
+});

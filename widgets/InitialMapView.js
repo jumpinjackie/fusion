@@ -30,16 +30,17 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.InitialMapView = Class.create();
-Fusion.Widget.InitialMapView.prototype = {
+
+Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
     initialize : function(widgetTag) {
         //console.log('InitialMapView.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
     },
 
     execute: function() {
         //console.log('InitialMapView.activateTool');
         this.getMap().fullExtents();
     }
-};
+});

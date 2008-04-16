@@ -54,8 +54,7 @@
  * x: {x}&lt;br/&gt;y: {y}
  * **********************************************************************/
 
-Fusion.Widget.CursorPosition = Class.create();
-Fusion.Widget.CursorPosition.prototype = {
+Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
     defaultTemplate: 'x: {x}, y: {y}',
     domSpan: null,
     
@@ -64,7 +63,7 @@ Fusion.Widget.CursorPosition.prototype = {
 
     initialize : function(widgetTag) {
         //console.log('CursorPosition.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
                 
         
         var json = widgetTag.extension;
@@ -83,13 +82,13 @@ Fusion.Widget.CursorPosition.prototype = {
         this.enable = Fusion.Widget.CursorPosition.prototype.enable;
         this.disable = Fusion.Widget.CursorPosition.prototype.enable;
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setUnits.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
         this.registerParameter('Units');
     },
     
     enable: function() {
-        this.mouseMoveWatcher = this.mouseMove.bind(this);
-        this.mouseOutWatcher = this.mouseOut.bind(this);
+        this.mouseMoveWatcher = OpenLayers.Function.bind(this.mouseMove, this);
+        this.mouseOutWatcher = OpenLayers.Function.bind(this.mouseOut, this);
 
         this.getMap().observeEvent('mousemove', this.mouseMoveWatcher);
         this.getMap().observeEvent('mouseout', this.mouseOutWatcher);
@@ -139,4 +138,4 @@ Fusion.Widget.CursorPosition.prototype = {
             this.units = Fusion.unitFromName(value);
         }
     }
-};
+});

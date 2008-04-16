@@ -29,13 +29,13 @@
  * A widget that displays a link to the currently displayedd map view.
  * **********************************************************************/
 
-Fusion.Widget.LinkToView = Class.create();
-Fusion.Widget.LinkToView.prototype = {
 
+Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
     initialize : function(widgetTag) {
         //console.log('LinkToView.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
 
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        
         var json = widgetTag.extension;
         this.baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?';
 
@@ -63,7 +63,7 @@ Fusion.Widget.LinkToView.prototype = {
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.anchor);
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.updateLink.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateLink, this));
         this.enable();                   
     },
     
@@ -72,4 +72,4 @@ Fusion.Widget.LinkToView.prototype = {
         var join = (this.baseUrl.indexOf('?')==this.baseUrl.length-1)?'':'&';
         this.anchor.href = this.baseUrl + join +'extent=' + sBbox;
     }
-};
+});

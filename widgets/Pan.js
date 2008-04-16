@@ -29,12 +29,14 @@
  * A widget that allows for naviagtion by panning
  * **********************************************************************/
 
-Fusion.Widget.Pan = Class.create();
-Fusion.Widget.Pan.prototype = {
+Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     initialize : function(widgetTag) {
         //console.log('Pan.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
         this.control.handler.keyMask = 0;
@@ -65,4 +67,4 @@ Fusion.Widget.Pan.prototype = {
         /*icon button*/
         this._oButton.deactivateTool();
     }
-};
+});

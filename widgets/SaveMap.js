@@ -38,15 +38,17 @@
  *    </Extension>
  * **********************************************************************/
 
-Fusion.Widget.SaveMap = Class.create();
-Fusion.Widget.SaveMap.prototype = {
+Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     iframe : null,
     printLayout : null,
     printScale : null,
     imageWidth : null,
     imageHeight : null,
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.format = (json.Format && json.Format[0] != '')?
@@ -177,4 +179,4 @@ Fusion.Widget.SaveMap.prototype = {
             this.iframe.src = s;
         }
     }
-};
+});

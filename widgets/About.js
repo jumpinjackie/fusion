@@ -31,9 +31,7 @@
 *
 * **********************************************************************/
 
-Fusion.Widget.About = Class.create();
-Fusion.Widget.About.prototype = 
-{
+Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
     _nWidth : 500,
     _nHeight : 400,
     _sDefaultUrl : '/mapguide/mapadmin/about.php',  //TBD we need a Fusion specific About page
@@ -48,8 +46,9 @@ Fusion.Widget.About.prototype =
  */
     initialize : function(widgetTag) {
         //console.log('About.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
         var json = widgetTag.extension;
         this._sAboutUrl = (json.AboutURL) ? 
                 json.AboutURL[0] : this._sDefaultUrl;
@@ -70,4 +69,4 @@ Fusion.Widget.About.prototype =
       sFeatures += ',height=' + this._nHeight;
       window.open(this._sAboutUrl, 'AboutPopup', sFeatures);
     }
-};
+});

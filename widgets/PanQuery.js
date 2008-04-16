@@ -33,21 +33,22 @@
 
 Fusion.require('widgets/Pan.js');
 
-Fusion.Widget.PanQuery = Class.create();
-Fusion.Widget.PanQuery.prototype = {
+Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Widget.Pan,
+{
     selectionType: 'INTERSECTS',
     nTolerance: 3,
     bActiveOnly: false,
     initialize : function(widgetTag) {
         //console.log('PanQuery.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
-        Object.inheritFrom(this, Fusion.Widget.Pan.prototype, [widgetTag]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        Fusion.Widget.Pan.prototype.initialize.apply(this, [widgetTag]);
 
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
         //TODO figure out how to set the mouseup via handlerOptions
-        this.control.handler.up = this.mouseUp.bind(this);
+        this.control.handler.up = OpenLayers.Function.bind(this.mouseUp, this);
         
         var json = widgetTag.extension;
         
@@ -114,4 +115,4 @@ Fusion.Widget.PanQuery.prototype = {
             this.selectionType = value;
         }
     }
-};
+});

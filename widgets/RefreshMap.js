@@ -30,12 +30,14 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.RefreshMap = Class.create();
-Fusion.Widget.RefreshMap.prototype =  {
+
+Fusion.Widget.RefreshMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     initialize : function(widgetTag) {
         //console.log('RefreshMap.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
     },
 
     /**
@@ -45,4 +47,4 @@ Fusion.Widget.RefreshMap.prototype =  {
         var map = this.getMap();
         map.redraw();
     }
-};
+});

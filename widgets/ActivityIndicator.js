@@ -33,11 +33,12 @@
  *
  * **************************************************************************/
 
-Fusion.Widget.ActivityIndicator = Class.create();
-Fusion.Widget.ActivityIndicator.prototype =  {
+
+Fusion.Widget.ActivityIndicator = OpenLayers.Class(Fusion.Widget, {
     element: null,
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         this.element = this.domObj;
         var json = widgetTag.extension;
         if (json.ElementId) {
@@ -48,9 +49,10 @@ Fusion.Widget.ActivityIndicator.prototype =  {
             }
         }
         this.element.style.visibility = 'hidden';
-        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, 
+                              OpenLayers.Function.bind(this.busyChanged, this));
     },
     busyChanged: function() {
         this.element.style.visibility = this.getMap().isBusy() ? 'visible' : 'hidden';
     }
-};
+});

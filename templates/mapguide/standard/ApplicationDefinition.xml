@@ -18,6 +18,24 @@
         </Extension>
       </Map>
     </MapGroup>
+    <MapGroup id="gmap-tiled" xsi:type="MapType">
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>false</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Gmap/Maps/gmapTiled.MapDefinition</ResourceId>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="gmap" xsi:type="MapType">
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>false</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Gmap/Maps/gmap.MapDefinition</ResourceId>
+        </Extension>
+      </Map>
+    </MapGroup>
   </MapSet>
 
 <!-- ****************************************** 
@@ -186,6 +204,10 @@
     <Container xsi:type="UiItemContainerType">
       <Name>Toolbar</Name>
       <Type>Toolbar</Type>
+      <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>MapMenu</Widget>
+      </Item>
       <Item xsi:type="WidgetItemType">
         <Function>Widget</Function>
         <Widget>toolbarHelp</Widget>
@@ -920,7 +942,7 @@
       <Type>ZoomOnClick</Type>
       <StatusItem>Zoom in by a preset increment.</StatusItem>
       <Extension xsi:type="CustomContentType">
-        <Factor>2</Factor>
+        <Factor>4</Factor>
       </Extension>
       <ImageUrl>images/icons/zoom-in-fixed.png</ImageUrl>
       <ImageClass/>
@@ -1029,6 +1051,11 @@
       <Disabled/>
     </Widget>
 
+    <Widget xsi:type="UiWidgetType">
+      <Name>Scalebar</Name>
+      <Type>ScalebarDual</Type>
+    </Widget>
+    
     </WidgetSet>
 
   <Extension/>

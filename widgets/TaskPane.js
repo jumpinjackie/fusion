@@ -29,8 +29,8 @@
  * A utility widget that holds output from other widgets.
  ****************************************************************************/
 
-Fusion.Widget.TaskPane = Class.create();
-Fusion.Widget.TaskPane.prototype =
+
+Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget,
 {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
     nCurrentTask: 0,
@@ -42,7 +42,8 @@ Fusion.Widget.TaskPane.prototype =
     initialize : function(widgetTag)
     {
         //console.log('TaskPane.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         
         this.aExecutedTasks = [];
         this.defHomeIcon = 'images/icon_home.png';
@@ -69,32 +70,32 @@ Fusion.Widget.TaskPane.prototype =
         tmpDiv.setAttribute('id', divName);
         this.toolbar = new Jx.Toolbar(tmpDiv,{left:0});
 
-        this.homeAction = new Jx.Action(this.goHome.bind(this));
+        this.homeAction = new Jx.Action(OpenLayers.Function.bind(this.goHome, this));
         this.toolbar.add(new Jx.Button(this.homeAction, 
             {
             image: this.defHomeIcon, 
-            tooltip: OpenLayers.String.translate('taskHome')
+            tooltip: OpenLayers.i18n('taskHome')
             }
         ));
 
-        this.prevAction = new Jx.Action(this.gotoPrevTask.bind(this));
+        this.prevAction = new Jx.Action(OpenLayers.Function.bind(this.gotoPrevTask, this));
         this.toolbar.add(new Jx.Button(this.prevAction, 
             {
             image: this.defPrevTaskIcon, 
-            tooltip: OpenLayers.String.translate('prevTask')
+            tooltip: OpenLayers.i18n('prevTask')
             }
         ));
 
-        this.nextAction = new Jx.Action(this.gotoNextTask.bind(this));
+        this.nextAction = new Jx.Action(OpenLayers.Function.bind(this.gotoNextTask, this));
         this.toolbar.add(new Jx.Button(this.nextAction, 
             {
             image: this.defNextTaskIcon, 
-            tooltip: OpenLayers.String.translate('nextTask')
+            tooltip: OpenLayers.i18n('nextTask')
             }
         ));
 
         this.taskMenu = new Jx.Menu({image: this.defTaskListIcon, 
-                    label: OpenLayers.String.translate('taskList'), 
+                    label: OpenLayers.i18n('taskList'), 
                     right:0});
         Element.addClassName(this.taskMenu.domObj, 'taskMenu');
         Element.addClassName(this.taskMenu.button.domObj, 'jxButtonContentLeft');
@@ -108,7 +109,7 @@ Fusion.Widget.TaskPane.prototype =
         this.iframe.setAttribute('frameborder', 0);
         this.iframe.style.border = '0px solid #fff';
         this.oTaskPane = new Jx.Panel({toolbar: tmpDiv, 
-                      label: OpenLayers.String.translate('taskPane'), 
+                      label: OpenLayers.i18n('taskPane'), 
                       content: this.iframe
         });
         Element.addClassName(this.domObj, 'taskPanePanel');
@@ -119,8 +120,8 @@ Fusion.Widget.TaskPane.prototype =
         //is added to the DOM
         this.oTaskPane.domObj.resize();
         
-        Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, this.setTaskMenu.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.setContent.bind(this,this.initialTask));
+        Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, OpenLayers.Function.bind(this.setTaskMenu, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setContent, this,this.initialTask));
     },
     
     updateButtons: function() {
@@ -186,4 +187,4 @@ Fusion.Widget.TaskPane.prototype =
         }
     }
    
-};
+});

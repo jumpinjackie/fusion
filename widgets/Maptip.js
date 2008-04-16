@@ -47,8 +47,8 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.Maptip = Class.create();
-Fusion.Widget.Maptip.prototype = 
+
+Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
 {
     oCurrentPosition: null,
     oMapTipPosition: null,
@@ -61,7 +61,8 @@ Fusion.Widget.Maptip.prototype =
     initialize : function(widgetTag)
     {
       //console.log('Maptip.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         var json = widgetTag.extension;
         
         this.sTarget = json.Target ? json.Target[0] : "MaptipWindow";
@@ -96,14 +97,14 @@ Fusion.Widget.Maptip.prototype =
         this.iframe.scrolling = 'no';
         this.iframe.frameborder = 0;
         
-        Event.observe(this.domObj, 'mouseover', this.mouseOverTip.bind(this));
-        Event.observe(this.domObj, 'mouseout', this.mouseOutTip.bind(this));
+        Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
+        Event.observe(this.domObj, 'mouseout', OpenLayers.Function.bind(this.mouseOutTip, this));
         
         var oDomElem =  this.getMap().getDomObj();
         document.getElementsByTagName('BODY')[0].appendChild(this.domObj);
         
-        this.getMap().observeEvent('mousemove', this.mouseMove.bind(this));
-        this.getMap().observeEvent('mouseout', this.mouseOut.bind(this));
+        this.getMap().observeEvent('mousemove', OpenLayers.Function.bind(this.mouseMove, this));
+        this.getMap().observeEvent('mouseout', OpenLayers.Function.bind(this.mouseOut, this));
         
     },
     
@@ -113,7 +114,7 @@ Fusion.Widget.Maptip.prototype =
             window.clearTimeout(this.nTimer);
             if (!this.nHideTimer) {
                 /*console.log('mouseOut: set hide timer');*/
-                this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
+                this.nHideTimer = window.setTimeout(OpenLayers.Function.bind(this.hideMaptip, this), 250);
             }
         }
     },
@@ -130,7 +131,7 @@ Fusion.Widget.Maptip.prototype =
             window.clearTimeout(this.nTimer);
             this.nTimer = null;
         }
-        this.nTimer = window.setTimeout(this.showMaptip.bind(this), this.delay);
+        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
         //Event.stop(e);
     },
     
@@ -164,8 +165,7 @@ Fusion.Widget.Maptip.prototype =
                                         maps[0]._sMapname,
                                         sGeometry,
                                         maxFeatures, persist, selection, layerNames);
-        oBroker.dispatchRequest(r, 
-        this._display.bind(this));
+        oBroker.dispatchRequest(r, OpenLayers.Function.bind(this._display, this));
 
     },
     _display: function(r) {
@@ -191,7 +191,7 @@ Fusion.Widget.Maptip.prototype =
               var a = document.createElement('a');
               a.innerHTML = h;
               a.href = 'javascript:void(0)';
-              a.onclick = this.openLink.bindAsEventListener(this, h);
+              a.onclick = OpenLayers.Function.bindAsEventListener(this.openLink, this, h);
               linkDiv.appendChild(a);
               contentDiv.appendChild(linkDiv);
               empty = false;
@@ -222,7 +222,7 @@ Fusion.Widget.Maptip.prototype =
     hideMaptip: function() {
       //console.log('hideMaptip');
         this.bIsVisible = false;
-        this.hideTimer = window.setTimeout(this._hide.bind(this),10);
+        this.hideTimer = window.setTimeout(OpenLayers.Function.bind(this._hide, this),10);
     },
     
     _hide: function() {
@@ -241,7 +241,7 @@ Fusion.Widget.Maptip.prototype =
     
     mouseOutTip: function() {
       //console.log('mouseOutTip');
-        this.nHideTimer = window.setTimeout(this.hideMaptip.bind(this), 250);
+        this.nHideTimer = window.setTimeout(OpenLayers.Function.bind(this.hideMaptip, this), 250);
         this.bOverTip = false;
     },
     
@@ -260,4 +260,4 @@ Fusion.Widget.Maptip.prototype =
         OpenLayers.Event.stop(evt, true);
         return false;
     }
-};
+});

@@ -30,14 +30,16 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.SelectWithin = Class.create();
-Fusion.Widget.SelectWithin.prototype = {
+
+Fusion.Widget.SelectWithin = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
+{
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
     initialize : function(widgetTag) {
         //console.log('SelectWithin.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, true]);
-        Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
 
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "SelectWithinWindow";
@@ -58,8 +60,8 @@ Fusion.Widget.SelectWithin.prototype = {
         }
         
         this.enable = Fusion.Widget.SelectWithin.prototype.enable;
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.enable.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.enable.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.enable, this));
         this.disable();
     },
 
@@ -124,4 +126,4 @@ Fusion.Widget.SelectWithin.prototype = {
             }
         }
     }
-};
+});

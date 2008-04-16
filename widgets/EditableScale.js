@@ -30,12 +30,11 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.EditableScale = Class.create();
-Fusion.Widget.EditableScale.prototype = {
+Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {
     precision: 4,
     
     initialize : function(widgetTag) {
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         
         var json = widgetTag.extension;
         
@@ -46,10 +45,11 @@ Fusion.Widget.EditableScale.prototype = {
         this.domScale = document.createElement('input');
         this.domScale.className = 'inputEditableScale';
         this.domObj.appendChild(this.domScale);
-        Event.observe(this.domScale, 'keypress', this.keyPressHandler.bindAsEventListener(this));
+        Event.observe(this.domScale, 'keypress', 
+           OpenLayers.Function.bindAsEventListener(this.keyPressHandler, this));
         this.precision = json.Precision ? parseInt(json.Precision[0]) : this.precision;
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.scaleChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.scaleChanged, this));
         
         Fusion.addWidgetStyleSheet(widgetTag.location + '/EditableScale/EditableScale.css');
         
@@ -77,4 +77,4 @@ Fusion.Widget.EditableScale.prototype = {
             this.getMap().zoomToScale(scale);
         }
     }
-};
+});

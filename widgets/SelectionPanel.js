@@ -30,20 +30,23 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.SelectionPanel = Class.create();
-Fusion.Widget.SelectionPanel.prototype = {
 
+Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget,
+{
     initialize : function(widgetTag) {
         //console.log('SelectionPanel.initialize');
-        Object.inheritFrom(this, Fusion.Widget.prototype, [widgetTag, false]);
+
+        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         
         this.defPrevTaskIcon = 'images/icon_back.gif';
         this.defNextTaskIcon = 'images/icon_forward.gif';
 
         var json = widgetTag.extension;
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, this.updateSelection.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, this.clearSelection.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, 
+                        OpenLayers.Function.bind(this.updateSelection, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, 
+                        OpenLayers.Function.bind(this.clearSelection, this));
         
         var d = document.createElement('div');
         
@@ -53,12 +56,14 @@ Fusion.Widget.SelectionPanel.prototype = {
         this.layerList = document.createElement('select');
         this.layerList.className = 'layerSelector';
         this.toolbar.appendChild(this.layerList);
-        Event.observe(this.layerList, 'change', this.renderSelectionFeatures.bind(this));
+        Event.observe(this.layerList, 'change', 
+                  OpenLayers.Function.bind(this.renderSelectionFeatures, this));
         
         this.featureList = document.createElement('select');
         this.featureList.className = 'featureSelector';
         this.toolbar.appendChild(this.featureList);
-        Event.observe(this.featureList, 'change', this.renderFeature.bind(this));
+        Event.observe(this.featureList, 'change', 
+                  OpenLayers.Function.bind(this.renderFeature, this));
 
         this.featureDiv = document.createElement('div');
         this.featureDiv.className = 'selectionPanelContent';
@@ -77,12 +82,13 @@ Fusion.Widget.SelectionPanel.prototype = {
         this.featureList.options.length = 0;
         this.oSelection = null;
         Element.addClassName(this.featureDiv, 'noSelection');
-        this.featureDiv.innerHTML = OpenLayers.String.translate('noSelection');
+        this.featureDiv.innerHTML = OpenLayers.i18n('noSelection');
     },
     
     updateSelection: function() {
         //console.log('update selection');
-        this.getMap().getSelection(this.renderSelectionLayers.bind(this));
+        this.getMap().getSelection(
+                    OpenLayers.Function.bind(this.renderSelectionLayers, this));
     },
     
     renderSelectionLayers: function(oSelection) {
@@ -147,10 +153,10 @@ Fusion.Widget.SelectionPanel.prototype = {
         var thead = document.createElement('thead');
         var tr = document.createElement('tr');
         var th = document.createElement('th');
-        th.innerHTML = OpenLayers.String.translate('attribute');
+        th.innerHTML = OpenLayers.i18n('attribute');
         tr.appendChild(th);
         var th = document.createElement('th');
-        th.innerHTML = OpenLayers.String.translate('value');
+        th.innerHTML = OpenLayers.i18n('value');
         tr.appendChild(th);
         thead.appendChild(tr);
         table.appendChild(thead);
@@ -173,4 +179,4 @@ Fusion.Widget.SelectionPanel.prototype = {
         this.featureDiv.innerHTML = '';
         this.featureDiv.appendChild(table);
     }
-};
+});
