@@ -32,7 +32,6 @@
  * **********************************************************************/
 
 Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
-{
     /* HTML input element that is used to store both the initial
        value for this widget and receives the color value as the
        color changes */
