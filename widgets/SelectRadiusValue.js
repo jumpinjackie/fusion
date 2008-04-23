@@ -48,8 +48,8 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget,
         this.label = json.Label ? json.Label[0] : '';
         this.className = json.ClassName ? json.ClassName[0] : '';
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.mapExtentsChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
     },
     
     draw: function() {
@@ -67,9 +67,6 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget,
         /* put into page */
         this.domObj.appendChild(this.domLabel);
         Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
-        
     },
     
     mapLoaded: function() {

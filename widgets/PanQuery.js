@@ -31,9 +31,9 @@
  * 
  * **********************************************************************/
 
-Fusion.require('widgets/Pan.js');
+//Fusion.require('widgets/Pan.js');
 
-Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Widget.Pan,
+Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
 {
     selectionType: 'INTERSECTS',
     nTolerance: 3,
@@ -43,7 +43,8 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
 
         Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        Fusion.Widget.Pan.prototype.initialize.apply(this, [widgetTag]);
+        //OpenLayers.Util.extend(this, Fusion.Widget.Pan.prototype);
+        //Fusion.Widget.Pan.prototype.initialize.apply(this, [widgetTag]);
 
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
@@ -106,6 +107,29 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         }
         Event.stop(e);
     },    
+    
+    /**
+     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
+     */
+    activateTool : function() {
+        /*console.log('Pan.activateTool');*/
+        this.getMap().activateWidget(this);
+    },
+    
+    activate : function() {
+        this.control.activate();
+        this.getMap().setCursor(this.cursorNormal);
+        /*button*/
+        this._oButton.activateTool();
+    },
+    
+    deactivate: function() {
+        /*console.log('Pan.deactivate');*/
+        this.control.deactivate();
+        this.getMap().setCursor('auto');
+        /*icon button*/
+        this._oButton.deactivateTool();
+    },
     
     setParameter : function(param, value) {
         if (param == "Tolerance" && value > 0) {

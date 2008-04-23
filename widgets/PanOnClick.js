@@ -31,7 +31,7 @@
  * **********************************************************************/
 
 
-Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.ButtonBase,
+Fusion.Widget.PanOnClick = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
 {
     fPercent: null,
     nDeltaX: null,
