@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-Description: Autogenerate widget documetation from widgetInfo files
+Description: Generates a list of widget and map files required for a single file build of Fusion
 $Id$
 $Name$
 -->
-
 
 <xsl:stylesheet version="1.0" 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
@@ -16,14 +15,6 @@ $Name$
   <xsl:param name="buildHome">./build</xsl:param>
 
   <!-- Root node.  -->
-  <xsl:template match="/xxApplicationDefinition">
-    <filelist id="fusionAppWidgets" dir="{$buildHome}/widget">
-        <xsl:attribute name="files">
-          <xsl:apply-templates select="WidgetSet"/>
-        </xsl:attribute>
-    </filelist>
-  </xsl:template>
-
   <xsl:template match="/ApplicationDefinition">
     <xsl:variable name="widgetFileList">
       <xsl:apply-templates select="WidgetSet"/>
@@ -47,7 +38,7 @@ $Name$
     </AppDef>
   </xsl:template>
 
-  <xsl:template match="Container"/>
+  <xsl:template match="Container"/> <!-- empty templates to suppress output -->
   <xsl:template match="MapWidget"/>
 
   <xsl:template match="Widget">
@@ -61,7 +52,10 @@ $Name$
     </xsl:variable>
     <xsl:value-of select="$loc"/>/<xsl:value-of select="Type"/>.js 
   </xsl:template>
-  <xsl:template match="MapGroup/Map"><xsl:value-of select="Type"/>/<xsl:value-of select="Type"/>.js </xsl:template>
+  
+  <xsl:template match="MapGroup/Map">
+    <xsl:value-of select="Type"/>/<xsl:value-of select="Type"/>.js 
+  </xsl:template>
   
   <xsl:template name="removeDuplicates"> <!-- tokenize a string -->
     <xsl:param name="str"/> <!-- String to process -->
