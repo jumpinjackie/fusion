@@ -241,4 +241,23 @@ function iterate_ereg_replace ( $szPattern, $szReplacement, $szString) {
 
     return $szResult;
 }
+
+function arguments($argv) {
+    $_ARG = array();
+    foreach ($argv as $arg) {
+        if (ereg('--[a-zA-Z0-9]*=.*',$arg)) {
+            $str = split("=",$arg); $arg = '';
+            $key = ereg_replace("--",'',$str[0]);
+            for ( $i = 1; $i < count($str); $i++ ) {
+                $arg .= $str[$i];
+            }
+                        $_ARG[$key] = $arg;
+        } elseif(ereg('-[a-zA-Z0-9]',$arg)) {
+            $arg = ereg_replace("-",'',$arg);
+            $_ARG[$arg] = 'true';
+        }
+    }
+    return $_ARG;
+}
+
 ?>
