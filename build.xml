@@ -162,8 +162,7 @@ $Id$
     </exec>
   </target>
     
-  <!--
-  <target description="Create documentation" name="docs2" depends="prepare">
+  <target description="Create documentation" name="widgetInfo" depends="prepare">
     <delete dir="${build.home}/docs/widgetinfo"/>
     <mkdir dir="${build.home}/docs/widgetinfo"/>
     <xslt basedir="${basedir}/widgets/widgetinfo" 
@@ -171,16 +170,14 @@ $Id$
           style="${basedir}/widgets/widgetinfo/widgetInfo.xsl" 
           excludes="WidgetInfoTemplate.xml widgetInfo.xsl"/>
   </target>
-  -->
 
 <!-- =================== single file build ================================== -->
-
   <target description="single file build" name="singleFile" depends="prepare">
     <echo message="preparing single file build for ${appDef}"/>
     <delete dir="${build.home}/lib/fusionSF.js"/>
     <delete dir="${build.home}/appDefFileset.xml"/>
     
-    <!-- generate the list of fiels for this Application and load as a property -->
+    <!-- generate the list of files for this Application and load as a property -->
     <xslt in="${appDef}" 
           out="${build.home}/appDefFileset.xml"
           style="${basedir}/parseAppDef.xsl">
@@ -217,13 +214,12 @@ $Id$
                           Search.js
                           Map.js"
         />
-        <!--fileset dir="${build.home}/MapGuide" includes="*.js" excludesfile="MapGuide/MapGuideViewerApi.js"/>
-        <fileset dir="${build.home}/MapServer" includes="*.js"/-->
         <fileset dir="${build.home}/text" includes="**/*.json"/>
         <filelist dir="${build.home}" files="${AppDef.Maps}"/>
         <filelist dir="${build.home}" files="${AppDef.Widgets}"/>
         <filelist dir="${build.home}" files="appDef.json configHeader.json config.json"/>
     </concat>
+    
     <echo message="compressing..."/>
     <java jar="${YUIcompressor}" fork="true"
           output="${build.home}/lib/fusionSF-compressed.js">
@@ -260,8 +256,12 @@ $Id$
         <fileset dir="${build.home}/widgets" includes="*.js **/*.js" excludes="Recenter.js"/>
     </concat>
     <echo message="compressing..."/>
-    <exec executable="jsmin.exe" os="Windows Vista, Windows XP" 
-      input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/>
+    <java jar="${YUIcompressor}" fork="true"
+          output="${build.home}/lib/fusionSF-compressed.js">
+        <arg value="${build.home}/lib/fusionSF.js"/>
+    </java>
+    <!--exec executable="jsmin.exe" os="Windows Vista, Windows XP" 
+      input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/-->
   </target>
 
 <!-- ==================== Deploy ========================================== -->
