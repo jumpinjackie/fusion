@@ -537,7 +537,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
           var o;
           eval("o="+r.responseText);
 
-          var oSelection = new GxSelectionObject(o);
+          var oSelection = new Fusion.SelectionObject(o);
           userFunc(oSelection);
       }
     },
