@@ -79,7 +79,6 @@ $Id$
   <property name="deploy.home" value="${env.HTDOCS}/${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
   <property name="docs.home" value="${build.home}/docs"/>
-  <property name="appDef" value="${basedir}/templates/mapguide/standard/ApplicationDefinition.xml"/>
 
 
 <!-- ==================== External Dependencies =========================== -->
@@ -171,10 +170,9 @@ $Id$
           excludes="WidgetInfoTemplate.xml widgetInfo.xsl"/>
   </target>
 
-<!-- =================== single file build ================================== -->
-  <target description="single file build" name="singleFile" depends="prepare">
-    <echo message="preparing single file build for ${appDef}"/>
-    <delete dir="${build.home}/lib/fusionSF.js"/>
+<!-- =================== prepare AppDef for single file build ================================== -->
+  <target description="convert AppDef to JSON" name="appDef2Json" if="appDef">
+    <echo message="converting ${appDef} to JSON"/>
     <delete dir="${build.home}/appDefFileset.xml"/>
     
     <!-- generate the list of files for this Application and load as a property -->
@@ -187,12 +185,18 @@ $Id$
     
     <!-- convert the application definition file to JSON -->
     <exec executable="php" os="Windows Vista, Windows XP" 
-              dir="${build.home}\common\php" 
               output="${build.home}/appDef.json">
-        <arg line="Xml2JSON.php --file='${appDef}'"/>
+        <arg line="common\php\Xml2JSON.php --file='${appDef}'"/>
     </exec>
     
-    <!-- now merge everything into a single file -->
+  </target>
+
+<!-- =================== single file build ================================== -->
+  <target description="single file build" name="singleFile" depends="clean,prepare,appDef2Json">
+    <echo message="preparing single file build for ${appDef}"/>
+    <delete dir="${build.home}/lib/fusionSF.js"/>
+    
+    <!-- merge everything into a single file -->
     <concat destfile="${build.home}/lib/fusionSF.js" outputencoding="UTF-8">
         <filelist dir="${build.home}/lib" 
                   files=" SingleFile.js
