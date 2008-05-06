@@ -216,8 +216,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this._sResourceId = o.mapId;
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
-            this._fMetersperunit = o.metersPerUnit;
-            this.mapWidget._fMetersperunit = this._fMetersperunit;
+            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
 
             this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
 
@@ -284,7 +283,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             //set projection units and code if supplied
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
-            this.units = this.getClosestUnits(o.metersPerUnit);
+            this.units = Fusion.getClosestUnits(o.metersPerUnit);
             
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
@@ -319,22 +318,6 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.mapWidget._removeWorker();
     },
     
-    getClosestUnits: function(metrsPerUnit) {
-        
-        var units = "degrees";
-        var minDiff = 100000000;
-        for (var key in OpenLayers.INCHES_PER_UNIT)        
-        {
-            var newDiff = Math.abs((metrsPerUnit * 39.3701) - OpenLayers.INCHES_PER_UNIT[key]);
-            if(newDiff < minDiff)
-            {
-                minDiff = newDiff;
-                units = key;
-            }
-        }
-        return units;
-    },
-
 //TBD: this function not yet converted for OL    
     reloadMap: function() {
         

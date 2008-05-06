@@ -222,8 +222,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
-            this._fMetersperunit = o.metersPerUnit;
-            this.mapWidget._fMetersperunit = this._fMetersperunit;
+            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
             this._sImageType = o.imagetype;
             this.metadata = o.metadata;
 
@@ -252,31 +251,18 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
                 OpenLayers.DOTS_PER_INCH = o.dpi;
             }
 
+            //to allow for scaling that doesn't match any of the pre-canned units
+            this.units = Fusion.getClosestUnits(o.metersPerUnit);
+            
             var layerOptions = {
       				singleTile: true,
       				ratio: this.ratio,
+              units: this.units,
       				maxExtent : this._oMaxExtent,
               maxResolution : 'auto',
       				minScale : maxScale,	//OL interpretation of min/max scale is reversed from Fusion
       				maxScale : minScale
       			};
-
-            //set OpenLayer projection units and code if supplied (OL defaults units to degrees)
-            if (o.metersPerUnit == 0.0254)
-               layerOptions.units = 'inches';
-            else if (o.metersPerUnit == 0.3048)
-               layerOptions.units = 'ft';
-            else if (o.metersPerUnit == 1609.344)
-               layerOptions.units = 'mi';
-            else if (o.metersPerUnit == 1)
-               layerOptions.units = 'm';
-               //layerOptions.projection = 'EPSG:42304';  //TODO: not necessary, but can this be supplied by LoadMap?
-            else if (o.metersPerUnit == 1000)
-               layerOptions.units = 'km';
-            else if (o.metersPerUnit == 111118.7516)
-               layerOptions.units = 'dd';
-
-            //this.mapWidget.setMapOptions(oMapOptions);
 
             //create the OL layer for this Map layer
             var params = {
