@@ -920,7 +920,8 @@ Fusion.Maps.MapServer.ScaleRange = OpenLayers.Class({
         }
     },
     contains: function(fScale) {
-        return fScale >= this.minScale && fScale <= this.maxScale;
+        var testScale = Math.round(fScale);
+        return testScale >= this.minScale && testScale <= this.maxScale;
     }
 });
 
