@@ -173,6 +173,7 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
                 }
                 $geomColl->Add($geom);
             }
+            $features->Close();
         }
     }
     if($geomColl->GetCount() == 0)
