@@ -50,6 +50,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
+
+    clientAgent: 'Fusion Viewer',
     
     initialize : function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -490,7 +492,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       if ( bSingleTile ) {
         params = {        //single tile params
           session : this.getSessionID(),
-          mapName : this._sMapname
+          mapname : this._sMapname,
+          clientagent : this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
         params.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
@@ -504,7 +507,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       } else {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
-          basemaplayergroupname: this.groupName  //assumes only one group for now
+          basemaplayergroupname: this.groupName,  //assumes only one group for now
+          clientagent : this.clientAgent
         };
       }
 
@@ -1180,6 +1184,7 @@ Fusion.Maps.MapGuide.ScaleRange = OpenLayers.Class({
 */
 
 Fusion.Maps.MapGuide.StyleItem = OpenLayers.Class({
+    clientAgent: 'Fusion Viewer',
     initialize: function(o, staticIcon) {
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
@@ -1195,6 +1200,6 @@ Fusion.Maps.MapGuide.StyleItem = OpenLayers.Class({
     },
     getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType;
+        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType + "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
     }
 });
