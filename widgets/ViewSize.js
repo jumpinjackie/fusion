@@ -68,8 +68,9 @@ Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget,
             var gw = map.pixToGeoMeasure(p.w);
             var gh = map.pixToGeoMeasure(p.h);
             if (this.units != Fusion.UNKNOWN) {
-                gw = Fusion.fromMeter(this.units, gw * map._fMetersperunit);
-                gh = Fusion.fromMeter(this.units, gh * map._fMetersperunit);
+                var convFactor = map.getMetersPerUnit();
+                gw = Fusion.fromMeter(this.units, gw * convFactor);
+                gh = Fusion.fromMeter(this.units, gh * convFactor);
             }
             if (this.precision >= 0) {
                 var factor = Math.pow(10,this.precision);

@@ -110,8 +110,9 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
             p = map.pixToGeo(p.x, p.y);
             if (p) {
                 if (this.units != Fusion.UNKNOWN) {
-                    p.x = Fusion.fromMeter(this.units, p.x * map._fMetersperunit);
-                    p.y = Fusion.fromMeter(this.units, p.y * map._fMetersperunit);
+                    var convFactor = map.getMetersPerUnit();
+                    p.x = Fusion.fromMeter(this.units, p.x * convFactor);
+                    p.y = Fusion.fromMeter(this.units, p.y * convFactor);
                 }
                 if (this.precision >= 0) {
                     var factor = Math.pow(10,this.precision);
@@ -122,7 +123,6 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
         }
         if (p) {
             var unitAbbr = Fusion.unitAbbr(this.units);
-        
             this.domSpan.innerHTML = this.template.replace('{x}',p.x).replace('{y}',p.y).replace('{units}', unitAbbr).replace('{units}', unitAbbr);
         }
     },
