@@ -8253,7 +8253,9 @@ Jx.Dialog.prototype = {
             if (options.parentObj) {
                 $(options.parentObj).appendChild(this.blanket);
             } else {
-                document.body.appendChild(this.blanket);            
+                document.body.appendChild(this.blanket);
+                var temp = new Jx.Layout(this.blanket);
+                temp.resize();
             }        
         }
 
