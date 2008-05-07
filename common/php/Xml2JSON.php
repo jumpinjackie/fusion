@@ -35,10 +35,11 @@ if (isset($_FILES['xml'])) {
     if (!isset($REQUEST_VARS['xml'])) {
         die('xml not set');
     }
-    $xml = rawurldecode ($REQUEST_VARS['xml']);
-    $xml = str_replace('\"', '"', $xml);
     header('Content-type: text/plain');
     header('X-JSON: true');
+    $xml = rawurldecode ($REQUEST_VARS['xml']);
+    $xml = str_replace('\"', '"', $xml);
+    $xml = str_replace('&quot;', "'", $xml);
 } elseif (isset($argv)) {
     $cliArgs = arguments($argv);
     if (isset($cliArgs['obj'])) {

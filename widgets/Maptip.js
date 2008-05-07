@@ -158,19 +158,29 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
         var maxFeatures = 1;
         var persist = 0;
         var selection = 'INTERSECTS';
+        // only select visible layers with maptips defined (1+4)
+        var layerAttributeFilter = 5;
         var maps = this.getMap().getAllMaps();
         //TODO: possibly make the layer names configurable?
         var layerNames = this.aLayers.toString();
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(maps[0].getSessionID(),
                                         maps[0]._sMapname,
                                         sGeometry,
-                                        maxFeatures, persist, selection, layerNames);
-        oBroker.dispatchRequest(r, OpenLayers.Function.bind(this._display, this));
-
+                                        maxFeatures, persist, selection, layerNames,
+                                        layerAttributeFilter);
+        oBroker.dispatchRequest(r, 
+            OpenLayers.Function.bind(Fusion.xml2json, this, 
+                  OpenLayers.Function.bind(this.requestCB, this)));
     },
-    _display: function(r) {
+    
+    requestCB: function(xhr) {
+        var o;
+        eval("o="+xhr.responseText);
+        this._display(o);
+    },
+    
+    _display: function(tooltip) {
       //console.log('maptip _display');
-        if (r.responseXML) {
             this.domObj.innerHTML = '&nbsp;';
             var contentDiv = document.createElement('div');
             contentDiv.className = 'maptipContent';
@@ -178,20 +188,18 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
             
             var empty = true;
             this.bIsVisible = true;
-            var d = new DomNode(r.responseXML);
-            var t = d.getNodeText('Tooltip');
-            if (t != '') {
-              t = t.replace(/\\n/g, "<br>");
-              contentDiv.innerHTML = t;
+            var t = tooltip['FeatureInformation']['Tooltip'];
+            if (t) {
+              contentDiv.innerHTML = t[0].replace(/\\n/g, "<br>");
               empty = false;
             }
-            var h = d.getNodeText('Hyperlink');
-            if (h != '') {
+            var h = tooltip['FeatureInformation']['Hyperlink'];
+            if (h) {
               var linkDiv = document.createElement('div');
               var a = document.createElement('a');
-              a.innerHTML = h;
+              a.innerHTML = h[0];
               a.href = 'javascript:void(0)';
-              a.onclick = OpenLayers.Function.bindAsEventListener(this.openLink, this, h);
+              a.onclick = OpenLayers.Function.bindAsEventListener(this.openLink, this, h[0]);
               linkDiv.appendChild(a);
               contentDiv.appendChild(linkDiv);
               empty = false;
@@ -214,9 +222,6 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
             } else {
                 this.hideMaptip();
             }
-        } else {
-            this.bIsVisible = false;
-        }
     },
     
     hideMaptip: function() {
@@ -229,7 +234,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
       //console.log('maptip _hide');
         this.hideTimer = null;
         this.domObj.style.display = 'none';
-        this.oMapTipPosition = null;
+        //this.oMapTipPosition = null;
     },
     
     mouseOverTip: function() {
