@@ -943,6 +943,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var persist = 0;
         var selection = 'INTERSECTS';
         var layerNames = '';
+        var layerAttributeFilter = 3;
         var sep = '';
         for (var i=0; i<this.aLayers.length; ++i) {
           layerNames += sep + this.aLayers[i].layerName;
@@ -951,7 +952,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.mapWidget.getSessionID(),
                                                             this._sMapname,
                                                             sGeometry,
-                                                            maxFeatures, persist, selection, layerNames);
+                                                            maxFeatures, persist, selection, layerNames, 
+                                                            layerAttributeFilter);
         var callback = OpenLayers.Function.bind(this.crtlClickDisplay, this);
         Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
       }

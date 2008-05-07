@@ -299,6 +299,19 @@
       </Item>
     </Container>
 
+<!-- MAP -->
+
+    <MapWidget xsi:type="WidgetType">
+      <Name>Map</Name>
+      <Type>Map</Type>
+      <StatusItem>The map.</StatusItem>
+      <Extension xsi:type="CustomContentType">
+        <MenuContainer>MapContextMenu</MenuContainer>
+        <Scales>2000000 1000000 500000 250000 125000 50000</Scales>
+      </Extension>
+      <MapId>sheboygan</MapId>
+    </MapWidget>
+
 <!-- ****************************************** 
 * Context Menu - Widgets
 *
@@ -994,18 +1007,6 @@
       <Disabled/>
     </Widget>
 
-<!-- MAP -->
-
-    <MapWidget xsi:type="WidgetType">
-      <Name>Map</Name>
-      <Type>Map</Type>
-      <StatusItem>The map.</StatusItem>
-      <Extension xsi:type="CustomContentType">
-        <MenuContainer>MapContextMenu</MenuContainer>
-      </Extension>
-      <MapId>sheboygan</MapId>
-    </MapWidget>
-
 <!-- OVERVIEW MAP -->
 
     <Widget xsi:type="WidgetType">
@@ -1056,7 +1057,17 @@
       <Type>ScalebarDual</Type>
     </Widget>
     
-    </WidgetSet>
+    <Widget xsi:type="WidgetType">
+      <Name>MapTip</Name>
+      <Type>Maptip</Type>
+      <Extension>
+        <Label>Map Tips</Label>
+        <Delay>350</Delay>
+        <Layer>Parcels</Layer>
+      </Extension>
+    </Widget>
+
+  </WidgetSet>
 
   <Extension/>
 
