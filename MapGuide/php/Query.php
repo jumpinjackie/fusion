@@ -115,6 +115,7 @@ try {
 
             $className = $layerObj->GetFeatureClassName();
             if (!$layerObj->GetSelectable() || !$layerObj->IsVisible() ||
+                $className=='RedlineSchema:Redline' ||
                 !$className || $className=='rasters:RasterType' ||$className=='') {
                 continue;
             }

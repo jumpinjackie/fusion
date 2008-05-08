@@ -52,7 +52,7 @@ try {
       /*this already returns a meter*/
       $distance = distHaversine($x1,$y1, $x2,$y2);
     else
-    {   
+    {
         $distance = sqrt (pow(($x2 - $x1),2) + pow(($y2 - $y1),2));
         /*convert to meter*/
         $distance = GetMetersPerUnit($oMap->units)*$distance;

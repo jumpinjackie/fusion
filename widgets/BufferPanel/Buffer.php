@@ -282,9 +282,8 @@
                     }
                 }
                 while($features->ReadNext());
-
-                $features->Close();
             }
+            $features->Close();
         }
 
         if($merge)
