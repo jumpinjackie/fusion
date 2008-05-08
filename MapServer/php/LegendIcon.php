@@ -25,7 +25,7 @@
  */
 
 /*****************************************************************************
- * Purpose: Draw a legend icon 
+ * Purpose: Draw a legend icon
  *****************************************************************************/
 
 include(dirname(__FILE__).'/Common.php');
@@ -57,6 +57,14 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
             /* if the legendIconCache dir is set */
             if (isset($configObj->mapserver->legendIconCacheDir)) {
               $legendIconCacheDir = $configObj->mapserver->legendIconCacheDir;
+
+              // check for closing '/'
+              $legendIconCacheDir = str_replace( '\\', '/', trim( $legendIconCacheDir ) );
+              if ( substr( $legendIconCacheDir, -1 ) != '/' )
+              {
+                  $legendIconCacheDir .= '/';
+              }
+
               $cacheLegendIcons = true;
               $str = file_get_contents($_SESSION['maps'][$mapName]);
               /* create a unique location for the map icons based on
@@ -89,7 +97,7 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
       $width = 16;
     if ($height <=0)
       $height = 16;
-    
+
     $oImg = $oClass->createLegendIcon($width, $height);
     /* TODO: can we figure out what the content type is? */
     header('Content-type: image/png');

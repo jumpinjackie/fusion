@@ -61,12 +61,13 @@ Fusion.Widget.CenterSelection.prototype = {
      * @param selection the active selection, or null if there is none
      */
     centerSelection : function(selection) {
-        var extents = this.getMap().getCurrentExtents();
+        var map = this.getMap(); 
+        var extents = map.getCurrentExtents();
         var curWidth = extents[2] - extents[0];
         var curHeight = extents[3] - extents[1];
         
-        var ll = selection.getLowerLeftCoord();
-        var ur = selection.getUpperRightCoord();
+        var ll = selection[map.getMapName()].getLowerLeftCoord();
+        var ur = selection[map.getMapName()].getUpperRightCoord();
         
         var newWidth = ur.x - ll.x;
         var newHeight = ur.y - ll.y;
@@ -74,14 +75,14 @@ Fusion.Widget.CenterSelection.prototype = {
         if (newWidth < curWidth && newHeight < curHeight) {
             var cx = (ur.x + ll.x) / 2;
             var cy = (ur.y + ll.y) / 2;
-            this.getMap().zoom(cx,cy,1);
+            map.zoom(cx,cy,1);
         } else {
             var buffer = 0.1;
             var minx = ll.x-newWidth*buffer;
             var miny = ll.y-newHeight*buffer;
             var maxx = ur.x+newWidth*buffer;
             var maxy = ur.y+newHeight*buffer;
-            this.getMap().setExtents(new OpenLayers.Bounds(minx,miny,maxx,maxy));
+            map.setExtents(new OpenLayers.Bounds(minx,miny,maxx,maxy));
         }
     },
 

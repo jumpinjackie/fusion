@@ -158,12 +158,10 @@ try {
             $layerSrsWkt = $spatialContext->GetCoordinateSystemWkt();
             /* skip this layer if the srs is empty */
             if($layerSrsWkt == "") {
-                $excludedLayers ++;
                 continue;
             }
         } else {
             /* skip this layer if there is no spatial context at all */
-            $excludedLayers ++;
             continue;
         }
 
@@ -182,7 +180,6 @@ try {
         //
         if(($arbitraryDsSrs != $arbitraryMapSrs) || ($arbitraryDsSrs && ($dsSrsUnits != $mapSrsUnits)))
         {
-            $excludedLayers ++;
             continue;
         }
 
@@ -191,15 +188,19 @@ try {
         $dist = $layerCs->ConvertMetersToCoordinateSystemUnits($distance);
 
         // calculate great circle unless data source srs is arbitrary
+        $verMajor = subStr(GetSiteVersion(), 0,1);
         if(!$arbitraryDsSrs) {
-            $measure = new MgCoordinateSystemMeasure($layerCs);
+            if ($verMajor == '1') {
+              $measure = new MgCoordinateSystemMeasure($layerCs);
+            } else {
+              $measure = $layerCs->GetMeasure();
+            }
         } else {
             $measure = null;
         }
 
         // create a SRS transformer if necessary.
         if($layerSrsWkt != $srsDefMap) {
-            $verMajor = subStr(GetSiteVersion(), 0,1);
             if ($verMajor == '1') {
               $srsXform = new MgCoordinateSystemTransform($layerCs, $srsMap);
             } else {

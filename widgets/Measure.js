@@ -84,7 +84,6 @@ Fusion.Widget.Measure.prototype = {
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
-        
         this.distPrecision = json.DistancePrecision ? parseInt(json.DistancePrecision[0]) : 4;
         this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;  
         
@@ -397,7 +396,7 @@ Fusion.Widget.Measure.prototype = {
               //var mapUnits = Fusion.unitFromName(this.getMap().getUnits());
               //if (mapUnits == Fusion.DEGREES || Fusion.DECIMALDEGREES)
               mapUnits = Fusion.METERS;
-              
+
               if (mapUnits != this.units) {
                 o.distance = Fusion.convert(mapUnits, this.units, o.distance);
               }
@@ -415,11 +414,11 @@ Fusion.Widget.Measure.prototype = {
     updateDisplay: function(outputWin) {
         var outputDoc = outputWin.document;
         var tbody = outputDoc.getElementById('segmentTBody');
+        var value;
         if (tbody) {
             this.clearDisplay(outputWin);
             var totalDistance = 0;
             var units = Fusion.unitAbbr(this.units);
-            var value;
             for (var i=0; i<this.distanceMarkers.length; i++) {
                 var distance = this.distanceMarkers[i].getDistance();
                 totalDistance += distance;
@@ -500,6 +499,7 @@ Fusion.Widget.Measure.prototype = {
     },
 
     setParameter: function(param, value) {
+      //console.log('setParameter: ' + param + ' = ' + value);
         if (param == 'Units') {
             this.units = Fusion.unitFromName(value);
             for (var i=0; i<this.distanceMarkers.length; i++) {
@@ -557,7 +557,7 @@ Fusion.Widget.Measure.DistanceMarker.prototype = {
           value = this.distance.toPrecision(this.precision);
       }
 
-      return this.label + ' ' + value + ' ' + this.unitAbbr;            
+      return this.label + ' ' + value + ' ' + this.unitAbbr;  
     },
     
     setDistance: function(distance) {
