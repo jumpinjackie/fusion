@@ -500,9 +500,6 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         params.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
         params.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
         params.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
-        if (bIsBaseLayer) {
-          this.mapWidget.oMapOL.setOptions({'fractionalZoom':true});
-        }
 
       } else {
         params = {      //tiled version
@@ -967,9 +964,9 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         if (xhr.status == 200) {
             var o;
             eval('o='+xhr.responseText);
-            var h = o['FeatureInformation']['Hyperlink'][0];
-            if (h != '') {
-                window.open(h, "");
+            var h = o['FeatureInformation']['Hyperlink'];
+            if (h) {
+                window.open(h[0], "");
             }
         }
     },
