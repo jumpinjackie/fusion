@@ -260,4 +260,27 @@ function arguments($argv) {
     return $_ARG;
 }
 
+function loadFusionConfig() {
+    if (function_exists('json_decode')) {
+        $configFile = realpath(dirname(__FILE__)."/../../config.json");
+        if (file_exists($configFile)) {
+            $configStr = file_get_contents($configFile);
+            /* replace single quotes with double quotes */
+            $configStr = str_replace("'", '"', $configStr);
+            /* get rid of new lines, it just complicates things */
+            $configStr = str_replace("\n", '', $configStr);
+            /* get rid of embedded comments */
+            $configStr = preg_replace("/\/\*.*\*\//U", "", $configStr);
+            /* the regex after this one can't handle http: as a value, so mangle it. */
+            $configStr = preg_replace("/http:/U", "http_", $configStr);
+            /* quote unquoted attribute names */
+            $configStr = preg_replace("/[^\"]{1}(\w*):/U", "\"$1\":", $configStr);
+            /* decode the whole thing */
+            $_SESSION['fusionConfig'] = json_decode($configStr, false);
+        } else {
+          echo "config file not found";
+        }
+    }
+}
+
 ?>
