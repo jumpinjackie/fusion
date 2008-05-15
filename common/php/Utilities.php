@@ -261,6 +261,7 @@ function arguments($argv) {
 }
 
 function loadFusionConfig() {
+    /* json decode only in PHP 5.2 and later */
     if (function_exists('json_decode')) {
         $configFile = realpath(dirname(__FILE__)."/../../config.json");
         if (file_exists($configFile)) {
