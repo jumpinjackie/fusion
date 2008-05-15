@@ -34,6 +34,7 @@ include('../../common/php/Utilities.php');
 
 initializeSession( "sid", "", "" );
 $sessionId = session_id();
+loadFusionConfig();
 
 header('Content-type: text/x-json');
 header('X-JSON: true');
