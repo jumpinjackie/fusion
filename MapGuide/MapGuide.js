@@ -469,7 +469,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      * 
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, bFractionalZoom) {
+    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile) {
       var layerOptions = {
         units : this.units,
         isBaseLayer : bIsBaseLayer,
