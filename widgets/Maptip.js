@@ -199,7 +199,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
               var a = document.createElement('a');
               a.innerHTML = h[0];
               a.href = 'javascript:void(0)';
-              a.onclick = OpenLayers.Function.bindAsEventListener(this.openLink, this, h[0]);
+              var openLink = OpenLayers.Function.bind(this.openLink, this, h[0]);
+              a.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
               linkDiv.appendChild(a);
               contentDiv.appendChild(linkDiv);
               empty = false;
@@ -250,7 +251,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
         this.bOverTip = false;
     },
     
-    openLink : function(evt, url) {
+    openLink : function(url, evt) {
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         if ( taskPaneTarget ) {
             taskPaneTarget.setContent(url);
