@@ -290,6 +290,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
               this.scales = o.FiniteDisplayScales;
+              this.mapWidget.fractionalZoom = false;
+              this.mapWidget.oMapOL.fractionalZoom = false;
             }
             
             //remove this layer if it was already created
