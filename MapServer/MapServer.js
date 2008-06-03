@@ -823,6 +823,7 @@ Fusion.Maps.MapServer.Layer = OpenLayers.Class(Fusion.Widget.Map.Group, {
         this.editable = o.editable;
         this.parentGroup = o.parentGroup;
         this.metadata = o.metadata;
+        this.extent = o.extent;
         this.scaleRanges = [];
     		this.minScale = 1.0e10;
     		this.maxScale = 0;

@@ -154,7 +154,12 @@ if ($oMap) {
                  $layerObj->metadata->$key = $layer->getMetadata($key);
              }
          }
-
+         $extent = $layer->getExtent();
+         $layerObj->extent = NULL;
+         $layerObj->extent->minx = $extent->minx;
+         $layerObj->extent->maxx = $extent->maxx;
+         $layerObj->extent->miny = $extent->miny;
+         $layerObj->extent->maxy = $extent->maxy;
          $layerObj->propertyMappings = '';
          $layerObj->uniqueId = $i;
          $layerObj->layerName = $layer->name;
