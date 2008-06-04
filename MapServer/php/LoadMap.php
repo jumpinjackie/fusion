@@ -144,22 +144,33 @@ if ($oMap) {
     $mapObj->layers = array();
     for ($i=0;$i<$oMap->numlayers;$i++)
     {
-         $layer=$oMap->GetLayer($i);
-         $layerObj = NULL;
+        $layer=$oMap->getLayer($i);
+        $layerObj = NULL;
 
-         $layerObj->metadata = NULL;
-         if (isset($_REQUEST['layer_metadata'])) {
-             $layerMetadataKeys = explode(',',$_REQUEST['layer_metadata']);
-             foreach($layerMetadataKeys as $key) {
-                 $layerObj->metadata->$key = $layer->getMetadata($key);
-             }
-         }
-         $extent = $layer->getExtent();
-         $layerObj->extent = NULL;
-         $layerObj->extent->minx = $extent->minx;
-         $layerObj->extent->maxx = $extent->maxx;
-         $layerObj->extent->miny = $extent->miny;
-         $layerObj->extent->maxy = $extent->maxy;
+        $layerObj->metadata = NULL;
+        if (isset($_REQUEST['layer_metadata'])) {
+            $layerMetadataKeys = explode(',',$_REQUEST['layer_metadata']);
+            foreach($layerMetadataKeys as $key) {
+                $layerObj->metadata->$key = $layer->getMetadata($key);
+            }
+        }
+
+        $extent = $layer->getExtent();
+        $layerObj->extent = NULL;
+        $layerObj->extent->minx = NULL;
+        $layerObj->extent->maxx = NULL;
+        $layerObj->extent->miny = NULL;
+        $layerObj->extent->maxy = NULL;
+
+         // only proceed if extent is valid
+        if( $extent )
+        {
+            $layerObj->extent->minx = $extent->minx;
+            $layerObj->extent->maxx = $extent->maxx;
+            $layerObj->extent->miny = $extent->miny;
+            $layerObj->extent->maxy = $extent->maxy;
+        }
+
          $layerObj->propertyMappings = '';
          $layerObj->uniqueId = $i;
          $layerObj->layerName = $layer->name;
