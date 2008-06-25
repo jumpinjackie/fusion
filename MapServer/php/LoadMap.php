@@ -155,7 +155,7 @@ if ($oMap) {
             }
         }
 
-        $extent = $layer->getExtent();
+        //$extent = $layer->getExtent();
         $layerObj->extent = NULL;
         $layerObj->extent->minx = NULL;
         $layerObj->extent->maxx = NULL;
@@ -176,7 +176,6 @@ if ($oMap) {
          $layerObj->layerName = $layer->name;
          switch($layer->type) {
              case MS_LAYER_POINT:
-             case MS_LAYER_ANNOTATION:
                 $type = 0;
                 break;
              case MS_LAYER_LINE:
@@ -187,6 +186,9 @@ if ($oMap) {
                 break;
              case MS_LAYER_RASTER:
                 $type = 4;
+                break;
+             case MS_LAYER_ANNOTATION:
+                $type = 8;
                 break;
              default:
                 $type = 0;
