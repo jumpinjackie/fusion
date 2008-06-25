@@ -163,7 +163,7 @@ if ($oMap) {
         $layerObj->extent->maxy = NULL;
 
          // only proceed if extent is valid
-        if( $extent )
+        if( isset($GLOBALS["extent"]) )
         {
             $layerObj->extent->minx = $extent->minx;
             $layerObj->extent->maxx = $extent->maxx;
