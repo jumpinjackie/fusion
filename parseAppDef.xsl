@@ -40,6 +40,7 @@ $Name$
 
   <xsl:template match="Container"/> <!-- empty templates to suppress output -->
   <xsl:template match="MapWidget"/>
+  <xsl:template match="InitialView"/>
 
   <xsl:template match="Widget">
     <xsl:variable name="loc">
