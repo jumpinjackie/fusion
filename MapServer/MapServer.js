@@ -289,6 +289,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
+              this.mapWidget.oMapOL.units = this.oLayerOL.units;
               this.mapWidget._oInitialExtents = null;
               this.mapWidget.fullExtents();
               this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
