@@ -65,7 +65,32 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
         if (file_exists($legendIconCacheFile)) {
             /* TODO: can we figure out what the content type is? */
             header('Content-type: image/png');
-            readfile($legendIconCacheFile);
+            $etag = '"' . md5_file($legendIconCacheFile) . '"';
+            header ("ETag: " . $etag );
+            $cache_time = mktime(0, 0, 0, 1, 1, 2004);
+            $expires = 3600 * 256;
+            header("last-modified: " . gmdate("D, d M Y H:i:s",$cache_time) . " GMT");
+            $inm = split(',', getenv("HTTP_IF_NONE_MATCH"));
+            $send_body = true;
+            foreach ($inm as $i) {
+            	  if (trim($i) == $etag || trim($i) == $cache_time) {
+            		    header ("HTTP/1.0 304 Not Modified");
+            		    $send_body = false;
+            		}
+          	}
+            //last modified test
+            if(getenv("HTTP_IF_MODIFIED_SINCE") == gmdate("D, d M Y H:i:s",$cache_time). " GMT") {
+              	header ("HTTP/1.0 304 Not Modified"); 
+              	$send_body = false;
+          	}
+            //more headers
+            header("Expires: " . gmdate("D, d M Y H:i:s",$cache_time+$expires) . " GMT");
+            header("Cache-Control: max-age=$expires, must-revalidate");
+            //header('Content-Length: ' . strlen($body));
+            //if we're not cacheing
+            if ($send_body) {
+                readfile($legendIconCacheFile);
+            }
             exit;
         }
     }
@@ -75,16 +100,22 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oClass = $oLayer->getClass($REQUEST_VARS['classindex']);
     $width = $oMap->legend->keysizex;
     $height = $oMap->legend->keysizey;
-    if ($width <=0)
-      $width = 16;
-    if ($height <=0)
-      $height = 16;
-
+    if ($width <=0) {
+        $width = 16;
+    }
+    if ($height <=0) {
+        $height = 16;
+    }
     $oImg = $oClass->createLegendIcon($width, $height);
     /* TODO: can we figure out what the content type is? */
     header('Content-type: image/png');
     if ($cacheLegendIcons) {
         $oImg->saveImage($legendIconCacheFile);
+        $etag = '"' . md5_file($legendIconCacheFile) . '"';
+        header ("ETag: " . $etag );
+        $cache_time = mktime(0, 0, 0, 1, 1, 2004);
+        $expires = 3600 * 256;
+        header("last-modified: " . gmdate("D, d M Y H:i:s",$cache_time) . " GMT");
         readfile($legendIconCacheFile);
     } else {
       $oImg->saveImage("");
