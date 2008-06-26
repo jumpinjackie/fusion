@@ -868,7 +868,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
             $value =  GetPropertyValueFromFeatReader($featureReader,
                                                      $properties->$layerName->propertytypes[$j],
                                                      $propname);
-            $value = htmlentities($value);
+            $value = htmlentities($value, ENT_COMPAT, 'UTF-8');
             $value = addslashes($value);
             $value = preg_replace( "/\r?\n/", "<br>", $value );
             array_push($properties->$layerName->values[$properties->$layerName->numelements], $value);
