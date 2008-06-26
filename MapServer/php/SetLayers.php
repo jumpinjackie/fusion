@@ -32,6 +32,8 @@
 include ("Common.php");
 include ("Utilities.php");
 
+header('Content-type: text/x-json');
+header('X-JSON: true');
 
 if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
@@ -46,10 +48,12 @@ if ($_REQUEST['layerindex'] != '') {
 $currentLayers = $oMap->getlayersdrawingorder();
 
 if (count($currentLayers) != count($layers) ) {
+  echo "/* removing layers ";
 	for ($i=0; $i<count($layers); $i++) {
 		if ($i != $layers[$i]) {
+		  echo $i." ";
 			$layer = $oMap->getLayer($i);
-			$tmp = $layer->set('status', 'MS_DELETE');
+			$tmp = $layer->set('status', MS_DELETE);
 			if ($tmp >= 0) {
 				$res = true;
 			} else {
@@ -59,12 +63,12 @@ if (count($currentLayers) != count($layers) ) {
 		}
 		$res = false;
 	}
+		echo "*/";
 } else {
+  echo "/* reordering layers */";
 	$res = $oMap->setlayersdrawingorder($layers);
 }
 
-header('Content-type: text/x-json');
-header('X-JSON: true');
 if ($res) {
 	$oMap->save($_SESSION['maps'][$mapName]);
 	$currentLayers = $oMap->getlayersdrawingorder();
