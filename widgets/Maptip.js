@@ -109,7 +109,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
     },
     
     mouseOut: function(e) {
-      //console.log('maptip mouseOut');
+      console.log('maptip mouseOut:'+this.nTimer+':'+this.nHideTimer);
         if (this.nTimer) {
             window.clearTimeout(this.nTimer);
             if (!this.nHideTimer) {
@@ -177,6 +177,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
         var o;
         eval("o="+xhr.responseText);
         this._display(o);
+        if (this.nHideTimer) {
+          window.clearTimeout(this.nHideTimer);
+          this.nHideTimer = null;
+        }
     },
     
     _display: function(tooltip) {
