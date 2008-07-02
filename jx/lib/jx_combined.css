@@ -249,7 +249,7 @@ a.jxColorClose img {
     height: 20px;
 }/**
  * @project         Jx
- * @revision        $Id: dialog.css 512 2008-03-07 21:15:45Z pspencer $
+ * @revision        $Id: dialog.css 498 2008-02-15 16:09:17Z fwarnock $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -702,7 +702,7 @@ a.jxPanelLoading img {
 }
 /**
  * @project         Jx
- * @revision        $Id: picker.css 516 2008-03-10 23:21:04Z pspencer $
+ * @revision        $Id: picker.css 515 2008-03-10 23:19:15Z pspencer $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -811,7 +811,7 @@ div.jxPickerOptions a.selected {
 }
 /**
  * @project         Jx
- * @revision        $Id: tabs.css 512 2008-03-07 21:15:45Z pspencer $
+ * @revision        $Id: tabs.css 486 2008-02-13 22:17:45Z fwarnock $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */

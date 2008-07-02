@@ -5797,7 +5797,7 @@ Control.Slider.prototype = {
     this.event = null;
   }
 }/**
- * $Id: jxcore.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxcore.js 527 2008-07-02 18:04:01Z pspencer $
  *
  * Title: Jx Core
  *
@@ -5842,15 +5842,17 @@ Control.Slider.prototype = {
 ;
 
 /* firebug console supressor for IE/Safari/Opera */
-if (!("console" in window) || !("firebug" in console)) {
-    var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml",
-    "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
+Event.observe(window, 'load', function() {
+    if (!("console" in window) || !("firebug" in window.console)) {
+        var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml",
+        "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
 
-    window.console = {};
-    for (var i = 0; i < names.length; ++i) {
-        window.console[names[i]] = function() {};
+        window.console = {};
+        for (var i = 0; i < names.length; ++i) {
+            window.console[names[i]] = function() {};
+        }
     }
-}
+});
 /* inspired by extjs, removes css image flicker and related problems in IE 6 */
 var ua = navigator.userAgent.toLowerCase();
 var isIE = ua.indexOf("msie") > -1,
@@ -6784,7 +6786,7 @@ Jx.ContentLoader.prototype = {
         }
     }
 };/**
- * $Id: jxbutton.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxbutton.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Button
  *
@@ -7355,7 +7357,7 @@ Object.extend(Jx.Button.Picker.prototype, {
     }
     
 });/**
- * $Id: jxcolor.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxcolor.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Color
  *
@@ -7980,7 +7982,7 @@ Object.extend(Jx.Button.Color.prototype, {
     }
 });
 /**
- * $Id: jxdialog.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxdialog.js 524 2008-05-07 19:49:03Z madair $
  *
  * Title: Jx.Dialog
  *
@@ -8253,7 +8255,7 @@ Jx.Dialog.prototype = {
             if (options.parentObj) {
                 $(options.parentObj).appendChild(this.blanket);
             } else {
-                document.body.appendChild(this.blanket);
+                document.body.appendChild(this.blanket);            
                 var temp = new Jx.Layout(this.blanket);
                 temp.resize();
             }        
@@ -8840,7 +8842,7 @@ Jx.Dialog.prototype = {
 };
 Object.extend(Jx.Dialog.prototype, Jx.UniqueId.prototype);
 Object.extend(Jx.Dialog.prototype, Jx.ContentLoader.prototype);/**
- * $Id: jxgrid.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxgrid.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Grid
  *
@@ -9770,7 +9772,7 @@ Jx.Grid.prototype = {
         return {row:row,column:col};
     }
 };/**
- * $Id: jxlayout.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxlayout.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Layout
  *
@@ -10237,7 +10239,7 @@ Jx.Constraint.prototype = {
         }
     }
 };/**
- * $Id: jxmenu.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxmenu.js 508 2008-02-28 20:57:12Z pspencer $
  *
  * Title: Jx.Menu
  *
@@ -10958,7 +10960,7 @@ Object.extend(Jx.ContextMenu.prototype, {
         Jx.Menu.prototype.show.apply(this, [e]);
     }
 });/**
- * $Id: jxpanel.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxpanel.js 504 2008-02-21 01:18:50Z pspencer $
  *
  * Title: Jx.Panel
  *
@@ -11397,7 +11399,7 @@ Jx.Panel.prototype = {
 };
 Object.extend(Jx.Panel.prototype, Jx.UniqueId.prototype);
 Object.extend(Jx.Panel.prototype, Jx.ContentLoader.prototype);/**
- * $Id: jxpicker.js 516 2008-03-10 23:21:04Z pspencer $
+ * $Id: jxpicker.js 515 2008-03-10 23:19:15Z pspencer $
  *
  * Title: Jx.Picker
  *
@@ -11735,7 +11737,7 @@ Jx.Picker.prototype = {
     }
 };
 Object.extend(Jx.Picker.prototype, Jx.Listener.prototype);/**
- * $Id: jxsplitter.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxsplitter.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Splitter
  *
@@ -12486,7 +12488,7 @@ Jx.Splitter.Snapper.prototype = {
         }
     }
 };/**
- * $Id: jxtab.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxtab.js 526 2008-06-24 12:56:56Z pspencer $
  *
  * Title: Jx.Tab
  *
@@ -12746,12 +12748,15 @@ Jx.Tab.prototype = {
     initialize : function(name, options) {
         this.sl = [];
         options = options || {};
+        if (!options.label) {
+            options.label = name;
+        }
         this.name = name;
         this.content = document.createElement('div');
         this.content.className = 'tabContent';
         this.loadContent(this.content, options);
         var a = new Jx.Action(this.clicked.bind(this));
-        var b = new Jx.Button(a, {label: name});
+        var b = new Jx.Button(a, options);
         this.domObj = b.domA;
         // rename the element from jxButton to jxTab
         // Element.removeClassName(this.domObj, 'jxButton');
@@ -12883,7 +12888,7 @@ Jx.TabBox.prototype = {
 };
 Object.extend(Jx.TabBox.prototype, Jx.Listener.prototype);
 /**
- * $Id: jxtoolbar.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxtoolbar.js 503 2008-02-18 22:54:09Z pspencer $
  *
  * Title: Jx.Toolbar
  *
@@ -13168,7 +13173,7 @@ Jx.ToolbarSeparator.prototype = {
 };
 
 /**
- * $Id: jxtree.js 512 2008-03-07 21:15:45Z pspencer $
+ * $Id: jxtree.js 505 2008-02-21 02:32:39Z pspencer $
  *
  * Title: Jx.Tree
  *
