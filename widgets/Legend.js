@@ -325,6 +325,9 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         }
     },
     updateGroupLayers: function(group, fScale) {
+        if (!group.displayInLegend) {
+            return;
+        }
         for (var i=0; i<group.groups.length; i++) {
             this.updateGroupLayers(group.groups[i], fScale);
         }
