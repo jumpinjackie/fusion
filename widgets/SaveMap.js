@@ -80,10 +80,11 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
                 if (layout.Scale) {
                     //create entries for weblayout specified scales
                     menuItem = new Jx.SubMenu(opt);
+                    data.scales = [];
                     for (var j=0; j < layout.Scale.length; j++) {
-                        data.scale = layout.Scale[j];
-                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data));
-                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:data.scale});
+                        data.scales.push(layout.Scale[j]);
+                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data, j));
+                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:layout.Scale[j]});
                         menuItem.add(subMenuItem);
                     }
                     //add an entry for current scale
@@ -116,11 +117,17 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     },
     
     setLayout: function(data) {
-        this.printScale = data.scale;
         this.printLayout = data.rid;
         this.pageHeight = data.pageHeight;
         this.pageWidth = data.pageWidth;
         this.pageMargins = data.margins;
+        //when the selected item has a scale, the index into the scales array
+        //is passed, otherwise value is reset and current scale is used.
+        if (arguments.length == 3){
+            this.printScale = parseFloat(data.scales[arguments[1]]);
+        } else {
+            this.printScale = null;
+        }
 
         this.activateTool();
     },
@@ -171,10 +178,10 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         }
         var m = this.getMap().aMaps[0];
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             
             this.iframe.src = s;
         }
