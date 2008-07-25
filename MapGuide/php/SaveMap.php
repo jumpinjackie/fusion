@@ -27,7 +27,6 @@
 /*****************************************************************************
  * Purpose: get map initial information
  *****************************************************************************/
-
 include('Common.php');
 $format     = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
 $layout     = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
@@ -37,7 +36,6 @@ $imgHeight  = isset($_REQUEST['height']) ? $_REQUEST['height'] : null;
 $pageHeight = isset($_REQUEST['pageheight']) ? $_REQUEST['pageheight'] : 11;
 $pageWidth  = isset($_REQUEST['pagewidth']) ? $_REQUEST['pagewidth'] : 8.5;
 $aMargins = isset($_REQUEST['margins']) ? explode(',',$_REQUEST['margins']) : array(0,0,0,0);
-
 try
 {
     $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
@@ -48,12 +46,11 @@ try
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     
-    //compute center
-    $extent = $map->GetMapExtent();
-    $centerX = $extent->GetLowerLeftCoordinate()->GetX() + ($extent->GetWidth())/2;
-    $centerY = $extent->GetLowerLeftCoordinate()->GetY() + ($extent->GetHeight())/2;
-    $geomFactory = new MgGeometryFactory();
-    $center = $geomFactory->CreateCoordinateXY($centerX, $centerY);
+    //get current center as a coordinate
+    $center = $map->GetViewCenter()->GetCoordinate();
+
+    //plot with the passed scale, if provided
+    $scale = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : $map->GetViewScale();
 
     if ($format == 'DWF') {
         $oLayout = null;
@@ -71,53 +68,15 @@ try
         
         $dwfVersion = new MgDwfVersion('6.01','1.2');
         
-        if ($scale) {
-            //plot with the passed scale
-            
-            $coordSysFactory = new MgCoordinateSystemFactory();
-            $coordSystem = $coordSysFactory->Create($map->GetMapSRS());
-            $metersPerUnit = $coordSystem->ConvertCoordinateSystemUnitsToMeters(1.0);
-            $metersPerPixel = 1.0/(100.0 / 2.54 * $map->GetDisplayDpi());
-
-            $height = $map->GetDisplayHeight();
-            $width = $map->GetDisplayWidth();
-            $mapWidth = $scale * $width * $metersPerPixel/$metersPerUnit;
-            $mapHeight = $scale * $height * $metersPerPixel/$metersPerUnit;
-            $extent = new MgEnvelope( 
-                                      $center->GetX() - 0.5*$mapWidth,
-                                      $center->GetY() - 0.5*$mapHeight,
-                                      $center->GetX() + 0.5*$mapWidth,
-                                      $center->GetY() + 0.5*$mapHeight);
-            //this is broken because the swig api has an error
-            //$center = $map->GetViewCenter();
-            // echo $oPlotSpec; exit;
-            //echo $map->GetName()." ".$center->GetX().", ".
-            //                        $center->GetY().", ".
-            //                        $scale."  paper height: ".
-            //$oPlotSpec->GetPaperHeight().", layout: ".$oLayout->GetTitle().", dwfVersion ".$dwfVersion->GetFileVersion()."\n";
-            // $oImg = $mappingService->GeneratePlot($map,
-            //                                   $center,
-            //                                   $scale,
-            //                                   $oPlotSpec,
-            //                                   $oLayout,
-            //                                   $dwfVersion);
-            
-            $oImg = $mappingService->GeneratePlot($map, $extent, true,
-                                              $oPlotSpec,
-                                              $oLayout,
-                                              $dwfVersion);
-            
-        } else {
-            //use current extents for plot
-            $oImg = $mappingService->GeneratePlot($map, $extent, false,
-                                              $oPlotSpec,
-                                              $oLayout,
-                                              $dwfVersion);
-        }
+        $oImg = $mappingService->GeneratePlot($map,
+                                          $center,
+                                          $scale,
+                                          $oPlotSpec,
+                                          $oLayout,
+                                          $dwfVersion);
     } else {
         //render as an image
         if (isset($imgHeight) && isset($imgWidth)) {
-            $scale = $map->GetViewScale();
             $oImg = $renderingService->RenderMap($map, $selection,
                                                  $center, $scale,
                                                  $imgWidth, $imgHeight,
