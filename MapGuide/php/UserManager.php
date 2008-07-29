@@ -397,7 +397,12 @@ Class MGUserManager {
                     array_push($prefs, array('name'=>$pref['prefs.name'], 'value'=>$pref['user_prefs.value']));
                 }
             }
-            $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs );
+            $groups = array();
+            $aGroups = $this->GetGroups($a['username']);
+            for ( $i=0; $i < count($aGroups); $i++) { 
+                array_push($groups, $aGroups[$i]['name']);
+            }
+            $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs, $groups );
         }
         return $user;
     }
@@ -465,11 +470,12 @@ class FusionUser {
     private $email = '';
     private $preferences = array();
     
-    function __construct($id, $username, $email, $preferences) {
+    function __construct($id, $username, $email, $preferences, $groups) {
         $this->id = $id;
         $this->username = $username;
         $this->email = $email;
         $this->preferences = $preferences;
+        $this->groups = $groups;
     }
     
     function userName() {
@@ -501,6 +507,11 @@ class FusionUser {
             $result .= "</Preference>\n";
         }
         $result .= "</Preferences>\n";
+        $result .= "<Groups>\n";
+        foreach($this->groups as $group) {
+            $result .= "<Group>$group</Group>\n";
+        }
+        $result .= "</Groups>\n";
         $result .= "</User>\n";
         return $result;
     }
