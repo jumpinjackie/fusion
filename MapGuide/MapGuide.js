@@ -628,7 +628,7 @@ Fusion.Maps.MapGuide.prototype = {
       var params = {
           'mapname': this.getMapName(),
           'session': this.getSessionID(),
-          'selection': encodeURIComponent(selText),
+          'selection': selText,
           'seq': Math.random()
       };
       var options = {onSuccess: OpenLayers.Function.bind(this.processQueryResults, this, zoomTo), 

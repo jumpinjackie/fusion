@@ -40,7 +40,7 @@ function SetSelectionXML(selectionXml) {
     var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
-        mapWidget.setSelection(selectionXml, true, true);
+        mapWidget.setSelection(selectionXml, true);
     }
 }
 

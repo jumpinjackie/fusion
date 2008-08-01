@@ -64,6 +64,10 @@ Fusion.Widget.ViewOptions.prototype =
         this.oMenu.show(e);
     },
 
+    setViewOptions: function(units) {
+      this.getMap().setViewOptions(units);
+    },
+    
     setMapUnits: function() {
       var units = this.displayUnits ? this.displayUnits : this.getMap().getUnits();
       this.getMap().setViewOptions(units);
