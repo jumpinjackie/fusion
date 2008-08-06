@@ -183,7 +183,7 @@ Fusion.Widget.Maptip.prototype =
             var d = new DomNode(r.responseXML);
             var t = d.getNodeText('Tooltip');
             if (t != '') {
-              t = t.replace(/\\n/g, "<br>");
+              t = t.replace(/\n/g, "<br>");
               contentDiv.innerHTML = t;
               empty = false;
             }
