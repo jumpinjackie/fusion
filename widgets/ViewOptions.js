@@ -65,7 +65,7 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, Fusion.Tool.MenuBase
         this.oMenu.show(e);
     },
 
-    xxxsetViewOptions: function(units) {
+    setViewOptions: function(units) {
       this.getMap().setViewOptions(units);
     },
     
