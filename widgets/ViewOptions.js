@@ -65,8 +65,12 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, Fusion.Tool.MenuBase
         this.oMenu.show(e);
     },
 
+    xxxsetViewOptions: function(units) {
+      this.getMap().setViewOptions(units);
+    },
+    
     setMapUnits: function() {
       var units = this.displayUnits ? this.displayUnits : this.getMap().getUnits();
-      this.getMap().setViewOptions(units);
+      this.setViewOptions(units);
     }
 });
