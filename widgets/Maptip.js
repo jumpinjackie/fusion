@@ -109,7 +109,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
     },
     
     mouseOut: function(e) {
-      console.log('maptip mouseOut:'+this.nTimer+':'+this.nHideTimer);
+      //console.log('maptip mouseOut:'+this.nTimer+':'+this.nHideTimer);
         if (this.nTimer) {
             window.clearTimeout(this.nTimer);
             if (!this.nHideTimer) {
@@ -194,7 +194,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
             this.bIsVisible = true;
             var t = tooltip['FeatureInformation']['Tooltip'];
             if (t) {
-              contentDiv.innerHTML = t[0].replace(/\\n/g, "<br>");
+              contentDiv.innerHTML = t[0].replace(/\n/g, "<br>");
               empty = false;
             }
             var h = tooltip['FeatureInformation']['Hyperlink'];
