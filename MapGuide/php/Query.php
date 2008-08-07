@@ -86,6 +86,7 @@ try {
     }
     
     $bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['computed'], 'true') == 0;
+    $bQueryHiddenLayers = isset($_REQUEST['queryHiddenLayers']) && strcasecmp($_REQUEST['queryHiddenLayers'], 'true') == 0;
     
     /*holds selection array*/
     $properties = NULL;
@@ -112,9 +113,11 @@ try {
             } else {
                 $layerObj = $mapLayers->GetItem($i);
             }
-
+            $bVisFlag = $layerObj->IsVisible() || $bQueryHiddenLayers;
+            echo "/*bVisFlag:".$bVisFlag."*/";
+            
             $className = $layerObj->GetFeatureClassName();
-            if (!$layerObj->GetSelectable() || !$layerObj->IsVisible() ||
+            if (!$layerObj->GetSelectable() || !$bVisFlag ||
                 $className=='RedlineSchema:Redline' ||
                 !$className || $className=='rasters:RasterType' ||$className=='') {
                 continue;
