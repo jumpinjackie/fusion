@@ -790,6 +790,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             'mapname': this._sMapname,
             'session': this.getSessionID(),
             'spatialfilter': options.geometry || '',
+            'queryHiddenLayers': options.queryHiddenLayers || '',
             'maxfeatures': options.maxFeatures || 0, //zero means select all features
             'layers': options.layers || '',
             'variant': options.selectionType || this.selectionType
