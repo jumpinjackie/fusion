@@ -387,22 +387,24 @@ Class MGUserManager {
     
     function GetUser($id) {
         $user = FALSE;
-        $result = $this->db->query("SELECT * FROM users where userid = $id;");
-        if ($result) {
-            $a = $result->fetch();
-            $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$id.' AND user_prefs.prefid = prefs.prefid;');
-            $prefs = array();
-            if ($result) {
-                while ($pref = $result->fetch()) {
-                    array_push($prefs, array('name'=>$pref['prefs.name'], 'value'=>$pref['user_prefs.value']));
-                }
-            }
-            $groups = array();
-            $aGroups = $this->GetGroups($a['username']);
-            for ( $i=0; $i < count($aGroups); $i++) { 
-                array_push($groups, $aGroups[$i]['name']);
-            }
-            $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs, $groups );
+        if (!empty($id)) {
+          $result = $this->db->query("SELECT * FROM users where userid = $id;");
+          if ($result) {
+              $a = $result->fetch();
+              $result = $this->db->query('SELECT * from user_prefs, prefs WHERE userid = '.$id.' AND user_prefs.prefid = prefs.prefid;');
+              $prefs = array();
+              if ($result) {
+                  while ($pref = $result->fetch()) {
+                      array_push($prefs, array('name'=>$pref['prefs.name'], 'value'=>$pref['user_prefs.value']));
+                  }
+              }
+              $groups = array();
+              $aGroups = $this->GetGroups($a['username']);
+              for ( $i=0; $i < count($aGroups); $i++) { 
+                  array_push($groups, $aGroups[$i]['name']);
+              }
+              $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs, $groups );
+          }
         }
         return $user;
     }
