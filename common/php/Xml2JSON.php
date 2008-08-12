@@ -38,8 +38,10 @@ if (isset($_FILES['xml'])) {
     header('Content-type: text/plain');
     header('X-JSON: true');
     $xml = rawurldecode ($REQUEST_VARS['xml']);
+    $xml = trim($xml);
     $xml = str_replace('\"', '"', $xml);
     $xml = str_replace('&quot;', "'", $xml);
+    $xml = preg_replace('/\n/', ' ', $xml);
 } elseif (isset($argv)) {
     $cliArgs = arguments($argv);
     if (isset($cliArgs['obj'])) {
@@ -57,7 +59,9 @@ if (isset($_FILES['xml'])) {
 } else {
     die('no XML input');
 }
+//echo "/*";
 //print_r($xml);
+//echo "*/";
 $document = DOMDocument::loadXML($xml);
 if ($document == null) {
     die ('/* invalid xml document:'.$xml.' */');
