@@ -46,14 +46,27 @@
 include('Common.php');
 
 $szLayout="";
-if (isset($_REQUEST['layout']) &&  $_REQUEST['layout'] != "")
+if (isset($_REQUEST['layout']) &&  $_REQUEST['layout'] != "") {
   $szLayout = "&layout=".$_REQUEST['layout'];
-
+}
 $szScale="";
-if (isset($_REQUEST['scale']) &&  $_REQUEST['scale'] != "")
+if (isset($_REQUEST['scale']) &&  $_REQUEST['scale'] != "") {
   $szScale = "&scale=".$_REQUEST['scale'];
+}
+$szPageHeight="";
+if (isset($_REQUEST['pageheight']) &&  $_REQUEST['pageheight'] != "") {
+  $szPageHeight = "&pageheight=".$_REQUEST['pageheight'];
+}
+$szPageWidth="";
+if (isset($_REQUEST['pagewidth']) &&  $_REQUEST['pagewidth'] != "") {
+  $szPageWidth = "&pagewidth=".$_REQUEST['pagewidth'];
+}
+$szPageMargins="";
+if (isset($_REQUEST['margins']) &&  $_REQUEST['margins'] != "") {
+  $szPageMargins = "&margins=".$_REQUEST['margins'];
+}
 
-echo "<iframe style='visibility: hidden;' id='theImage' src='SaveMap.php?format=".trim($_REQUEST['format'])."&mapname=".$_REQUEST['mapname']."&session=".$_REQUEST['session']. $szLayout . $szScale."'></iframe>";
+echo "<iframe style='visibility: hidden;' id='theImage' src='SaveMap.php?format=".trim($_REQUEST['format'])."&mapname=".$_REQUEST['mapname']."&session=".$_REQUEST['session']. $szLayout . $szScale . $szPageHeight . $szPageWidth . $szPageMargins . "'></iframe>";
 ?>
 </body>
 </html>
