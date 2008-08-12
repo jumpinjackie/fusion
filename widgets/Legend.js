@@ -249,7 +249,9 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
             if (groupInfo) {
                 var a = document.createElement('a');
                 a.href = groupInfo;
-                a.target = '_blank';
+                if (groupInfo.indexOf('javascript:') < 0) {
+                  a.target = '_blank';
+                }
                 var img = document.createElement('img');
                 Jx.addToImgQueue({domElement:img, src: this.imgGroupInfoIcon});
                 img.border = 0;
@@ -429,7 +431,9 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         if (layerInfo) {
             var a = document.createElement('a');
             a.href = layerInfo;
-            a.target = '_blank';
+            if (layerInfo.indexOf('javascript:') < 0) {
+              a.target = '_blank';
+            }
             var img = document.createElement('img');
             Jx.addToImgQueue({domElement:img, src:this.imgLayerInfoIcon});
             img.border = 0;
@@ -473,7 +477,9 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
             if (layerInfo) {
                 var a = document.createElement('a');
                 a.href = layerInfo;
-                a.target = '_blank';
+                if (layerInfo.indexOf('javascript:') < 0) {
+                  a.target = '_blank';
+                }
                 var img = document.createElement('img');
                 Jx.addToImgQueue({domElement:img, src: this.imgLayerInfoIcon});
                 img.border = 0;
