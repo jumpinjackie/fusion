@@ -55,6 +55,10 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
         }
 
         this.defaultRadius = json.DefaultRadius ? parseInt(json.DefaultRadius[0]) : this.defaultRadius;
+        this.bComputeMetadata = (json.ComputeMetadata &&
+                           (json.ComputeMetadata[0] == 'true' ||
+                            json.ComputeMetadata[0] == '1')) ? true : false;
+        
         
         var container = json.RadiusTooltipContainer ? json.RadiusTooltipContainer[0] : '';
         if (container != '') {
@@ -248,6 +252,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
         var options = {};
         options.geometry = wkt;
         options.selectionType = this.selectionType;
+        options.computed = this.bComputeMetadata;
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
