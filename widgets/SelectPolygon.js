@@ -50,6 +50,10 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Button
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
         }
+        this.bComputeMetadata = (json.ComputeMetadata &&
+                           (json.ComputeMetadata[0] == 'true' ||
+                            json.ComputeMetadata[0] == '1')) ? true : false;
+        
         this.polygon = new Fusion.Tool.Canvas.Polygon();
     },
     
@@ -184,6 +188,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Button
         var options = {};
         options.geometry = wkt;
         options.selectionType = "inside";
+        options.computed = this.bComputeMetadata;
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();

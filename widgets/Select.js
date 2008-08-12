@@ -64,6 +64,10 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
                            (json.QueryActiveLayer[0] == 'true' ||
                             json.QueryActiveLayer[0] == '1')) ? true : false;
         
+        this.bComputeMetadata = (json.ComputeMetadata &&
+                           (json.ComputeMetadata[0] == 'true' ||
+                            json.ComputeMetadata[0] == '1')) ? true : false;
+        
         if (this.bActiveOnly) {
             this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, OpenLayers.Function.bind(this.enable, this));
         }
@@ -162,6 +166,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         options.geometry = 'POLYGON(('+ sMin.x + ' ' +  sMin.y + ', ' +  sMax.x + ' ' +  sMin.y + ', ' + sMax.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMin.y + '))';
         options.selectionType = this.selectionType;
         options.maxFeatures = this.maxFeatures;
+        options.computed = this.bComputeMetadata;
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
