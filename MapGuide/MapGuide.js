@@ -366,6 +366,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
               for (var j=0; j<this.oldLayers.length; ++j){
                 if (this.oldLayers[j].uniqueId == newLayer.uniqueId) {
                   newLayer.selectedFeatureCount = this.oldLayers[j].selectedFeatureCount;
+                  newLayer.noCache = this.oldLayers[j].noCache;
                   break;
                 }
               }
@@ -1203,6 +1204,15 @@ Fusion.Maps.MapGuide.StyleItem = OpenLayers.Class({
     },
     getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        return url + "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID() + "&VERSION=1.0.0&SCALE=" + fScale + "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId) + "&THEMECATEGORY=" + this.categoryIndex + "&TYPE=" + this.geometryType + "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
+        url += "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
+        url += "&VERSION=1.0.0&SCALE=" + fScale;
+        url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
+        url += "&THEMECATEGORY=" + this.categoryIndex;
+        url += "&TYPE=" + this.geometryType;
+        url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
+        if (layer.noCache) {
+          url += "&TS=" + (new Date()).getTime();
+        }
+        return url;
     }
 });

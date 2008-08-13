@@ -216,7 +216,7 @@ try {
             $wktReaderWriter = new MgWktReaderWriter();
             $agfTextPoint = $wktReaderWriter->Write($oGeom);
 
-            echo "<!-- wkt: ".$agfTextPoint." -->\n";
+            //echo "<!-- wkt: ".$agfTextPoint." -->\n";
             if (!$merge) {
                 /* use measure to accomodate differences in SRS */
                 $oNewGeom = $oGeom->Buffer($dist, $measure);

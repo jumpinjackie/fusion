@@ -169,12 +169,10 @@ Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     },
     
     execute: function() {
-        var layer = '&layer=';
         if (this.layerNameInput) {
-            layer += this.getValue(this.layerNameInput);
-        } else {
-            layer += this.layerName;
+            this.layerName = this.getValue(this.layerNameInput);
         }
+        var layer = '&layer=' + this.layerName;
         
         var d;
         if (this.bufferDistanceInput) {
@@ -222,6 +220,10 @@ Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     
     bufferCreated: function() {
         var aMaps = this.getMap().getAllMaps();
+        var layer = aMaps[0].getLayerByName(this.layerName);
+        if (layer) {
+          layer.noCache = true;
+        }
         aMaps[0].reloadMap();
         aMaps[0].drawMap();
     }
