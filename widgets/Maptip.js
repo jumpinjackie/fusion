@@ -210,11 +210,20 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
               empty = false;
             }
             if (!empty) {
+                var mapSize = this.getMap().getSize();
+                var size = Element.getDimensions(this.domObj);
+                if (this.oCurrentPosition.x < mapSize.w/2) {
+                  this.domObj.style.left = (this.oMapTipPosition.x) + 'px';
+                } else {
+                  this.domObj.style.left = (this.oMapTipPosition.x - size.width) + 'px';
+                }
+                if (this.oCurrentPosition.y < mapSize.h/2) {
+                  this.domObj.style.top = (this.oMapTipPosition.y) + 'px';
+                } else {
+                  this.domObj.style.top = (this.oMapTipPosition.y - size.height) + 'px';
+                }
                 this.domObj.style.visibility = 'hidden';
                 this.domObj.style.display = 'block';
-                var size = Element.getDimensions(this.domObj);
-                this.domObj.style.top = (this.oMapTipPosition.y - size.height) + 'px';
-                this.domObj.style.left = (this.oMapTipPosition.x) + 'px';
                 
                 if (!window.opera) {
                     contentDiv.appendChild(this.iframe);
