@@ -54,6 +54,10 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         var json = widgetTag.extension;
         
         this.nTolerance = json.Tolerance ? Math.abs(parseInt(json.Tolerance)) : 3;
+        this.bComputeMetadata = (json.ComputeMetadata &&
+                           (json.ComputeMetadata[0] == 'true' ||
+                            json.ComputeMetadata[0] == '1')) ? true : false;
+        
 
         var activeOnly = json.QueryActiveLayer ? json.QueryActiveLayer[0] : 'false';
         this.bActiveOnly = (activeOnly == 'true' || activeOnly == '1') ? true : false;
@@ -89,6 +93,7 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
             var maxy = pos.y+dfGeoTolerance;
             options.geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + maxx + ' ' + miny + ', ' + maxx + ' ' + maxy + ', ' + minx + ' ' + maxy + ', ' + minx + ' ' + miny + '))';
             options.selectionType = "INTERSECTS";
+            options.computed = this.bComputeMetadata;
 
             if (this.bActiveOnly) {
                 var layer = this.getMap().getActiveLayer();
