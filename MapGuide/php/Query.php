@@ -114,7 +114,6 @@ try {
                 $layerObj = $mapLayers->GetItem($i);
             }
             $bVisFlag = $layerObj->IsVisible() || $bQueryHiddenLayers;
-            echo "/*bVisFlag:".$bVisFlag."*/";
             
             $className = $layerObj->GetFeatureClassName();
             if (!$layerObj->GetSelectable() || !$bVisFlag ||
