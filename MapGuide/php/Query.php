@@ -256,8 +256,6 @@ try {
 
                 /* add the features to the map */
                 $selection->AddFeatures($layerObj, $featureReader, $maxFeatures);
-                $featureReader->Close();
-
 
                 $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties,
@@ -304,7 +302,9 @@ try {
                 $selection->AddFeatures($oLayer, $featureReader, $maxFeatures);
 
                 $layerName = $oLayer->GetName();
-                array_push($properties->layers, $layerName);
+                if (!in_array($layerName, $properties->layers)) {
+                  array_push($properties->layers, $layerName);
+                }
                 $featureReader->Close();
                 $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
 
