@@ -187,7 +187,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Button
         
         var options = {};
         options.geometry = wkt;
-        options.selectionType = "inside";
+        options.selectionType = this.selectionType;
         options.computed = this.bComputeMetadata;
 
         if (this.bActiveOnly) {
