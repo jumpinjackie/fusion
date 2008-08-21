@@ -164,7 +164,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     loadMap: function(mapfile, options) {
         while (this.mapWidget.isBusy()) {
 	        this.mapWidget._removeWorker();
-		}
+        }
         this.bMapLoaded = false;
         //console.log('loadMap: ' + resourceId);
         /* don't do anything if the map is already loaded? */
@@ -290,8 +290,8 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
               this.mapWidget.oMapOL.units = this.oLayerOL.units;
-              this.mapWidget._oInitialExtents = null;
-              this.mapWidget.fullExtents();
+              var initialExtent = this.mapWidget.setInitialExtents();
+              this.mapWidget.setExtents(initialExtent);
               this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             } else {
               this.triggerEvent(Fusion.Event.MAP_LOADED);

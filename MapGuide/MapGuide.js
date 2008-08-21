@@ -311,8 +311,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
-              this.mapWidget._oInitialExtents = null;
-              this.mapWidget.fullExtents();
+              var initialExtent = this.mapWidget.setInitialExtents();
+              this.mapWidget.setExtents(initialExtent);
               this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
             } else {
               this.triggerEvent(Fusion.Event.MAP_LOADED);
@@ -792,7 +792,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             'session': this.getSessionID(),
             'spatialfilter': options.geometry || '',
             'computed': options.computed || '',
-            'queryHiddenLayers': options.queryHiddenLayers || '',
+            'queryHiddenLayers': options.queryHiddenLayers || 'false',
             'maxfeatures': options.maxFeatures || 0, //zero means select all features
             'layers': options.layers || '',
             'variant': options.selectionType || this.selectionType
@@ -1204,7 +1204,7 @@ Fusion.Maps.MapGuide.StyleItem = OpenLayers.Class({
     },
     getLegendImageURL: function(fScale, layer) {
         var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-        url += "OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
+        url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
         url += "&VERSION=1.0.0&SCALE=" + fScale;
         url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
         url += "&THEMECATEGORY=" + this.categoryIndex;
