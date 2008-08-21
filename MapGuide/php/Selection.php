@@ -33,7 +33,6 @@ include('Common.php');
 include('../../common/php/Utilities.php');
 include('Utilities.php');
 
-
 $result = NULL;
 $result->layers = array();
 
@@ -75,6 +74,7 @@ if (isset($_SESSION['selection_array']))
         {
             $layerName =  $aSelectedLayers[$i];
             if (($bAllLayers || in_array($layerName, $aLayers)) && 
+                isset($properties->$layerName) &&
                 $properties->$layerName->numelements > 0)
             {
                 array_push($result->layers, $layerName);
