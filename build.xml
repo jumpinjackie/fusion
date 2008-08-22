@@ -261,8 +261,8 @@ $Id$
     </concat>
     <echo message="compressing..."/>
     <java jar="${YUIcompressor}" fork="true"
-          output="${build.home}/lib/fusionSF-compressed.js">
-        <arg value="${build.home}/lib/fusionSF.js"/>
+          output="${build.home}/lib/fusion-compressed.js">
+        <arg value="${build.home}/lib/fusion-combined.js"/>
     </java>
     <!--exec executable="jsmin.exe" os="Windows Vista, Windows XP" 
       input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/-->
