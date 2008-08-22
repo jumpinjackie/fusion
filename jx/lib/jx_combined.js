@@ -5797,7 +5797,7 @@ Control.Slider.prototype = {
     this.event = null;
   }
 }/**
- * $Id: jxcore.js 527 2008-07-02 18:04:01Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx Core
  *
@@ -6773,7 +6773,7 @@ Jx.ContentLoader.prototype = {
                 Object.extend({method:'get',
                                onSuccess:this.contentLoaded.bind(this, element, options), 
                                onFailure: this.contentLoadFailed.bind(this, options),
-                               requestHeaders: ['If-Modified-Since', 'Sat, 1 Jan 2000 00:00:00 GMT'],
+                               //requestHeaders: ['If-Modified-Since', 'Sat, 1 Jan 2000 00:00:00 GMT'],
                                parameters: ts}));
         } else if (options.contentHTML) {
             element.innerHTML = options.contentHTML;
@@ -6786,7 +6786,7 @@ Jx.ContentLoader.prototype = {
         }
     }
 };/**
- * $Id: jxbutton.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Button
  *
@@ -7357,7 +7357,7 @@ Object.extend(Jx.Button.Picker.prototype, {
     }
     
 });/**
- * $Id: jxcolor.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Color
  *
@@ -7982,7 +7982,7 @@ Object.extend(Jx.Button.Color.prototype, {
     }
 });
 /**
- * $Id: jxdialog.js 524 2008-05-07 19:49:03Z madair $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Dialog
  *
@@ -8842,7 +8842,7 @@ Jx.Dialog.prototype = {
 };
 Object.extend(Jx.Dialog.prototype, Jx.UniqueId.prototype);
 Object.extend(Jx.Dialog.prototype, Jx.ContentLoader.prototype);/**
- * $Id: jxgrid.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Grid
  *
@@ -9772,7 +9772,7 @@ Jx.Grid.prototype = {
         return {row:row,column:col};
     }
 };/**
- * $Id: jxlayout.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Layout
  *
@@ -10239,7 +10239,7 @@ Jx.Constraint.prototype = {
         }
     }
 };/**
- * $Id: jxmenu.js 508 2008-02-28 20:57:12Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Menu
  *
@@ -10960,7 +10960,7 @@ Object.extend(Jx.ContextMenu.prototype, {
         Jx.Menu.prototype.show.apply(this, [e]);
     }
 });/**
- * $Id: jxpanel.js 504 2008-02-21 01:18:50Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Panel
  *
@@ -11399,7 +11399,7 @@ Jx.Panel.prototype = {
 };
 Object.extend(Jx.Panel.prototype, Jx.UniqueId.prototype);
 Object.extend(Jx.Panel.prototype, Jx.ContentLoader.prototype);/**
- * $Id: jxpicker.js 515 2008-03-10 23:19:15Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Picker
  *
@@ -11737,7 +11737,7 @@ Jx.Picker.prototype = {
     }
 };
 Object.extend(Jx.Picker.prototype, Jx.Listener.prototype);/**
- * $Id: jxsplitter.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Splitter
  *
@@ -12488,7 +12488,7 @@ Jx.Splitter.Snapper.prototype = {
         }
     }
 };/**
- * $Id: jxtab.js 526 2008-06-24 12:56:56Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Tab
  *
@@ -12888,7 +12888,7 @@ Jx.TabBox.prototype = {
 };
 Object.extend(Jx.TabBox.prototype, Jx.Listener.prototype);
 /**
- * $Id: jxtoolbar.js 503 2008-02-18 22:54:09Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Toolbar
  *
@@ -13173,7 +13173,7 @@ Jx.ToolbarSeparator.prototype = {
 };
 
 /**
- * $Id: jxtree.js 505 2008-02-21 02:32:39Z pspencer $
+ * $Id: jx_combined.js 776 2008-08-22 18:46:25Z madair $
  *
  * Title: Jx.Tree
  *
