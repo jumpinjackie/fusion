@@ -27,24 +27,18 @@ div.olLayerDiv {
 .olControlScaleLine {
    left: 10px;
    bottom: 15px;
+   font-size: xx-small;
 }
 .olControlScaleLineBottom {
-   background-color: #000;
-   border: 1px solid #fff;
-   margin: 1px;
-    font-size: 9px;
-    padding-left: 2px;
-    line-height: 12px;
-    color: #fff;
+   border: solid 2px black;
+   border-bottom: none;
+   margin-top:-2px;
+   text-align: center;
 }
 .olControlScaleLineTop {
-   background-color: #000;
-   border: 1px solid #fff;
-   margin: 1px;
-    font-size: 9px;
-    padding-left: 2px;
-    line-height: 12px;
-    color: #fff;
+   border: solid 2px black;
+   border-top: none;
+   text-align: center;
 }
 
 .olControlPermalink {
@@ -112,7 +106,7 @@ div.olControlMousePosition {
     float:right;
     color:gray;
     font-size:1.2em;
-	margin-right:6px;
+    margin-right:6px;
     font-family:sans-serif;
 }
 .olLayerGeoRSSTitle {
@@ -121,6 +115,7 @@ div.olControlMousePosition {
 
 .olPopupContent {
     padding:5px;
+    overflow: auto;
 }    
 .olControlNavToolbar { 
     width:0px;
@@ -237,4 +232,17 @@ div.olControlMousePosition {
     opacity: 0.50;
     font-size: 1px;
     filter: alpha(opacity=50);
-}    
+}   
+
+/* 
+ * Due to current limitations in the OpenLayers code, you can only
+ * replace this image with another image which is 17px x 17px. 
+ */   
+.olPopupCloseBox {
+  background: url("img/close.gif") no-repeat;
+  cursor: pointer;
+}
+
+.olControlNoSelect {
+ -moz-user-select: none;
+}
