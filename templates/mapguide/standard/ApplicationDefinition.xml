@@ -307,7 +307,7 @@
       <StatusItem>The map.</StatusItem>
       <Extension xsi:type="CustomContentType">
         <MenuContainer>MapContextMenu</MenuContainer>
-        <Scales>2000000 1000000 500000 250000 125000 50000</Scales>
+        <!--Scales>2000000,1000000,500000,250000,125000,50000</Scales-->
       </Extension>
       <MapId>sheboygan</MapId>
     </MapWidget>
