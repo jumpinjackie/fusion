@@ -23,64 +23,222 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
- /***************************************************************************
+ /********************************************************************
  * Class: Fusion.Widget.Legend
- * 
- * Displays a legend of all the layers in the map as a collapsable tree.
  *
- * ShowRootFolder (boolean, optional)
- *
- * This controls whether the tree will have a single root node that
- * contains the name of the map as its label.  By default, the root
- * node does not appear.  Set to "true" or "1" to make the root node
- * appear.
- *
- * RootFolderIcon: (string, optional)
- *
- * The url to an image to use for the root folder.  This only has an
- * affect if ShowRootFolder is set to show the root folder.
- *
- * LayerThemeIcon: (string, optional)
- *
- * The url to an image to use for layers that are currently themed.
- *
- * DisabledLayerIcon: (string, optional)
- *
- * The url to an image to use for layers that are out of scale.
+ * A widget to display a legend of all layers.
  *
  * **********************************************************************/
 
 Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
-    currentNode: null,
-    bIsDrawn: false,
-    targetFolder: null,
-    initialize : function(widgetTag) {
-        this.defLayerDWFIcon = 'images/icons/legend-DWF.png';
-        this.defLayerRasterIcon = 'images/icons/legend-raster.png';
-        this.defLayerThemeIcon = 'images/icons/legend-theme.png';
-        this.defDisabledLayerIcon = 'images/icons/legend-layer.png';
-        this.defRootFolderIcon = 'images/icons/legend-map.png';
-        this.defLayerInfoIcon = 'images/icons/tree_layer_info.png';
-        this.defGroupInfoIcon = 'images/icons/tree_group_info.png';
-        this.bIncludeVisToggle = true;
-       
+
+    /**
+     * Constant: defaultLayerDWFIcon
+     * {String} The default image for DWF layer
+     */
+    defaultLayerDWFIcon: 'images/icons/legend-DWF.png',
+    
+    /**
+     * Constant: defaultLayerRasterIcon
+     * {String} The default image for Raster layer
+     */
+    defaultLayerRasterIcon: 'images/icons/legend-raster.png',
+    
+    /**
+     * Constant: defaultLayerThemeIcon
+     * {String} The default image for layers that are currently themed.
+     */
+    defaultLayerThemeIcon: 'images/icons/legend-theme.png',
+
+    /**
+     * Constant: defaultDisabledLayerIcon
+     * {String} The default image for layers that are out of scale.
+     */
+    defaultDisabledLayerIcon: 'images/icons/legend-layer.png',
+
+    /**
+     * Constant: defaultRootFolderIcon
+     * {String} The default image for the root folder
+     */   
+    defaultRootFolderIcon: 'images/icons/legend-map.png',
+    
+    /**
+     * Constant: defaultLayerInfoIcon
+     * {String} The default image for layer info
+     */
+    defaultLayerInfoIcon: 'images/icons/tree_layer_info.png',
+    
+    /**
+     * Constant: defaultGroupInfoIcon
+     * {String} The default image for groupd info
+     */
+    defaultGroupInfoIcon: 'images/icons/tree_group_info.png',
+    
+    initialize : function(widgetTag) {           
         //console.log('Legend.initialize');
         Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
         
+        // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
+        //       duplication if we plan to apply this pattern to others widgets
         var json = widgetTag.extension;
-       
-        this.imgLayerDWFIcon = json.LayerDWFIcon ? json.LayerDWFIcon[0] : this.defLayerDWFIcon;
-        this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.defLayerRasterIcon;
-        this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.defLayerThemeIcon;
-        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.defDisabledLayerIcon;       
-        this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.defLayerInfoIcon;
-        this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.defGroupInfoIcon;
+        if (json.LegendRenderer)
+        {
+            var renderer = eval(json.LegendRenderer[0]);
+            if (renderer && renderer.prototype.CLASS_NAME 
+                && renderer.prototype.CLASS_NAME == "Fusion.Widget.Legend.LegendRenderer") {
+                this.renderer = new renderer(this, widgetTag);
+            } else if (typeof renderer == "function") {
+                var renderFunction = renderer;
+                this.renderer = new Fusion.Widget.Legend.LegendRenderer(this);
+                this.renderer.mapLoaded = renderFunction;
+                this.renderer.mapReloaded = renderFunction;
+                this.renderer.mapLoading = false;
+            } else {
+                this.renderer = new Fusion.Widget.Legend.LegendRendererDefault(this, widgetTag);
+            }
+        } else {
+            this.renderer = new Fusion.Widget.Legend.LegendRendererDefault(this, widgetTag);
+        }
+
+        if (this.renderer.mapReloaded)
+            this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, 
+                                           OpenLayers.Function.bind(this.renderer.mapReloaded, this.renderer));
+        if (this.renderer.mapLoading)
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, 
+                                           OpenLayers.Function.bind(this.renderer.mapLoading,this.renderer));
+        if (this.renderer.mapLoaded)
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, 
+                                           OpenLayers.Function.bind(this.renderer.mapLoaded, this.renderer));
+    }
+});
+
+/* Class: Fusion.Widget.Legend.LegendRenderer
+ * This is a class designed to help users to create their own renderer
+ * for customize the legend.
+ */
+Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
+{
+     /**
+     * Property: oLegend
+     * {<Fusion.Widget.Legend>} The parent widget that uses
+     *                                  the renderer.
+     */
+    oLegend: null,
+
+    /**
+     * Property: layerRoot
+     * {Groups} The groups of all layers.
+     *
+     */
+    layerRoot: null,
+
+    initialize: function(legend) {
+        this.oLegend = legend;
+        this.layerRoot = this.getMap().layerRoot;
+    },
+
+    /**
+     * Method: renderLegend
+     * Abstract method that have the main purpose to draw the legend. This method
+     * should be implemented by all concrete class.
+     *
+     */
+    renderLegend: function() {},
+    
+    /**
+     * Method: mapLoading
+     * Abstract method that handle the event: Fusion.Event.MAP_LOADING. This method
+     * is optional.
+     *
+     */
+    mapLoading: function() {},
+
+    /**
+     * Method: mapLoaded
+     * Abstract method that handle the event: Fusion.Event.MAP_LOADED. This method
+     * occur only at the first load of the map and should be implemented by all concrete class.
+     *
+     */
+    mapLoaded: function() {},
+
+     /**
+     * Method: mapReloaded
+     * Abstract method that handle the event: Fusion.Event.MAP_RELOADED. This method
+     * should be implemented by all concrete class.
+     *
+     */
+    mapReloaded: function() {},
+
+    /**
+     * Method: getMap
+     * Helper method to obtains the map.
+     *
+     * Returns:
+     * {<Fusion.Maps>} The map that uses the SelectionPanel Widget.
+     */
+    getMap: function() {
+        return this.oLegend.getMap();
+    },
+
+    CLASS_NAME: "Fusion.Widget.Legend.LegendRenderer"
+});
+
+
+/* Class: Fusion.Widget.Legend.LegendRendererDefault
+ * This class provide a default legend as a collapsable tree.
+ * 
+ */
+
+Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Legend.LegendRenderer,  
+{
+    /**
+     * Property: showRootFolder
+     * {Boolean} This controls whether the tree will have a single root node that
+     * contains the name of the map as its label.  By default, the root node does 
+     * not appear.  Set to "true" or "1" to make the root node appear.
+     */
+    showRootFolder: false,
+
+    /**
+     * Property: currentNode
+     * {Jx.TreeNode} The current selected node.
+     */
+    currentNode: null,
+    
+    /**
+     * Property: bIsDrawn
+     * {Boolean} Determine if the map is drawn.
+     */
+    bIsDrawn: false,
+
+    /**
+     * Property: targetFolder
+     * {Jx.TreeFolder} The current TreeFolder that the mouse will interact with.
+     */
+    targetFolder: null,
+
+    /**
+     * Property: bIncludeVisToggle
+     * {Boolean} Determine if non-visible layer must be draw in the legend.
+     */
+    bIncludeVisToggle: true,
+   
+    initialize : function(legend, widgetTag) {   
+        Fusion.Widget.Legend.LegendRenderer.prototype.initialize.apply(this, [legend]);
+
+        var json = widgetTag.extension;
+        this.imgLayerDWFIcon = json.LayerDWFIcon ? json.LayerDWFIcon[0] : this.oLegend.defaultLayerDWFIcon;
+        this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.oLegend.defaultLayerRasterIcon;
+        this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.oLegend.defaultLayerThemeIcon;
+        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;       
+        this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.oLegend.defaultLayerInfoIcon;
+        this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.oLegend.defaultGroupInfoIcon;
        
         //not used?
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
        
-        this.oTree = new Jx.Tree(this.domObj);
+        this.oTree = new Jx.Tree(this.oLegend.domObj);
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         
@@ -119,11 +277,6 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
             this.oRoot = this.oTree;
         }
         this.extentsChangedWatcher = this.update.bind(this);
-        
-       
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.draw, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, OpenLayers.Function.bind(this.mapLoading, this));
     },
     
     expandAll: function() {
@@ -181,9 +334,12 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
    
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
-        this.draw();
+        this.renderLegend();
     },
     
+    mapReloaded: function() {
+        renderLegend();
+    },
     /**
      * the map state has become invalid in some way (layer added, removed,
      * ect).  For now, we just re-request the map state from the server
@@ -202,16 +358,16 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      *
      * @param r Object the reponse xhr object
      */
-    draw: function(r) {
+    renderLegend: function(r) {
         this.bIsDrawn = false;
         this.clear();
-        var map = this.getMap();
+
         if (this.showRootFolder) {
-            this.oRoot.setName(map.getMapTitle());
+            this.oRoot.setName(this.getMap().getMapTitle());
         }
-        var startGroup = map.layerRoot;
+        var startGroup = this.layerRoot;
         if (!this.showMapFolder) {
-          startGroup = map.layerRoot.groups[0];
+          startGroup = this.layerRoot.groups[0];
         }
         if (!startGroup.legend) {
             startGroup.legend = {};
@@ -327,9 +483,6 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         }
     },
     updateGroupLayers: function(group, fScale) {
-        if (!group.displayInLegend) {
-            return;
-        }
         for (var i=0; i<group.groups.length; i++) {
             this.updateGroupLayers(group.groups[i], fScale);
         }
@@ -508,4 +661,5 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
             }
         }
     }
+
 });
