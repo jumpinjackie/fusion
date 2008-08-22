@@ -56,7 +56,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
     delay: null,
     aLayers: null,
     bOverTip: false,
-    sWinFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
+    offset: new OpenLayers.Pixel(2,2),
     
     initialize : function(widgetTag)
     {
@@ -213,14 +214,14 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
                 var mapSize = this.getMap().getSize();
                 var size = Element.getDimensions(this.domObj);
                 if (this.oCurrentPosition.x < mapSize.w/2) {
-                  this.domObj.style.left = (this.oMapTipPosition.x) + 'px';
+                  this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
-                  this.domObj.style.left = (this.oMapTipPosition.x - size.width) + 'px';
+                  this.domObj.style.left = (this.oMapTipPosition.x - (size.width+this.offset.x)) + 'px';
                 }
                 if (this.oCurrentPosition.y < mapSize.h/2) {
-                  this.domObj.style.top = (this.oMapTipPosition.y) + 'px';
+                  this.domObj.style.top = (this.oMapTipPosition.y + this.offset.y) + 'px';
                 } else {
-                  this.domObj.style.top = (this.oMapTipPosition.y - size.height) + 'px';
+                  this.domObj.style.top = (this.oMapTipPosition.y - (size.height+this.offset.y)) + 'px';
                 }
                 this.domObj.style.visibility = 'hidden';
                 this.domObj.style.display = 'block';
