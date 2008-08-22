@@ -338,7 +338,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     
     mapReloaded: function() {
-        renderLegend();
+        this.renderLegend();
     },
     /**
      * the map state has become invalid in some way (layer added, removed,
