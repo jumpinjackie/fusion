@@ -21,7 +21,7 @@ a{outline:none;}
 .jxDisabled{opacity:0.4;-moz-opacity:0.4;filter:Alpha(opacity=40);}
 /**
  * @project         Jx
- * @revision        $Id: button.css 396 2007-09-05 01:24:59Z pspencer $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -107,7 +107,7 @@ span.jxButtonEmptyLabel {
 }
 /**
  * @project         Jx
- * @revision        $Id: color.css 404 2007-09-10 20:03:57Z fwarnock $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -249,7 +249,7 @@ a.jxColorClose img {
     height: 20px;
 }/**
  * @project         Jx
- * @revision        $Id: dialog.css 498 2008-02-15 16:09:17Z fwarnock $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -497,7 +497,7 @@ iframe.jxDialogShim {
     color: #fff;
 }/**
  * @project         Jx
- * @revision        $Id: menu.css 406 2007-09-13 14:42:18Z pspencer $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -582,7 +582,7 @@ iframe.jxMenuShim {
     z-index: -1;
 }/**
  * @project         Jx
- * @revision        $Id: panel.css 375 2007-08-21 14:36:10Z fwarnock $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -702,7 +702,7 @@ a.jxPanelLoading img {
 }
 /**
  * @project         Jx
- * @revision        $Id: picker.css 515 2008-03-10 23:19:15Z pspencer $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -811,7 +811,7 @@ div.jxPickerOptions a.selected {
 }
 /**
  * @project         Jx
- * @revision        $Id: tabs.css 486 2008-02-13 22:17:45Z fwarnock $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -882,7 +882,7 @@ div.jxPickerOptions a.selected {
 
 /**
  * @project         Jx
- * @revision        $Id: toolbar.css 369 2007-07-26 17:24:23Z fwarnock $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
@@ -982,7 +982,7 @@ li.jxToolItem  .separator {
 
 /**
  * @project         Jx
- * @revision        $Id: tree.css 324 2007-06-20 19:04:54Z pspencer $
+ * @revision        $Id: jx_combined.css 776 2008-08-22 18:46:25Z madair $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       &copy; 2006 DM Solutions Group Inc.
  */
