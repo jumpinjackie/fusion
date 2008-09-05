@@ -44,16 +44,17 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     oSelection: null,
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
-    bMapLoaded : false,
-    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
+    bMapLoaded: false,
+    bIsMapWidgetLayer: true,  //Set this to false for overview map layers
     bLayersReversed: false,     //MGOS returns layers top-most layer first
+    selectionAsOverlay: false,
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
 
     clientAgent: 'Fusion Viewer',
     
-    initialize : function(map, mapTag, isMapWidgetLayer) {
+    initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
                 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
@@ -70,6 +71,11 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.mapInfo = mapTag.mapInfo;
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
+        this.selectionColor = extension.SelectionColor ? extension.SelectionColor[0] : '';
+        this.selectionFormat = extension.SelectionFormat ? extension.SelectionFormat[0] : 'PNG';
+        if (extension.SelectionAsOverlay && extension.SelectionAsOverlay[0] == 'true') {
+          this.selectionAsOverlay = true;
+        }
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
         
         //add in the handler for CTRL-click actions for the map, not an overviewmap
@@ -131,7 +137,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
     },
     
-    createSessionCB : function(xhr) {
+    createSessionCB: function(xhr) {
         if (xhr.status == 200) {
             var o;
             eval('o='+xhr.responseText);
@@ -462,7 +468,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aRefreshLayers = [];
 
         this.oLayerOL.mergeNewParams(params);
-        if (this.queryLayer) this.queryLayer.redraw();
+        if (this.queryLayer) this.queryLayer.redraw(true);
     },
 
     /**
@@ -470,7 +476,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      * 
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile) {
+    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
       var layerOptions = {
         units : this.units,
         isBaseLayer : bIsBaseLayer,
@@ -494,21 +500,28 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       var params = {};
       if ( bSingleTile ) {
         params = {        //single tile params
-          session : this.getSessionID(),
-          mapname : this._sMapname,
-          clientagent : this.clientAgent
+          session: this.getSessionID(),
+          mapname: this._sMapname,
+          clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
         params.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
         params.showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
         params.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
         params.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
+        
+        if (behaviour != null) {
+          params.behavior = behaviour;
+          params.version = "2.0.0";
+          params.selectioncolor = this.selectionColor;
+          params.format = this.selectionFormat;
+        }
 
       } else {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
           basemaplayergroupname: this.groupName,  //assumes only one group for now
-          clientagent : this.clientAgent
+          clientagent: this.clientAgent
         };
       }
 
@@ -737,9 +750,9 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             eval('oNode='+r.responseText);
             
             if (oNode.hasSelection) {
-              if (!this.bSingleTile) {
+              if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", false, true);
+                  this.queryLayer = this.createOLLayer("query layer", false, true, 1);
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING, 
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
