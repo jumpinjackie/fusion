@@ -15,6 +15,18 @@
         <SingleTile>true</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
+          <SelectionAsOverlay>true</SelectionAsOverlay>
+          <SelectionFormat>PNG8</SelectionFormat>
+          <SelectionColor>0xFF0000</SelectionColor>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="sheboygan-tiled" xsi:type="MapType">
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>false</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/MapsTiled/Sheboygan.MapDefinition</ResourceId>
         </Extension>
       </Map>
     </MapGroup>
@@ -307,7 +319,7 @@
       <StatusItem>The map.</StatusItem>
       <Extension xsi:type="CustomContentType">
         <MenuContainer>MapContextMenu</MenuContainer>
-        <Scales>2000000 1000000 500000 250000 125000 50000</Scales>
+        <!--Scales>100000,50000,25000,12500,8000,4000</Scales-->
       </Extension>
       <MapId>sheboygan</MapId>
     </MapWidget>
@@ -555,7 +567,7 @@
       <Type>ViewOptions</Type>
       <StatusItem>Switch between Imperial and Metric units</StatusItem>
       <Extension xsi:type="CustomContentType">
-        <DisplayUnits>meters</DisplayUnits>
+        <DisplayUnits>degrees</DisplayUnits>
       </Extension>
       <ImageUrl>images/icons/view-options.png</ImageUrl>
       <ImageClass/>
@@ -603,6 +615,7 @@
         <DistancePrecision>0</DistancePrecision>
         <AreaPrecision>0</AreaPrecision>
         <Units>meters</Units>
+        <Target>TaskPane</Target>
       </Extension>
       <ImageUrl>images/icons/measure.png</ImageUrl>
       <ImageClass/>
@@ -825,6 +838,9 @@
       <Type>SelectWithin</Type>
       <StatusItem>Select all features that fall within the currently selected area.</StatusItem>
       <ImageUrl>images/icons/select-features.png</ImageUrl>
+      <Extension>
+        <Target>TaskPane</Target>
+      </Extension>
       <ImageClass/>
       <Tooltip>Select Within</Tooltip>
       <Label></Label>
@@ -1007,17 +1023,16 @@
       <Disabled/>
     </Widget>
 
-<!-- OVERVIEW MAP -->
+<!-- OVERVIEW MAP
 
     <Widget xsi:type="WidgetType">
       <Name>OverviewMap</Name>
       <Type>OverviewMap</Type>
       <Description/>
       <Extension xsi:type="CustomContentType">
-        <!--MapId>sheboyganOverview</MapId-->
       </Extension>
     </Widget>
-
+ -->
 <!-- PRINT -->
 
     <Widget xsi:type="UiWidgetType">
