@@ -1,5 +1,15 @@
+div.olMap {
+	z-index: 0;
+    padding: 0px!important;
+    margin: 0px!important;
+}
+
+div.olMapViewport {
+    text-align: left;
+}
+
 div.olLayerDiv {
-   -moz-user-select: none 
+   -moz-user-select: none;
 }
 
 .olLayerGoogleCopyright {
@@ -30,15 +40,22 @@ div.olLayerDiv {
    font-size: xx-small;
 }
 .olControlScaleLineBottom {
-   border: solid 2px black;
-   border-bottom: none;
-   margin-top:-2px;
-   text-align: center;
+   background-color: #000;
+   border: 1px solid #fff;
+   margin: 1px;
+    font-size: 9px;
+    padding-left: 2px;
+    line-height: 12px;
+    color: #fff;
 }
 .olControlScaleLineTop {
-   border: solid 2px black;
-   border-top: none;
-   text-align: center;
+   background-color: #000;
+   border: 1px solid #fff;
+   margin: 1px;
+    font-size: 9px;
+    padding-left: 2px;
+    line-height: 12px;
+    color: #fff;
 }
 
 .olControlPermalink {
@@ -130,29 +147,24 @@ div.olControlMousePosition {
   position: relative;
 }
 
-.olControlNavigationHistoryPreviousItemActive { 
-   background-image: url("img/view_previous_on.png");
+.olControlNavigationHistory {
+   background-image: url("img/navigation_history.png");
    background-repeat: no-repeat;
    width:  24px;
    height: 24px;
+
+}
+.olControlNavigationHistoryPreviousItemActive { 
+  background-position: 0px 0px;
 }
 .olControlNavigationHistoryPreviousItemInactive { 
-   background-image: url("img/view_previous_off.png");
-   background-repeat: no-repeat;
-   width:  24px;
-   height: 24px;
+   background-position: 0px -24px;
 }
 .olControlNavigationHistoryNextItemActive { 
-   background-image: url("img/view_next_on.png");
-   background-repeat: no-repeat;
-   width:  24px;
-   height: 24px;
+   background-position: -24px 0px;
 }
 .olControlNavigationHistoryNextItemInactive { 
-   background-image: url("img/view_next_off.png");
-   background-repeat: no-repeat;
-   width:  24px;
-   height: 24px;
+   background-position: -24px -24px;
 }
 
 .olControlNavToolbar .olControlNavigationItemActive { 
@@ -179,54 +191,58 @@ div.olControlMousePosition {
     width: 200px;
 }
 .olControlEditingToolbar div { 
+  background-image: url("img/editing_tool_bar.png");
+  background-repeat: no-repeat;
   float:right;
   width:  24px;
   height: 24px;
   margin: 5px;
 }
 .olControlEditingToolbar .olControlNavigationItemActive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -103px -23px; 
 }
 .olControlEditingToolbar .olControlNavigationItemInactive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -103px -0px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePointItemActive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -77px -23px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePointItemInactive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -77px -0px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePathItemInactive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -51px 0px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePathItemActive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -51px -23px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePolygonItemInactive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -26px 0px; 
 }
 .olControlEditingToolbar .olControlDrawFeaturePolygonItemActive { 
-  background-image: url("img/editing_tool_bar.png");
-  background-repeat: no-repeat;
   background-position: -26px -23px ;                                                                   
+}
+.olControlSaveFeaturesItemActive { 
+    background-image: url(img/save_features_on.png);
+    background-repeat: no-repeat;
+    background-position: 0px 1px;
+}
+.olControlSaveFeaturesItemInactive { 
+    background-image: url(img/save_features_off.png);
+    background-repeat: no-repeat;
+    background-position: 0px 1px;
 }
 
 .olHandlerBoxZoomBox {
     border: 2px solid red;
+    position: absolute;
+    background-color: white;
+    opacity: 0.50;
+    font-size: 1px;
+    filter: alpha(opacity=50);
+}
+.olHandlerBoxSelectFeature {
+    border: 2px solid blue;
     position: absolute;
     background-color: white;
     opacity: 0.50;
