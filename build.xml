@@ -90,8 +90,9 @@ $Id$
 
   <property name="jx-lib"  value="jx"/>
   <property name="YUIcompressor"  value="C:\YUI\yuicompressor-2.3.5\build\yuicompressor-2.3.5.jar"/>
-  <property name="sfName"  value="${build.home}/lib/fusionSF"/>
-  <property name="cssOutput"  value="${sfName}"/>
+  <property name="sfName"  value="fusionSF"/>
+  <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
+  <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssFiles"  value=""/>
 
 
@@ -203,14 +204,14 @@ $Id$
 <!-- =================== concat build ================================== -->
   <target description="concatenate core files into a single file" name="concat" depends="clean,prepare">
     <echo message="concatenating core files"/>
-    <delete dir="${sfName}.js"/>
+    <delete dir="${buildOutput}.js"/>
     
     <!-- Fusion looks for it's own script name to set paths for other widgets
         so replace the value to look for with the sfName used to create the file-->
-    <replace file="${build.home}/lib/fusion.js" token="lib/fusion" value="${sfName}"/>
+    <replace file="${build.home}/lib/fusion.js" token="lib/fusion" value="lib/${sfName}"/>
     
     <!-- merge everything into a single file -->
-    <concat destfile="${sfName}.js" outputencoding="UTF-8">
+    <concat destfile="${buildOutput}.js" outputencoding="UTF-8">
         <filelist dir="${build.home}/lib" 
                   files=" SingleFile.js
                           fusion.js
@@ -241,7 +242,7 @@ $Id$
     <echo message="concatenating all widget and map layer files"/>
     
     <!-- merge everything into a single file -->
-    <concat destfile="${sfName}.js" outputencoding="UTF-8" append="true">
+    <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
         <fileset dir="${build.home}/widgets" includes="**/*.js"/>
         <filelist dir="${build.home}" files="MapGuide/MapGuide.js MapServer/MapServer.js"/>
     </concat>
@@ -252,7 +253,7 @@ $Id$
     <echo message="preparing single file build for ${appDef}"/>
     
     <!-- merge everything into a single file -->
-    <concat destfile="${sfName}.js" outputencoding="UTF-8" append="true">
+    <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
         <filelist dir="${build.home}" files="${AppDef.Maps}"/>
         <filelist dir="${build.home}" files="${AppDef.Widgets}"/>
         <filelist dir="${build.home}" files="appDef.json"/>
@@ -266,8 +267,8 @@ $Id$
   <target description="Compress JS files" name="compress" depends="singleFile">
     <echo message="compressing..."/>
     <java jar="${YUIcompressor}" fork="true"
-          output="${sfName}-compressed.js">
-        <arg value="${sfName}.js"/>
+          output="${buildOutput}-compressed.js">
+        <arg value="${buildOutput}.js"/>
     </java>
     <!--exec executable="jsmin.exe" os="Windows Vista, Windows XP" 
       input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/-->
