@@ -88,7 +88,12 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           }
         }
        
-        this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
+        var newTheme = Fusion.getQueryParam('theme');
+        if (newTheme != '') {
+          this.sMapResourceId = newTheme;
+        } else {
+          this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
+        }
         
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
@@ -308,6 +313,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
             
             //this is to distinguish between a regular map and an overview map
+            this.bMapLoaded = true;
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
@@ -317,7 +323,6 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             } else {
               this.triggerEvent(Fusion.Event.MAP_LOADED);
             }
-            this.bMapLoaded = true;
         }
         this.mapWidget._removeWorker();
     },
