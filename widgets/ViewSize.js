@@ -28,19 +28,14 @@
  *
  * Display the size of the current view in user-definable units
  ****************************************************************************/
-
-
-Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
     defaultTemplate: 'x: {x}, y: {y}',
     domSpan: null,
     
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
-    initialize : function(widgetTag) {
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-             
+    initializeWidget: function(widgetTag) {
         this.emptyText = this.domObj.innerHTML;
         
         var json = widgetTag.extension;

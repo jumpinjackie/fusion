@@ -31,11 +31,7 @@
 
 
 Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
-    initialize : function(widgetTag) {
-        //console.log('LinkToView.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?';
 

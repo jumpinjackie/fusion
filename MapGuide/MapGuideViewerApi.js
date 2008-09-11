@@ -200,7 +200,7 @@ PointHandlers.prototype = {
 LineHandlers = Class.create();
 LineHandlers.prototype = {
     mouseDown: function(e) {
-        if (Event.isLeftClick(e)) {
+        if (OpenLayers.Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
 
             if (!this.isDigitizing) {
@@ -255,7 +255,7 @@ LineHandlers.prototype = {
 RectangleHandlers = Class.create();
 RectangleHandlers.prototype = {
     mouseDown: function(e) {
-        if (Event.isLeftClick(e)) {
+        if (OpenLayers.Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
 
             if (!this.isDigitizing) {
@@ -323,7 +323,7 @@ RectangleHandlers.prototype = {
 MultiPointHandlers = Class.create();
 MultiPointHandlers.prototype = {
     mouseDown: function(e) {
-        if (Event.isLeftClick(e)) {
+        if (OpenLayers.Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
 
             if (!this.isDigitizing) {

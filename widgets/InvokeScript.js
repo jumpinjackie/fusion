@@ -29,21 +29,18 @@
  * Executes an arbitrary piece of JavaScript code
  * **********************************************************************/
 
-Fusion.Widget.InvokeScript = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
-    sScript: null,
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+Fusion.Widget.InvokeScript = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    script: null,
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
-        this.sScript = json.Script ? json.Script[0] : '';
+        this.script = json.Script ? json.Script[0] : '';
     },
 
     /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
+     * called when the button is clicked by the Fusion.Widget widget
      */
-    execute : function() {
-        eval(this.sScript);
+    activate: function() {
+        eval(this.script);
     }
 });

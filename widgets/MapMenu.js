@@ -30,23 +30,20 @@
  * application.  The list of maps is configured in the ApplicationDefinition.
  * **********************************************************************/
 
-Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
-{
+Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
+    uiClass: Jx.Menu,
     domObj: null,
-    oMenu: null,
     mapGroupData: null,
     sRootFolder: '',
-    aMenus : null,
-    initialize : function(widgetTag)
-    {
-        //console.log('MapMenu.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.MenuBase.prototype.initialize.apply(this, []);
-
+    aMenus: null,
+    initializeWidget: function(widgetTag) {
         this.enable();
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
         
-        var json = widgetTag.extension;
+        var json = this.widgetTag.extension;
         
         //If no folder is specified for enumeration, build a menu
         //from the mapgroup alone. Folders are only supported with MapGuide.
@@ -60,15 +57,16 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
             if (json.Folder) {
                 this.mapGroupData[mapGroup.maps[0].resourceId] = mapGroup; 
             } else {
-                var opt = {};
-                opt.label = mapGroup.mapId;
                 var data = mapGroup;
-                var action = new Jx.Action(this.switchMap.bind(this, data));
-                var menuItem = new Jx.MenuItem(action,opt);
-                this.oMenu.add(menuItem);
+                var opt = {
+                    label: mapGroup.mapId,
+                    onClick: OpenLayers.Function.bind(this.switchMap, this, data)
+                };
+                var menuItem = new Jx.Menu.Item(opt);
+                this.uiObj.add(menuItem);
             }
         }
-        
+
         //get the mapdefinitions as xml if there  is a folder specified
         //in the widget tag. All subfolders will be enumerated.
         //FIXME: this should be platform agnostic, Library:// isn't!
@@ -82,7 +80,6 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
                           onComplete: OpenLayers.Function.bind(this.processMapMenu, this)};
             Fusion.ajaxRequest(s, params);
         };
-
     },
 
     processMapMenu: function(r) {
@@ -120,11 +117,11 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
                         return this.initialView;
                     };
                 }
-                var action = new Jx.Action(this.switchMap.bind(this, data));
-                var menuItem = new Jx.MenuItem(action,opt);
+                opt.onClick = OpenLayers.Function.bind(this.switchMap, this, data);
+                var menuItem = new Jx.Menu.Item(opt);
                 
                 if (sPath == '') {
-                    this.oMenu.add(menuItem);
+                    this.uiObj.add(menuItem);
                 }else {
                     this.aMenus[sPath].add(menuItem);
                 }
@@ -144,7 +141,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
                 var opt = {label:aPath[i]};
                 var menu = new Jx.SubMenu(opt);
                 if (sParent == '') {
-                    this.oMenu.add(menu);
+                    this.uiObj.add(menu);
                 } else {
                     this.aMenus[sParent].add(menu);
                 }
@@ -156,9 +153,9 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  Fusion.Tool.MenuBase,
     },
     
     //action to perform when the button is clicked
-    activateTool: function() {
-        this.oMenu.show();
-    },
+    //activateTool: function() {
+    //    this.oMenu.show();
+    //},
         
     //change the map, preserving current extents
     switchMap: function(data) {

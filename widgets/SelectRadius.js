@@ -31,18 +31,14 @@
  * **********************************************************************/
 Fusion.Event.RADIUS_WIDGET_ACTIVATED = Fusion.Event.lastEventId++;
 
-
-Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.Canvas,
-{
+Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
+    isExclusive: true,
+    uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
     defaultRadius: 20,    //this is in map units
-    initialize : function(widgetTag) {
-        //console.log('Select.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        Fusion.Tool.Canvas.prototype.initialize.apply(this, []);
+    initializeWidget: function(widgetTag) {
+        this.initializeCanvas();
 
         this.asCursor = ['auto'];
         this.isDigitizing = false;
@@ -95,23 +91,14 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
     },
     
     /**
-     * called when the button is clicked by the ButtonBase widget
-     */
-    activateTool : function() {
-        this.getMap().activateWidget(this);
-        //this.activate();
-    },
-
-    /**
      * activate the widget (listen to mouse events and change cursor)
      * This function should be defined for all functions that register
      * as a widget in the map
      */
-    activate : function() {
+    activate: function() {
         this.activateCanvas();
         this.getMap().setCursor(this.asCursor);
         /*icon button*/
-        this._oButton.activateTool();
         if (!this.circle) {
             this.circle = new Fusion.Tool.Canvas.Circle(this.getMap());
         }
@@ -125,11 +112,10 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate : function() {
+    deactivate: function() {
         this.deactivateCanvas();
         this.getMap().setCursor('auto');
         /*icon button*/
-        this._oButton.deactivateTool();
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, false);
     },
     
@@ -142,7 +128,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
      */
     mouseDown: function(e) {
         //console.log('SelectRadius.mouseDown'+this.isDigitizing);
-        if (Event.isLeftClick(e)) {
+        if (OpenLayers.Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
             var point = this.getMap().pixToGeo(p.x, p.y);
             var radius = this.defaultRadius;
@@ -157,7 +143,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
         }
         if (this.radiusTip && this.radiusTipType == 'dynamic') {
             this.radiusTip.style.display = 'block';
-            var size = Element.getDimensions(this.radiusTip);
+            var size = $(this.radiusTip).getBorderBoxSize();
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
             var r = this.circle.radius;
@@ -195,7 +181,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonB
         
         if (this.radiusTip && this.radiusTipType == 'dynamic') {
             this.radiusTip.style.display = 'block';
-            var size = Element.getDimensions(this.radiusTip);
+            var size = $(this.radiusTip).getBorderBoxSize();
             this.radiusTip.style.top = (p.y - size.height*2) + 'px';
             this.radiusTip.style.left = p.x + 'px';
             var r = this.circle.radius;

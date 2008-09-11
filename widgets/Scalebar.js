@@ -37,8 +37,7 @@ if (typeof(ScaleBarTool)=='undefined') {
     Fusion.require('widgets/scalebar/scalebartool.js');
 }
 
-Fusion.Widget.Scalebar = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.Scalebar = OpenLayers.Class(Fusion.Widget, {
     style: 'thin',
     displaySystem: 'metric',
     minWidth: 100,
@@ -48,11 +47,7 @@ Fusion.Widget.Scalebar = OpenLayers.Class(Fusion.Widget,
     showMinorMeasures: true,
     abbreviateLabel: true,
     singleLine: false,
-    initialize : function(widgetTag) {
-        //console.log('Scalebar.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.style = json.Style ? json.Style[0].toLowerCase() : this.style;
         if (this.style != 'fancy' && 

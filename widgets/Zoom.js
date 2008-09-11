@@ -30,27 +30,23 @@
  * 
  * **********************************************************************/
 
-
-Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    nTolerance : 5,
-    nFactor : 2,
+Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
+    isExclusive: true,
+    tolerance : 5,
+    factor : 2,
     zoomIn: true,
+    uiClass: Jx.Button,
     
-    initialize : function(widgetTag)
-    {
-        //console.log('Zoom.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+    initializeWidget: function(widgetTag){
         this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
-        var json = widgetTag.extension;
-        this.nTolerance = json.Tolerance ? json.Tolerance[0] : this.nTolerance;
-        this.nFactor = json.Factor ? json.Factor[0] : this.nFactor;
-        this.zoomIn = (json.Direction && json.Direction[0] == 'out') ? false : true;
         this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
         this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
+        
+        var json = widgetTag.extension;
+        this.tolerance = json.Tolerance ? json.Tolerance[0] : this.tolerance;
+        this.factor = json.Factor ? json.Factor[0] : this.factor;
+        this.zoomIn = (json.Direction && json.Direction[0] == 'out') ? false : true;
+        
         
         this.keypressWatcher = OpenLayers.Function.bind(this.keypressHandler, this);
         
@@ -61,23 +57,11 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     },
 
    /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
-     */
-    activateTool : function()
-    {
-        //console.log('Zoom.activateTool');
-        this.getMap().activateWidget(this);
-        Event.observe(document, 'keypress', this.keypressWatcher);
-        
-    },
-
-    /**
      * activate the widget (listen to mouse events and change cursor)
      * This function should be defined for all functions that register
      * as a widget in the map
      */
-    activate : function()
-    {
+    activate : function() {
         //console.log('Zoom.activate');
         this.handler.activate();
         this.shiftHandler.activate();
@@ -87,8 +71,7 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         } else {
             this.getMap().setCursor(this.zoomOutCursor);
         }
-        /*icon button*/
-        this._oButton.activateTool();
+        OpenLayers.Event.observe(document, 'keypress', this.keypressWatcher);
     },
 
     /**
@@ -96,16 +79,12 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate : function()
-    {
+    deactivate : function() {
         //console.log('Zoom.deactivate');
         this.handler.deactivate();
         this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
-        /*icon button*/
-        this._oButton.deactivateTool();
-        Event.stopObserving(document, 'keypress', this.keypressWatcher);
-        
+        OpenLayers.Event.stopObserving(document, 'keypress', this.keypressWatcher);
     },
 
     /**
@@ -143,38 +122,37 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         } else { // it's a pixel
             var center = this.map.getLonLatFromPixel(position);
             var factor;
-            if(!zoomIn && this.nFactor > 1) {
-                factor = 1/this.nFactor;
+            if(!zoomIn && this.factor > 1) {
+                factor = 1/this.factor;
             } else {
-                factor = this.nFactor;
+                factor = this.factor;
             }
             this.getMap().zoom(center.lon, center.lat, factor);
         }
     },
 
     /**
-        * handler for zooming when the shift key is pressed.  This changes it from in to out or vice versa
-        *
-        * Parameters:
-        * position - {<OpenLayers.Bounds>} or {<OpenLayers.Pixel>}
-        */
+     * handler for zooming when the shift key is pressed.  This changes it
+     * from in to out or vice versa
+     *
+     * Parameters:
+     * position - {<OpenLayers.Bounds>} or {<OpenLayers.Pixel>}
+     */
     altZoom: function(position) {
         this.execute(position, true);
     },
     
     /**
-        * allows run-time setting of widget parameters 
-        *
-        * Parameters:
-        * param - the widget parameter name to set; for the Zoom widget these may be:
-        *               'Factgor'
-        * value - the value to use for the parameter
-        */
-    setParameter : function(param, value)
-    {
-        if (param == "Factor" && value > 0)
-        {
-            this.nFactor = value;
+     * allows run-time setting of widget parameters 
+     *
+     * Parameters:
+     * param - the widget parameter name to set; for the Zoom widget these may be:
+     *               'Factor'
+     * value - the value to use for the parameter
+     */
+    setParameter : function(param, value) {
+        if (param == "Factor" && value > 0) {
+            this.factor = value;
         }
     },
     

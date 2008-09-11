@@ -61,11 +61,7 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
-    initialize : function(widgetTag) {
-        //console.log('CursorPosition.initialize');
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-                
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;

@@ -39,8 +39,10 @@ Fusion.Event.MEASURE_SEGMENT_UPDATE = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_CLEAR = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_COMPLETE = Fusion.Event.lastEventId++;
 
-Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, Fusion.Tool.Canvas,
-{
+Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
+    isExclusive: true,
+    uiClass: Jx.Button,
+    
     isDigitizing: false,
     //distance of each segment
     distances: null,
@@ -77,11 +79,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
     /* Style for the polygon line used for area draw */    
     areaStyle: null,
     
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        Fusion.Tool.Canvas.prototype.initialize.apply(this, []);
+    initializeWidget: function(widgetTag) {
+        this.initializeCanvas();
         
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
@@ -133,21 +132,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
         //console.log('Rule::onKeyPress');
         var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
         //console.log(charCode);
-        if (charCode == Event.KEY_ESC) {
+        if (charCode == OpenLayers.Event.KEY_ESC) {
             this.resetCanvas();
         } 
     },
     
-    /**
-     * (public) activate()
-     *
-     * activate the measure tool
-     */
-    activateTool: function() {
-        this.getMap().activateWidget(this);
-        this._oButton.activateTool();
-    },
-
     /**
      * (public) initVars()
      *
@@ -165,7 +154,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
         this.activateCanvas();
         this.initVars();
         this.triggerEvent(Fusion.Event.MEASURE_CLEAR, this);
-        Event.observe(document,"keypress",this.keyHandler);
+         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.loadDisplayPanel();
     },
     
@@ -198,7 +187,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
                 this.totalDistanceMarker.domObj.parentNode != oDomElem) {
                 oDomElem.appendChild(this.totalDistanceMarker.domObj);
             }
-            Element.addClassName(this.totalDistanceMarker.domObj, 'divMeasureTotal');
+            this.totalDistanceMarker.domObj.className = 'divMeasureTotal';
             this.totalDistanceMarker.domObj.style.display = 'none';
             this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));  
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
@@ -212,9 +201,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
      * deactivate the ruler tool
      */
     deactivate: function() {
-        //console.log('Ruler.deactivate');
-        Event.stopObserving(document, 'keypress', this.keyHandler);           
-        this._oButton.deactivateTool();
+        console.log('Ruler.deactivate');
+        OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);           
         this.deactivateCanvas();
         this.resetCanvas();
     },
@@ -239,8 +227,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
      *
      * @param e Event the event that happened on the mapObj
      */
-    mouseDown: function(e) {  	
-        if (Event.isLeftClick(e)) {
+    mouseDown: function(e) {
+        if (OpenLayers.Event.isLeftClick(e)) {
             var map = this.getMap();
             var p = map.getEventPosition(e);
             var gp = map.pixToGeo(p.x, p.y);
@@ -585,7 +573,7 @@ Fusion.Widget.Measure.DistanceMarker = OpenLayers.Class(
     },
     
     getSize: function() {
-        var size =  Element.getDimensions(this.domObj);
+        var size =  $(this.domObj).getBorderBoxSize();
         var imgSize = {width:19, height:4};
         if (size.width < imgSize.width) {
             size.width += imgSize.width;

@@ -30,8 +30,7 @@
  ****************************************************************************/
 
 
-Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
     nCurrentTask: 0,
     nTasks: 0,
@@ -39,12 +38,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget,
     prevAction: null,
     nextAction: null,
     
-    initialize : function(widgetTag)
-    {
-        //console.log('TaskPane.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        
+    initializeWidget: function(widgetTag){
         this.aExecutedTasks = [];
         this.defHomeIcon = 'images/icon_home.png';
         this.defPrevTaskIcon = 'images/icon_back.png';
@@ -65,54 +59,51 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget,
             this.menuName = json.MenuContainer[0];
         }
         
-        var divName = 'TaskNav';
-        var tmpDiv = document.createElement('div');
-        tmpDiv.setAttribute('id', divName);
-        this.toolbar = new Jx.Toolbar(tmpDiv,{left:0});
+        this.toolbar = new Jx.Toolbar();
 
-        this.homeAction = new Jx.Action(OpenLayers.Function.bind(this.goHome, this));
-        this.toolbar.add(new Jx.Button(this.homeAction, 
-            {
+        this.homeButton = new Jx.Button({
             image: this.defHomeIcon, 
-            tooltip: OpenLayers.i18n('taskHome')
-            }
-        ));
-
-        this.prevAction = new Jx.Action(OpenLayers.Function.bind(this.gotoPrevTask, this));
-        this.toolbar.add(new Jx.Button(this.prevAction, 
-            {
+            tooltip: OpenLayers.i18n('taskHome'),
+            onClick: OpenLayers.Function.bind(this.goHome, this)
+        });
+        this.prevButton = new Jx.Button({
             image: this.defPrevTaskIcon, 
-            tooltip: OpenLayers.i18n('prevTask')
-            }
-        ));
-
-        this.nextAction = new Jx.Action(OpenLayers.Function.bind(this.gotoNextTask, this));
-        this.toolbar.add(new Jx.Button(this.nextAction, 
-            {
+            tooltip: OpenLayers.i18n('prevTask'),
+            onClick: OpenLayers.Function.bind(this.gotoPrevTask, this)
+        });
+        this.nextButton = new Jx.Button({
             image: this.defNextTaskIcon, 
-            tooltip: OpenLayers.i18n('nextTask')
-            }
-        ));
+            tooltip: OpenLayers.i18n('nextTask'),
+            onClick: OpenLayers.Function.bind(this.gotoNextTask, this)
+        });
+        this.toolbar.add(
+            this.homeButton,
+            this.prevButton,
+            this.nextButton
+        );
 
-        this.taskMenu = new Jx.Menu({image: this.defTaskListIcon, 
-                    label: OpenLayers.i18n('taskList'), 
-                    right:0});
-        Element.addClassName(this.taskMenu.domObj, 'taskMenu');
-        Element.addClassName(this.taskMenu.button.domObj, 'jxButtonContentLeft');
+        this.taskMenu = new Jx.Menu({
+            image: this.defTaskListIcon, 
+            label: OpenLayers.i18n('taskList'), 
+            right:0
+        });
+        $(this.taskMenu.domObj).addClass('taskMenu');
+        $(this.taskMenu.button.domObj).addClass('jxButtonContentLeft');
         this.toolbar.add(this.taskMenu);
         
-        var iframeName = this.sName+'_IFRAME';
+        var iframeName = this.name+'_IFRAME';
         this.iframe = document.createElement('iframe');
         new Jx.Layout(this.iframe);
         this.iframe.setAttribute('name', iframeName);
         this.iframe.setAttribute('id', iframeName);
         this.iframe.setAttribute('frameborder', 0);
         this.iframe.style.border = '0px solid #fff';
-        this.oTaskPane = new Jx.Panel({toolbar: tmpDiv, 
-                      label: OpenLayers.i18n('taskPane'), 
-                      content: this.iframe
+        this.oTaskPane = new Jx.Panel({
+            toolbars: [this.toolbar], 
+            label: OpenLayers.i18n('taskPane'), 
+            content: this.iframe
         });
-        Element.addClassName(this.domObj, 'taskPanePanel');
+        $(this.domObj).addClass('taskPanePanel');
         Fusion.addWidgetStyleSheet(widgetTag.location + 'TaskPane/TaskPane.css');
         
         this.domObj.appendChild(this.oTaskPane.domObj);
@@ -125,8 +116,8 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget,
     },
     
     updateButtons: function() {
-        this.prevAction.setEnabled(this.nCurrentTask > 0);
-        this.nextAction.setEnabled(this.nCurrentTask < this.aExecutedTasks.length - 1);
+        this.prevButton.setEnabled(this.nCurrentTask > 0);
+        this.nextButton.setEnabled(this.nCurrentTask < this.aExecutedTasks.length - 1);
     },
     
     gotoPrevTask: function() {

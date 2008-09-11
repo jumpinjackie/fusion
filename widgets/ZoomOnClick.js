@@ -29,37 +29,26 @@
  * Zoom the map by a fixed amount when a button is clicked
  * 
  * **********************************************************************/
-
-
-Fusion.Widget.ZoomOnClick = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    nFactor: 4,
-    initialize : function(widgetTag)
-    {
-        //console.log('ZoomOnClick.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-                
+Fusion.Widget.ZoomOnClick = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    factor: 4,
+    
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
-        this.nFactor = parseFloat(json.Factor ? json.Factor[0] : this.nFactor);
+        this.factor = parseFloat(json.Factor ? json.Factor[0] : this.factor);
     },
 
     /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
+     * called when the button is clicked by the Fusion.Widget widget
      */
-    execute : function()
-    {
-        //console.log('ZoomOnClick.activateTool');
+    activate: function() {
         var center = this.getMap().getCurrentCenter();
-        this.getMap().zoom(center.x, center.y, this.nFactor);
+        this.getMap().zoom(center.x, center.y, this.factor);
     },
 
-    setParameter : function(param, value)
-    {
-        if (param == "Factor" && value > 0)
-        {
-            this.nFactor = value;
+    setParameter: function(param, value) {
+        if (param == "Factor" && value > 0) {
+            this.factor = value;
         }
     }
 });

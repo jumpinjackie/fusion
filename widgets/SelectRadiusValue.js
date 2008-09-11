@@ -31,16 +31,12 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, 
-{
+Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {
     radiusWidgetName: null,
     label: '',
     className: '',
     domLabel: null,
-    initialize : function(widgetTag) {
-    
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        
+    initializeWidget: function(widgetTag) {
         /* parse widget properties */
         var json = widgetTag.extension;
         
@@ -66,7 +62,7 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget,
         
         /* put into page */
         this.domObj.appendChild(this.domLabel);
-        Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
+         OpenLayers.Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
     },
     
     mapLoaded: function() {

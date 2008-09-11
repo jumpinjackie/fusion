@@ -33,16 +33,10 @@
  * (http://mapserver.commenspace.org/tools/scalebar/
  * **********************************************************************/
 
-Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
+Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
     sFeatures : 'menubar=no,location=no,status=no,scrollbars=yes',
 
-    initialize : function(widgetTag) {
-        //console.log('Search.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "SearchWindow";
         this.sBaseUrl = Fusion.getFusionURL() + 'widgets/Search/SearchPrompt.php';
@@ -54,7 +48,7 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         this.title = json.Title ? json.Title[0] : widgetTag.label;
     },
 
-    execute : function() {
+    activate: function() {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
         

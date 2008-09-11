@@ -30,7 +30,9 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
+Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    
     /* popup window initialization parameters */
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
@@ -44,11 +46,7 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
      */
     baseUrl: null,
     
-    initialize : function(widgetTag) {
-        //console.log('Help.initialize');
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.target = json.Target ? json.Target[0] : "HelpWindow";
         this.baseUrl = json.Url ? json.Url[0] : Fusion.getFusionURL() + widgetTag.location + '/Help/Help.html';
@@ -61,7 +59,7 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
         }
     },
     
-    execute : function() {
+    activate: function() {
         var url = this.baseUrl;
         /* check to see if this is going into a task pane */
         var taskPaneTarget = Fusion.getWidgetById(this.target);

@@ -29,14 +29,10 @@
  * A widget that allows for naviagtion by panning
  * **********************************************************************/
 
-Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    initialize : function(widgetTag) {
-        //console.log('Pan.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, {
+    isExclusive: true,
+    uiClass: Jx.Button,
+    initializeWidget: function(widgetTag) {
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
         this.control.handler.keyMask = 0;
@@ -45,26 +41,14 @@ Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
     },
 
-    /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
-     */
-    activateTool : function() {
-        /*console.log('Pan.activateTool');*/
-        this.getMap().activateWidget(this);
-    },
-    
     activate : function() {
         this.control.activate();
         this.getMap().setCursor(this.cursorNormal);
-        /*button*/
-        this._oButton.activateTool();
     },
     
     deactivate: function() {
         /*console.log('Pan.deactivate');*/
         this.control.deactivate();
         this.getMap().setCursor('auto');
-        /*icon button*/
-        this._oButton.deactivateTool();
     }
 });

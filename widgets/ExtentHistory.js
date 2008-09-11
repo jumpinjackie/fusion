@@ -32,16 +32,13 @@
 
 Fusion.Event.HISTORY_CHANGED = Fusion.Event.lastEventId++;
 
-Fusion.Widget.ExtentHistory = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
+Fusion.Widget.ExtentHistory = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     events: [],
     aHistory: [],
     sDirection: null,
     EPS: 0.00000001,  //percentage difference allowed in bounds values for test for equal
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         var sDirection = json.Direction ? json.Direction[0].toLowerCase() : 'previous';
         if (sDirection != 'previous' && sDirection != 'next') {
@@ -105,20 +102,20 @@ Fusion.Widget.ExtentHistory = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Button
     historyChanged: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
-                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+                Fusion.Widget.prototype.enable.apply(this,[]);
             } else {
-                Fusion.Tool.ButtonBase.prototype.disable.apply(this,[]);
+                Fusion.Widget.prototype.disable.apply(this,[]);
             }
         } else {
             if (this.aHistory['index'] < (this.aHistory['history'].length - 1)) {
-                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+                Fusion.Widget.prototype.enable.apply(this,[]);
             } else {
-                Fusion.Tool.ButtonBase.prototype.disable.apply(this,[]);
+                Fusion.Widget.prototype.disable.apply(this,[]);
             }
         }
     },
 
-    execute: function() {
+    activate: function() {
         if (this.sDirection == 'previous') {
             if (this.aHistory['index'] > 0) {
                 this.aHistory['index'] --;
