@@ -35,15 +35,11 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
+Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
-    initialize : function(widgetTag) {
-        //console.log('InvokeURL.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "InvokeUrlWindow";
         this.sBaseUrl = json.Url[0];  //must be supplied
@@ -75,7 +71,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase
                 if (this.action) {
                     this.action.setEnabled(true);
                 } else {
-                    Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+                    Fusion.Widget.prototype.enable.apply(this,[]);
                 }
             } else {
                 if (this.action) {
@@ -88,12 +84,12 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase
             if (this.action) {
                 this.action.setEnabled(true);
             } else {
-                Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+                Fusion.Widget.prototype.enable.apply(this,[]);
             }
         }
     },
     
-    execute : function() {
+    activate: function() {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
         

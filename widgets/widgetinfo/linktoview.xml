@@ -9,5 +9,5 @@
   <ImageUrl></ImageUrl>
   <ImageClass></ImageClass>
   <StandardUi>false</StandardUi>
-  <ContainableBy></ContainableBy>
+  <ContainableBy>Any</ContainableBy>
 </WidgetInfo>

@@ -31,18 +31,12 @@
  * **********************************************************************/
 
 
-Fusion.Widget.PanOnClick = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, 
-{
+Fusion.Widget.PanOnClick = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     fPercent: null,
     nDeltaX: null,
     nDeltaY: null,
-    initialize : function(widgetTag)
-    {
-        //console.log('FitToWindow.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         var percent = json.Percentage ? json.Percentage[0] : 75;
@@ -74,10 +68,9 @@ Fusion.Widget.PanOnClick = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBas
     },
 
     /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
+     * called when the button is clicked by the Fusion.Widget widget
      */
-    execute : function()
-    {
+    activate: function() {
         var extents = this.getMap().getCurrentExtents();
         var center = this.getMap().getCurrentCenter();
         var fX, fY;

@@ -30,8 +30,7 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget, {
     /**
      * Property: previousIcon
      * {String} The default image for Previous page button.
@@ -44,11 +43,7 @@ Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget,
      */    
     nextIcon: 'images/icon_forward.gif',
     
-    initialize : function(widgetTag) {
-        //console.log('SelectionPanel.initialize');
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-
-
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         if (json.PreviousImageUrl) this.previousIcon = json.PreviousImageUrl;
         if (json.NextImageUrl) this.nextIcon = json.NextImageUrl;
@@ -288,13 +283,13 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         this.layerList = document.createElement('select');
         this.layerList.className = 'layerSelector';
         this.toolbar.appendChild(this.layerList);
-        Event.observe(this.layerList, 'change',
+        OpenLayers.Event.observe(this.layerList, 'change',
                       OpenLayers.Function.bind(this.renderSelectionFeatures, this));
 
         this.featureList = document.createElement('select');
         this.featureList.className = 'featureSelector';
         this.toolbar.appendChild(this.featureList);
-        Event.observe(this.featureList, 'change',
+        OpenLayers.Event.observe(this.featureList, 'change',
                       OpenLayers.Function.bind(this.renderFeature, this));
 
         this.featureDiv = document.createElement('div');
@@ -317,7 +312,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         this.layerList.options.length = 0;
         this.featureList.options.length = 0;
         this.oSelection = null;
-        Element.addClassName(this.featureDiv, 'noSelection');
+        this.featureDiv.className = 'selectionPanelContent noSelection';
         this.featureDiv.innerHTML = OpenLayers.i18n('noSelection');
     },
 
@@ -334,7 +329,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         }
  
         //clear the layer list select box of any previous selections
-        Element.removeClassName(this.featureDiv, 'noSelection');
+        this.featureDiv.className = 'selectionPanelContent';
         while (this.layerList.length>0) {
           this.layerList.remove(this.layerList.options[0]);
         }
@@ -400,7 +395,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         for (var i=0; i<nProperties; i++) {
             var tr = document.createElement('tr');
             if (i%2) {
-                Element.addClassName(tr, 'oddRow');
+                tr.className = 'oddRow';
             }
             var th = document.createElement('th');
             th.innerHTML = aNames[i];
@@ -432,7 +427,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
         var d = document.createElement('div');
         this.featureDiv = document.createElement('div');
         this.featureDiv.innerHTML = 'No Selection';
-        Element.addClassName(this.featureDiv, 'noSelection');
+        this.featureDiv.className = 'selectionPanelContent noSelection';
         d.appendChild(this.featureDiv);
 
         if (this.iResultsPerPage != 0) {
@@ -441,21 +436,20 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
             this.previousButton.style.position = "absolute";
             this.previousButton.style.left = "0px";
             this.previousButton.style.padding = "3px";
-            Event.observe(this.previousButton, 'click',
+            OpenLayers.Event.observe(this.previousButton, 'click',
                           OpenLayers.Function.bind(this.renderLayers, this, 'prev'));
             this.nextButton = document.createElement('img');
             this.nextButton.src = this.oSelectionPanel.nextIcon;
             this.nextButton.style.position = "absolute";
             this.nextButton.style.right = "0px";
             this.nextButton.style.padding = "3px";
-            Event.observe(this.nextButton, 'click',
+            OpenLayers.Event.observe(this.nextButton, 'click',
                           OpenLayers.Function.bind(this.renderLayers, this, 'next'));
             
             d.appendChild(this.previousButton);
             d.appendChild(this.nextButton);
         }
 
-        Element.addClassName(this.featureDiv, 'selectionPanelContent');
         Fusion.addWidgetStyleSheet(this.oSelectionPanel.getLocation() + 'SelectionPanel/SelectionPanel.css');
         this.oSelectionPanel.domObj.appendChild(d);
     },
@@ -467,7 +461,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
 
     clearSelection: function() {
         this.oSelection = null;
-        Element.addClassName(this.featureDiv, 'noSelection');
+        this.featureDiv.className = 'selectionPanelContent noSelection';
         this.featureDiv.innerHTML = OpenLayers.i18n('noSelection');
     },
     
@@ -487,7 +481,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
             return;
         }
         
-        Element.removeClassName(this.featureDiv, 'noSelection');
+        $(this.featureDiv).removeClass('noSelection');
         this.featureDiv.innerHTML = '';
         
         var nLayers = this.oSelection.getNumLayers();
@@ -540,7 +534,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
         for (var i=0; i<page.length; i++) {
             var tr = document.createElement('tr');
             if (i%2) {
-                Element.addClassName(tr, 'oddRow');
+                tr.className = 'oddRow';
             }
             for (var j=0; j<page[i].length; j++) {
                 var td = document.createElement('td');

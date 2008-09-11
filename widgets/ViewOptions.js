@@ -29,40 +29,40 @@
  * A widget to allow selection of the display units for various widgets
  ****************************************************************************/
 
-Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, Fusion.Tool.MenuBase,
-{
+Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Menu,
     displayUnits: false,
-    options : {
+    options: {
         'imperial': 'Miles', 
         'metric': 'Meters',
         'deg': 'Degrees'
     },
 
-    initialize : function(widgetTag) {
-        //console.log('ViewOptions.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.MenuBase.prototype.initialize.apply(this, []);
-        
-        //this.enable();
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
-        
-        //set up the root menu
-        
-        for (var key in this.options) {
-          var action = new Jx.Action(OpenLayers.Function.bind(this.setViewOptions, this, this.options[key]));
-          var menuItem = new Jx.MenuItem(action, {label: OpenLayers.i18n(key)} );
-          this.oMenu.add(menuItem);
-        }
 
         this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : false;
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setMapUnits, this));
     },
     
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        var buttonSet = new Jx.ButtonSet();
+        //set up the root menu
+        for (var key in this.options) {
+            var menuItem = new Jx.Menu.Item({
+                label: OpenLayers.i18n(key),
+                toggle: true,
+                onDown: OpenLayers.Function.bind(this.setViewOptions, this, this.options[key])
+            });
+            buttonSet.add(menuItem);
+            this.uiObj.add(menuItem);
+        }        
+    },
+    
     //action to perform when the button is clicked
-    activateTool: function(e) {
-        this.oMenu.show(e);
+    activate: function(e) {
+        //this.oMenu.show(e);
     },
 
     setViewOptions: function(units) {

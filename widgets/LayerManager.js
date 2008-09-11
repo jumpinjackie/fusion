@@ -53,11 +53,7 @@
 Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
-    initialize : function(widgetTag) {
-        //console.log('LayerManager.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-         
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
     
@@ -99,20 +95,20 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
        
       //create the master UL element to hold the list of layers
       this.mapList = document.createElement('ul');
-      Element.addClassName(this.mapList, 'jxLman');
+      this.mapList.className = 'jxLman';
       this.domObj.appendChild(this.mapList);
         
       //this processes the OL layers
       var map = this.getMap();
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
-        Element.addClassName(this.mapBlock, 'jxLmanMap');
+        this.mapBlock.className = 'jxLmanMap';
         mapBlock.id = 'mapBlock_'+i;
         
         //add a handle so the map blocks can be re-arranged
         var handle = document.createElement('a');
         handle.innerHTML = map.aMaps[i]._sMapTitle;
-        Element.addClassName(handle, 'jxLmanHandle');
+        handle.className = 'jxLmanHandle';
         mapBlock.appendChild(handle);
         
         this.mapList.appendChild(mapBlock);
@@ -130,7 +126,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
 
     processMapBlock: function(blockDom, map) {
       var mapBlockList = document.createElement('ul');
-      Element.addClassName(mapBlockList, 'jxLmanSet');
+      mapBlockList.className = 'jxLmanSet';
       mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
       blockDom.appendChild(mapBlockList);
       map.layerPrefix = 'layer_';   //TODO make this unique for each block
@@ -142,7 +138,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       }
       for (var i=0; i<processArray.length; ++i) {
         var blockItem = document.createElement('li');
-        Element.addClassName(blockItem, 'jxLmanLayer');
+        blockItem.className = 'jxLmanLayer';
         blockItem.id = map.layerPrefix+i;
         mapBlockList.appendChild(blockItem);
         this.createItemHtml(blockItem, processArray[i]);
@@ -159,13 +155,13 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   createItemHtml: function(parent, layer) {
     var delIcon = document.createElement('img');
     delIcon.src = this.delIconSrc;
-    Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
+    OpenLayers.Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
     delIcon.style.visibility = 'hidden';
     parent.appendChild(delIcon);
     
     var visSelect = document.createElement('input');
     visSelect.type = 'checkbox';
-    Event.observe(visSelect, 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
+    OpenLayers.Event.observe(visSelect, 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
     parent.appendChild(visSelect);
     if (layer.visible) {
       visSelect.checked = true;
@@ -175,13 +171,13 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     
     var label = document.createElement('a');
     label.innerHTML = layer.legendLabel;
-    Event.observe(label, 'mouseover', OpenLayers.Function.bind(this.setGrabCursor, this));
-    Event.observe(label, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
-    Event.observe(label, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
+    OpenLayers.Event.observe(label, 'mouseover', OpenLayers.Function.bind(this.setGrabCursor, this));
+    OpenLayers.Event.observe(label, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
+    OpenLayers.Event.observe(label, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
     parent.appendChild(label);
     
-    Event.observe(parent, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon));
-    Event.observe(parent, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon));
+    OpenLayers.Event.observe(parent, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon));
+    OpenLayers.Event.observe(parent, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon));
   },
   
   setHandleVis: function(delIcon) {
@@ -253,14 +249,14 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   deleteLayer: function(layer, ev) {
-    var targetLI = Event.element(ev).parentNode;
+    var targetLI = (new Event(ev)).target.parentNode;
     var ul = targetLI.parentNode;
-    Element.remove(targetLI.id);
+    $(targetLI).dispose();
     this.updateLayer(layer.oMap, ul);
   },
   
   visChanged: function(layer2, ev) {
-    var target = Event.element(ev);
+    var target = (new Event(ev)).target;
     var layer = target.parentNode.layer;
     if (target.checked) {
       layer.show();

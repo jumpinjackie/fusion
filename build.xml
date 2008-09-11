@@ -89,7 +89,7 @@ $Id$
   -->
 
   <property name="jx-lib"  value="jx"/>
-  <property name="YUIcompressor"  value="C:\YUI\yuicompressor-2.3.5\build\yuicompressor-2.3.5.jar"/>
+  <property name="YUIcompressor"  value="${basedir}/utils/yuicompressor-2.3.6.jar"/>
   <property name="sfName"  value="fusionSF"/>
   <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
@@ -216,18 +216,14 @@ $Id$
                   files=" SingleFile.js
                           fusion.js
                           OpenLayers/OpenLayers.js
-                          ../jx/lib/jx_combined.js
+                          ../jx/lib/jxlib.uncompressed.js
                           excanvas/excanvas.js
                           Error.js 
                           EventMgr.js
                           ApplicationDefinition.js
                           MGBroker.js 
                           Widget.js 
-                          ButtonBase.js 
-                          MenuBase.js
-                          ButtonTool.js 
                           CanvasTool.js 
-                          ClickTool.js 
                           RectTool.js 
                           Search.js
                           Map.js"

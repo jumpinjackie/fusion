@@ -48,8 +48,7 @@
  * **********************************************************************/
 
 
-Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     oCurrentPosition: null,
     oMapTipPosition: null,
     nTimer: null,
@@ -59,11 +58,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
     sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
     offset: new OpenLayers.Pixel(2,2),
     
-    initialize : function(widgetTag)
-    {
-      //console.log('Maptip.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+    initialize : function(widgetTag) {
         var json = widgetTag.extension;
         
         this.sTarget = json.Target ? json.Target[0] : "MaptipWindow";
@@ -98,8 +93,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
         this.iframe.scrolling = 'no';
         this.iframe.frameborder = 0;
         
-        Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
-        Event.observe(this.domObj, 'mouseout', OpenLayers.Function.bind(this.mouseOutTip, this));
+         OpenLayers.Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
+        OpenLayers.Event.observe(this.domObj, 'mouseout', OpenLayers.Function.bind(this.mouseOutTip, this));
         
         var oDomElem =  this.getMap().getDomObj();
         document.getElementsByTagName('BODY')[0].appendChild(this.domObj);
@@ -212,7 +207,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
             }
             if (!empty) {
                 var mapSize = this.getMap().getSize();
-                var size = Element.getDimensions(this.domObj);
+                var size = $(this.domObj).getBorderBoxSize();
                 if (this.oCurrentPosition.x < mapSize.w/2) {
                   this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
@@ -228,7 +223,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget,
                 
                 if (!window.opera) {
                     contentDiv.appendChild(this.iframe);
-                    var size = Element.getContentBoxSize(this.domObj);
+                    var size = $(this.domObj).getContentBoxSize();
                     this.iframe.style.width = size.width + "px";
                     this.iframe.style.height = size.height + "px";
                 }

@@ -30,13 +30,9 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         var showPrintUI = json.ShowPrintUI ? json.ShowPrintUI[0] : 'false';
@@ -71,7 +67,7 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
      * load an interface that builds a printable version of
      * the current map view
      */
-    execute : function() {
+    activate: function() {
         if (this.showPrintUI) {
             this.openPrintUI();
         } else {
@@ -83,21 +79,34 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         if (!this.dialog) {
 
             var size = Element.getPageDimensions();
+            var toolbar = new Jx.Toolbar({position: 'bottom'});
             var o = {
-                title: OpenLayers.i18n('printTitle'),
+                label: OpenLayers.i18n('printTitle'),
                 id: 'printablePage',
                 contentURL : this.dialogContentURL,
-                onContentLoaded: OpenLayers.Function.bind(this.contentLoaded, this),
+                onContentLoad: OpenLayers.Function.bind(this.contentLoaded, this),
                 imageBaseUrl: this.imageBaseUrl,
                 width: 350,
                 height: 250,
-                resizeable: true,
+                resize: true,
                 top: (size.height-250)/2,
                 left: (size.width-350)/2,
-                buttons: ['generate', 'cancel'],
-                handler: OpenLayers.Function.bind(this.handler, this)
+                toolbars: [toolbar]
             };
-            this.dialog = new Jx.Dialog(o);
+            var d = new Jx.Dialog(o);
+            toolbar.add(
+                new Jx.Button({
+                    label: 'Generate',
+                    onClick: OpenLayers.Function.bind(this.generate, this)
+                }),
+                new Jx.Button({
+                    label: 'Cancel',
+                    onClick: function() {
+                        d.close();
+                    }
+                })
+            );
+            this.dialog = d;
             
         }
         this.dialog.open();
@@ -131,7 +140,7 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         dialog.getObj('dialogPrintShowlegend').checked = this.showLegend;
         dialog.getObj('dialogPrintShowNorthArrow').checked = this.showNorthArrow;
         
-        Event.observe(dialog.getObj('dialogPrintShowtitle'), 'click', OpenLayers.Function.bind(this.controlTitle, this));
+         OpenLayers.Event.observe(dialog.getObj('dialogPrintShowtitle'), 'click', OpenLayers.Function.bind(this.controlTitle, this));
     },
     
     controlTitle: function() {
@@ -139,16 +148,12 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         
     },
     
-    handler: function(button) {
-        if (button == 'generate') {
-            this.showTitle = this.dialog.getObj('dialogPrintShowtitle').checked;
-            this.pageTitle = this.dialog.getObj('dialogPrintTitle').value;
-            this.showLegend = this.dialog.getObj('dialogPrintShowlegend').checked;
-            this.showNorthArrow = this.dialog.getObj('dialogPrintShowNorthArrow').checked;
-            this.openPrintable();
-            
-        }
-        this.dialog.close();
+    generate: function() {
+        this.showTitle = this.dialog.getObj('dialogPrintShowtitle').checked;
+        this.pageTitle = this.dialog.getObj('dialogPrintTitle').value;
+        this.showLegend = this.dialog.getObj('dialogPrintShowlegend').checked;
+        this.showNorthArrow = this.dialog.getObj('dialogPrintShowNorthArrow').checked;
+        this.openPrintable();
     },
     
     openPrintable: function() {

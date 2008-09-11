@@ -31,19 +31,15 @@
  * **********************************************************************/
 
 
-Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
+Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
+    isExclusive: true,
+    uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
     nTolerance : 3,     //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
     maxFeatures: 0,     //deafult of 0 selects all features (i.e. no maximum)
     
-    initialize : function(widgetTag) {
-        //console.log('Select.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-
+    initializeWidget: function(widgetTag) {
         this.asCursor = ['auto'];
         
         this.enable = Fusion.Widget.Select.prototype.enable;
@@ -82,22 +78,15 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
             if (layer && layer.selectable) { 
-                Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
+                Fusion.Widget.prototype.enable.apply(this, []);
             } else {
                 this.disable();
             }
         } else {
-            Fusion.Tool.ButtonBase.prototype.enable.apply(this,[]);
+            Fusion.Widget.prototype.enable.apply(this,[]);
         }
     },
     
-    /**
-       * called when the button is clicked by the ButtonBase widget
-       */
-    activateTool : function() {
-        this.getMap().activateWidget(this);
-     },
-
     /**
        * activate the widget (listen to mouse events and change cursor)
        * This function should be defined for all functions that register
@@ -107,8 +96,6 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         this.handler.activate();
         this.shiftHandler.activate();
         this.getMap().setCursor(this.asCursor);
-        /*icon button*/
-        this._oButton.activateTool();
     },
 
     /**
@@ -120,8 +107,6 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
         this.handler.deactivate();
         this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
-        /*icon button*/
-        this._oButton.deactivateTool();
     },
 
     /**

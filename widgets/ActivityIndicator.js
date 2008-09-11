@@ -36,9 +36,7 @@
 
 Fusion.Widget.ActivityIndicator = OpenLayers.Class(Fusion.Widget, {
     element: null,
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
+    initializeWidget: function(widgetTag) {
         this.element = this.domObj;
         var json = widgetTag.extension;
         if (json.ElementId) {

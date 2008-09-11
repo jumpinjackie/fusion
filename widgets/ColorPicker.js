@@ -32,6 +32,8 @@
  * **********************************************************************/
 
 Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button.Color,
+    
     /* HTML input element that is used to store both the initial
        value for this widget and receives the color value as the
        color changes */
@@ -46,8 +48,7 @@ Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
     
     colorButton: null,
     
-    initialize : function(widgetTag) {      
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+    initializeWidget: function(widgetTag) {      
         var json = widgetTag.extension;
         if (json.ColorInputId) {
             this.colorInput = $(json.ColorInputId[0]);
@@ -58,19 +59,16 @@ Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
             this.color = '#'+this.colorInput.value.substring(2);
             this.colorInput.widget = this;
         }
-        
-        this.colorButton = new Jx.Button.Color({color: this.color, alpha: this.alpha, label: widgetTag.label, tooltip: widgetTag.tooltip});
-        this.colorButton.addColorChangeListener(this);
-        
-        if (this.domObj) {
-            this.domObj.appendChild(this.colorButton.domObj);
-        }
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        this.uiObj.addEvent('colorChange', OpenLayers.Function.bind(this.colorChanged, this));
     },
     
     colorChanged: function(button) {
-        var a = parseInt(this.colorButton.alpha*255/100).toString(16);
-        var c = a + this.colorButton.color.substring(1);
-        //console.log('colorChanged: '+c);
+        var a = parseInt(this.uiObj.alpha*255/100).toString(16);
+        var c = a + this.uiObj.color.substring(1);
         if (this.colorInput) {
             this.colorInput.value = c;
         }

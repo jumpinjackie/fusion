@@ -38,31 +38,27 @@
  *    </Extension>
  * **********************************************************************/
 
-Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
+Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     iframe : null,
     printLayout : null,
     printScale : null,
     imageWidth : null,
     imageHeight : null,
-    initialize : function(widgetTag) {
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.format = (json.Format && json.Format[0] != '')?
                        json.Format[0] : 'png';
         
         //for DWF, parse printLayouts and build menu
         if (this.format == 'DWF' && json.PrintLayout.length) {
-            Object.inheritFrom(this, Fusion.Tool.MenuBase.prototype, []);
             
             var layouts = json.PrintLayout;
             for (var i = 0; i < layouts.length; i++) {
                 var layout = layouts[i];
-                var opt = {};
-                opt.label = layout.Name[0];
+                var opt = {
+                    label: layout.Name[0]
+                };
                 var data = {rid:layout.ResourceId[0]};
                 if (layout.PageHeight) {
                     data.pageHeight = layout.PageHeight[0];
@@ -79,28 +75,33 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
                 var menuItem = null;
                 if (layout.Scale) {
                     //create entries for weblayout specified scales
-                    menuItem = new Jx.SubMenu(opt);
+                    menuItem = new Jx.Menu.SubMenu(opt);
                     data.scales = [];
                     for (var j=0; j < layout.Scale.length; j++) {
                         data.scales.push(layout.Scale[j]);
-                        var scaleAction = new Jx.Action(this.setLayout.bind(this, data, j));
-                        var subMenuItem = new Jx.MenuItem(scaleAction,{label:layout.Scale[j]});
-                        menuItem.add(subMenuItem);
+                        menuItem.add(
+                            new Jx.Menu.Item({
+                                label:layout.Scale[j],
+                                onClick: OpenLayers.Function.bind(this.setLayout, this, data, j)
+                            })
+                        );
                     }
                     //add an entry for current scale
-                    var currentScaleAction = new Jx.Action(this.setLayout.bind(this, data));
-                    var currentScaleItem = new Jx.MenuItem(currentScaleAction,
-                                                         {label:'Current Scale'});
-                    menuItem.add(currentScaleItem);
+                    menuItem.add(
+                        new Jx.Menu.Item({
+                            label:'Current Scale',
+                            onClick: OpenLayers.Function.bind(this.setLayout, this, data)
+                        })
+                    );
                 } else {
                     //if there are no scales, the layout is used with current scale
-                    var action = new Jx.Action(this.setLayout.bind(this, data));
-                    menuItem = new Jx.MenuItem(action,opt);
+                    opt.onClick = OpenLayers.Function.bind(this.setLayout, this, data);
+                    menuItem = new Jx.Menu.Item(opt);
                 };
                 this.oMenu.add(menuItem);
             }
         } else {
-            Object.inheritFrom(this, Fusion.Tool.ButtonBase.prototype, []);
+            Object.inheritFrom(this, Fusion.Widget.prototype, []);
             if (json.Width && json.Width[0] != '') {
                 this.imageWidth = json.Width[0];
             }
@@ -113,7 +114,7 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     },
     
     enable: function() {
-        Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
+        Fusion.Widget.prototype.enable.apply(this, []);
     },
     
     setLayout: function(data) {
@@ -133,10 +134,10 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     },
 
     /**
-     * called when the button is clicked by the Fusion.Tool.ButtonBase widget
+     * called when the button is clicked by the Fusion.Widget widget
      * prompts user to save the map.
      */
-    activateTool : function() {
+    execute: function() {
         if (!this.iframe) {
             this.iframe = document.createElement('iframe');
             this.iframe.id = 'w';

@@ -30,18 +30,13 @@
  * primary map.
  * **********************************************************************/
 
-Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
     oSize: null,
     nMinRatio : 4,
     nMaxRatio : 32,
     bDisplayed : false,
   
-    initialize : function(widgetTag) {
-        //console.log('OverviewMap.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         if (json.MinRatio) {
             this.nMinRatio = json.MinRatio[0];
@@ -64,12 +59,12 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget,
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
-              this.domObj.style.overflow = 'hidden';
-              if (this.domObj.jxLayout) {
-                  this.domObj.jxLayout.addSizeChangeListener(this);
-              } else {
-                  this.domObj.resize = OpenLayers.Function.bind(this.sizeChanged, this);
-              }
+            this.domObj.style.overflow = 'hidden';
+            var jxl = this.domObj.retrieve('jxLayout');
+            if (!jxl) {
+                jxl = new Jx.Layout(this.domObj);
+            }
+            jxl.addEvent('sizeChange', OpenLayers.Function.bind(this.sizeChanged, this));
         }
         
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
@@ -100,7 +95,7 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget,
           this.control.destroy();
         }
         
-        var size = Element.getContentBoxSize(this.domObj);
+        var size = $(this.domObj).getContentBoxSize();
         this.oSize = new OpenLayers.Size(size.width, size.height);
         
         this.mapObject.oLayerOL.isBaseLayer = true;  
@@ -129,7 +124,7 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget,
     },
     
     sizeChanged: function() {
-        var size = Element.getContentBoxSize(this.domObj);
+        var size = $(this.domObj).getContentBoxSize();
         this.oSize = new OpenLayers.Size(size.width, size.height);
         if (size.width == 0 || size.height == 0) {
           return;   //don't try to load if the container is not visible

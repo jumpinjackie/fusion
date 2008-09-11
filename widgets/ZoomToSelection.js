@@ -30,13 +30,10 @@
  *
  * **********************************************************************/
 
-Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    initialize : function(widgetTag) {
-        //console.log('ZoomToSelection.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    
+    initializeWidget: function(widgetTag) {
 
         var json = widgetTag.extension;
         this.maxDimension = json.MaximumZoomDimension ? json.MaximumZoomDimension[0] : -1;
@@ -52,7 +49,7 @@ Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butt
      * get the selection from the map (which may not be loaded yet).
      * zoomToSelection is called when the selection is ready.
      */
-    execute : function() {
+    activate: function() {
         this.getMap().getSelection(OpenLayers.Function.bind(this.zoomToSelection, this));
     },
 
@@ -66,7 +63,6 @@ Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butt
         var map = this.oMap.aMaps[0]; //TODO: allow selection on multple maps
         var ll = selection[map.getMapName()].getLowerLeftCoord();
         var ur = selection[map.getMapName()].getUpperRightCoord();
-        //??var zoom_size = Math.min( this.maxDimension, this.zoomFactor * Math.max( Math.abs(ur.x - ll.x), Math.abs(ur.y - ll.y))) / 2;
         var zoom_size = this.zoomFactor * Math.max( Math.abs(ur.x - ll.x), Math.abs(ur.y - ll.y)) / 2;
         var cX = (ur.x + ll.x)/2;
         var cY = (ur.y + ll.y)/2;
@@ -79,7 +75,7 @@ Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butt
     
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
+            Fusion.Widget.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }

@@ -34,8 +34,9 @@
  *
  * **************************************************************************/
 
-Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
+Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    isExclusive: true,
     layerName: null,
     layerNameInput: null,
     bufferDistance: null,
@@ -46,12 +47,7 @@ Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     borderColorInput: null,
     fillColor: null,
     fillColorInput: null,
-    initialize: function(widgetTag) {
-        //console.log('Buffer.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         /* pick up default values */
@@ -162,7 +158,7 @@ Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
     
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
+            Fusion.Widget.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }

@@ -31,20 +31,9 @@
  * **********************************************************************/
 
 
-Fusion.Widget.RefreshMap = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,
-{
-    initialize : function(widgetTag) {
-        //console.log('RefreshMap.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-    },
-
-    /**
-     * 
-     */
-    execute : function() {
-        var map = this.getMap();
-        map.redraw();
+Fusion.Widget.RefreshMap = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    activate: function() {
+        this.getMap().redraw();
     }
 });

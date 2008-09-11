@@ -29,18 +29,9 @@
  * Restore the map to it's full extents determined when it was initially loaded.
  * 
  * **********************************************************************/
-
-
-Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
-    initialize : function(widgetTag) {
-        //console.log('InitialMapView.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
-    },
-
-    execute: function() {
-        //console.log('InitialMapView.activateTool');
+Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    activate: function() {
         this.getMap().fullExtents();
     }
 });

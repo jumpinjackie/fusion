@@ -31,7 +31,8 @@
 *
 * **********************************************************************/
 
-Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
+Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     _nWidth : 500,
     _nHeight : 400,
     _sDefaultUrl : '/mapguide/mapadmin/about.php',  //TBD we need a Fusion specific About page
@@ -44,11 +45,7 @@ Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
  * widgetTag - JSON node for this widget from the Application definition
  *
  */
-    initialize : function(widgetTag) {
-        //console.log('About.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this._sAboutUrl = (json.AboutURL) ? 
                 json.AboutURL[0] : this._sDefaultUrl;
@@ -61,7 +58,7 @@ Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
      * opens a pop-up window with the about information when invoked
      * 
      */
-    execute : function() {
+    activate: function() {
       //console.log('About.execute');
 
       var sFeatures = 'menubar=no,location=no,resizable=no,status=no';

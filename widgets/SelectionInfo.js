@@ -43,16 +43,11 @@
  * & is &amp;
  * **********************************************************************/
 
-Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget,
-{
+Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {
     defaultTemplate: 'selectionInfo',
     domSpan: null,
     
-    initialize : function(widgetTag) {
-        //console.log('SelectionInfo.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, true]);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;

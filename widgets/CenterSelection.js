@@ -32,12 +32,13 @@
  * **********************************************************************/
 
 
-Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
-    initialize : function(widgetTag) {
+Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
+    initializeWidget: function(widgetTag) {
         //console.log('CenterSelection.initialize');
 
         Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
+        Fusion.Widget.prototype.initialize.apply(this, []);
         this.enable = Fusion.Widget.CenterSelection.prototype.enable;
         
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
@@ -48,7 +49,7 @@ Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butt
      * get the selection from the map (which may not be loaded yet).
      * zoomToSelection is called when the selection is ready.
      */
-    execute : function() {
+    activate: function() {
         this.getMap().getSelection(OpenLayers.Function.bind(this.centerSelection, this));
     },
 
@@ -86,7 +87,7 @@ Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butt
 
     enable: function() {
         if (this.oMap && this.oMap.hasSelection()) {
-            Fusion.Tool.ButtonBase.prototype.enable.apply(this, []);
+            Fusion.Widget.prototype.enable.apply(this, []);
         } else {
             this.disable();
         }

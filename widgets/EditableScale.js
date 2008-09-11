@@ -33,19 +33,15 @@
 Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {
     precision: 4,
     
-    initialize : function(widgetTag) {
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         var domPrefix = document.createElement('span');
         domPrefix.className = 'inputEditableScalePrefix';
         domPrefix.innerHTML = '1: ';
-        this.domObj.appendChild(domPrefix);
         this.domScale = document.createElement('input');
         this.domScale.className = 'inputEditableScale';
-        this.domObj.appendChild(this.domScale);
-        Event.observe(this.domScale, 'keypress', 
+        OpenLayers.Event.observe(this.domScale, 'keypress', 
            OpenLayers.Function.bindAsEventListener(this.keyPressHandler, this));
         this.precision = json.Precision ? parseInt(json.Precision[0]) : this.precision;
         
@@ -54,6 +50,12 @@ Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {
         Fusion.addWidgetStyleSheet(widgetTag.location + '/EditableScale/EditableScale.css');
         
         
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        this.domObj.appendChild(domPrefix);
+        this.uiObj.appendChild(this.domScale);
     },
     
     scaleChanged: function() {
