@@ -81,7 +81,8 @@ switch($stripType) {
 if ($verbose) {
     echo "create css file: $cssFile\n";    
     echo "create strip file: $stripFile\n";
-    echo "image strip type: $stripType\n";    
+    echo "image strip type: $stripType\n";
+    echo "image strip depth: $depth\n";
     echo "processing ".count($images)." images\n";
 }
 
@@ -146,7 +147,11 @@ EOT;
 
 echo "image strip size: $w x $h\n";
 
-$imgStrip = imagecreate($w,$h);
+if ($depth == 8) {
+    $imgStrip = imagecreate($w,$h);    
+} else {
+    $imgStrip = imagecreatetruecolor($w,$h);
+}
 imagefill($imgStrip, 0, 0, imagecolorallocatealpha($imgStrip, 0,0,0,127));
 
 $x = 0;
