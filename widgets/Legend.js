@@ -334,6 +334,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
    
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
+        this.layerRoot = this.getMap().layerRoot;
         this.renderLegend();
     },
     
