@@ -6455,9 +6455,6 @@ Jx.Button = new Class({
             if (this.options.image && this.options.image.indexOf('a_pixel.png') == -1) {
                 i.setStyle('backgroundImage',"url("+this.options.image+")");
             }
-            if (this.options.imageClass) {
-                i.addClass(this.options.imageClass);
-            }
             s.appendChild(i);
             if (this.options.imageClass) {
                 i.addClass(this.options.imageClass);
