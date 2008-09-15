@@ -5304,7 +5304,7 @@ var Accordion = new Class({
 		return this.start(obj);
 	}
 
-});// $Id: common.js 888 2008-09-10 21:23:19Z pspencer $
+});// $Id: common.js 912 2008-09-12 18:59:02Z pspencer $
 /**
  * Class: Jx
  * Jx is a global singleton object that contains the entire Jx library
@@ -5353,7 +5353,7 @@ if (typeof Jx == 'undefined') {
         var aScripts = document.getElementsByTagName('SCRIPT');
         for (var i=0; i<aScripts.length; i++) {
             var s = aScripts[i].src;
-            var matches = /(.*)(js|lib)\/jxlib(.*)/.exec(s);
+            var matches = /(.*[jx|js|lib])\/jxlib(.*)/.exec(s);
             if (matches && matches[0]) {
                 /**
                  * Property: {String} baseURL
@@ -6253,7 +6253,7 @@ Jx.Chrome = new Class({
             this.chrome.dispose();
         }
     }
-});// $Id: button.js 885 2008-09-10 15:20:52Z pspencer $
+});// $Id: button.js 920 2008-09-15 12:28:59Z pspencer $
 /**
  * Class: Jx.Button
  * Jx.Button creates a clickable element that can be added to a web page.
@@ -6376,12 +6376,12 @@ Jx.Button = new Class({
         image: '',
         tooltip: '',
         label: '',
-        enabled: true,
         toggle: false,
         toggleClass: 'Toggle',
         halign: 'center',
         valign: 'middle',
-        isActive: false,
+        active: false,
+        enabled: true,
         container: 'div'
     },
     /**
@@ -6414,7 +6414,7 @@ Jx.Button = new Class({
      *     default.  Other values are 'left' and 'right'.
      * valign - {String} vertical alignment of the button label, 'middle' by
      *     default.  Other values are 'top' and 'bottom'.
-     * isActive - {Boolean} optional, default false.  Controls the initial
+     * active - {Boolean} optional, default false.  Controls the initial
      *     state of toggle buttons.
      * container - {String} the tag name of the HTML element that should be
      *     created to contain the button, by default this is 'div'.
@@ -6437,7 +6437,7 @@ Jx.Button = new Class({
                 click: this.clicked.bindWithEvent(this)
             }
         });
-        if (this.options.isActive) {
+        if (this.options.active) {
             a.addClass('jx'+this.options.type+'Active');
         }
         d.appendChild(a);
@@ -6499,13 +6499,24 @@ Jx.Button = new Class({
     clicked : function(evt) {
         if (this.options.enabled) {
             if (this.options.toggle) {
-                this.setActive(!this.options.isActive);
+                this.setActive(!this.options.active);
             } else {
                 this.fireEvent('click', {obj: this, event: evt});
             }
         }
         //return false;
     },
+    /**
+     * Method: isEnabled
+     * This returns true if the button is enabled, false otherwise
+     *
+     * Returns:
+     * {Boolean} whether the button is enabled or not
+     */
+    isEnabled: function() { 
+        return this.options.enabled; 
+    },
+    
     /**
      * Method: setEnabled
      * enable or disable the button.
@@ -6530,18 +6541,21 @@ Jx.Button = new Class({
      * {Boolean} the active state of a toggle button
      */
     isActive: function() { 
-        return this.options.isActive; 
+        return this.options.active; 
     },
     /**
      * Method: setActive
      * Set the active state of the button
+     *
+     * Parameters:
+     * active - {Boolean} the new active state of the button
      */
-    setActive: function(isActive) {
-        if (this.options.isActive == isActive) {
+    setActive: function(active) {
+        if (this.options.active == active) {
             return;
         }
-        this.options.isActive = isActive;
-        if (this.options.isActive) {
+        this.options.active = active;
+        if (this.options.active) {
             this.domA.addClass('jx'+this.options.type+'Active');
             this.fireEvent('down', this);
         } else {
@@ -6560,6 +6574,16 @@ Jx.Button = new Class({
         if (this.domImg) {
             this.options.image = path;
             this.domImg.setStyle('backgroundImage',"url("+this.options.image+")");
+        } else {
+            var i = new Element('img', {
+                'class':'jx'+this.options.type+'Icon',
+                'src': Jx.aPixel.src
+            });
+            if (this.options.imageClass) {
+                i.addClass(this.options.imageClass);
+            }
+            this.domA.firstChild.grab(i, 'top');
+            this.domImg = i;
         }
     },
     /**
@@ -6585,8 +6609,8 @@ Jx.Button = new Class({
      * tooltip - {String} the new tooltip
      */
     setTooltip: function(tooltip) {
-        if (this.domImg) {
-            this.domImg.set({
+        if (this.domA) {
+            this.domA.set({
                 'title':tooltip,
                 'alt':tooltip
             });
@@ -11001,7 +11025,7 @@ Jx.Combo = new Class({
         }
         return value;
     }
-});// $Id: splitter.js 775 2008-08-22 14:27:26Z pspencer $
+});// $Id: splitter.js 894 2008-09-12 16:52:36Z pspencer $
 /**
  * Class: Jx.Splitter
  * a Jx.Splitter creates two or more containers within a parent container
@@ -11209,18 +11233,19 @@ Jx.Splitter = new Class({
      * bars between the elements in the split area.
      */
     establishConstraints: function() {
-        var limit = {};
+        var modifiers = {x:null,y:null};
         var fn;
         if (this.options.layout == 'horizontal') {
-            limit.y = [0,0];
+            modifiers.x = "left";
             fn = this.dragHorizontal;
         } else {
-            limit.x = [0,0];
+            modifiers.y = "top";
             fn = this.dragVertical;
         }
         this.bars.each(function(bar){
             new Drag(bar, {
-                limit: limit,
+                //limit: limit,
+                modifiers: modifiers,
                 onSnap : function(obj) {
                     obj.addClass('jxSplitBarDrag');
                 },
