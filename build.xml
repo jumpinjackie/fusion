@@ -216,7 +216,7 @@ $Id$
                   files=" SingleFile.js
                           fusion.js
                           OpenLayers/OpenLayers.js
-                          ../jx/lib/jxlib.uncompressed.js
+                          ../jx/jxlib.uncompressed.js
                           excanvas/excanvas.js
                           Error.js 
                           EventMgr.js
