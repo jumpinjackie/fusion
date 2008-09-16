@@ -5304,7 +5304,7 @@ var Accordion = new Class({
 		return this.start(obj);
 	}
 
-});// $Id: common.js 912 2008-09-12 18:59:02Z pspencer $
+});// $Id: common.js 931 2008-09-16 14:40:10Z pspencer $
 /**
  * Class: Jx
  * Jx is a global singleton object that contains the entire Jx library
@@ -6021,10 +6021,13 @@ Jx.AutoPosition = new Class({
         var offsets = $merge({top:0,right:0,bottom:0,left:0}, options.offsets || {});
         
         var page;
+        var scroll;
         if (!$(element.parentNode) || element.parentNode ==  document.body) {
             page = Element.getPageDimensions();
+            scroll = $(document.body).getScroll();
         } else {
             page = $(element.parentNode).getContentBoxSize(); //width, height
+            scroll = $(element.parentNode).getScroll();
         }
         var coords = relative.getCoordinates(); //top, left, width, height
         var size = element.getMarginBoxSize(); //width, height
@@ -6067,13 +6070,13 @@ Jx.AutoPosition = new Class({
                     left = left - Math.round(size.width/2);
                     right = left + size.width;
             }
-            return (left >= 0 && right <= page.width);
+            return (left >= scroll.x && right <= scroll.x + page.width);
         })) {
             // all failed, snap the last position onto the page as best
             // we can - can't do anything if the element is wider than the
             // space available.
             if (right > page.width) {
-                left = page.width - size.width;
+                left = scroll.x + page.width - size.width;
             }
             if (left < 0) {
                 left = 0;
@@ -6116,18 +6119,18 @@ Jx.AutoPosition = new Class({
                         top = top - Math.round(size.height/2);
                         bottom = top + size.height;
                 }
-                return (top >= 0 && bottom <= page.height);
+                return (top >= scroll.y && bottom <= scroll.y + page.height);
             })) {
                 // all failed, snap the last position onto the page as best
                 // we can - can't do anything if the element is higher than the
                 // space available.
                 if (bottom > page.height) {
-                    top = page.height - size.height;
+                    top = scroll.y + page.height - size.height;
                 }
                 if (top < 0) {
                     top = 0;
                 }
-            }    
+            }
             element.setStyle('top', top);
             
             /* update the jx layout if necessary */
@@ -6638,7 +6641,7 @@ Jx.Button = new Class({
             parent.appendChild(this.domObj);            
         }
     }
-});// $Id: button.flyout.js 782 2008-08-26 17:36:11Z pspencer $
+});// $Id: button.flyout.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.Button.Flyout
  * Flyout buttons expose a panel when the user clicks the button.  The
@@ -6802,7 +6805,7 @@ Jx.Button.Flyout = new Class({
         this.options.isActive = true;
         this.domA.addClass('jx'+this.options.type+'Active');
         this.contentContainer.setStyle('visibility','hidden');
-        document.body.adopt(this.contentContainer);
+        $(document.body).adopt(this.contentContainer);
         this.showChrome(this.contentContainer);
         
         this.position(this.contentContainer, this.domObj, {
@@ -6848,7 +6851,7 @@ Jx.Button.Flyout = new Class({
             Jx.Button.Flyout.Stack[Jx.Button.Flyout.Stack.length - 1].hide();
         }
     }
-});// $Id: button.multi.js 888 2008-09-10 21:23:19Z pspencer $
+});// $Id: button.multi.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.Button.Multi
  * Multi buttons are used to contain multiple buttons in a drop down list
@@ -6940,7 +6943,7 @@ Jx.Button.Multi = new Class({
                     return;
                 }
                 this.contentContainer.setStyle('visibility','hidden');
-                document.body.adopt(this.contentContainer);            
+                $(document.body).adopt(this.contentContainer);            
                 /* we have to size the container for IE to render the chrome correctly
                  * but just in the menu/sub menu case - there is some horrible peekaboo
                  * bug in IE related to ULs that we just couldn't figure out
@@ -7107,7 +7110,7 @@ Jx.Button.Multi = new Class({
         this.setActiveButton(button);
         button.clicked();
     }
-});// $Id: colorpalette.js 763 2008-08-21 13:18:11Z pspencer $
+});// $Id: colorpalette.js 932 2008-09-16 14:41:49Z pspencer $
 /**
  * Class: Jx.ColorPalette
  * A Jx.ColorPalette presents a user interface for selecting colors.  Currently,
@@ -7279,7 +7282,7 @@ Jx.ColorPalette = new Class({
 
                     var a = new Element('a', {
                         'class': 'colorSwatch ' + (((r > 2 && g > 2) || (r > 2 && b > 2) || (g > 2 && b > 2)) ? 'borderBlack': 'borderWhite'),
-                        'href':'#',
+                        'href':'javascript:void(0)',
                         'title':bgColor,
                         'alt':bgColor,
                         events: {
@@ -7407,7 +7410,7 @@ Jx.ColorPalette = new Class({
     }
 });
 
-// $Id: button.color.js 763 2008-08-21 13:18:11Z pspencer $ 
+// $Id: button.color.js 929 2008-09-16 14:06:10Z pspencer $ 
 /**
  * Class: Jx.Button.Color
  * A <Jx.ColorPalette> wrapped up in a Jx.Button.  The button includes a
@@ -7464,8 +7467,6 @@ Jx.Button.Color = new Class({
      */
 
     initialize: function(options) {
-       // this.parent($merge({label:'&nbsp;'},options));
-
         if (!Jx.Button.Color.ColorPalette) {
             Jx.Button.Color.ColorPalette = new Jx.ColorPalette(this.options);
         }
@@ -7476,12 +7477,15 @@ Jx.Button.Color = new Class({
 
         this.colorChangeFn = this.changed.bind(this);
         this.hideFn = this.hide.bind(this);
+        /* we need to have an image to replace, but if a label is 
+           requested, there wouldn't normally be an image. */
+        options.image = Jx.aPixel.src;
 
-        /* create a button with a label so it doesn't get an empty label class
-           and then replace the label text with the swatch */
-        Jx.Button.Flyout.prototype.initialize.apply(this, [options]);
-        $(this.domObj.firstChild).addClass('jxButtonColor');
-        this.domObj.firstChild.firstChild.insertBefore(d, this.domObj.firstChild.firstChild.firstChild);
+        /* now we can safely initialize */
+        this.parent(options);
+        
+        // now replace the image with our swatch
+        d.replaces(this.domImg);
         this.updateSwatch();
     },
 
@@ -9043,7 +9047,7 @@ Jx.Layout = new Class({
 
         this.fireEvent('sizeChange',this);
     }
-});// $Id: menu.js 876 2008-09-09 17:30:05Z pspencer $
+});// $Id: menu.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.Menu
  * A main menu as opposed to a sub menu that lives inside the menu.
@@ -9178,8 +9182,8 @@ Jx.Menu = new Class({
     },
     
     eventInMenu: function(e) {
-        return e.target.descendantOf(this.domObj) ||
-               e.target.descendantOf(this.subDomObj) ||
+        return $(e.target).descendantOf(this.domObj) ||
+               $(e.target).descendantOf(this.subDomObj) ||
                this.items.some(
                    function(item) {
                        return item instanceof Jx.Menu.SubMenu && 
@@ -9231,7 +9235,7 @@ Jx.Menu = new Class({
         Jx.Menu.Menus[0] = this;
         
         this.contentContainer.setStyle('visibility','hidden');
-        document.body.adopt(this.contentContainer);            
+        $(document.body).adopt(this.contentContainer);            
         /* we have to size the container for IE to render the chrome correctly
          * but just in the menu/sub menu case - there is some horrible peekaboo
          * bug in IE related to ULs that we just couldn't figure out
@@ -9466,7 +9470,7 @@ Jx.Menu.Separator = new Class({
      * Show the menu item
      */
     show: $empty
-});// $Id: menu.submenu.js 823 2008-09-04 17:15:02Z pspencer $
+});// $Id: menu.submenu.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.Menu.SubMenu
  * A sub menu contains menu items within a main menu or another
@@ -9556,7 +9560,7 @@ Jx.Menu.SubMenu = new Class({
         }
         
         this.contentContainer.setStyle('visibility','hidden');
-        document.body.adopt(this.contentContainer);            
+        $(document.body).adopt(this.contentContainer);            
         /* we have to size the container for IE to render the chrome correctly
          * but just in the menu/sub menu case - there is some horrible peekaboo
          * bug in IE related to ULs that we just couldn't figure out
@@ -9577,8 +9581,8 @@ Jx.Menu.SubMenu = new Class({
     },
     
     eventInMenu: function(e) {
-        return e.target.descendantOf(this.domObj) ||
-               e.target.descendantOf(this.subDomObj) ||
+        return $(e.target).descendantOf(this.domObj) ||
+               $(e.target).descendantOf(this.subDomObj) ||
                this.items.some(
                    function(item) {
                        return item instanceof Jx.Menu.SubMenu && 
@@ -9727,7 +9731,7 @@ Jx.Menu.SubMenu = new Class({
             this.visibleItem.show();
         }
     }
-});// $Id: menu.context.js 788 2008-08-27 15:07:01Z pspencer $
+});// $Id: menu.context.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.Menu.Context
  * A <Jx.Menu> that has no button but can be opened at a specific 
@@ -9779,7 +9783,7 @@ Jx.Menu.Context = new Class({
         }
         
         this.contentContainer.setStyle('visibility','hidden');
-        document.body.adopt(this.contentContainer);            
+        $(document.body).adopt(this.contentContainer);            
         /* we have to size the container for IE to render the chrome correctly
          * but just in the menu/sub menu case - there is some horrible peekaboo
          * bug in IE related to ULs that we just couldn't figure out
@@ -9800,7 +9804,7 @@ Jx.Menu.Context = new Class({
 
         e.stop();
     }    
-});// $Id: panel.js 888 2008-09-10 21:23:19Z pspencer $
+});// $Id: panel.js 927 2008-09-15 21:28:33Z pspencer $
 /**
  * Class: Jx.Panel
  * A panel is a fundamental container object that has a content
@@ -10054,10 +10058,10 @@ Jx.Panel = new Class({
             'class': 'jx'+this.options.type+'Content'
         });
         
+        this.contentContainer.adopt(this.content);
         new Jx.Layout(this.contentContainer);
         new Jx.Layout(this.content);
-        this.contentContainer.adopt(this.content);
-        this.loadContent(this.content, options);
+        this.loadContent(this.content);
         
         this.toggleCollapse(this.options.closed);
     },
@@ -10304,7 +10308,7 @@ Jx.Panel = new Class({
         this.fireEvent('close', this);
     }
     
-});// $Id: dialog.js 830 2008-09-05 02:36:33Z pspencer $
+});// $Id: dialog.js 927 2008-09-15 21:28:33Z pspencer $
 /**
  * Class: Jx.Dialog
  * A Jx.Dialog implements a floating dialog.  Dialogs represent a useful way
@@ -10428,6 +10432,7 @@ Jx.Dialog = new Class({
         }
         
         this.isOpening = false;
+        this.firstShow = true;
         
         /* initialize the panel overriding the type and position */
         this.parent($merge(
@@ -10435,9 +10440,6 @@ Jx.Dialog = new Class({
             options,
             {type:'Dialog', position: 'absolute'} // these override anything passed to the options
         ));
-        //we'll keep the content out of the DOM until we actually show it
-        //so it sizes properly the first time.
-        this.content.dispose();
         this.options.parent = $(this.options.parent);
         
         if (!window.opera && this.options.modal) {
@@ -10616,9 +10618,9 @@ Jx.Dialog = new Class({
         } else {
             this.domObj.resize(this.options);            
         }
-        if (!this.content.parentNode) {
-            this.contentContainer.adopt(this.content);
+        if (this.firstShow) {
             this.contentContainer.resize({forceResize: true});
+            this.firstShow = false;
         }
         /* update or create the chrome */
         this.showChrome(this.domObj);
@@ -10684,7 +10686,7 @@ Jx.Dialog = new Class({
         }
     }
 });
-// $Id: panelset.js 762 2008-08-20 20:59:40Z pspencer $
+// $Id: panelset.js 933 2008-09-16 15:29:20Z pspencer $
 /**
  * Class: Jx.PanelSet
  *
@@ -10768,7 +10770,7 @@ Jx.PanelSet = new Class({
             var panel = this.panels[i];
             var bar = this.splitter.bars[i];
             panel.title.setStyle('visibility', 'hidden');
-            document.body.adopt(panel.title);
+            $(document.body).adopt(panel.title);
             var size = panel.title.getBorderBoxSize();
             bar.adopt(panel.title);
             panel.title.setStyle('visibility','');
@@ -11025,7 +11027,7 @@ Jx.Combo = new Class({
         }
         return value;
     }
-});// $Id: splitter.js 894 2008-09-12 16:52:36Z pspencer $
+});// $Id: splitter.js 923 2008-09-15 20:14:53Z pspencer $
 /**
  * Class: Jx.Splitter
  * a Jx.Splitter creates two or more containers within a parent container
@@ -11120,7 +11122,6 @@ Jx.Splitter = new Class({
         
         this.domObj = $(domObj);
         this.domObj.addClass('jxSplitContainer');
-        this.domObj.setStyle('overflow', 'hidden')
         var jxLayout = this.domObj.retrieve('jxLayout');
         if (jxLayout) {
             jxLayout.addEvent('sizeChange', this.sizeChanged.bind(this));
