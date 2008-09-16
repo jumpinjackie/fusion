@@ -147,17 +147,13 @@ EOT;
     }
 }
 
-echo "image strip size: $w x $h\n";
-
-if ($depth == 8) {
-    $imgStrip = imagecreate($w,$h);    
-} else {
-    $imgStrip = imagecreatetruecolor($w,$h);
-    imagealphablending($imgStrip, false);
-    imagesavealpha($imgStrip, true);
-    
+if ($verbose) {
+    echo "image strip size: $w x $h\n";    
 }
-imagefill($imgStrip, 0, 0, imagecolorallocatealpha($imgStrip, 0,0,0,127));
+
+$imgStrip = imagecreatetruecolor($w,$h);
+$nTransparent = imagecolorallocate($imgStrip, 0,0,0);
+imagefill($imgStrip, 0, 0, $nTransparent);
 
 $x = 0;
 $y = 0;
@@ -174,6 +170,10 @@ foreach($imgObjects as $imgObject) {
 
 switch($stripType) {
     case 'png':
+        if ($depth == 8) {
+            imagetruecolortopalette($imgStrip, false, 256);
+            imagecolortransparent($imgStrip, $nTransparent);
+        }
         imagepng($imgStrip, $stripFile);
         break;
     case 'gif':
