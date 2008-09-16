@@ -13,7 +13,7 @@ if ($argc < 2) {
 // defaults for command line arguments
 $depth = 8;
 $verbose = false;
-$overwrite = false;
+$append = false;
 $cssFile = 'imagestrip.css';
 $stripFile = 'imagestrip.png';
 $direction = 'horizontal';
@@ -28,8 +28,10 @@ for ($i=1; $i<$argc; $i++) {
         $depth = $argv[++$i];
     } else if ($arg == '-o') {
         $stripFile = $argv[++$i];
-    } else if ($arg == '-horizontal') {
+    } else if ($arg == '--horizontal') {
         $direction = 'horizontal';
+    } else if ($arg == '--append') {
+        $append = false;
     } else if ($arg == '-vertical') {
         $direction = 'vertical';
     } else if ($arg == '-v' || $arg == '--verbose') {
@@ -48,12 +50,12 @@ if (count($images) == 0) {
 
 // overwrite?
 if (file_exists($stripFile)) {
-    if ($overwrite) {
+    if (!$append) {
         unlink($stripFile);
     }
 }
 if (file_exists($cssFile)) {
-    if ($overwrite) {
+    if (!$append) {
         unlink($cssFile);
     }
 }
@@ -151,6 +153,9 @@ if ($depth == 8) {
     $imgStrip = imagecreate($w,$h);    
 } else {
     $imgStrip = imagecreatetruecolor($w,$h);
+    imagealphablending($imgStrip, false);
+    imagesavealpha($imgStrip, true);
+    
 }
 imagefill($imgStrip, 0, 0, imagecolorallocatealpha($imgStrip, 0,0,0,127));
 
@@ -183,7 +188,7 @@ file_put_contents($cssFile, $css);
 
 function printHelp() {
     echo "Usage:\n\n";
-    echo "    php imagestrip.php -css <css file name> -o <image strip name> <image> ...\n\n";
+    echo "    php imagestrip.php [--vertical | --horizontal] [--append] [--verbose] -css <css file name> -o <image strip name> <image> ...\n\n";
     echo "-css <css file name> specifies the name of the css file to create,\n";
     echo "                     default is imagestrip.css if not specified.\n\n";
     echo "-o <image strip name> specifies the name of the image strip file to create,\n";
@@ -192,5 +197,9 @@ function printHelp() {
     echo "                      the extension of the output image strip file name.\n\n";
     echo "-d <depth> specify the bit depth of the image (8 or 24) for formats that\n";
     echo "           support it (jpeg is always 24 and gif is always 8).\n\n";
+    echo "--vertical specify that the images should be concatenated vertically\n\n";
+    echo "--horizontal specify that the images should be concatenated horizontally\n\n";
+    echo "--append specify that the images should be appended to an existing image\n";
+    echo "         rather than replacing it.\n\n";
 }
 ?>
