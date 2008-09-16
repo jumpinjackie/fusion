@@ -336,8 +336,8 @@
       <Name>menuPan</Name>
       <Type>Pan</Type>
       <StatusItem>Drag the map to view areas out of range.</StatusItem>
-      <ImageUrl>images/icons/pan.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>pan</ImageClass>
       <Tooltip>Pan mode</Tooltip>
       <Label>Pan</Label>
       <Disabled/>
@@ -353,8 +353,8 @@
         <Tolerance>5</Tolerance>
         <Factor>2</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-in.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-in</ImageClass>
       <Tooltip>Zoom In</Tooltip>
       <Label>Zoom Rectangle</Label>
       <Disabled/>
@@ -369,8 +369,8 @@
       <Extension xsi:type="CustomContentType">
         <Factor>2</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-in-fixed.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-in-fixed</ImageClass>
       <Tooltip>Zoom In</Tooltip>
       <Label>Zoom In</Label>
       <Disabled/>
@@ -382,8 +382,8 @@
       <Name>menuRefreshMap</Name>
       <Type>RefreshMap</Type>
       <StatusItem>Refreshes the map image.</StatusItem>
-      <ImageUrl>images/icons/view-refresh.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-refresh</ImageClass>
       <Tooltip>Refresh map and reload all layers, keeping the current center point and scale.</Tooltip>
       <Label>Refresh Map</Label>
       <Disabled/>
@@ -398,8 +398,8 @@
       <Extension xsi:type="CustomContentType">
         <Factor>0.5</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-out-fixed.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-out-fixed</ImageClass>
       <Tooltip>Zoom Out</Tooltip>
       <Label>Zoom Out</Label>
       <Disabled/>
@@ -414,8 +414,8 @@
       <Extension xsi:type="CustomContentType">
         <ViewType>extent</ViewType>
       </Extension>
-      <ImageUrl>images/icons/zoom-full.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-full</ImageClass>
       <Tooltip>Initial Map View</Tooltip>
       <Label>Initial Map View</Label>
       <Disabled/>
@@ -430,8 +430,8 @@
       <Extension xsi:type="CustomContentType">
         <Direction>previous</Direction>
       </Extension>
-      <ImageUrl>images/icons/view-back.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-back</ImageClass>
       <Tooltip>Previous View</Tooltip>
       <Label>View Previous</Label>
       <Disabled/>
@@ -446,8 +446,8 @@
       <Extension xsi:type="CustomContentType">
         <Direction>next</Direction>
       </Extension>
-      <ImageUrl>images/icons/view-forward.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-forward</ImageClass>
       <Tooltip>Next View</Tooltip>
       <Label>View Next</Label>
       <Disabled/>
@@ -462,8 +462,8 @@
       <Extension xsi:type="CustomContentType">
         <ViewType>center</ViewType>
       </Extension>
-      <ImageUrl>images/icons/zoom-full.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-full</ImageClass>
       <Tooltip>Initial Map Center and Scale</Tooltip>
       <Label>Initial Center and Scale</Label>
       <Disabled/>
@@ -475,8 +475,8 @@
       <Name>menuZoomSelection</Name>
       <Type>ZoomToSelection</Type>
       <StatusItem>Zoom to the extents of the current selection.</StatusItem>
-      <ImageUrl>images/icons/select-zoom.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-zoom</ImageClass>
       <Tooltip>Zoom to selection.</Tooltip>
       <Label>Zoom Selection</Label>
       <Disabled/>
@@ -488,8 +488,8 @@
       <Name>menuSelect</Name>
       <Type>Select</Type>
       <StatusItem>Select features by clicking and dragging.</StatusItem>
-      <ImageUrl>images/icons/select-features.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-features</ImageClass>
       <Tooltip>Select mode</Tooltip>
       <Label>Select mode</Label>
       <Disabled/>
@@ -501,8 +501,8 @@
       <Name>menuClearSelection</Name>
       <Type>ClearSelection</Type>
       <StatusItem>Clears the current selection.</StatusItem>
-      <ImageUrl>images/icons/select-clear.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-clear</ImageClass>
       <Tooltip/>
       <Label>Clear Selection</Label>
       <Disabled/>
@@ -514,8 +514,8 @@
       <Name>menuSelectRadius</Name>
       <Type>SelectRadius</Type>
       <StatusItem>Click and drag to select all features inside a circle.</StatusItem>
-      <ImageUrl>images/icons/select-radius.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-radius</ImageClass>
       <Tooltip>Select Radius</Tooltip>
       <Label>Select Radius</Label>
       <Disabled/>
@@ -527,8 +527,8 @@
       <Name>menuSelectPolygon</Name>
       <Type>SelectPolygon</Type>
       <StatusItem>Create a polygon and select all features that fall within.</StatusItem>
-      <ImageUrl>images/icons/select-polygon.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-polygon</ImageClass>
       <Tooltip>Select Polygon</Tooltip>
       <Label>Select Polygon</Label>
       <Disabled/>
@@ -540,8 +540,8 @@
       <Name>menuSelectWithin</Name>
       <Type>SelectWithin</Type>
       <StatusItem>Select all features that fall within the currently selected area.</StatusItem>
-      <ImageUrl>images/icons/select-within.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-within</ImageClass>
       <Tooltip>Select Within</Tooltip>
       <Label>Select Within</Label>
       <Disabled/>
@@ -553,8 +553,8 @@
       <Name>menuBuffer</Name>
       <Type>BufferPanel</Type>
       <StatusItem>Create buffers around the selected features</StatusItem>
-      <ImageUrl>images/icons/buffer.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>buffer</ImageClass>
       <Tooltip>Buffer</Tooltip>
       <Label>Buffer</Label>
       <Disabled/>
@@ -569,8 +569,8 @@
       <Extension xsi:type="CustomContentType">
         <DisplayUnits>degrees</DisplayUnits>
       </Extension>
-      <ImageUrl>images/icons/view-options.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-options</ImageClass>
       <Tooltip/>
       <Label>View Options</Label>
       <Disabled/>
@@ -582,8 +582,8 @@
       <Name>menuHelp</Name>
       <Type>Help</Type>
       <StatusItem/>
-      <ImageUrl>images/icons/help.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>help</ImageClass>
       <Tooltip/>
       <Label>Help</Label>
       <Disabled/>
@@ -617,8 +617,8 @@
         <Units>meters</Units>
         <Target>TaskPane</Target>
       </Extension>
-      <ImageUrl>images/icons/measure.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>measure</ImageClass>
       <Tooltip>Buffer</Tooltip>
       <Label>Measure</Label>
       <Disabled/>
@@ -636,8 +636,8 @@
       <Name>toolbarBuffer</Name>
       <Type>BufferPanel</Type>
       <StatusItem>Create buffers around the selected features</StatusItem>
-      <ImageUrl>images/icons/buffer.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>buffer</ImageClass>
       <Tooltip>Buffer</Tooltip>
       <Label>Buffer</Label>
       <Extension>
@@ -652,8 +652,8 @@
       <Name>toolbarRefreshMap</Name>
       <Type>RefreshMap</Type>
       <StatusItem>Refreshes the map image.</StatusItem>
-      <ImageUrl>images/icons/view-refresh.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-refresh</ImageClass>
       <Tooltip>Refresh map and reload all layers, keeping the current center point and scale.</Tooltip>
       <Label>Refresh Map</Label>
       <Disabled/>
@@ -674,8 +674,8 @@
         <Units>meters</Units>
         <Target>TaskPane</Target>
       </Extension>
-      <ImageUrl>images/icons/measure.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>measure</ImageClass>
       <Tooltip>Measure</Tooltip>
       <Label>Measure</Label>
       <Disabled/>
@@ -690,8 +690,8 @@
       <Extension xsi:type="CustomContentType">
         <DisplayUnits>meters</DisplayUnits>
       </Extension>
-      <ImageUrl>images/icons/view-options.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-options</ImageClass>
       <Tooltip/>
       <Label>View Options</Label>
       <Disabled/>
@@ -703,8 +703,8 @@
       <Name>toolbarHelp</Name>
       <Type>Help</Type>
       <StatusItem/>
-      <ImageUrl>images/icons/help.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>help</ImageClass>
       <Tooltip/>
       <Label></Label>
       <Disabled/>
@@ -729,8 +729,8 @@
       <Name>toolbarClearSelection</Name>
       <Type>ClearSelection</Type>
       <StatusItem>Clears the current selection.</StatusItem>
-      <ImageUrl>images/icons/select-clear.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-clear</ImageClass>
       <Tooltip/>
       <Label></Label>
       <Disabled/>
@@ -742,8 +742,8 @@
       <Name>toolbarSelectRadius</Name>
       <Type>SelectRadius</Type>
       <StatusItem>Click and drag to select all features inside a circle.</StatusItem>
-      <ImageUrl>images/icons/select-radius.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-radius</ImageClass>
       <Tooltip>Select Radius</Tooltip>
       <Label></Label>
       <Disabled/>
@@ -755,8 +755,8 @@
       <Name>toolbarSelectPolygon</Name>
       <Type>SelectPolygon</Type>
       <StatusItem>Create a polygon and select all features that fall within.</StatusItem>
-      <ImageUrl>images/icons/select-polygon.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-polygon</ImageClass>
       <Tooltip>Select Polygon</Tooltip>
       <Label></Label>
       <Disabled/>
@@ -779,8 +779,8 @@
       <Extension xsi:type="CustomContentType">
         <ViewType>extent</ViewType>
       </Extension>
-      <ImageUrl>images/icons/zoom-full.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-full</ImageClass>
       <Tooltip>Initial Map View</Tooltip>
       <Label/>
       <Disabled/>
@@ -795,8 +795,8 @@
       <Extension xsi:type="CustomContentType">
         <Direction>previous</Direction>
       </Extension>
-      <ImageUrl>images/icons/view-back.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-back</ImageClass>
       <Tooltip>Previous View</Tooltip>
       <Label/>
       <Disabled/>
@@ -811,8 +811,8 @@
       <Extension xsi:type="CustomContentType">
         <Direction>next</Direction>
       </Extension>
-      <ImageUrl>images/icons/view-forward.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>view-forward</ImageClass>
       <Tooltip>Next View</Tooltip>
       <Label/>
       <Disabled/>
@@ -824,8 +824,8 @@
       <Name>toolbarSecondaryZoomSelection</Name>
       <Type>ZoomToSelection</Type>
       <StatusItem>Zoom to the extents of the current selection.</StatusItem>
-      <ImageUrl>images/icons/select-zoom.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-zoom</ImageClass>
       <Tooltip>Zoom to selection.</Tooltip>
       <Label/>
       <Disabled/>
@@ -957,8 +957,8 @@
         <Tolerance>5</Tolerance>
         <Factor>2</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-in.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-in</ImageClass>
       <Tooltip>Zoom in to a rectangular region.</Tooltip>
       <Label/>
       <Disabled/>
@@ -973,8 +973,8 @@
       <Extension xsi:type="CustomContentType">
         <Factor>4</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-in-fixed.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-in-fixed</ImageClass>
       <Tooltip>Zoom in by a fixed factor.</Tooltip>
       <Label/>
       <Disabled/>
@@ -989,8 +989,8 @@
       <Extension xsi:type="CustomContentType">
         <Factor>0.5</Factor>
       </Extension>
-      <ImageUrl>images/icons/zoom-out-fixed.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>zoom-out-fixed</ImageClass>
       <Tooltip>Zoom Out by a fixed factor</Tooltip>
       <Label/>
       <Disabled/>
@@ -1002,8 +1002,8 @@
       <Name>Select</Name>
       <Type>Select</Type>
       <StatusItem>Select features by clicking and dragging.</StatusItem>
-      <ImageUrl>images/icons/select-features.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-features</ImageClass>
       <Tooltip>Select mode</Tooltip>
       <Label/>
       <Disabled/>
@@ -1047,8 +1047,8 @@
         <ShowNorthArrow>true</ShowNorthArrow>
         <ImageBaseUrl>images/</ImageBaseUrl>
       </Extension>
-      <ImageUrl>images/icons/file-print.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>file-print</ImageClass>
       <Tooltip>Get printable page.</Tooltip>
       <Label></Label>
       <Disabled/>
@@ -1060,8 +1060,8 @@
       <Name>Pan</Name>
       <Type>Pan</Type>
       <StatusItem>Drag the map to view areas out of range.</StatusItem>
-      <ImageUrl>images/icons/pan.png</ImageUrl>
-      <ImageClass/>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>pan</ImageClass>
       <Tooltip>Pan mode</Tooltip>
       <Label/>
       <Disabled/>
