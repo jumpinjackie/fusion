@@ -466,6 +466,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
           refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
         };
+
         this.aShowLayers = [];
         this.aHideLayers = [];
         this.aShowGroups = [];
@@ -473,6 +474,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aRefreshLayers = [];
 
         this.oLayerOL.mergeNewParams(params);
+        
         if (this.queryLayer) this.queryLayer.redraw(true);
     },
 
@@ -1094,16 +1096,17 @@ Fusion.Maps.MapGuide.Layer = OpenLayers.Class(Fusion.Widget.Map.Layer, {
         this.layerName = o.layerName;
         this.uniqueId = o.uniqueId;
         this.resourceId = o.resourceId;
-        this.legendLabel = o.legendLabel;
         this.selectable = o.selectable;
         this.selectedFeatureCount = 0;
         this.layerTypes = [].concat(o.layerTypes);
-        this.displayInLegend = o.displayInLegend;
-        this.expandInLegend = o.expandInLegend;
         this.visible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
-        
+ 
+        this.legendLabel = o.legendLabel;
+        this.displayInLegend = o.displayInLegend;
+        this.expandInLegend = o.expandInLegend;
+       
         //determine the layer type so that the correct icon can be displayed in the legend
         this.layerType = null;
         if (this.supportsType(Fusion.Constant.LAYER_RASTER_TYPE)) {   //raster layers
@@ -1113,15 +1116,20 @@ Fusion.Maps.MapGuide.Layer = OpenLayers.Class(Fusion.Widget.Map.Layer, {
         }
         
         this.parentGroup = o.parentGroup;
+        this.minScale = o.minScale;
+        this.maxScale = o.maxScale;
+        if (this.maxScale == 'infinity') {
+          this.maxScale = Infinity;
+        }
         this.scaleRanges = [];
-        this.minScale = 1.0e10;
-        this.maxScale = 0;
-        for (var i=0; i<o.scaleRanges.length; i++) {
-          var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], 
-                                this.layerType);
-          this.scaleRanges.push(scaleRange);
-          this.minScale = Math.min(this.minScale, scaleRange.minScale);
-          this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
+
+        if (o.scaleRanges)
+        {
+          for (var i=0; i<o.scaleRanges.length; i++) {
+            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.scaleRanges[i], 
+                                                                 this.layerType);
+            this.scaleRanges.push(scaleRange);
+          }
         }
     },
     

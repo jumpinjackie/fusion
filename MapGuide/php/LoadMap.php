@@ -28,9 +28,12 @@
  * Purpose: get map initial information
  *****************************************************************************/
 
+include(dirname(__FILE__).'/../../common/php/Utilities.php');
 include('Common.php');
 include('Utilities.php');
 
+
+$mapObj = NULL;
 try
 {
     $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
@@ -40,12 +43,9 @@ try
     if (isset($_REQUEST['mapid']))
     {
         $mapid = $_REQUEST['mapid'];
-        //echo $mapid;
         $resourceID = new  MgResourceIdentifier($mapid);
         $map = new MgMap();
         $mapTitle = $resourceID->GetName();
-
-        //echo "<br> maname $mapName <br>";
 
         $map->Create($resourceService, $resourceID, $mapTitle);
 
@@ -66,8 +66,6 @@ try
         $mapid = $map->GetMapDefinition()->ToString();
     }
 
-    //$sessionId =  $map->GetSessionId();
-    //$mapName = $map->GetName() ;
     $extents = $map->GetMapExtent();
     @$oMin = $extents->GetLowerLeftCoordinate();
     @$oMax = $extents->GetUpperRightCoordinate();
@@ -87,65 +85,94 @@ try
     }   
 
 
-    header('Content-type: text/x-json');
-    header('X-JSON: true');
-    echo "{";
-    echo "sessionId:'$sessionID',";
-    echo "mapId:'$mapid',";
-    echo "metersPerUnit:$metersPerUnit,";
-    //echo "mapTitle:'".addslashes(htmlentities($mapTitle))."',";
-    //echo "mapName:'".addslashes(htmlentities($mapName))."',";
-    echo "mapTitle:'".addslashes($mapTitle)."',";
-    echo "mapName:'".addslashes($mapName)."',";
-    echo "extent:[";
-    echo $oMin->GetX().",";
-    echo $oMin->GetY().",";
-    echo $oMax->GetX().",";
-    echo $oMax->GetY()."],";
-    
+    //header('Content-type: text/x-json');
+    //header('X-JSON: true');
+
+    $mapObj->sessionId = $sessionID;
+    $mapObj->mapId = $mapid;
+    $mapObj->metersPerUnit = $metersPerUnit;
+
+    $mapObj->mapTitle=addslashes($mapTitle);
+
+    $mapObj->mapName=addslashes($mapName);
+
+
+    $mapObj->extent = array($oMin->GetX(), $oMin->GetY(), $oMax->GetX(), $oMax->GetY());
+
     $layers=$map->GetLayers();
     
-    echo "layers:[";
-    $layerSep = '';
+    //layers
+    $mapObj->layers = array();
+
+
+    $mapObj->layers = array();
     for($i=0;$i<$layers->GetCount();$i++) 
     { 
-        $layer=$layers->GetItem($i);
-
         //only output layers that are part of the 'Normal Group' and 
-        //not the base map group used for tile maps.
-        echo $layerSep.'{';
-        OutputLayerInfo($layer, $resourceService, $featureService);
-        echo '}';
-        $layerSep = ',';
+        //not the base map group used for tile maps.  (Where is the test for that Y.A.???)
+
+        $layer=$layers->GetItem($i);
+        $layerDefinition = $layer->GetLayerDefinition();
+        $layerObj = NULL;
+        $mappings = GetLayerPropertyMappings($resourceService, $layer);
+        $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
+
+        $layerObj->uniqueId = $layer->GetObjectId();
+        $layerObj->layerName = addslashes($layer->GetName());
+
+        //$aLayerTypes = GetLayerTypes($featureService, $layer);
+        $aLayerTypes = GetLayerTypesFromResourceContent($layer);
+        $layerObj->layerTypes = $aLayerTypes;
+
+        $layerObj->resourceId = $layerDefinition->ToString();
+        $layerObj->parentGroup = $layer->GetGroup() ? $layer->GetGroup()->GetObjectId() : '';
+        
+        $layerObj->selectable = BooleanToString($layer->GetSelectable());
+        $layerObj->visible = BooleanToString($layer->GetVisible());
+        $layerObj->actuallyVisible = BooleanToString($layer->isVisible());
+        $layerObj->editable = IsLayerEditable($resourceService, $layer) ? 'true' : 'false';
+
+
+        $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
+        $layerObj->displayInLegend = BooleanToString($layer->GetDisplayInLegend());
+        $layerObj->expandInLegend = BooleanToString($layer->GetExpandInLegend());
+
+        $oScaleRanges = buildScaleRanges($layer);
+        $layerObj->scaleRanges = $oScaleRanges;
+        /*get the min/max scale for the layer*/
+        $nCount = count($oScaleRanges);
+        $layerObj->minScale = $oScaleRanges[0]->minScale;
+        $layerObj->maxScale = $oScaleRanges[0]->maxScale;
+        for ($j=1; $j<$nCount; $j++)
+        {
+            $layerObj->minScale = min($layerObj->minScale, $oScaleRanges[$j]->minScale);
+            $layerObj->maxScale = max($layerObj->maxScale, $oScaleRanges[$j]->maxScale);
+        }
+
+        
+        array_push($mapObj->layers, $layerObj);
+        
     } 
-    echo "],"; 
 
     //Get layer groups as xml
     $groups = $map->GetLayerGroups();
-    echo "groups:["; 
-    $groupSep = '';
+    $mapObj->groups = array();
     for($i=0;$i<$groups->GetCount();$i++) 
     { 
         $group=$groups->GetItem($i);
-        echo $groupSep.'{';
-        OutputGroupInfo($group);
-        echo '}';
-        $groupSep = ',';
+        array_push($mapObj->groups, OutputGroupInfo($group));
     } 
-    echo"],"; 
 
-    //FiniteDisplayScales for tiled maps
-    echo "FiniteDisplayScales:[";
+    $mapObj->FiniteDisplayScales = array();
+    //FiniteDisplayScales for tiled maps    
     for ($i=0; $i<$map->GetFiniteDisplayScaleCount(); $i++)
     {
-        if ($i>0)
-          echo ",";
-        echo $map->GetFiniteDisplayScaleAt($i);
-    }
-    echo"]";
     
-   
-    echo "}";
+        array_push($mapObj->FiniteDisplayScales, $map->GetFiniteDisplayScaleAt($i));
+    }
+
+    echo var2json($mapObj);
+
 }
 catch (MgException $e)
 {
@@ -153,9 +180,66 @@ catch (MgException $e)
   echo $e->GetDetails() . "\n";
   echo $e->GetStackTrace() . "\n";
 }
+
 exit;
 
-function buildScaleRanges($layer) {
+
+/************************************************************************/
+/*                     GetLayerTypesFromResourceContent                 */
+/*                                                                      */
+/*      Replacement for GetLayerTypes function.                         */
+/*      Extract the layer types based on the styling available.         */
+/*      GetLayerTypes was costly in time when dealing in DB.            */
+/************************************************************************/
+function GetLayerTypesFromResourceContent($layer)
+{
+    $aLayerTypes = array();						
+    global $resourceService;
+
+    try
+    {
+        $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+        if($dataSourceId->GetResourceType() == MgResourceType::DrawingSource)
+          array_push($aLayerTypes, '5');// DWF 
+        else
+        {
+            $resID = $layer->GetLayerDefinition();
+            $layerContent = $resourceService->GetResourceContent($resID);
+            $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+    
+            $gridlayers = $xmldoc->getElementsByTagName('GridLayerDefinition');
+            if ($gridlayers->length > 0)
+              array_push($aLayerTypes, '4');// raster
+
+            $scaleRanges = $xmldoc->getElementsByTagName('VectorScaleRange');
+            $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle", "CompositeTypeStyle");
+            for($sc = 0; $sc < $scaleRanges->length; $sc++)
+            {
+                $scaleRange = $scaleRanges->item($sc);
+                for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
+                {
+                    $typeStyle = $scaleRange->getElementsByTagName($typeStyles[$ts]);
+                    if ($typeStyle->length > 0)
+                      array_push($aLayerTypes, $ts);
+                }
+            }
+        }
+    }
+    catch (MgException $e)
+    {
+        echo "ERROR: " . $e->GetMessage() . "\n";
+        echo $e->GetDetails() . "\n";
+        echo $e->GetStackTrace() . "\n";
+    }
+
+    $aLayerTypes = array_unique($aLayerTypes);
+
+    return $aLayerTypes;
+}
+
+function buildScaleRanges($layer) 
+{
+    $aScaleRanges = array();
     global $resourceService;
     $resID = $layer->GetLayerDefinition();
     $layerContent = $resourceService->GetResourceContent($resID);
@@ -177,39 +261,38 @@ function buildScaleRanges($layer) {
     }
     $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle", "CompositeTypeStyle");
     $ruleNames = array("PointRule", "LineRule", "AreaRule", "CompositeRule");
-    $output = 'scaleRanges: [';
-    $scaleSep = '';
     for($sc = 0; $sc < $scaleRanges->length; $sc++)
     {
+        $scaleRangeObj = NULL;
+        $scaleRangeObj->styles = array();
         $scaleRange = $scaleRanges->item($sc);
         $minElt = $scaleRange->getElementsByTagName('MinScale');
         $maxElt = $scaleRange->getElementsByTagName('MaxScale');
         $minScale = "0";
-        $maxScale = "'infinity'";  // as MDF's VectorScaleRange::MAX_MAP_SCALE
+        $maxScale = 'infinity';  // as MDF's VectorScaleRange::MAX_MAP_SCALE
         if($minElt->length > 0)
             $minScale = $minElt->item(0)->nodeValue;
         if($maxElt->length > 0)
             $maxScale = $maxElt->item(0)->nodeValue;
-            
-        $output .= $scaleSep."{";
-        $output .= "minScale:".$minScale.",";
-        $output .= "maxScale:".$maxScale;
+           
+        $scaleRangeObj->minScale = $minScale;
+        $scaleRangeObj->maxScale = $maxScale;
+
         
         if($type != 0) {
-            $output .= "}";
-            $scaleSep = ',';
+            array_push($aScaleRanges, $scaleRangeObj);
             break;
         }
             
-        $output .= ',styles:[';
+        
         $styleIndex = 0;
-        $styleSep = '';
         for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
         {
             $typeStyle = $scaleRange->getElementsByTagName($typeStyles[$ts]);
             $catIndex = 0;
             for($st = 0; $st < $typeStyle->length; $st++) {
                 
+                $styleObj = NULL;
                 // We will check if this typestyle is going to be shown in the legend
                 $showInLegend = $typeStyle->item($st)->getElementsByTagName("ShowInLegend");
                 if($showInLegend->length > 0)
@@ -224,21 +307,18 @@ function buildScaleRanges($layer) {
 
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
-                    $output .= $styleSep."{";
-                    $output .= "legendLabel:'".addslashes(trim($labelText))."',";
-                    $output .= "filter:'".addslashes(trim($filterText))."',";
-                    $output .= "geometryType:".($ts+1).",";
-                    $output .= "categoryIndex:".($catIndex++);
-                    $output .= '}';
-                    $styleSep = ',';
+                    $styleObj->legendLabel = addslashes(trim($labelText));
+                    $styleObj->filter = addslashes(trim($filterText));
+                    $styleObj->geometryType = ($ts+1);
+                    $styleObj->categoryIndex = $catIndex++;
+                    array_push($scaleRangeObj->styles, $styleObj);
                 }
             }
         }
-        $output .= ']}';
-        $scaleSep = ',';
+        array_push($aScaleRanges, $scaleRangeObj);
+        
     }
-    $output .= ']';
-    return $output;
+    return $aScaleRanges;
 }
 
 
@@ -255,63 +335,22 @@ function BooleanToString($boolean)
 
 function OutputGroupInfo($group)
 {
-    echo "groupName:'".addslashes($group->GetName())."',";
-    echo "legendLabel:'".addslashes($group->GetLegendLabel())."',";
-    echo "uniqueId:'".$group->GetObjectId()."',";
-    echo "displayInLegend:".BooleanToString($group->GetDisplayInLegend()).",";
-    echo "expandInLegend:".BooleanToString($group->GetExpandInLegend()).",";
-    echo "layerGroupType:'".$group->GetLayerGroupType()."',";
+    $groupObj = NULL;
+
+    $groupObj->groupName = addslashes($group->GetName());
+    $groupObj->legendLabel = addslashes($group->GetLegendLabel());
+    $groupObj->uniqueId = $group->GetObjectId();
+    $groupObj->displayInLegend = BooleanToString($group->GetDisplayInLegend());
+    $groupObj->expandInLegend = BooleanToString($group->GetExpandInLegend());
     $parent = $group->GetGroup();
-    echo "parentUniqueId:";
-    echo $parent != null ? "'".$parent->GetObjectId()."'," : "null,";
-    echo "visible:".BooleanToString($group->GetVisible()).",";
-    echo "actuallyVisible:".BooleanToString($group->isVisible());
+    $groupObj->parentUniqueId = $parent != null ? $parent->GetObjectId() : '';
+    $groupObj->visible = BooleanToString($group->GetVisible());
+    $groupObj->actuallyVisible = BooleanToString($group->isVisible());
+    
+    return $groupObj;
 }
 
-function OutputLayerInfo($layer, $resourceService, $featureService)
-{
-    $mappings = GetLayerPropertyMappings($resourceService, $layer);
-    if (!isset($_SESSION['property_mappings'])) {
-        $_SESSION['property_mappings'] = array();
-    }
-    $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
-    $layerDefinition = $layer->GetLayerDefinition();
-    $aLayerTypes = GetLayerTypes($featureService, $layer);
-    //echo '<pre>'; print_r($aLayerTypes); echo '</pre>'; exit; 
-        
-    echo "propertyMappings:{";
-    $sep = '';
-    foreach($mappings as $name => $value) {
-        echo $sep."'$name':'$value'";
-        $sep = ',';
-    }
-    echo "},";
-    echo "uniqueId:'".$layer->GetObjectId()."',";
-    echo "layerName:'".addslashes($layer->GetName())."',";
-    echo 'layerTypes:[';
-    $sep = '';
-    for ( $j=0; $j < count($aLayerTypes); $j++ )
-    { 
-        echo $sep . $aLayerTypes[$j];
-        $sep = ',';
-    }
-    echo '],';
-    echo "displayInLegend:".BooleanToString($layer->GetDisplayInLegend()).",";
-    echo "expandInLegend:".BooleanToString($layer->GetExpandInLegend()).",";
-    echo "resourceId:'".$layerDefinition->ToString()."',";
-    echo "parentGroup:";
-    echo $layer->GetGroup() ? "'".$layer->GetGroup()->GetObjectId()."'," : 'null,';
-    echo "legendLabel:'".addslashes($layer->GetLegendLabel())."',";
-    echo "selectable:".BooleanToString($layer->GetSelectable()).",";
-    echo "visible:".BooleanToString($layer->GetVisible()).",";
-    echo "actuallyVisible:".BooleanToString($layer->isVisible()).",";
-    if (IsLayerEditable($resourceService, $layer)) {
-        echo "editable:true,";
-    } else {
-        echo "editable:false,";
-    }
-    echo buildScaleRanges($layer);
 
-}
+
 
 ?>
