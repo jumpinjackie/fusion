@@ -331,6 +331,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
         this.mapWidget._removeWorker();
+
     },
     
 //TBD: this function not yet converted for OL    
@@ -365,7 +366,54 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         OpenLayers.i18n('mapLoadError', {'error':r.transport.responseText})));
       this.mapWidget._removeWorker();
     },
+  
+    /**
+     * Function: loadScaleRanges
+     * 
+     * This function should be called after the map has loaded. It
+     * loads the scsle ranges for each layer. I tis for now only
+     * used by the legend widget.
+     */
+        
+    loadScaleRanges: function(userFunc) {
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
+        
+        var sessionid = this.getSessionID();
+        
+        var params = {'mapname': this._sMapname, "session": sessionid};
+        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this, userFunc), 
+                       parameters:params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
 
+    scaleRangesLoaded: function(userFunc, r) 
+    {
+        if (r.status == 200) 
+        {
+            var o;
+            eval('o='+r.responseText);
+            if (o.layers && o.layers.length > 0)
+            {
+                for (var i=0; i<o.layers.length; i++)
+                {
+                    var oLayer = this.getLayerById(o.layers[i].uniqueId);
+                    if (oLayer)
+                    {
+                        oLayer.scaleRanges = [];
+                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) 
+                        {
+                            var scaleRange = new Fusion.Maps.MapGuide.ScaleRange(o.layers[i].scaleRanges[j], 
+                                                                                 oLayer.layerType);
+                            oLayer.scaleRanges.push(scaleRange);
+                        }
+                    }
+                }
+            }
+
+            userFunc();
+        }
+    },
 //TBD: this function not yet converted for OL    
     mapReloaded: function(r) {
         if (r.status == 200) {
@@ -558,6 +606,25 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         return oLayer;
     },
+
+    /**
+     * Function: getLayerById
+     * 
+     * Returns the MapGuide layer object as identified by the layer unique id
+     */
+    getLayerById : function(id)
+    {
+        var oLayer = null;
+        for (var i=0; i<this.aLayers.length; i++)
+        {
+            if (this.aLayers[i].uniqueId == id)
+            {
+                oLayer = this.aLayers[i];
+                break;
+            }
+        }
+        return oLayer;
+    },           
 
     /**
      * Function: isMapLoaded

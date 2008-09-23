@@ -272,8 +272,18 @@ if ($oMap) {
                  }
              }
          }
-         $layerObj->scaleRanges = $aScaleRanges;
-         array_push($mapObj->layers, $layerObj);
+         //$layerObj->scaleRanges = $aScaleRanges;
+         $_SESSION['scale_ranges'][$i] = $aScaleRanges;
+         /*get the min/max scale for the layer*/
+        $nCount = count($aScaleRanges);
+        $layerObj->minScale = $oScaleRanges[0]->minScale;
+        $layerObj->maxScale = $oScaleRanges[0]->maxScale;
+        for ($j=1; $j<$nCount; $j++)
+        {
+            $layerObj->minScale = min($layerObj->minScale, $oScaleRanges[$j]->minScale);
+            $layerObj->maxScale = max($layerObj->maxScale, $oScaleRanges[$j]->maxScale);
+        }
+        array_push($mapObj->layers, $layerObj);
     }
     $mapObj->groups = array();
     $aGroups = $oMap->getAllGroupNames();

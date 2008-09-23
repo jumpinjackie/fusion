@@ -138,7 +138,8 @@ try
         $layerObj->expandInLegend = BooleanToString($layer->GetExpandInLegend());
 
         $oScaleRanges = buildScaleRanges($layer);
-        $layerObj->scaleRanges = $oScaleRanges;
+        $_SESSION['scale_ranges'][$layer->GetObjectId()] = $oScaleRanges;
+        //$layerObj->scaleRanges = $oScaleRanges;
         /*get the min/max scale for the layer*/
         $nCount = count($oScaleRanges);
         $layerObj->minScale = $oScaleRanges[0]->minScale;
