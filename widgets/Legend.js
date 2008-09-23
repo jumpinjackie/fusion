@@ -242,7 +242,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.oTree = new Jx.Tree(this.oLegend.domObj);
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
-        
+        //console.log('hideInvisibleLayers ' +  this.hideInvisibleLayers);
         this.refreshItem = new Jx.Menu.Item({
             label: OpenLayers.i18n('refresh'),
             onClick: OpenLayers.Function.bind(this.update, this)
@@ -338,6 +338,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
       this.targetFolder = folder;
     },
     
+    scaleRangesLoaded: function() {
+        this.layerRoot = this.getMap().layerRoot;
+        this.renderLegend();
+    },
     mapLoading: function() {
         this.getMap().deregisterForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
@@ -345,12 +349,11 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
    
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
-        this.layerRoot = this.getMap().layerRoot;
-        this.renderLegend();
+        this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
     },
     
     mapReloaded: function() {
-        this.renderLegend();
+        this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
     },
     /**
      * the map state has become invalid in some way (layer added, removed,
@@ -482,6 +485,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     
     selectionChanged: function(o) {
         if (this.currentNode) {
+          console.log(this.currentNode);
             $(this.currentNode.domObj.childNodes[3]).addClass('jxTreeSelectedNode');
         }
         this.currentNode = o;
@@ -666,6 +670,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
     },
     stateChanged: function(obj) {
+    console.log(obj);
         if (obj.legend && obj.legend.treeItem.checkBox) {
             if (obj.legend.treeItem.checkBox.checked) {
                 obj.show();

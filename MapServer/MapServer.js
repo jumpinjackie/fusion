@@ -239,8 +239,8 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
               if (this.aLayers[i].visible) {
                   this.aVisibleLayers.push(this.aLayers[i].layerName);
               }
-      				minScale = Math.min(minScale, this.aLayers[i].minScale);
-      				maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
+              minScale = Math.min(minScale, this.aLayers[i].minScale);
+              maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
             }
             //a scale value of 0 is undefined
             if (minScale <= 0) {
@@ -335,6 +335,54 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
+    /**
+     * Function: loadScaleRanges
+     * 
+     * This function should be called after the map has loaded. It
+     * loads the scsle ranges for each layer. I tis for now only
+     * used by the legend widget.
+     */
+        
+    loadScaleRanges: function(userFunc) {
+        var sl = Fusion.getScriptLanguage();
+        var loadmapScript = this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
+        
+        var sessionid = this.getSessionID();
+        
+        var params = {'mapname': this._sMapname, "session": this.getSessionID()};
+        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this, userFunc), 
+                       parameters:params};
+        Fusion.ajaxRequest(loadmapScript, options);
+    },
+
+    scaleRangesLoaded: function(userFunc, r) 
+    {
+        if (r.status == 200) 
+        {
+            var o;
+            eval('o='+r.responseText);
+            if (o.layers && o.layers.length > 0)
+            {
+                for (var i=0; i<o.layers.length; i++)
+                {
+                    var oLayer = this.getLayerById(o.layers[i].uniqueId);
+                    if (oLayer)
+                    {
+                        oLayer.scaleRanges = [];
+                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) 
+                        {
+                            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.layers[i].scaleRanges[j], 
+                                                                                 oLayer.layerType);
+                            oLayer.scaleRanges.push(scaleRange);
+                        }
+                    }
+                }
+            }
+
+            userFunc();
+        }
+    },
+
     mapReloaded: function(r) {  
         if (r.status == 200) {
             var o;
@@ -423,6 +471,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
     },
 
+    
     /**
      * Function: isMapLoaded
      *
@@ -733,6 +782,20 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       return null;
   },
 
+    getLayerById : function(id)
+    {
+        var oLayer = null;
+        for (var i=0; i<this.aLayers.length; i++)
+        {
+            if (this.aLayers[i].uniqueId == id)
+            {
+                oLayer = this.aLayers[i];
+                break;
+            }
+        }
+        return oLayer;
+    },           
+
   getMetadata: function(key) {
       if (typeof this.metadata[key] != 'undefined') {
           return this.metadata[key];
@@ -826,14 +889,18 @@ Fusion.Maps.MapServer.Layer = OpenLayers.Class(Fusion.Widget.Map.Group, {
         this.metadata = o.metadata;
         this.extent = o.extent;
         this.scaleRanges = [];
-    		this.minScale = 1.0e10;
-    		this.maxScale = 0;
+        this.minScale = o.minScale;
+        this.maxScale = o.maxScale;
+        
+        /*
         for (var i=0; i<o.scaleRanges.length; i++) {
             var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i], this.supportsType(4));
             this.scaleRanges.push(scaleRange);
       			this.minScale = Math.min(this.minScale, scaleRange.minScale);
       			this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
+        
         }
+        */
     },
 
     clear: function() {
