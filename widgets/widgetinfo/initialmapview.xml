@@ -10,4 +10,20 @@
   <ImageClass></ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
+  <Parameter>
+    <Name>ViewType</Name>
+    <Description>option to zoom to full map extents or just the initial extent</Description>
+    <Type>String</Type>
+    <Label>ViewType</Label>
+    <AllowedValue>
+      <Name>full</Name>
+      <Label>full extent</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>initial</Name>
+      <Label>initial map extent</Label>
+    </AllowedValue>
+    <DefaultValue>initial</DefaultValue>
+    <IsMandatory>false</IsMandatory>
+  </Parameter>
 </WidgetInfo>

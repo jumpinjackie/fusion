@@ -32,8 +32,14 @@
 
 
 Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase,  {
+    viewType: 'initial',
+    
     initialize : function(widgetTag) {
         //console.log('InitialMapView.initialize');
+        var json = widgetTag.extension;
+        if (json.ViewType && (json.ViewType[0] == 'full')) {
+          this.viewType = 'full';
+        }
 
         Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
         Fusion.Tool.ButtonBase.prototype.initialize.apply(this, []);
@@ -41,6 +47,11 @@ Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Butto
 
     execute: function() {
         //console.log('InitialMapView.activateTool');
-        this.getMap().fullExtents();
+        if (this.viewType == 'full') {
+          this.getMap().fullExtents();
+        } else {
+          var mapWidget = this.getMap();
+          mapWidget.setExtents(mapWidget.initialExtents);
+        }
     }
 });
