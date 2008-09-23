@@ -44,17 +44,87 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
 $scaleObj = NULL;
 $scaleObj->layers = array();
 
+define('ICON_SIZE', 16);
+$nIconWidth = $oMap->legend->keysizex;
+$nIconHeight = $oMap->legend->keysizey;
+if ($nIconWidth <=0)
+  $nIconWidth = ICON_SIZE;
+if ($nIconWidth <=0)
+  $nIconWidth = ICON_SIZE;
+$nTotalClasses=0;
+$aIcons = array();
+
+
+/*special case to force the the legend icons to be drawn using a gd driver
+  This was fixed in ticket http://trac.osgeo.org/mapserver/ticket/2682 which
+  will be available for mapserver version 5.2.1 and 5.4
+  Note that we do not check the outputformat of the map (assuming that we are 
+  using GD or AGG renderers)
+*/
+$nVersion = ms_GetVersionInt();
+if ($nVersion <= 50200) /*5.2 and before*/
+  $oMap->selectOutputFormat("png24");
+
+
 for($i=0;$i<$oMap->numlayers;$i++) 
 {    
     if (isset($_SESSION['scale_ranges']) && 
         isset($_SESSION['scale_ranges'][$i]))
     {
+        $layer = $oMap->getLayer($i);
         $scaleranges = $_SESSION['scale_ranges'][$i];
         $layerObj = NULL;
         $layerObj->uniqueId = $i;
+
+        /*generate the legend icons here*/
+        //echo count($scaleranges) . "<br>\n";
+        $nScaleRanges = count($scaleranges);
+        for ($j=0; $j<$nScaleRanges; $j++)
+        {
+            $nStyles = count($scaleranges[$j]->styles);
+            for ($k=0; $k<$nStyles; $k++)
+            {
+                $nClassIndex = $scaleranges[$j]->styles[$k]->index;
+                $oClass = $layer->getClass($nClassIndex);
+                
+
+                $oImg = $oClass->createLegendIcon($nIconWidth, $nIconHeight);
+                array_push($aIcons, $oImg);
+                $scaleranges[$j]->styles[$k]->icon_x = ($nTotalClasses*$nIconWidth);
+                $scaleranges[$j]->styles[$k]->icon_y=0;
+                $nTotalClasses++;
+            }
+        }
+
         $layerObj->scaleRanges = $scaleranges;
         array_push($scaleObj->layers, $layerObj);
     }
+    
+    //build and image containing all the icons and return url
+    $nTmpWidth = $oMap->width;
+    $nTmpHeight = $oMap->height;
+    
+    $oMap->set("width", $nTotalClasses*$nIconWidth);
+    $oMap->set("height", $nIconHeight);
+    $oImage = $oMap->prepareImage();
+
+    $oMap->set("width", $nTmpWidth);
+    $oMap->set("height", $nTmpHeight);
+    
+    for ($i=0; $i<$nTotalClasses;$i++)
+      $oImage->pasteImage($aIcons[$i], -1, $i*$nIconWidth, 0);
+
+    //set the image path and image dir based on what fusion config file
+    $configObj = $_SESSION['fusionConfig'];
+    if (isset($configObj->mapserver->imagePath) && isset($configObj->mapserver->imageUrl)) 
+    {
+        $oImage->set("imagepath", $configObj->mapserver->imagePath);
+        $oImage->set("imageurl", $configObj->mapserver->imageUrl);
+    }
+    $scaleObj->icons_url = $oImage->saveWebImage();
+    $scaleObj->icons_width = $nIconWidth;
+    $scaleObj->icons_height = $nIconHeight;
+    
  }
 
 
