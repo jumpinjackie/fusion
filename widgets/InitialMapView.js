@@ -31,7 +31,20 @@
  * **********************************************************************/
 Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
+    viewType: 'initial',
+    initializeWidget: function(widgetTag) {           
+        var json = widgetTag.extension;
+        if (json.ViewType && (json.ViewType[0].toLowerCase() == 'full')) {
+          this.viewType = 'full';
+        }
+    },
+    
     activate: function() {
-        this.getMap().fullExtents();
+        if (this.viewType == 'full') {
+          this.getMap().fullExtents();
+        } else {
+          var mapWidget = this.getMap();
+          mapWidget.setExtents(mapWidget.initialExtents);
+        }
     }
 });
