@@ -485,7 +485,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     
     selectionChanged: function(o) {
         if (this.currentNode) {
-          console.log(this.currentNode);
+          //console.log(this.currentNode);
             $(this.currentNode.domObj.childNodes[3]).addClass('jxTreeSelectedNode');
         }
         this.currentNode = o;
@@ -670,7 +670,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
     },
     stateChanged: function(obj) {
-    console.log(obj);
+    //console.log(obj);
         if (obj.legend && obj.legend.treeItem.checkBox) {
             if (obj.legend.treeItem.checkBox.checked) {
                 obj.show();
