@@ -313,7 +313,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, true, this.bSingleTile);
+            this.oLayerOL = this.createOLLayer(this._sMapname, true, this.bSingleTile,2);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
@@ -533,13 +533,17 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      */
     createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
       var layerOptions = {
-        units : this.units,
-        isBaseLayer : bIsBaseLayer,
-        maxExtent : this._oMaxExtent,
-        maxResolution : 'auto',
-        ratio : this.ratio,
-        transitionEffect : 'resize'
+        units: this.units,
+        isBaseLayer: bIsBaseLayer,
+        maxExtent: this._oMaxExtent,
+        maxResolution: 'auto',
+        useOverlay: this.selectionAsOverlay,
+        ratio: this.ratio
+//        transitionEffect : 'resize'
       };
+      if (!/WebKit/.test(navigator.userAgent)) {
+        layerOptions.transitionEffect = 'resize';
+      }
 
       //add in scales array if supplied
       if (this.scales && this.scales.length>0) {
