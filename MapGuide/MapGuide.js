@@ -481,9 +481,12 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         isBaseLayer : bIsBaseLayer,
         maxExtent : this._oMaxExtent,
         maxResolution : 'auto',
-        ratio : this.ratio,
-        transitionEffect : 'resize'
+        ratio : this.ratio
+//        transitionEffect : 'resize'
       };
+      if (!/WebKit/.test(navigator.userAgent)) {
+        layerOptions.transitionEffect = 'resize';
+      }
 
       //add in scales array if supplied
       if (this.scales && this.scales.length>0) {
