@@ -553,7 +553,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         layerOptions.minScale = this.maxScale;    //OL interpretation of min/max scale is reversed from Fusion
       }
       //only set both max and min scale when not using scales array
-      if (!this.map.scales && !this.scales) {
+      if (!this.mapWidget.oMapOL.scales && !this.scales) {
         layerOptions.maxScale = this.minScale;  
       }
 
@@ -1190,7 +1190,7 @@ Fusion.Maps.MapGuide.Layer = OpenLayers.Class(Fusion.Widget.Map.Layer, {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity') {
-          this.maxScale = Infinity;
+          this.maxScale = 100000000;
         }
         this.scaleRanges = [];
 
