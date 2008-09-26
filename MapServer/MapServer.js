@@ -426,7 +426,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var o;
         eval('o='+r.responseText);
   			if (o.success) {
-  				var layerCopy = this.aLayers.clone();
+  				var layerCopy = $A(this.aLayers);
   				this.aLayers = [];
   				this.aVisibleLayers = [];
 

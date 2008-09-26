@@ -345,7 +345,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
         this.layerRoot.clear();
-        this.oldLayers = this.aLayers.clone();
+        this.oldLayers = $A(this.aLayers);
         this.aLayers = [];
         
         var sl = Fusion.getScriptLanguage();
@@ -458,7 +458,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var o;
         eval('o='+r.responseText);
             if (o.success) {
-                var layerCopy = this.aLayers.clone();
+                var layerCopy = $A(this.aLayers);
                 this.aLayers = [];
                 this.aVisibleLayers = [];
           for (var i=0; i<aLayerIndex.length; ++i) {
