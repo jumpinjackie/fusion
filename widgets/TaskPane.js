@@ -100,7 +100,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         this.iframe.style.border = '0px solid #fff';
         this.oTaskPane = new Jx.Panel({
             toolbars: [this.toolbar], 
-            label: OpenLayers.i18n('taskPane'), 
+            hideTitle: true,
             content: this.iframe
         });
         $(this.domObj).addClass('taskPanePanel');
