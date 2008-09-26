@@ -239,7 +239,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
        
-        this.oTree = new Jx.Tree(this.oLegend.domObj);
+        this.oTree = new Jx.Tree({parent:this.oLegend.domObj});
        
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         //console.log('hideInvisibleLayers ' +  this.hideInvisibleLayers);
