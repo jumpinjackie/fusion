@@ -58,7 +58,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
     offset: new OpenLayers.Pixel(2,2),
     
-    initialize : function(widgetTag) {
+    initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
         this.sTarget = json.Target ? json.Target[0] : "MaptipWindow";
@@ -122,7 +122,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         }
         var p = this.getMap().getEventPosition(e);
         this.oCurrentPosition = p;
-        this.oMapTipPosition = {x:Event.pointerX(e), y:Event.pointerY(e)};
+        this.oMapTipPosition = p;
         if (this.oCurrentPosition) {
             window.clearTimeout(this.nTimer);
             this.nTimer = null;
