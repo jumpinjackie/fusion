@@ -36,7 +36,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
     nTolerance : 3, //default pixel tolernace for a point click
-    defaultRadius: 20,    //this is in map units
+    defaultRadius: 20, //this is now in pixels
     initializeWidget: function(widgetTag) {
         this.initializeCanvas();
 
@@ -127,11 +127,10 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas,
      * @param e Event the event that happened on the mapObj
      */
     mouseDown: function(e) {
-        //console.log('SelectRadius.mouseDown'+this.isDigitizing);
         if (OpenLayers.Event.isLeftClick(e)) {
             var p = this.getMap().getEventPosition(e);
             var point = this.getMap().pixToGeo(p.x, p.y);
-            var radius = this.defaultRadius;
+            var radius = this.getMap().pixToGeoMeasure(this.defaultRadius);
             
             if (!this.isDigitizing) {
                 this.circle.setCenter(point.x, point.y);
@@ -162,18 +161,18 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas,
      * @param e Event the event that happened on the mapObj
      */
     mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove'+this.isDigitizing);
         if (!this.isDigitizing) {
             return;
         }
-    
+        
         var map = this.getMap();
         var p = map.getEventPosition(e);
         var point = map.pixToGeo(p.x, p.y);
         var center = this.circle.center;
         
         var radius = Math.sqrt(Math.pow(center.x-point.x,2) + Math.pow(center.y-point.y,2));
-        if (radius > this.nTolerance) {
+
+        if (radius > this.getMap().pixToGeoMeasure(this.nTolerance)) {
             this.circle.setRadius(radius);
         }
         this.clearContext();
@@ -190,11 +189,9 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas,
             }
             this.radiusTip.innerHTML = r + this.units;
         }
-        
     },
     
     mouseUp: function(e) {
-        //console.log('SelectRadius.mouseUp'+this.isDigitizing);
         if (this.isDigitizing) {
             this.event = e;
             this.clearContext();
@@ -234,7 +231,6 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas,
             sep = ',';
         }
         wkt = wkt + sep + first + '))';
-        
         var options = {};
         options.geometry = wkt;
         options.selectionType = this.selectionType;
