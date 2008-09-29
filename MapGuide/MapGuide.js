@@ -479,10 +479,9 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       var layerOptions = {
         units : this.units,
         isBaseLayer : bIsBaseLayer,
-        maxExtent : this._oMaxExtent,
+        maxExtent : this.mapWidget.maxExtent?this.mapWidget.maxExtent:this._oMaxExtent,
         maxResolution : 'auto',
         ratio : this.ratio
-//        transitionEffect : 'resize'
       };
       if (!/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
@@ -494,10 +493,12 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       }
       if (this.maxScale != Infinity) {
         layerOptions.minScale = this.maxScale;    //OL interpretation of min/max scale is reversed from Fusion
+      } else {
+        layerOptions.minScale = Fusion.REALLY_SMALL_SCALE;
       }
       layerOptions.maxScale = this.minScale;
 
-      layerOptions.singleTile = bSingleTile;   
+      layerOptions.singleTile = bSingleTile;
       
       var params = {};
       if ( bSingleTile ) {
