@@ -49,13 +49,8 @@ Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {
         
         Fusion.addWidgetStyleSheet(widgetTag.location + '/EditableScale/EditableScale.css');
         
-        
-    },
-    
-    setUiObject: function(uiObj) {
-        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
         this.domObj.appendChild(domPrefix);
-        this.uiObj.appendChild(this.domScale);
+        this.domObj.appendChild(this.domScale);
     },
     
     scaleChanged: function() {
@@ -68,7 +63,7 @@ Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {
     },
     
     keyPressHandler: function(e) {
-        if (e.keyCode == Event.KEY_RETURN) {
+        if (e.keyCode == OpenLayers.Event.KEY_RETURN) {
             this.zoomToScale();
         }
     },
