@@ -109,7 +109,7 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
             this.dialog = d;
             
         }
-        this.dialog.open();
+        this.dialog.show();
     },
     
     setParameter: function(param, value) {
