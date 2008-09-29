@@ -37,12 +37,15 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {
         'metric': 'Meters',
         'deg': 'Degrees'
     },
+        
+    menuItems: null,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
 
         this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : false;
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setMapUnits, this));
+        this.menuItems = {};
     },
     
     setUiObject: function(uiObj) {
@@ -57,20 +60,20 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {
             });
             buttonSet.add(menuItem);
             this.uiObj.add(menuItem);
+            this.menuItems[key] = menuItem;
         }        
     },
     
-    //action to perform when the button is clicked
-    activate: function(e) {
-        //this.oMenu.show(e);
-    },
-
     setViewOptions: function(units) {
-      this.getMap().setViewOptions(units);
+        this.getMap().setViewOptions(units);
     },
     
     setMapUnits: function() {
-      var units = this.displayUnits ? this.displayUnits : this.getMap().getUnits();
-      this.setViewOptions(units);
+        var units = this.displayUnits ? this.displayUnits : this.getMap().getUnits();
+        this.setViewOptions(units);
+        var system = Fusion.unitSystem(Fusion.unitFromName(units));
+        if (this.menuItems[system]) {
+            this.menuItems[system].setActive(true);
+        }
     }
 });
