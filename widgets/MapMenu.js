@@ -34,8 +34,8 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     uiClass: Jx.Menu,
     domObj: null,
     mapGroupData: null,
-    sRootFolder: '',
-    aMenus: null,
+    rootFolder: '',
+    menus: null,
     initializeWidget: function(widgetTag) {
         this.enable();
     },
@@ -58,11 +58,10 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
                 this.mapGroupData[mapGroup.maps[0].resourceId] = mapGroup; 
             } else {
                 var data = mapGroup;
-                var opt = {
+                var menuItem = new Jx.Menu.Item({
                     label: mapGroup.mapId,
                     onClick: OpenLayers.Function.bind(this.switchMap, this, data)
-                };
-                var menuItem = new Jx.Menu.Item(opt);
+                });
                 this.uiObj.add(menuItem);
             }
         }
@@ -73,83 +72,79 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         //FIXME: use JSON rather than XML        
         this.arch = this.getMap().getAllMaps()[0].arch;
         if (this.arch == 'MapGuide' && json.Folder) {
-            this.sRootFolder = json.Folder ? json.Folder[0] : 'Library://';
+            this.rootFolder = json.Folder ? json.Folder[0] : 'Library://';
             var s =       this.arch + '/' + Fusion.getScriptLanguage() +
                           '/MapMenu.' + Fusion.getScriptLanguage();
-            var params =  {parameters: {'folder': this.sRootFolder},
+            var params =  {parameters: {'folder': this.rootFolder},
                           onComplete: OpenLayers.Function.bind(this.processMapMenu, this)};
             Fusion.ajaxRequest(s, params);
         };
     },
 
     processMapMenu: function(r) {
-        if (r.responseXML) {
-            this.aMenus = {};
-            var node = new DomNode(r.responseXML);
-            var mapNode = node.findFirstNode('MapDefinition');
-            while (mapNode) {
-                
-                var sId = mapNode.getNodeText('ResourceId');
-                var sPath = sId.replace(this.sRootFolder, '');
-                if (sPath.lastIndexOf('/') > -1) {
-                    sPath = sPath.slice(0, sPath.lastIndexOf('/'));
-                    this.createFolders(sPath);
+        if (r.status == 200) {
+            var o;
+            eval("o="+r.responseText);
+            this.menus = {};
+            for (var i=0; i<o.maps.length; i++) {
+                var map = o.maps[i];
+                var path = map.path.replace(this.rootFolder, '');
+                if (path.lastIndexOf('/') > -1) {
+                    path = path.slice(0, path.lastIndexOf('/'));
+                    this.createFolders(path);
                 } else {
-                    sPath = '';
+                    path = '';
                 }
-                var opt = {};
-                opt.label = mapNode.getNodeText('Name');
                 
                 // check for mapgroup data and if there is none,
                 // create a maptag that will be passed to the map
                 // widget constructor 
                 var data = null;
-                if (this.mapGroupData[mapNode.getNodeText('ResourceId')]) {
-                    data = this.mapGroupData[mapNode.getNodeText('ResourceId')];
+                if (this.mapGroupData[map.path]) {
+                    data = this.mapGroupData[map.path];
                 } else {
-                    data = {maps:[{'resourceId':mapNode.getNodeText('ResourceId'),
+                    data = {maps:[{'resourceId':map.path,
                             'singleTile':true,
                             'type': this.arch,
-                            'extension':{'ResourceId': [mapNode.getNodeText('ResourceId')]}
+                            'extension':{'ResourceId': [map.path]}
                            }]};
                     //set up needed accessor
                     data.getInitialView = function() {
                         return this.initialView;
                     };
                 }
-                opt.onClick = OpenLayers.Function.bind(this.switchMap, this, data);
-                var menuItem = new Jx.Menu.Item(opt);
+                var menuItem = new Jx.Menu.Item({
+                    label: map.name,
+                    onClick: OpenLayers.Function.bind(this.switchMap, this, data)
+                });
                 
-                if (sPath == '') {
+                if (path == '') {
                     this.uiObj.add(menuItem);
                 }else {
-                    this.aMenus[sPath].add(menuItem);
+                    this.menus[path].add(menuItem);
                 }
-                
-                mapNode = node.findNextNode('MapDefinition');
             }
         }
     },
     
-    createFolders: function(sId) {
-        var aPath = sId.split('/');
+    createFolders: function(id) {
+        var folders = id.split('/');
         //loop through folders, creating them if they don't exist
-        var sParent = '';
-        var sSep = '';
-        for (var i=0; i < aPath.length; i++) {
-            if (!this.aMenus[sParent + sSep + aPath[i]]){
-                var opt = {label:aPath[i]};
-                var menu = new Jx.SubMenu(opt);
-                if (sParent == '') {
+        var parent = '';
+        var pathSeparator = '';
+        for (var i=0; i<folders.length; i++) {
+            if (!this.menus[parent + pathSeparator + folders[i]]){
+                var menu = new Jx.Menu.SubMenu({label:folders[i]});
+                if (parent == '') {
                     this.uiObj.add(menu);
                 } else {
-                    this.aMenus[sParent].add(menu);
+                    this.menus[parent].add(menu);
                 }
-                this.aMenus[sParent + sSep + aPath[i]] = menu;
+                this.menus[parent + pathSeparator + folders[i]] = menu;
             }
-            sParent = sParent + sSep + aPath[i];
-            sSep = '/';
-        };
+            parent = parent + pathSeparator + folders[i];
+            pathSeparator = '/';
+        }
     },
     
     //action to perform when the button is clicked
