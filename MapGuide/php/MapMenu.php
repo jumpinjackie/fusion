@@ -29,6 +29,7 @@
  *****************************************************************************/
 
 include ("Common.php");
+include('../../common/php/Utilities.php');
 
 //Get the folder to search within
 $root = (isset($_REQUEST['folder']))?$_REQUEST['folder']:'Library://';
@@ -43,29 +44,20 @@ $mapListXml = DOMDocument::loadXML(ByteReaderToString($maps));
 $aMapIds = $mapListXml->getElementsByTagName('ResourceId');
 
 //iterate over mapIds to retrieve names
+//output map list as JSON
+$result = NULL;
+
+$result->maps = array();
 for ( $i=0; $i < $aMapIds->length; $i++ ) { 
     $mapId = new MgResourceIdentifier($aMapIds->item($i)->nodeValue);
-    $aPair['id'] = $aMapIds->item($i)->nodeValue;
-    $aPair['name'] = $mapId->GetName(); 
+    $md = NULL;
+    $md->path = $aMapIds->item($i)->nodeValue;
+    $md->name = $mapId->GetName();
+    array_push($result->maps, $md);
+}
 
-    //Alternative - get the map description from the MapDefinition
-    //$map = $resourceService->GetResourceContent($mapId);
-    //$mapXml = DOMDocument::loadXML(ByteReaderToString($map));
-    //$name = $mapXml->getElementsByTagName('Name')->item(0)->nodeValue;
-    //$aPair['name'] = $name;
-    
-    $aMapAssoc[] = $aPair;
-}
-//output map list as xml
-header('content-type: text/xml');
-echo "<maps>";
-for ( $i=0; $i < count($aMapAssoc); $i++ ){
-    echo "<MapDefinition>";
-    echo "<ResourceId>".$aMapAssoc[$i]['id']."</ResourceId>";
-    echo "<Name>".$aMapAssoc[$i]['name']."</Name>";
-    echo "</MapDefinition>";     
-}
-echo "</maps>";
+header('Content-type: application/json');
+echo var2json($result);
 exit;
 
 function ByteReaderToString($byteReader)
