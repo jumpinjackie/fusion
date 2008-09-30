@@ -278,7 +278,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         if (this.showRootFolder) {
             var opt = {
                 label: OpenLayers.i18n('defaultMapTitle'),
-                isOpen: true,
+                open: true,
                 draw: this.renderFolder,
                 'class':'fusionLegendFolder'
             };
@@ -405,7 +405,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             group.legend = {};
             var opt = {
                 label: group.legendLabel,
-                isOpen: group.expandInLegend,
+                open: group.expandInLegend,
                 draw: this.renderFolder,
                 'class':'fusionLegendFolder'                
             };
