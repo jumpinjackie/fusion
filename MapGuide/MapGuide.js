@@ -47,7 +47,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bMapLoaded: false,
     bIsMapWidgetLayer: true,  //Set this to false for overview map layers
     bLayersReversed: false,     //MGOS returns layers top-most layer first
-    selectionAsOverlay: false,
+    selectionAsOverlay: true,
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -73,8 +73,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         this.selectionColor = extension.SelectionColor ? extension.SelectionColor[0] : '';
         this.selectionFormat = extension.SelectionFormat ? extension.SelectionFormat[0] : 'PNG';
-        if (extension.SelectionAsOverlay && extension.SelectionAsOverlay[0] == 'true') {
-          this.selectionAsOverlay = true;
+        if (extension.SelectionAsOverlay && extension.SelectionAsOverlay[0] == 'false') {
+          this.selectionAsOverlay = false;
         }
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
         
