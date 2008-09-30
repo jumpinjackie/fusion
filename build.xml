@@ -208,8 +208,7 @@ $Id$
     
     <!-- Fusion looks for it's own script name to set paths for other widgets
         so replace the value to look for with the sfName used to create the file-->
-    <replace file="${build.home}/lib/fusion.js" token="lib/fusion" value="lib/${sfName}"/>
-    
+     
     <!-- merge everything into a single file -->
     <concat destfile="${buildOutput}.js" outputencoding="UTF-8">
         <filelist dir="${build.home}/lib" 
@@ -231,6 +230,9 @@ $Id$
         <fileset dir="${build.home}/text" includes="**/*.json"/>
         <filelist dir="${build.home}" files="configHeader.json config.json"/>
     </concat>
+    
+    <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}"/>
+   
   </target>
 
 <!-- =================== concat all support files (no appdef supplied) ================================== -->
