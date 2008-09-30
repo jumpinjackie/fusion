@@ -57,8 +57,7 @@ for($i=0;$i<$layers->GetCount();$i++)
     }
  }
 
-header('Content-type: text/x-json');
-header('X-JSON: true');
+header('Content-type: application/json');
 
 echo var2json($scaleObj);
 exit;

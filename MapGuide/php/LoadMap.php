@@ -171,9 +171,7 @@ try
     
         array_push($mapObj->FiniteDisplayScales, $map->GetFiniteDisplayScaleAt($i));
     }
-
     echo var2json($mapObj);
-
 }
 catch (MgException $e)
 {
@@ -308,6 +306,7 @@ function buildScaleRanges($layer)
 
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
+                    $styleObj = NULL;
                     $styleObj->legendLabel = addslashes(trim($labelText));
                     $styleObj->filter = addslashes(trim($filterText));
                     $styleObj->geometryType = ($ts+1);
