@@ -586,6 +586,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
           basemaplayergroupname: this.groupName,  //assumes only one group for now
+          session: this.getSessionID(),
           clientagent: this.clientAgent
         };
       }
