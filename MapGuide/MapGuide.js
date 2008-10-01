@@ -505,9 +505,9 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       var params = {};
       if ( bSingleTile ) {
         params = {        //single tile params
-          session : this.getSessionID(),
-          mapname : this._sMapname,
-          clientagent : this.clientAgent
+          session: this.getSessionID(),
+          mapname: this._sMapname,
+          clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
         params.hideLayers = this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null;
@@ -519,7 +519,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
           basemaplayergroupname: this.groupName,  //assumes only one group for now
-          clientagent : this.clientAgent
+          session: this.getSessionID(),
+          clientagent: this.clientAgent
         };
       }
 
