@@ -138,6 +138,9 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
     $sel = new MgSelection($map);
     $sel->Open($resourceSrvc, $mapName);
     $selLayers = $sel->GetLayers();
+    if ($selLayers == null) {
+        return;
+    }
     $geomColl = new MgGeometryCollection();
     $agfRW = new MgAgfReaderWriter();
     $polyOnly = true;
