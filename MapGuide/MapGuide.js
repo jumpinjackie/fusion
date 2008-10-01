@@ -479,7 +479,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       var layerOptions = {
         units : this.units,
         isBaseLayer : bIsBaseLayer,
-        maxExtent : this.mapWidget.maxExtent?this.mapWidget.maxExtent:this._oMaxExtent,
+        maxExtent : this._oMaxExtent,
         maxResolution : 'auto',
         ratio : this.ratio
       };
@@ -494,7 +494,9 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       if (this.maxScale != Infinity) {
         layerOptions.minScale = this.maxScale;    //OL interpretation of min/max scale is reversed from Fusion
       } else {
-        layerOptions.minScale = Fusion.REALLY_SMALL_SCALE;
+        if (this.mapWidget.minScale) {
+          layerOptions.minScale = this.mapWidget.maxScale;
+        }// otherwise minscale is set automatically by OL
       }
       layerOptions.maxScale = this.minScale;
 
