@@ -282,6 +282,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
               if (o.groups.length >0) {
                 this.bSingleTile = false;
                 this.groupName = o.groups[0].groupName  //assumes only one group for now
+                this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
+                    OpenLayers.Function.bind(this.mapExtentsChanged, this));
               } else {
                 this.bSingleTile = true;
               }
@@ -986,6 +988,23 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
                 window.open(h[0], "");
             }
         }
+    },
+    
+    //GETVISIBLEMAPEXTENT must be called for tiled maps whenever the extents 
+    //are changed so that tooltips will work properly
+    mapExtentsChanged: function() {
+      if (!this.singleTile) {
+          var center = this.mapWidget.oMapOL.getCenter(); 
+          var display = this.mapWidget.oMapOL.getSize(); 
+          var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.mapWidget.getSessionID(),
+                                                              this._sMapname,
+                                                              center.lon, center.lat,
+                                                              this.mapWidget.oMapOL.getScale(),
+                                                              null,
+                                                              this._nDpi,
+                                                              display.w, display.h);
+          Fusion.oBroker.dispatchRequest(r);
+      }
     },
     
     pingServer: function() {
