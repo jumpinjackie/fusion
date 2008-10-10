@@ -508,7 +508,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       if ( bSingleTile ) {
         params = {        //single tile params
           session: this.getSessionID(),
-          mapname: this._sMapname,
+          mapName: this._sMapname,
           clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;

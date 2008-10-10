@@ -63,6 +63,19 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, Fusion.Tool.ButtonBase, {
     
     execute : function() {
         var url = this.baseUrl;
+        
+        var map = this.getMap();
+        var params = [];
+        params.push('LOCALE='+Fusion.locale);
+        params.push('SESSION='+map.getSessionID());
+        params.push('MAPNAME='+map.getMapName());
+        if (url.indexOf('?') < 0) {
+            url += '?';
+        } else if (url.slice(-1) != '&') {
+            url += '&';
+        }
+        url += params.join('&');
+        
         /* check to see if this is going into a task pane */
         var taskPaneTarget = Fusion.getWidgetById(this.target);
         if ( taskPaneTarget ) {
