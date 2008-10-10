@@ -144,19 +144,6 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
             this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
         }
         
-        //add in default Fusion parameters to the URL
-        var map = this.getMap();
-        var params = [];
-        params.push('LOCALE='+Fusion.locale);
-        params.push('SESSION='+map.getSessionID());
-        params.push('MAPNAME='+map.getMapName());
-        if (url.indexOf('?') < 0) {
-            url += '?';
-        } else if (url.slice(-1) != '&') {
-            url += '&';
-        }
-        url += params.join('&');
-        
         this.aExecutedTasks.push(url);
         ++this.nCurrentTask;
         this.iframe.src = url;
