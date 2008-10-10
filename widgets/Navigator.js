@@ -231,7 +231,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
             this.slider.set(position);
             this.bInternalChange = false;
         } else {
-            var res = olMap.baseLayer.resolutions;
+            var res = map.baseLayer.resolutions;
             var n = res.length;
             var max = res[0];
             var min = res[n-1];
