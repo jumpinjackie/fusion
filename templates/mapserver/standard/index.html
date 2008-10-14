@@ -5,7 +5,7 @@
 <title>Sample Fusion Application</title>
 <!-- change the source of the following tag to point to your fusion installation -->
 <script type="text/javascript" src="../../../lib/fusion.js"></script>
-<link rel="stylesheet" href="../../../jx/jxskin_delicious.css" type="text/css" media="screen" charset="utf-8">
+<link rel="stylesheet" href="themes/delicious/jxtheme.css" type="text/css" media="screen" charset="utf-8">
 <link rel="stylesheet" href="icons.css" type="text/css" media="screen" charset="utf-8">
 <style type="text/css">
     #Statusbar .spanCursorPosition,
@@ -68,7 +68,7 @@ window.onload = function() {
         collapse: false, 
         maximize: true
     });
-    var pm = new Jx.PanelSet('PanelPane', [p1, p2, p3]);
+    var pm = new Jx.PanelSet({parent: 'PanelPane', panels: [p1, p2, p3]});
     
     Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, function() {
         $('thePage').resize({forceResize: true});
