@@ -1,5 +1,0 @@
-Jx is an open source library available from http://code.google.com/p/jxlib/.  A copy of a specific version of Jx is included with Fusion.  The current version is:
-
-Jx 2.0 alpha
-
-Fusion trunk (after the 1.1 version) will not work with earlier versions of Jx than 2.0, and Fusion 1.1 (and earlier) will not work with the 2.0 versions of Jx.

@@ -88,7 +88,6 @@ $Id$
   your application will depend.  
   -->
 
-  <property name="jx-lib"  value="jx"/>
   <property name="YUIcompressor"  value="${basedir}/utils/yuicompressor-2.3.6.jar"/>
   <property name="sfName"  value="fusionSF"/>
   <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
@@ -132,13 +131,6 @@ $Id$
             excludes="selenium/**"
        />
     </copy>
-    
-    <!-- Create jx directories -->
-    <mkdir dir="${build.home}/jx"/>
-    <copy todir="${build.home}/jx">
-      <fileset dir="${jx-lib}" excludes="nbproject/** build.sh build.xml build/** dist/**"/>
-    </copy>
-    
   </target>
 
 <!-- ==================== Documentation =================================== -->
@@ -215,7 +207,7 @@ $Id$
                   files=" SingleFile.js
                           fusion.js
                           OpenLayers/OpenLayers.js
-                          ../jx/jxlib.uncompressed.js
+                          jxlib.uncompressed.js
                           excanvas/excanvas.js
                           Error.js 
                           EventMgr.js
@@ -268,8 +260,6 @@ $Id$
           output="${buildOutput}-compressed.js">
         <arg value="${buildOutput}.js"/>
     </java>
-    <!--exec executable="jsmin.exe" os="Windows Vista, Windows XP" 
-      input="${build.home}/lib/fusion-combined.js" output="${build.home}/lib/fusion-compressed.js"/-->
   </target>
 
 <!-- =================== concat all CSS files ================================== -->
