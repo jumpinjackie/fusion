@@ -110,8 +110,8 @@ if (isset($_REQUEST['mapfile'])) {
 
 $mapObj = NULL;
 if ($oMap) {
-    header('Content-type: text/x-json');
-    header('X-JSON: true');
+  //header('Content-type: text/x-json');
+  //header('X-JSON: true');
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapId;
 
@@ -211,6 +211,7 @@ if ($oMap) {
 
          $selectable = strtolower($layer->getMetaData('selectable'));
          $layerObj->selectable = $selectable == 'true' ? true : false;
+         
          $layerObj->visible = ($layer->status == MS_ON || $layer->status == MS_DEFAULT);
          $layerObj->actuallyVisible = true;
 
@@ -276,12 +277,12 @@ if ($oMap) {
          $_SESSION['scale_ranges'][$i] = $aScaleRanges;
          /*get the min/max scale for the layer*/
         $nCount = count($aScaleRanges);
-        $layerObj->minScale = $oScaleRanges[0]->minScale;
-        $layerObj->maxScale = $oScaleRanges[0]->maxScale;
+        $layerObj->minScale = $aScaleRanges[0]->minScale;
+        $layerObj->maxScale = $aScaleRanges[0]->maxScale;
         for ($j=1; $j<$nCount; $j++)
         {
-            $layerObj->minScale = min($layerObj->minScale, $oScaleRanges[$j]->minScale);
-            $layerObj->maxScale = max($layerObj->maxScale, $oScaleRanges[$j]->maxScale);
+            $layerObj->minScale = min($layerObj->minScale, $aScaleRanges[$j]->minScale);
+            $layerObj->maxScale = max($layerObj->maxScale, $aScaleRanges[$j]->maxScale);
         }
         array_push($mapObj->layers, $layerObj);
     }
