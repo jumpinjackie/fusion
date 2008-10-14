@@ -34,26 +34,38 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
     nCurrentTask: 0,
     nTasks: 0,
-    homeAction: null,
-    prevAction: null,
-    nextAction: null,
     
     initializeWidget: function(widgetTag){
         this.aExecutedTasks = [];
-        this.defHomeIcon = 'images/icon_home.png';
-        this.defPrevTaskIcon = 'images/icon_back.png';
-        this.defNextTaskIcon = 'images/icon_forward.png';
-        this.defTaskListIcon = 'images/icon_tasks.png';
-        this.defInitialTask = widgetTag.location + 'TaskPane/TaskPane.html';
+        var url = Fusion.getFusionURL();
+        var homeIcon =  url + widgetTag.location + 'TaskPane/taskpane.png';
+        var homeClass = 'TaskPane_home';
+        var prevIcon =  url + widgetTag.location + 'TaskPane/taskpane.png';
+        var prevClass = 'TaskPane_back';
+        var nextIcon =  url + widgetTag.location + 'TaskPane/taskpane.png';
+        var nextClass = 'TaskPane_forward';
+        var taskIcon =  url + widgetTag.location + 'TaskPane/taskpane.png';
+        var taskClass = 'TaskPane_tasks';
+        var initialTask = widgetTag.location + 'TaskPane/TaskPane.html';
               
         var json = widgetTag.extension;
-       
         
         if (json.InitialTask) {
-            this.initialTask = taskURL = json.InitialTask[0];
+            initialTask = taskURL = json.InitialTask[0];
         } else {
-            this.initialTask = Fusion.getFusionURL() + this.defInitialTask;
+            initialTask = url + initialTask;
         }
+        
+        console.log(homeIcon);
+        
+        homeIcon  = json.HomeIcon  ? json.HomeIcon[0]  : homeIcon;
+        homeClass = json.HomeClass ? json.HomeClass[0] : homeClass;
+        prevIcon  = json.PreviousIcon  ? json.PreviousIcon[0]  : prevIcon;
+        prevClass = json.PreviousClass ? json.PreviousClass[0] : prevClass;
+        nextIcon  = json.NextIcon  ? json.NextIcon[0]  : nextIcon;
+        nextClass = json.NextClass ? json.NextClass[0] : nextClass;
+        taskIcon  = json.TaskIcon  ? json.TaskIcon[0]  : taskIcon;
+        taskClass = json.TaskClass ? json.TaskClass[0] : taskClass;
         
         if (json.MenuContainer) {
             this.menuName = json.MenuContainer[0];
@@ -62,17 +74,20 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         this.toolbar = new Jx.Toolbar();
 
         this.homeButton = new Jx.Button({
-            image: this.defHomeIcon, 
+            image: homeIcon, 
+            imageClass: homeClass,
             tooltip: OpenLayers.i18n('taskHome'),
             onClick: OpenLayers.Function.bind(this.goHome, this)
         });
         this.prevButton = new Jx.Button({
-            image: this.defPrevTaskIcon, 
+            image: prevIcon, 
+            imageClass: prevClass,
             tooltip: OpenLayers.i18n('prevTask'),
             onClick: OpenLayers.Function.bind(this.gotoPrevTask, this)
         });
         this.nextButton = new Jx.Button({
-            image: this.defNextTaskIcon, 
+            image: nextIcon, 
+            imageClass: nextClass,
             tooltip: OpenLayers.i18n('nextTask'),
             onClick: OpenLayers.Function.bind(this.gotoNextTask, this)
         });
@@ -83,7 +98,8 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         );
 
         this.taskMenu = new Jx.Menu({
-            image: this.defTaskListIcon, 
+            image: taskIcon,
+            imageClass: taskClass,
             label: OpenLayers.i18n('taskList'), 
             right:0
         });
@@ -112,7 +128,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         this.oTaskPane.domObj.resize();
         
         Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, OpenLayers.Function.bind(this.setTaskMenu, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setContent, this,this.initialTask));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setContent, this, initialTask));
     },
     
     updateButtons: function() {
