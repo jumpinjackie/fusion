@@ -104,6 +104,18 @@ for($i=0;$i<$oMap->numlayers;$i++)
 
 if ($nTotalClasses > 0)
  {
+     //set the image path and image dir based on what fusion config file
+     $configObj = $_SESSION['fusionConfig'];
+
+     $original_imagepath = $oMap->web->imagepath;
+     $original_imageurl = $oMap->web->imageurl;
+
+     if (isset($configObj->mapserver->imagePath) && $configObj->mapserver->imagePath !="")
+        $oMap->web->set("imagepath", $configObj->mapserver->imagePath);
+     
+     if(isset($configObj->mapserver->imageUrl) && $configObj->mapserver->imageUrl!="")
+         $oMap->web->set("imageurl", $configObj->mapserver->imageUrl);
+
      //build and image containing all the icons and return url
      $nTmpWidth = $oMap->width;
      $nTmpHeight = $oMap->height;
@@ -118,17 +130,14 @@ if ($nTotalClasses > 0)
      for ($i=0; $i<$nTotalClasses;$i++)
        $oImage->pasteImage($aIcons[$i], -1, $i*$nIconWidth, 0);
 
-     //set the image path and image dir based on what fusion config file
-     $configObj = $_SESSION['fusionConfig'];
-     if (isset($configObj->mapserver->imagePath) && isset($configObj->mapserver->imageUrl)) 
-     {
-         $oImage->set("imagepath", $configObj->mapserver->imagePath);
-         $oImage->set("imageurl", $configObj->mapserver->imageUrl);
-     }
 
      $scaleObj->icons_url = $oImage->saveWebImage();
      $scaleObj->icons_width = $nIconWidth;
      $scaleObj->icons_height = $nIconHeight;
+
+      $oMap->web->set("imagepath", $original_imagepath);
+      $oMap->web->set("imageurl", $original_imageurl);
+      
  }
 
 header('Content-type: text/x-json');
