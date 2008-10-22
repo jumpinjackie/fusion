@@ -4,7 +4,7 @@
 
 .fusionLegendFolder input {
   position: absolute;
-  top: 2px;
+  top: 3px;
   left: 14px;
   height: 14px;
   width: 16px;
@@ -20,7 +20,7 @@
 
 .fusionLegendItemCheckbox input {
   position: absolute;
-  top: 2px;
+  top: 3px;
   left: 14px;
   height: 14px;
   width: 16px;
