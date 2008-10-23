@@ -439,6 +439,7 @@ a.jxButtonEditCombo input {
 
 .jxColorBar {
     position: relative;
+    overflow: hidden;
 }
 
 table.jxColorGrid {
@@ -507,6 +508,7 @@ div.jxColorPreview {
     margin: 2px;
     vertical-align: middle;
     background-image: url('images/grid.png');
+    overflow: hidden;
 }
 
 a.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch {
@@ -535,19 +537,23 @@ div.jxColorPreview img {
     z-index: 0;
 }
 
-div.jxColorPreview div.jxColorSelected {
+div.jxColorPreview div {
     width: 20px;
     height: 10px;
     position: absolute;
+    display: block;
+    left: 0px;
     z-index: 1;
+    font-size: 10px;
+    line-height: 0px;
+}
+
+div.jxColorPreview div.jxColorSelected {
+    top: 0px;
 }
 
 div.jxColorPreview div.jxColorHover {
-    width: 20px;
-    height: 10px;
-    position: absolute;
-    bottom: 0;
-    z-index: 1;
+    bottom: 0px;
 }
 
 label.jxColorLabel,
@@ -1909,6 +1915,7 @@ span.jxTabLabel {
   background-image: url(images/toolbar.png);
   background-repeat: repeat-x;
   background-position: 0px 0px;
+  overflow: hidden;
 }
 
 .jxTabBox .jxBarTop {
@@ -1931,6 +1938,7 @@ span.jxTabLabel {
   background-repeat: repeat-x;
   background-position: 0px 0px;
   float: left;
+  overflow: hidden;
 }
 
 .jxTabBox .jxBarLeft {
@@ -1950,6 +1958,7 @@ span.jxTabLabel {
   position: absolute;
   /* much bigger than its container */
   width: 10000%;
+  overflow: hidden;
 }
 
 .jxBarTop .jxBarScrollLeft,
@@ -1977,7 +1986,6 @@ span.jxTabLabel {
   background-image: url(images/emblems.png);
   background-position: 0px -96px;
 }
-
 
 /* The jx toolbar and tabbar are both built out of a UL
    The margins/padding are flattened out, and the list markers are hidden
@@ -2045,16 +2053,16 @@ li.jxToolItem  .separator {
   background-position: center center;
 }
 
-.jxBarTop  li.jxToolItem  span.separator,
-.jxBarBottom  li.jxToolItem  span.separator {
+.jxBarTop  li.jxToolItem  span.jxBarSeparator,
+.jxBarBottom  li.jxToolItem  span.jxBarSeparator {
   /* width/height should be defined */
   width: 8px;
   height: 20px;
   background-image: url(images/toolbar_separator_h.png);
 }
 
-.jxBarLeft  li.jxToolItem  span.separator,
-.jxBarRight  li.jxToolItem  span.separator {
+.jxBarLeft  li.jxToolItem  span.jxBarSeparator,
+.jxBarRight  li.jxToolItem  span.jxBarSeparator {
   /* width/height should be defined */
   width: 20px;
   height: 8px;
@@ -2183,7 +2191,11 @@ li.jxToolItem  .separator {
   margin: 0px;
 }
 
-.jxTreeIcon { left: 2px; }
+.jxTreeIcon { 
+  height: 16px;
+  top: 2px;
+  left: 2px;
+}
 
 .jxTreeBranchOpen .jxTreeIcon,
 .jxTreeBranchLastOpen .jxTreeIcon {
