@@ -539,7 +539,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         isBaseLayer: bIsBaseLayer,
         maxExtent: this._oMaxExtent,
         maxResolution: 'auto',
-        useOverlay: this.selectionAsOverlay,
+        useOverlay: true, //this.selectionAsOverlay,
         ratio: this.ratio
       };
       if (!/WebKit/.test(navigator.userAgent)) {
