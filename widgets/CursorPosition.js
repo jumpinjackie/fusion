@@ -64,7 +64,6 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
-        this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
         this.precision = json.Precision ? parseInt(json.Precision[0]) : -1;
         this.units = json.Units ? Fusion.unitFromName(json.Units[0]) : Fusion.UNKOWN;
@@ -72,14 +71,27 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
         this.domSpan = document.createElement('span');
         this.domSpan.className = 'spanCursorPosition';
         this.domSpan.innerHTML = this.emptyText;
-        this.domObj.innerHTML = '';
-        this.domObj.appendChild(this.domSpan);
+        this.emptyText = json.EmptyText ? json.EmptyText[0] : 
+            (this.domObj ? this.domObj.innerHTML : null);
+        if (this.domObj) {
+            this.domObj.innerHTML = '';
+            this.domObj.appendChild(this.domSpan);
+        } 
 
         this.enable = Fusion.Widget.CursorPosition.prototype.enable;
         this.disable = Fusion.Widget.CursorPosition.prototype.enable;
         
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
         this.registerParameter('Units');
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        if (this.uiObj.domObj) {
+            this.uiObj.domObj.appendChild(this.domSpan);
+        } else {
+            this.uiObj.appendChild(this.domSpan);
+        }
     },
     
     enable: function() {

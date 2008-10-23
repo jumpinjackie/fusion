@@ -31,13 +31,12 @@
 Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
     defaultTemplate: 'x: {x}, y: {y}',
     domSpan: null,
+    emptyText: '',
     
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
     initializeWidget: function(widgetTag) {
-        this.emptyText = this.domObj.innerHTML;
-        
         var json = widgetTag.extension;
         
         this.template = json.Template ? json.Template[0] : this.defaultTemplate;
@@ -47,8 +46,11 @@ Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
         this.domSpan = document.createElement('span');
         this.domSpan.className = 'spanViewSize';
         this.domSpan.innerHTML = this.emptyText;
-        this.domObj.innerHTML = '';
-        this.domObj.appendChild(this.domSpan);
+        if (this.domObj) {
+            this.emptyText =  this.domObj.innerHTML;
+            this.domObj.innerHTML = '';
+            this.domObj.appendChild(this.domSpan);
+        }
         
         this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, OpenLayers.Function.bind(this.updateViewSize, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
@@ -56,6 +58,15 @@ Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
         this.registerParameter('Units');
     },
     
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        if (this.uiObj.domObj) {
+            this.uiObj.domObj.appendChild(this.domSpan);
+        } else {
+            this.uiObj.appendChild(this.domSpan);
+        }
+    },
+
     updateViewSize: function(e) {
         var map = this.getMap();
         var p = map.getSize();

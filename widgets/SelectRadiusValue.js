@@ -62,7 +62,16 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {
         
         /* put into page */
         this.domObj.appendChild(this.domLabel);
-         OpenLayers.Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
+        OpenLayers.Event.observe(this.input, 'blur', OpenLayers.Function.bind(this.onBlur, this));
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        if (this.uiObj.domObj) {
+            this.domObj = this.uiObj.domObj;
+        } else {
+            this.domObj = this.uiObj;
+        }
     },
     
     mapLoaded: function() {
