@@ -50,17 +50,29 @@ Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
-        this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;
         this.template = json.Template ? json.Template[0] : null;
         
         this.domSpan = document.createElement('span');
         this.domSpan.className = 'spanSelectionInfo';
         this.domSpan.innerHTML = OpenLayers.i18n(this.emptyText);
-        this.domObj.innerHTML = '';
-        this.domObj.appendChild(this.domSpan);
+        this.emptyText = json.EmptyText ? json.EmptyText[0] : 
+            (this.domObj ? this.domObj.innerHTML : null);
+        if (this.domObj) {
+            this.domObj.innerHTML = '';
+            this.domObj.appendChild(this.domSpan);
+        } 
 
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.update, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.update, this));
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        if (this.uiObj.domObj) {
+            this.uiObj.domObj.appendChild(this.domSpan);
+        } else {
+            this.uiObj.appendChild(this.domSpan);
+        }
     },
     
     update: function() {
