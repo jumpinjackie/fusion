@@ -72,7 +72,7 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
         this.domSpan.className = 'spanCursorPosition';
         this.domSpan.innerHTML = this.emptyText;
         this.emptyText = json.EmptyText ? json.EmptyText[0] : 
-            (this.domObj ? this.domObj.innerHTML : null);
+            (this.domObj ? this.domObj.innerHTML : '');
         if (this.domObj) {
             this.domObj.innerHTML = '';
             this.domObj.appendChild(this.domSpan);
