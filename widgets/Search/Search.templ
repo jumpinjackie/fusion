@@ -83,7 +83,7 @@ function SelectRow(index)
 function CellClicked(sel)
 {
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.setSelection(sel, false, true);
+    map.setSelection(sel, true);
 }
 
 function highlightRow(index, mode)
