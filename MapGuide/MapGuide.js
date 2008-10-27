@@ -985,7 +985,17 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             eval('o='+xhr.responseText);
             var h = o['FeatureInformation']['Hyperlink'];
             if (h) {
-                window.open(h[0], "");
+              var linkURL;
+              if (h[0].indexOf('href=') > 0) {
+                //MGOS allows full anchor tag as the hyperlink, extract the href
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = h[0];
+                linkURL = tempDiv.firstChild.href;
+                tempDiv = null;
+              } else {
+                linkURL = h[0];
+              }
+              window.open(linkURL, "");
             }
         }
     },
