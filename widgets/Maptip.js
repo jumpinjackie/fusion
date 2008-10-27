@@ -195,13 +195,21 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             }
             var h = tooltip['FeatureInformation']['Hyperlink'];
             if (h) {
+              var a, linkURL;
               var linkDiv = document.createElement('div');
-              var a = document.createElement('a');
-              a.innerHTML = h[0];
+              if (h[0].indexOf('href=') > 0) {   //MGOS allows complete anchor tags as the hyperlink
+                linkDiv.innerHTML = h[0];
+                a = linkDiv.firstChild;
+                linkURL = a.href;
+              } else {
+                a = document.createElement('a');
+                a.innerHTML = h[0];
+                linkURL = h[0];
+                linkDiv.appendChild(a);
+              }
               a.href = 'javascript:void(0)';
-              var openLink = OpenLayers.Function.bind(this.openLink, this, h[0]);
+              var openLink = OpenLayers.Function.bind(this.openLink, this, linkURL);
               a.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
-              linkDiv.appendChild(a);
               contentDiv.appendChild(linkDiv);
               empty = false;
             }
