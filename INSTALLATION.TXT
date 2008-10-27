@@ -5,41 +5,46 @@ About Fusion
 ------------
 
 Fusion is a toolkit for building web-mapping applications on top of
-MapGuide Open Source/Enterprise (MGOS/E).
+MapGuide Open Source/Enterprise (MGOS/E) and MapServer.
 
 Pre-requisites
 --------------
 
-You must first obtain and correctly install MGOS/E and one of the
+You must first obtain and correctly install MapServer or MGOS/E and one of the
 Web Server Extension API languages.  Currently, Fusion only supports
 PHP.
 
-Once you have a working MapGuide OS/E installation with PHP API
+Once you have a working MapGuide OS/E or MapServer installation with PHP API
 extensions, you can install Fusion.
 
 Obtaining Fusion
 ----------------
 
-Fusion is available from .....
+The primary doucmentation for Fusion is available at http://trac.osgeo.org/fusion/
+and you can download Fusion from http://download.osgeo.org/fusion/
 
 Installing Fusion
 -----------------
 
 NOTE: It is HIGHLY RECOMMENDED that you install Fusion inside the
-WebServerExtensions/www directory of your MGOS/E installation.
+WebServerExtensions/www directory of your MGOS/E installation or in a web 
+accessible directory for MapServer (/apps using MS4W).
 
 Fusion must be installed on the same server as your MGOS/E Web Server
 Extensions because it uses the API included with the Web Server
-Extensions.  
+Extensions.
 
 To install Fusion, simply extract your Fusion source code package 
-(either tar.gz or zip file).  By default, Fusion is configured to be
-installed into the 'www' directory of your WebServerExtensions installation.
+(either tar.gz or zip file).  Then copy the file fusion/config_dist.json to
+fusion/config.json and edit this new file for your system configuration.
+
+By default, Fusion is configured to be installed into the 'www' directory of 
+your WebServerExtensions installation.
 You may install Fusion into a different location, as long as you follow
 the Configuring Fusion steps below.
 
-Configuring Fusion
-------------------
+Configuring Fusion for MapGuide
+-------------------------------
 
 If you installed Fusion into the WebServerExtensions/www directory, and your
 WebServerExtensions are installed in C:\Program Files, Fusion is ready to
@@ -52,8 +57,8 @@ fusion/mapguide/php/Common.php
 
 At the beginning of this file are two lines as follows:
 
-$defaultInstallDir = "C:/Program Files/MapGuideOpenSource/";
-$defaultExtensionDir = $installDir . "WebServerExtensions/www/";
+$defaultInstallDir = dirname(__FILE__)."/../../../../../";
+$defaultExtensionDir = realpath($defaultInstallDir . "webserverextensions/www/");
 
 Modify these lines to point to your actual installation path.
 
@@ -83,37 +88,46 @@ To configure the sample applications, you need to edit the following files:
   appropriately.  It is configured to use localhost:8008, which will 
   work for local installations of MGOS/E
   
-* redirect.php
-
-  the sample applications use the Anonymous user by default.  If you have
-  modified MGOS/E default user configuration or would like to use a
-  different user name and password (for instance, if you need a user
-  that has the Author role), then you can modify the $username and
-  $password variables near the top of this file.  Note that these values
-  are not accessible to the user of the application (see Fusion Developer's
-  guide for more details on why redirect.php is needed and what it does).
-  
-* WebLayout.xml
+* ApplicationDefinition.xml
 
   the sample applications are configured to load the Sheboygan sample
-  map that is freely available with MGOS/E.  If you do not have this
-  sample data set installed, have installed it in a different location
-  than the default, or simply wish to use a different map, you will need
-  to edit this file.  Look for the following block:
+  map that is freely available with MGOS/E and the GMAP dataset for MapServer.  
+  If you do not have the sample data set installed, have installed it in a 
+  different location than the default, or simply wish to use a different map, 
+  you will need to edit this file.  Look for the following block:
   
-  <Command xsi:type="MapCommandType">
-      <Name>Map</Name>
-      <Label>Map</Label>
-      <TargetViewer>All</TargetViewer>
-      <Action>MGMap</Action>
-      <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
-  </Command>
+    <MapGroup id="sheboygan" xsi:type="MapType">
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
+        </Extension>
+      </Map>
+    </MapGroup>
   
   Change the ResourceId tag to point to the appropriate MapDefinition.
+  
+  or for MapServer:
+  
+      <MapGroup id="gmap" xsi:type="MapType">
+      <Map xsi:type="MapLayerType">
+        <Type>MapServer</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmap75.map</MapFile>
+        </Extension>
+      </Map>
+    </MapGroup>
+  Change the MapFile tag to point to the appropriate Map file.
+
 
 Getting Help
 ------------
 
-If you are having trouble getting fusion running ...
+If you are having trouble getting fusion running please see the documentation
+on the wiki at http://trac.osgeo.org/fusion/.
+
+You may also send questions to the Fusion mailing lists listed on the wiki.
 
 $Id$
