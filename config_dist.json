@@ -9,7 +9,7 @@
 
 	    /* A directory on this system that fusion can use for
 	       temporary files. */
-	    "temporaryDirectory": "/tmp"
+	    "temporaryDirectory": "/ms4w/tmp"
     },
     /* The MapGuide section is required if you are installing
        fusion for MapGuide. */
@@ -27,11 +27,11 @@
 	    "cgi": "/cgi-bin/mapserv",
 	    /* The file system path to where mapserver should put
 	        web-accessible temporary images. */
-	    "imagePath": "/tmp/ms_tmp",
+	    "imagePath": "/ms4w/tmp/ms_tmp",
 	    /* The URL to the image path configured above. */
-	    "imageUrl": "http://localhost/tmp/ms_tmp",
+	    "imageUrl": "http://localhost/ms_tmp",
 	    /* The file system path to where mapserver should put
 	        web-accessible temporary legend images. */
-	    "legendIconCacheDir":"/tmp/ms_tmp"
+	    "legendIconCacheDir":"/ms4w/tmp/ms_tmp"
     }
 }
