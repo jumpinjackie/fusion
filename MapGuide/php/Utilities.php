@@ -668,6 +668,7 @@ function ByteReaderToString($byteReader)
 
 function GetPropertyValueFromFeatReader($featureReader, $propertyType, $propertyName)
 {
+    //echo "/* propertyType:".$propertyType." propertyName:".$propertyName." */";
     $val = "";
     if ($propertyType == null) {
       $propertyType = $featureReader->GetPropertyType($propertyName);
@@ -688,8 +689,10 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
              $val = $featureReader->GetByte($propertyName);
              break;
            case MgPropertyType::DateTime :
-             $val = $featureReader->GetDateTime($propertyName);
-             //$valStr = printDateTime($val);
+             $dateTime = $featureReader->GetDateTime($propertyName);
+             if ($dateTime != NULL) {
+               $val = printDateTime($dateTime);
+             }
              break;
            case MgPropertyType::Single :
              $val = $featureReader->GetSingle($propertyName);
@@ -883,6 +886,14 @@ function getUtmWkt($lon, $lat) {
     $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
 
     return sprintf( $epsg42003, $lon, $lat);
+}
+
+function printDateTime($mgDateTime)
+{
+   $dayToday = $mgDateTime->GetDay();
+   $month = $mgDateTime->GetMonth();
+   $year = $mgDateTime->GetYear();
+   return $dayToday.".".$month.".".$year;
 }
 
 function GetSiteVersion() {
