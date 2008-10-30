@@ -541,9 +541,11 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      * Returns an OpenLayers MapGuide layer object
      */
     createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
+      /* TODO : prevent the useOverlay flag based on site version
       if ( !(this.siteVersion[0]>1 && this.siteVersion[2]>=0 && this.siteVersion[3]>2) ) { //v2.0.x or higher
         this.selectionAsOverlay = false;
       }
+      */
       var layerOptions = {
         units: this.units,
         isBaseLayer: bIsBaseLayer,
