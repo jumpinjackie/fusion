@@ -113,11 +113,11 @@ $Id$
     <echo message="Preparing uncompressed build"/>
     <!-- Create build directories as needed -->
     <mkdir dir="${build.home}"/>
+    <copy file="config_dist.json" tofile="${build.home}/config.json"/>
     <!-- Copy static content -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
-            includes="config.json 
-                      configHeader.json
+            includes="configHeader.json
                       MapGuide/** 
                       MapServer/** 
                       common/** 
