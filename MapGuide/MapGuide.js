@@ -47,7 +47,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bMapLoaded: false,
     bIsMapWidgetLayer: true,  //Set this to false for overview map layers
     bLayersReversed: false,     //MGOS returns layers top-most layer first
-    selectionAsOverlay: false,
+    selectionAsOverlay: true,
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -530,9 +530,11 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        this.oLayerOL.mergeNewParams(params);
-        
-        if (this.queryLayer) this.queryLayer.redraw(true);
+        if (this.queryLayer) {
+          this.queryLayer.redraw(true);
+        } else {
+          this.oLayerOL.mergeNewParams(params);
+        }
     },
 
     /**
@@ -594,6 +596,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
         }
+        //params.version = "2.0.0";
 
       } else {
         params = {      //tiled version
