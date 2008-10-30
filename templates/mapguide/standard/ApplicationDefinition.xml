@@ -16,8 +16,8 @@
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
           <SelectionAsOverlay>true</SelectionAsOverlay>
-          <SelectionFormat>PNG8</SelectionFormat>
-          <SelectionColor>0xFF0000</SelectionColor>
+          <SelectionFormat>PNG</SelectionFormat>
+          <SelectionColor>0xFF0000FF</SelectionColor>
         </Extension>
       </Map>
     </MapGroup>

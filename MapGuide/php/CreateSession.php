@@ -29,18 +29,21 @@
  *****************************************************************************/
 
 include('Common.php');
+include('Utilities.php');
 include('../../common/php/Utilities.php');
 
 try {
     $site = $siteConnection->GetSite();
     $sessionId =  $site->CreateSession();
     $user->SetMgSessionId($sessionId);
+    $siteVersion = GetSiteVersion();
 
     header('Content-type: text/x-json');
     header('X-JSON: true');
     $result = null;
     $result->sessionId = $sessionId;
     $result->userName = $username;
+    $result->siteVersion = $siteVersion;
     echo var2json($result);
     
     /* start a php session in the web tier as well, using same session id */
