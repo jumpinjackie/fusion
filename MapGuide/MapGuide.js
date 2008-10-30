@@ -47,7 +47,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bMapLoaded: false,
     bIsMapWidgetLayer: true,  //Set this to false for overview map layers
     bLayersReversed: false,     //MGOS returns layers top-most layer first
-    selectionAsOverlay: true,
+    selectionAsOverlay: false,
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
@@ -73,8 +73,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         this.selectionColor = extension.SelectionColor ? extension.SelectionColor[0] : '';
         this.selectionFormat = extension.SelectionFormat ? extension.SelectionFormat[0] : 'PNG';
-        if (extension.SelectionAsOverlay && extension.SelectionAsOverlay[0] == 'false') {
-          this.selectionAsOverlay = false;
+        if (extension.SelectionAsOverlay && extension.SelectionAsOverlay[0] == 'true') {
+          this.selectionAsOverlay = true;
         }
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
         
@@ -147,6 +147,13 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             var o;
             eval('o='+xhr.responseText);
             this.session[0] = o.sessionId;
+            var version = o.siteVersion;
+            var bits = version.split('.');
+            this.siteVersion = new Array(parseInt(bits[0]),
+                                          parseInt(bits[1]),
+                                          parseInt(bits[2]),
+                                          parseInt(bits[3])
+            );
             this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
         }
     },
@@ -534,12 +541,15 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      * Returns an OpenLayers MapGuide layer object
      */
     createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
+      if ( !(this.siteVersion[0]>1 && this.siteVersion[2]>=0 && this.siteVersion[3]>2) ) { //v2.0.x or higher
+        this.selectionAsOverlay = false;
+      }
       var layerOptions = {
         units: this.units,
         isBaseLayer: bIsBaseLayer,
         maxExtent: this._oMaxExtent,
         maxResolution: 'auto',
-        useOverlay: true, //this.selectionAsOverlay,
+        useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
       if (!/WebKit/.test(navigator.userAgent)) {
@@ -579,7 +589,6 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         
         if (behaviour != null) {
           params.behavior = behaviour;
-          params.version = "2.0.0";
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
         }
