@@ -50,6 +50,7 @@ Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
+        this.emptyText = json.EmptyText ? json.EmptyText[0] : this.domObj.innerHTML;
         this.template = json.Template ? json.Template[0] : null;
         
         this.domSpan = document.createElement('span');
