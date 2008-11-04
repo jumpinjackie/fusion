@@ -152,15 +152,29 @@ if ($verbose) {
 }
 
 $imgStrip = imagecreatetruecolor($w,$h);
-$nTransparent = imagecolorallocate($imgStrip, 0,0,0);
-imagefill($imgStrip, 0, 0, $nTransparent);
+if ($depth == 8) {
+    $nTransparent = imagecolorallocate($imgStrip, 0,0,0);
+    imagefill($imgStrip, 0, 0, $nTransparent);
+} else {
+    $nTransparent = imagecolorallocatealpha($imgStrip, 0, 0, 0, 127);
+    imagefill($imgStrip, 0, 0, $nTransparent);
+    imagealphablending($imgStrip, false);
+    imagesavealpha($imgStrip, true);
+}
 
 $x = 0;
 $y = 0;
 foreach($imgObjects as $imgObject) {
     $w = imagesx($imgObject);
     $h =  imagesy($imgObject);
-    imagecopy($imgStrip, $imgObject, $x, $y, 0, 0, $w, $h);
+    if (imageistruecolor($imgObject)) {
+        // this should be imagecopymerge according to the docs
+        // but that doesn't work correctly
+        echo "true color\n";
+        imagecopy($imgStrip, $imgObject, $x, $y, 0, 0, $w, $h);
+    } else {
+        imagecopy($imgStrip, $imgObject, $x, $y, 0, 0, $w, $h);
+    }
     if ($direction == 'horizontal') {
         $x += $w;
     } else {
