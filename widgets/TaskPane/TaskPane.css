@@ -28,7 +28,7 @@
 }
 
 /* default icons for the images in the task pane */
-img.TaskPane_back { background-position: 0px 0px; }
-img.TaskPane_forward { background-position: -16px 0px; }
-img.TaskPane_home { background-position: -32px 0px; }
-img.TaskPane_tasks { background-position: -48px 0px; }
+img.TaskPane_back { background-position: 0px 0px !important; }
+img.TaskPane_forward { background-position: -16px 0px !important; }
+img.TaskPane_home { background-position: -32px 0px !important; }
+img.TaskPane_tasks { background-position: -48px 0px !important; }
