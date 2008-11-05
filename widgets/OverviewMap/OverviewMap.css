@@ -1,3 +1,4 @@
+.olControlOverviewMapRectReplacement,
 .olControlOverviewMapExtentRectangle {
     overflow: hidden;
     background-image: url("blank.gif");
