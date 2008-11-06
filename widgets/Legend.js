@@ -560,7 +560,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 }               
             }
             layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
-            if (range.styles.length > 0) {
+            if (layer.layerTypes[0] == 4 || range.styles.length > 0) {
               layer.legend.treeItem.checkBox.disabled = false;
             } else {
               layer.legend.treeItem.checkBox.disabled = true;
@@ -623,19 +623,15 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
             opt.draw = this.renderItem;
         }
-        if (!style) {
+        if (layer.layerTypes[0] == 4) {
+            if (style && style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
+                opt.image = this.imgLayerDWFIcon;
+            } else {
+                opt.image = this.imgLayerRasterIcon;
+            }
+        } else if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
-        } else {
-          if (style.staticIcon) {
-            if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
-              opt.image = this.imgLayerDWFIcon;
-            } else {
-              opt.image = this.imgLayerRasterIcon;
-            }
-          } else {
-            opt.image = style.getLegendImageURL(scale, layer);
-          }
         }
        
         var item = new Jx.TreeItem(opt);
