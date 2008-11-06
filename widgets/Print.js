@@ -84,13 +84,10 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
                 label: OpenLayers.i18n('printTitle'),
                 id: 'printablePage',
                 contentURL : this.dialogContentURL,
-                onContentLoad: OpenLayers.Function.bind(this.contentLoaded, this),
-                imageBaseUrl: this.imageBaseUrl,
+                onContentLoaded: OpenLayers.Function.bind(this.contentLoaded, this),
                 width: 350,
                 height: 250,
                 resize: true,
-                top: (size.height-250)/2,
-                left: (size.width-350)/2,
                 toolbars: [toolbar]
             };
             var d = new Jx.Dialog(o);
@@ -130,29 +127,25 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
     },
     
     contentLoaded: function(dialog) {
-        dialog.registerIds(['dialogPrintShowtitle', 
-                                 'dialogPrintTitle',
-                                 'dialogPrintShowlegend',
-                                 'dialogPrintShowNorthArrow'], dialog.content);
-        dialog.getObj('dialogPrintShowtitle').checked = this.showTitle;
-        dialog.getObj('dialogPrintTitle').value = this.pageTitle;
-        dialog.getObj('dialogPrintTitle').disabled = !this.showTitle;
-        dialog.getObj('dialogPrintShowlegend').checked = this.showLegend;
-        dialog.getObj('dialogPrintShowNorthArrow').checked = this.showNorthArrow;
+        dialog.content.getElementById('dialogPrintShowtitle').checked = this.showTitle;
+        dialog.content.getElementById('dialogPrintTitle').value = this.pageTitle;
+        dialog.content.getElementById('dialogPrintTitle').disabled = !this.showTitle;
+        dialog.content.getElementById('dialogPrintShowlegend').checked = this.showLegend;
+        dialog.content.getElementById('dialogPrintShowNorthArrow').checked = this.showNorthArrow;
         
-         OpenLayers.Event.observe(dialog.getObj('dialogPrintShowtitle'), 'click', OpenLayers.Function.bind(this.controlTitle, this));
+         OpenLayers.Event.observe(dialog.content.getElementById('dialogPrintShowtitle'), 'click', OpenLayers.Function.bind(this.controlTitle, this));
     },
     
     controlTitle: function() {
-        this.dialog.getObj('dialogPrintTitle').disabled = !this.dialog.getObj('dialogPrintShowtitle').checked;
+        this.dialog.content.getElementById('dialogPrintTitle').disabled = !this.dialog.content.getElementById('dialogPrintShowtitle').checked;
         
     },
     
     generate: function() {
-        this.showTitle = this.dialog.getObj('dialogPrintShowtitle').checked;
-        this.pageTitle = this.dialog.getObj('dialogPrintTitle').value;
-        this.showLegend = this.dialog.getObj('dialogPrintShowlegend').checked;
-        this.showNorthArrow = this.dialog.getObj('dialogPrintShowNorthArrow').checked;
+        this.showTitle = this.dialog.content.getElementById('dialogPrintShowtitle').checked;
+        this.pageTitle = this.dialog.content.getElementById('dialogPrintTitle').value;
+        this.showLegend = this.dialog.content.getElementById('dialogPrintShowlegend').checked;
+        this.showNorthArrow = this.dialog.content.getElementById('dialogPrintShowNorthArrow').checked;
         this.openPrintable();
     },
     
