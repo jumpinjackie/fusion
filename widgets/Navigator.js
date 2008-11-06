@@ -256,7 +256,8 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         var res = map.oMapOL.getResolution();
         var size = map.oMapOL.getSize();
         map.zoom(center.x + (x * size.w * res), center.y + (y * size.h * res), 1);
-        new Event(e).stop();
+        //new Event(e).stop();
+        //OpenLayers.Event.stop(e);
         if (activeWidget) {
           map.activateWidget(activeWidget);
         }
@@ -274,7 +275,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         }
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);
-        OpenLayers.Event.stop(e);
+        //OpenLayers.Event.stop(e);
         if (activeWidget) {
           map.activateWidget(activeWidget);
         }
