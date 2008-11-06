@@ -95,7 +95,7 @@ try
     $mapObj->mapTitle=addslashes($mapTitle);
 
     $mapObj->mapName=addslashes($mapName);
-
+    $mapObj->backgroundColor = getMapBackgroundColor($map);
 
     $mapObj->extent = array($oMin->GetX(), $oMin->GetY(), $oMax->GetX(), $oMax->GetY());
 
@@ -234,6 +234,19 @@ function GetLayerTypesFromResourceContent($layer)
     $aLayerTypes = array_unique($aLayerTypes);
 
     return $aLayerTypes;
+}
+
+function getMapBackgroundColor($map) {
+    global $resourceService;
+    $resId = $map->GetMapDefinition();
+    $mapContent = $resourceService->GetResourceContent($resId);
+    $xmldoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+    $bgColor = $xmldoc->getElementsByTagName('BackgroundColor');
+    if ($bgColor->length > 0) {
+        return '#'.substr($bgColor->item(0)->nodeValue, 2);
+    } else {
+        return "#FFFFFF";
+    }
 }
 
 function buildScaleRanges($layer) 

@@ -237,7 +237,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
             this.mapWidget.setMetersPerUnit(o.metersPerUnit);
-
+            this.mapWidget.setBackgroundColor(o.backgroundColor);
             this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent); 
 
             this.layerRoot.clear();
@@ -530,14 +530,10 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        this.oLayerOL.mergeNewParams(params);
-    },
-    
-    drawSelection: function() {
         if (this.queryLayer) {
-            this.queryLayer.redraw(true);
+          this.queryLayer.redraw(true);
         } else {
-            this.drawMap();
+          this.oLayerOL.mergeNewParams(params);
         }
     },
 
@@ -560,7 +556,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
-      if (behaviour != 1 && !/WebKit/.test(navigator.userAgent)) {
+      if (!/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
       }
 
@@ -600,8 +596,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
         }
-        params.version = "2.0.0";
-
+        
       } else {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
@@ -685,7 +680,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.oSelection = null;
         }
         this.bSelectionOn = true;
-        this.drawSelection();
+        this.drawMap();
         this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
@@ -815,7 +810,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           this.queryLayer.setVisibility(false);
         }
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
-        this.drawSelection();
+        this.drawMap();
         this.oSelection = null;
     },
 
