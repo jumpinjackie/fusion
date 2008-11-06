@@ -214,8 +214,11 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
               empty = false;
             }
             if (!empty) {
-                var mapSize = this.getMap().getSize();
+                var map = this.getMap();
+                var mapSize = map.getSize();
                 var size = $(this.domObj).getBorderBoxSize();
+                var offset = map._oDomObj.offsets;
+                this.oMapTipPosition = this.oMapTipPosition.add(offset[0], offset[1]);
                 if (this.oCurrentPosition.x < mapSize.w/2) {
                   this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
@@ -268,7 +271,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.bOverTip = false;
     },
     
-    openLink : function(url, evt) {
+    openLink: function(url, evt) {
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         if ( taskPaneTarget ) {
             taskPaneTarget.setContent(url);
