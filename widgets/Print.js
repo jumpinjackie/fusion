@@ -93,11 +93,11 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
             var d = new Jx.Dialog(o);
             toolbar.add(
                 new Jx.Button({
-                    label: 'Generate',
+                    label: OpenLayers.i18n('printGenerate'),
                     onClick: OpenLayers.Function.bind(this.generate, this)
                 }),
                 new Jx.Button({
-                    label: 'Cancel',
+                    label: OpenLayers.i18n('printCancel'),
                     onClick: function() {
                         d.close();
                     }

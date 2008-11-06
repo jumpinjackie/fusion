@@ -46,6 +46,8 @@ Fusion.Strings.fr = {
 'panNorth': 'Nord',
 'zoomOut': 'Cliquer pour réduire',
 'zoomIn': 'Cliquer pour agrandir',
+'printCancel': 'Cancel',
+'printGenerate': 'Generate',
 
 'end': ''
 };

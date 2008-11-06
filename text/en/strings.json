@@ -46,6 +46,8 @@ Fusion.Strings.en = {
 'panNorth': 'Pan North',
 'zoomOut': 'Zoom Out',
 'zoomIn': 'Zoom In',
+'printCancel': 'Cancel',
+'printGenerate': 'Generate',
 
 'end': ''
 };
