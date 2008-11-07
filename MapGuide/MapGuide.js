@@ -530,10 +530,14 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
+        this.oLayerOL.mergeNewParams(params);
+    },
+    
+    drawSelection: function() {
         if (this.queryLayer) {
-          this.queryLayer.redraw(true);
+            this.queryLayer.redraw(true);
         } else {
-          this.oLayerOL.mergeNewParams(params);
+            this.drawMap();
         }
     },
 
@@ -556,7 +560,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
-      if (!/WebKit/.test(navigator.userAgent)) {
+      if (behaviour != 1 && !/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
       }
 
@@ -680,7 +684,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.oSelection = null;
         }
         this.bSelectionOn = true;
-        this.drawMap();
+        this.drawSelection();
         this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
@@ -810,7 +814,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           this.queryLayer.setVisibility(false);
         }
         this.triggerEvent(Fusion.Event.MAP_SELECTION_OFF);
-        this.drawMap();
+        this.drawSelection();
         this.oSelection = null;
     },
 
