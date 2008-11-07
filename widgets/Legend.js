@@ -617,6 +617,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         } else if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
+        } else {
+            opt.image = style.getLegendImageURL(scale, layer);
         }
        
         var item = new Jx.TreeItem(opt);
