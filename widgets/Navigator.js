@@ -35,6 +35,8 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
     zoomOutFactor: 2,
     panAmount: 50,
     initializeWidget: function(widgetTag) {
+        this.activeControls = [];
+        
         var m = document.createElement('map');
         m.name = 'Navigator_ImageMap';
         m.id = 'Navigator_ImageMap';
@@ -146,6 +148,11 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         this.domObj.style.width = '51px';
         this.domObj.style.height = '204px';
         this.domObj.style.cursor = 'pointer';
+        // need to disable active map controls when the mouse is over the navigator
+        this.domObj.addEvents({
+          mouseenter: OpenLayers.Function.bind(this.mouseEnter,this),
+          mouseleave: OpenLayers.Function.bind(this.mouseLeave,this)
+        });
 
         var checkPosition = OpenLayers.Function.bind(this.checkPosition, this);
 
@@ -247,39 +254,49 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
     pan: function(x,y,e) {
         //console.log('pan by : ' + x + ', ' + y);
         var map = this.getMap();
-        var activeWidget = null;
-        if (map.oActiveWidget) {
-          activeWidget = map.oActiveWidget;
-          map.deactivateWidget(map.oActiveWidget);
-        }
         var center = map.getCurrentCenter();
         var res = map.oMapOL.getResolution();
         var size = map.oMapOL.getSize();
         map.zoom(center.x + (x * size.w * res), center.y + (y * size.h * res), 1);
         //new Event(e).stop();
-        //OpenLayers.Event.stop(e);
-        if (activeWidget) {
-          map.activateWidget(activeWidget);
-        }
-        
+        OpenLayers.Event.stop(e);
         return false;
     },
 
     zoom: function(factor, e) {
         //console.log('zoom by factor: ' + factor);
         var map = this.getMap();
-        var activeWidget = null;
-        if (map.oActiveWidget) {
-          activeWidget = map.oActiveWidget;
-          map.deactivateWidget(map.oActiveWidget);
-        }
         var center = map.getCurrentCenter();
         map.zoom(center.x, center.y, factor);
-        //OpenLayers.Event.stop(e);
-        if (activeWidget) {
-          map.activateWidget(activeWidget);
-        }
+        OpenLayers.Event.stop(e);
         return false;
+    },
+    
+    mouseEnter: function() {
+        var mapWidget = this.getMap();
+        var mapOL = mapWidget.oMapOL;
+        for (var i=0; i<mapOL.controls.length; ++i) {
+          var control = mapOL.controls[i];
+          if (control.active) {
+            control.deactivate();
+            this.activeControls.push(control);
+          }
+        }
+        for (var i=0; i<mapWidget.handlers.length; ++i) {
+          var handler = mapWidget.handlers[i];
+          if (handler.active) {
+            handler.deactivate();
+            this.activeControls.push(handler);
+          }
+        }
+    },
+    
+    mouseLeave: function() {
+        var mapOL = this.getMap().oMapOL;
+        while (this.activeControls.length>0) {
+          var control = this.activeControls.pop();
+          control.activate();
+        }
     },
     
     busyChanged: function() {
