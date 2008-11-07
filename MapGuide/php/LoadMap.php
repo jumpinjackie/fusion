@@ -320,8 +320,8 @@ function buildScaleRanges($layer)
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
                     $styleObj = NULL;
-                    $styleObj->legendLabel = addslashes(trim($labelText));
-                    $styleObj->filter = addslashes(trim($filterText));
+                    $styleObj->legendLabel = trim($labelText);
+                    $styleObj->filter = trim($filterText);
                     $styleObj->geometryType = ($ts+1);
                     $styleObj->categoryIndex = $catIndex++;
                     array_push($scaleRangeObj->styles, $styleObj);
