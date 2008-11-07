@@ -47,7 +47,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('panEast');
         a.coords = '27,176, 27,177, 40,190, 44,182, 44,159';
         var panEast = OpenLayers.Function.bind(this.pan, this, this.panAmount/100, 0);
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(panEast, this));
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(panEast, this));
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -56,7 +56,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('panWest');
         a.coords = '24,177, 24,176, 7,159, 7,182, 11,190';
         var panWest = OpenLayers.Function.bind(this.pan, this, -this.panAmount/100, 0);
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(panWest, this) );
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(panWest, this) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -65,7 +65,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('panSouth');
         a.coords = '25,178, 12,191, 21,197, 30,197, 39,191, 26,178';
         var panSouth = OpenLayers.Function.bind(this.pan, this, 0, -this.panAmount/100 );
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(panSouth, this) );
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(panSouth, this) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -74,7 +74,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('panNorth');
         a.coords = '26,175, 43,158, 8,158, 25,175';
         var panNorth = OpenLayers.Function.bind(this.pan, this, 0, this.panAmount/100 );
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(panNorth, this) );
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(panNorth, this) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -83,7 +83,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('zoomOut');
         a.coords = '25,142,8';
         var zoomOut = OpenLayers.Function.bind(this.zoom, this, 1/this.zoomOutFactor);
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(zoomOut, this) );
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(zoomOut, this) );
         m.appendChild(a);
 
         var a = document.createElement('area');
@@ -92,7 +92,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         a.title = OpenLayers.i18n('zoomIn');
         a.coords = '25,34,8';
         var zoomIn = OpenLayers.Function.bind(this.zoom, this, this.zoomInFactor);
-        OpenLayers.Event.observe(a, 'mouseup', OpenLayers.Function.bindAsEventListener(zoomIn, this) );
+        OpenLayers.Event.observe(a, 'mousedown', OpenLayers.Function.bindAsEventListener(zoomIn, this) );
         m.appendChild(a);
 
         this.domObj.appendChild(m);
