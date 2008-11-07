@@ -1236,7 +1236,7 @@ Fusion.Maps.MapGuide.Layer = OpenLayers.Class(Fusion.Widget.Map.Layer, {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity') {
-          this.maxScale = 100000000;
+          this.maxScale = Infinity;
         }
         this.scaleRanges = [];
 
