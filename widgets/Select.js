@@ -68,10 +68,14 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
             this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, OpenLayers.Function.bind(this.enable, this));
         }
         
-        this.map = this.getMap().oMapOL;
+        var mapWidget = this.getMap();
+        this.map = mapWidget.oMapOL;
         this.handler = new OpenLayers.Handler.Box(this,{done: this.execute},{keyMask:0});
         this.shiftHandler = new OpenLayers.Handler.Box(this,{done: this.extend},
                                         {keyMask:OpenLayers.Handler.MOD_SHIFT});
+        mapWidget.handlers.push(this.handler);
+        mapWidget.handlers.push(this.shiftHandler);
+        
     },
     
     enable: function() {

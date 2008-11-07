@@ -50,10 +50,13 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
         
         this.keypressWatcher = OpenLayers.Function.bind(this.keypressHandler, this);
         
-        this.map = this.getMap().oMapOL;
+        var mapWidget = this.getMap();
+        this.map = mapWidget.oMapOL;
         this.handler = new OpenLayers.Handler.Box(this, {done: this.execute}, {keyMask:0});
         this.shiftHandler = new OpenLayers.Handler.Box(this, {done: this.altZoom}, 
                                         {keyMask:OpenLayers.Handler.MOD_SHIFT});
+        mapWidget.handlers.push(this.handler);
+        mapWidget.handlers.push(this.shiftHandler);
     },
 
    /**
