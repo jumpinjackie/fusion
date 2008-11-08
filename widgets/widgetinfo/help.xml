@@ -23,7 +23,7 @@
     <Description>The URL which contaions the help page contents.</Description>
     <Type>String</Type>
     <Label>Help URL</Label>
-    <DefaultValue>fusion/widgets/Help/Help.html</DefaultValue>
+    <DefaultValue>widgets/Help/Help.html</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
 </WidgetInfo>
