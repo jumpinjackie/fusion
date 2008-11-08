@@ -33,9 +33,17 @@
 
 Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
-    _nWidth : 500,
-    _nHeight : 400,
-    _sDefaultUrl : '/mapguide/mapadmin/about.php',  //TBD we need a Fusion specific About page
+    _nWidth: 500,
+    _nHeight: 400,
+    
+    /* the url to open.  If specified, it is relative to the
+     * application, not fusion
+     */
+     _sAboutUrl: null,
+     
+    /* the default url 
+     */
+    _sDefaultUrl: 'widgets/About/About.html',
 
 /*
  * Constructor: About
@@ -47,8 +55,12 @@ Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
  */
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
-        this._sAboutUrl = (json.AboutURL) ? 
-                json.AboutURL[0] : this._sDefaultUrl;
+        this._sAboutUrl = (json.AboutURL) ? json.AboutURL[0] : this._sDefaultUrl;
+        
+        if (this._sAboutUrl == this._sDefaultUrl) {
+          this._sAboutUrl = Fusion.getFusionURL() + this._sAboutUrl;
+        }
+        
         this.enable();
     },
 

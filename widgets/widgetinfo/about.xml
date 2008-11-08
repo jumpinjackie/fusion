@@ -15,7 +15,7 @@
     <Description>This is a pointer to the URL that will be displayed in the popup window</Description>
     <Type>String</Type>
     <Label>URL pointing to the About page</Label>
-    <DefaultValue>/mapguide/mapadmin/about.php</DefaultValue>
+    <DefaultValue>widgets/About/About.html</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
 </WidgetInfo>

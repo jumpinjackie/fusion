@@ -34,7 +34,7 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
     
     /* popup window initialization parameters */
-    sFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    sFeatures: 'menubar=no,location=no,resizable=no,status=no',
 
     /* the frame or window name to target.  If set to the Name of a
      * task pane widget, then it will appear in the task pane
@@ -46,11 +46,18 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {
      */
     baseUrl: null,
     
+    /* the default url 
+     */
+    defaultUrl: 'widgets/Help/Help.html',
+    
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.target = json.Target ? json.Target[0] : "HelpWindow";
-        this.baseUrl = json.Url ? json.Url[0] : Fusion.getFusionURL() + widgetTag.location + '/Help/Help.html';
-
+        this.baseUrl = json.Url ? json.Url[0] : this.defaultUrl;
+        if (this.baseUrl == this.defaultUrl) {
+          this.baseUrl = Fusion.getFusionURL() + this.baseUrl;
+        }
+        
         /* this widget is always enabled unless it was explicitly disabled
          * in the widget tag
          */
