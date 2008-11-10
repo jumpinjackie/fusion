@@ -91,6 +91,7 @@ try
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapid;
     $mapObj->metersPerUnit = $metersPerUnit;
+    $mapObj->siteVersion = GetSiteVersion();
 
     $mapObj->mapTitle=addslashes($mapTitle);
 
