@@ -827,6 +827,8 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                 $dimension = $geom->GetDimension();
 
                 if ($geom->GetDimension() > 0) {
+                  //conver the geometry to UTM auto so that local measurements
+                  //are accruate in meters
                     if ($bNeedsTransform && $srsTarget == null && $srsXform == null) {
                         $srsTarget = $srsFactory->Create(getUtmWkt($centroid->GetX(),
                                                                    $centroid->GetY()));
@@ -883,7 +885,12 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
 }
 
 function getUtmWkt($lon, $lat) {
-    $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
+    $siteVersion = explode(".",GetSiteVersion());
+    if ((integer)$siteVersion[0] > 1 && (integer)$siteVersion[1] > 0) {  //v2.1.x or greater
+      $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
+    } else {
+      $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
+    }
 
     return sprintf( $epsg42003, $lon, $lat);
 }
