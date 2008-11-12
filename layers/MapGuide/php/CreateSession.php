@@ -30,7 +30,7 @@
 
 include('Common.php');
 include('Utilities.php');
-include('../../common/php/Utilities.php');
+include('../../../common/php/Utilities.php');
 
 try {
     $site = $siteConnection->GetSite();

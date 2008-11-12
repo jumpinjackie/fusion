@@ -29,7 +29,7 @@
  *****************************************************************************/
 
 include ("Common.php");
-include('../../common/php/Utilities.php');
+include('../../../common/php/Utilities.php');
 
 //Get the folder to search within
 $root = (isset($_REQUEST['folder']))?$_REQUEST['folder']:'Library://';

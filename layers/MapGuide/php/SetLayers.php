@@ -37,7 +37,7 @@ echo "{";
 try {
     /* set up the session */
     include ("Common.php");
-    include('../../common/php/Utilities.php');
+    include('../../../common/php/Utilities.php');
     include('Utilities.php');
 
 	/* the name of the layer in the map to query */
