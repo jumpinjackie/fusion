@@ -24,7 +24,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
  
-  $fusionMGpath = '../../MapGuide/php/';
+  $fusionMGpath = '../../layers/MapGuide/php/';
   include $fusionMGpath . 'Common.php';
   SetLocalizedFilesPath(GetLocalizationPath());
   if(isset($_REQUEST['locale'])) {

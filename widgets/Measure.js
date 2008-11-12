@@ -366,7 +366,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
     
     measureSegment: function(segment, marker) {
         var aMaps = this.getMap().getAllMaps();
-        var s = aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage() ;
+        var s = 'layers/' + aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage() ;
         var options = {
             parameters: {
                 'session': aMaps[0].getSessionID(),
