@@ -32,9 +32,9 @@
 
 Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
     oSize: null,
-    nMinRatio : 4,
-    nMaxRatio : 32,
-    bDisplayed : false,
+    nMinRatio: 4,
+    nMaxRatio: 32,
+    bDisplayed: false,
   
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -54,8 +54,12 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
           var mainMap = this.getMap();
           mapTag = mainMap.mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
         }
-        this.mapObject = eval("new Fusion.Maps."+mapTag.type+"(this.getMap(),mapTag,false)");
-        this.mapObject.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
+        if (Fusion.Layers[mapTag.type]) {
+          this.mapObject = new Fusion.Layers[mapTag.type](this.getMap(), mapTag, false);
+        } else {
+          this.mapObject = new Fusion.Layers.Generic(this, mapTag, false);
+        }
+        this.mapObject.registerForEvent(Fusion.Event.LAYER_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {

@@ -535,7 +535,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {
                     if (range.styles.length > 0) {
-                        layer.legend.treeItem.domImg.style.backgroundImage = 'url('+range.styles[0].getLegendImageURL(fScale, layer, this.getMap())+')' ;
+                        layer.legend.treeItem.domImg.style.backgroundImage = 'url('+layer.oMap.getLegendImageURL(fScale, layer, range.styles[0])+')' ;
                         $(layer.legend.treeItem.domObj).removeClass('jxDisabled');
                     } else {
                         $(layer.legend.treeItem.domObj).addClass('jxDisabled');
@@ -618,7 +618,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-            opt.image = style.getLegendImageURL(scale, layer);
+            opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
         }
        
         var item = new Jx.TreeItem(opt);

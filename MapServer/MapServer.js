@@ -1,5 +1,5 @@
 /**
- * Fusion.Maps.MapServer
+ * Fusion.Layers.MapServer
  *
  * $Id$
  *
@@ -24,28 +24,19 @@
  */
 
 /******************************************************************************
- * Class: Fusion.Maps.MapServer
+ * Class: Fusion.Layers.MapServer
  *
  * Implementation of the map widget for MapServer CGI interface services
 */
 Fusion.Event.MAP_LAYER_ORDER_CHANGED = Fusion.Event.lastEventId++;
 
-Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
+Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     arch: 'MapServer',
     session: [null],
-    aShowLayers: null,
-    aHideLayers: null,
-    aShowGroups: null,
-    aHideGroups: null,
-    aRefreshLayers: null,
     sActiveLayer: null,
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
-    bDisplayInLegend: true,   //TODO: set this in AppDef?
-    bExpandInLegend: true,   //TODO: set this in AppDef?
     oSelection: null,
-    bMapLoaded : false,
-    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
     bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
     mapMetadataKeys: null,
     layerMetadataKeys: null,
@@ -53,36 +44,18 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     //the map file
     sMapFile: null,
 
-    //imagetype
-    _sImageType : 'png',
-
-    initialize : function(map, mapTag, isMapWidgetLayer) {
-        //console.log('Fusion.Maps.MapServer.initialize');
-        /*
-        //Object.inheritFrom(this, Fusion.Lib.EventMgr, []);
-        
-        prototype is not yet defined when this is called now omitting. 
-
-        Fusion.Lib.EventMgr.prototype.initialize.apply(this, []);
-        */
-
+    initialize: function(map, mapTag, isMapWidgetLayer) {
+        //console.log('Fusion.Layers.MapServer.initialize');
+        Fusion.Layers.prototype.initialize.apply(this, arguments);
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
-        this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
-        this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
-        this.registerEventID(Fusion.Event.MAP_LOADED);
-        this.registerEventID(Fusion.Event.MAP_LOADING);
-        this.registerEventID(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-
-        this.mapWidget = map;
-        this.oSelection = null;
-        if (isMapWidgetLayer != null) {
-            this.bIsMapWidgetLayer = isMapWidgetLayer;
-        }
-
-        var extension = mapTag.extension;
-        this.ratio = extension.MapRatio ? extension.MapRatio[0] : '1.0';
+        
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
 
+        this.sMapFile = mapTag.extension.MapFile ? mapTag.extension.MapFile[0] : '';
+
+        this.mapMetadataKeys = mapTag.extension.MapMetadata ? mapTag.extension.MapMetadata[0] : null;
+        this.layerMetadataKeys = mapTag.extension.LayerMetadata ? mapTag.extension.LayerMetadata[0] : null;
+        
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
           expandInLegend: this.bExpandInLegend,
@@ -93,16 +66,9 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
           actuallyVisible: true
           //TODO: set other opts for group initialization as required
         };
-        this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
+        this.layerRoot = new Fusion.Layers.Group(rootOpts,this);
 
-        this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
-
-        this.mapMetadataKeys = extension.MapMetadata ? extension.MapMetadata[0] : null;
-        this.layerMetadataKeys = extension.LayerMetadata ? extension.LayerMetadata[0] : null;
-
-        this.bSingleTile = mapTag.singleTile;// this is set by the AppDef.Map object
-
-        this.keepAliveInterval = parseInt(extension.KeepAliveInterval ? extension.KeepAliveInterval[0] : 300);
+        this.keepAliveInterval = parseInt(mapTag.extension.KeepAliveInterval ? mapTag.extension.KeepAliveInterval[0] : 300);
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;
@@ -120,7 +86,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             var options = {onSuccess: OpenLayers.Function.bind(this.createSessionCB, this)};
             Fusion.ajaxRequest(scriptURL,options);
         }
-        if (this.session[0] instanceof Fusion.Maps.MapServer) {
+        if (this.session[0] instanceof Fusion.Layers.MapServer) {
             this.session[0].registerForEvent(Fusion.Event.MAP_SESSION_CREATED, 
                         OpenLayers.Function.bind(this.mapSessionCreated, this));
         } else {
@@ -128,7 +94,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
     },
 
-    createSessionCB : function(r) {
+    createSessionCB: function(r) {
         if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
@@ -153,14 +119,6 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         return this.session[0];
     },
 
-    getMapName: function() {
-        return this._sMapname;
-    },
-
-    getMapTitle: function() {
-        return this._sMapTitle;
-    },
-
     loadMap: function(mapfile, options) {
         while (this.mapWidget.isBusy()) {
 	        this.mapWidget._removeWorker();
@@ -176,12 +134,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.sMapFile = mapfile;
             return;
         }
-
-        if (this.bIsMapWidgetLayer) {
-            this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADING);
-        } else {
-            this.triggerEvent(Fusion.Event.MAP_LOADING);
-        }
+        this.triggerEvent(Fusion.Event.LAYER_LOADING);
         this.mapWidget._addWorker();
 
         this._fScale = -1;
@@ -189,7 +142,6 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
         options = options || {};
 
-        this._oMaxExtent = null;
         this.aVisibleLayers = options.showlayers || [];
         this.aVisibleGroups = options.showgroups || [];
         this.aLayers = [];
@@ -226,7 +178,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this._sImageType = o.imagetype;
             this.metadata = o.metadata;
 
-            this._oMaxExtent = OpenLayers.Bounds.fromArray(o.extent);
+            this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
             this.layerRoot.clear();
             this.layerRoot.legendLabel = this._sMapTitle;
@@ -239,8 +191,8 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
               if (this.aLayers[i].visible) {
                   this.aVisibleLayers.push(this.aLayers[i].layerName);
               }
-              minScale = Math.min(minScale, this.aLayers[i].minScale);
-              maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
+      				minScale = Math.min(minScale, this.aLayers[i].minScale);
+      				maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
             }
             //a scale value of 0 is undefined
             if (minScale <= 0) {
@@ -258,19 +210,20 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       				singleTile: true,
       				ratio: this.ratio,
               units: this.units,
-      				maxExtent : this._oMaxExtent,
-              maxResolution : 'auto',
-      				minScale : maxScale,	//OL interpretation of min/max scale is reversed from Fusion
-      				maxScale : minScale
+              maxResolution: 'auto',
+      				minScale: maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+      				maxScale: minScale
       			};
+            OpenLayers.Util.extend(layerOptions, this.mapTag.layerOptions);
 
             //create the OL layer for this Map layer
             var params = {
               layers: this.aVisibleLayers.join(' '),
-              session : this.getSessionID(),
-              map : this._sMapFile,
-              map_imagetype : this._sImageType
+              session: this.getSessionID(),
+              map: this._sMapFile,
+              map_imagetype: this.sImageType
             };
+            OpenLayers.Util.extend(params, this.mapTag.layerParams);
 
             //remove this layer if it was already loaded
             if (this.oLayerOL) {
@@ -288,13 +241,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
-              this.mapWidget.oMapOL.setBaseLayer(this.oLayerOL);
               this.mapWidget.oMapOL.units = this.oLayerOL.units;
-              var initialExtent = this.mapWidget.setInitialExtents();
-              this.mapWidget.setExtents(initialExtent);
-              this.mapWidget.triggerEvent(Fusion.Event.MAP_LOADED);
-            } else {
-              this.triggerEvent(Fusion.Event.MAP_LOADED);
             }
 
             this.bMapLoaded = true;
@@ -305,6 +252,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 					'Failed to load requested map:\n'+r.responseText));
         }
         this.mapWidget._removeWorker();
+        this.triggerEvent(Fusion.Event.LAYER_LOADED);
     },
 
     reloadMap: function() {
@@ -371,7 +319,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
                         oLayer.scaleRanges = [];
                         for (var j=0; j<o.layers[i].scaleRanges.length; j++) 
                         {
-                            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.layers[i].scaleRanges[j], 
+                            var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j], 
                                                                                  oLayer.layerType);
                             oLayer.scaleRanges.push(scaleRange);
                         }
@@ -448,7 +396,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     parseMapLayersAndGroups: function(o) {
         for (var i=0; i<o.groups.length; i++) {
-            var group = new Fusion.Maps.MapServer.Group(o.groups[i], this);
+            var group = new Fusion.Layers.Group(o.groups[i], this);
             var parent;
             if (group.parentUniqueId != '') {
                 parent = this.layerRoot.findGroup(group.parentUniqueId);
@@ -459,7 +407,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
 
         for (var i=0; i<o.layers.length; i++) {
-            var layer = new Fusion.Maps.MapServer.Layer(o.layers[i], this);
+            var layer = new Fusion.Layers.Layer(o.layers[i], this);
             var parent;
             if (layer.parentGroup != '') {
                 parent = this.layerRoot.findGroup(layer.parentGroup);
@@ -471,17 +419,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
     },
 
-    
-    /**
-     * Function: isMapLoaded
-     *
-     * Returns true if the Map has been laoded succesfully form the server
-     */
-    isMapLoaded: function() {
-        return this.bMapLoaded;
-    },
-
-    getScale : function() {
+    getScale: function() {
         return this.mapWidget.getScale();
     },
 
@@ -512,13 +450,13 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     },
 
     showLayer: function( sLayer ) {
-        this.aVisibleLayers.push(sLayer);
+        this.aVisibleLayers.push(sLayer.layerName);
         this.drawMap();
     },
 
     hideLayer: function( sLayer ) {
         for (var i=0; i<this.aLayers.length; i++) {
-            if (this.aVisibleLayers[i] == sLayer) {
+            if (this.aVisibleLayers[i] == sLayer.layerName) {
                 this.aVisibleLayers.splice(i,1);
                 break;
             }
@@ -526,7 +464,29 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.drawMap();
     },
 
-    showGroup: function( sGroup ) {
+    showGroup: function( group, noDraw ) {
+        this.processGroupEvents(group, true);
+        if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(true);
+        } else {
+            this.aShowGroups.push(group.uniqueId);
+            if (!noDraw) {
+                this.drawMap();
+            }
+        }
+    },
+    hideGroup: function( group, noDraw ) {
+        this.processGroupEvents(group, false);
+        if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(false);
+        } else {
+            this.aHideGroups.push(group.uniqueId);
+            if (!noDraw) {
+                this.drawMap();
+            }
+        }
+    },
+    showGroupOLD: function( sGroup ) {
       if (sGroup == 'layerRoot') {
         this.oLayerOL.setVisibility(true);
       } else {
@@ -541,7 +501,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       }
     },
 
-    hideGroup: function( sGroup ) {
+    hideGroupOLD: function( sGroup ) {
       if (sGroup == 'layerRoot') {
         this.oLayerOL.setVisibility(false);
       } else {
@@ -567,7 +527,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     hasSelection: function() { return this.bSelectionOn; },
 
-    getSelectionCB : function(userFunc, layers, startend, r) {
+    getSelectionCB: function(userFunc, layers, startend, r) {
       if (r.status == 200)
       {
           var o;
@@ -591,7 +551,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedFeatureCount : function() {
+    getSelectedFeatureCount: function() {
       var total = 0;
       for (var j=0; j<this.aLayers.length; ++j) {
         total += this.aLayers[j].selectedFeatureCount;
@@ -602,7 +562,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedLayers : function() {
+    getSelectedLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectedFeatureCount>0) {
@@ -615,7 +575,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectableLayers : function() {
+    getSelectableLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectable) {
@@ -644,7 +604,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
      *         six elements for layer 2 starting at index 6). If it is not
      *        given, all the elemsnts will be returned.
      */
-    getSelection : function(userFunc, layers, startcount) {
+    getSelection: function(userFunc, layers, startcount) {
 
         if (userFunc)
         {
@@ -668,7 +628,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Utility function to clear current selection
     */
-    clearSelection : function() {
+    clearSelection: function() {
       if (!this.aLayers) return;
 
         //clear the selection count for the layers
@@ -687,7 +647,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(zoomTo, r) {
+    processQueryResults: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.status == 200) {
             var o;
@@ -717,7 +677,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Do a query on the map
     */
-    query : function(options) {
+    query: function(options) {
         this.mapWidget._addWorker();
 
         //clear the selection count for the layers
@@ -759,14 +719,6 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         Fusion.ajaxRequest(queryScript, ajaxOptions);
     },
 
-    loadStart: function() {
-      this.mapWidget._addWorker();
-    },
-
-    loadEnd: function() {
-      this.mapWidget._removeWorker();
-    },
-
     pingServer: function() {
         var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
         var params = {};
@@ -782,7 +734,7 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       return null;
   },
 
-    getLayerById : function(id)
+    getLayerById: function(id)
     {
         var oLayer = null;
         for (var i=0; i<this.aLayers.length; i++)
@@ -802,54 +754,18 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       } else {
           return '';
       }
-  }
+  },
 
-});
-
-
-/******************************************************************************
- * Class: Fusion.Maps.MapServer.Group
- *
- * Implements the map layer groups for MapServer CGI services
-*/
-
-Fusion.Maps.MapServer.Group = OpenLayers.Class(Fusion.Widget.Map.Group, {
-    oMap: null,
-    initialize: function(o, oMap) {
-        this.uniqueId = o.uniqueId;
-        Fusion.Widget.Map.Group.prototype.initialize.apply(this, [o.groupName]);
-        this.oMap = oMap;
-        this.groupName = o.groupName;
-        this.legendLabel = o.legendLabel;
-        this.parentUniqueId = o.parentUniqueId;
-        this.groupType = o.groupType;
-        this.displayInLegend = o.displayInLegend;
-        this.expandInLegend = o.expandInLegend;
-        this.visible = o.visible;
-        this.actuallyVisible = o.actuallyVisible;
-    },
-
-    clear: function() {
-        Fusion.Widget.Map.Group.prototype.clear.apply(this, []);
-        //this.oMap = null;
-    },
-
-    show: function() {
-        this.visible = true;
-        this.oMap.showGroup(this.groupName);
-    },
-
-    hide: function() {
-        this.visible = false;
-        this.oMap.hideGroup(this.groupName);
-    },
-
-    isVisible: function() {
-        var bParentVisible = (this.parentGroup && this.parentGroup.isVisible) ? this.parentGroup.isVisible() : true;
-        return this.visible && bParentVisible;
+    getLegendImageURL: function(fScale, layer) {
+        var sl = Fusion.getScriptLanguage();
+        var url = Fusion.getFusionURL() + '/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
+        var sessionid = this.getSessionID();
+        var params = 'mapname='+this._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
+        return url + '?'+params;
     }
 
 });
+
 
 var MSLAYER_POINT_TYPE = 0;
 var MSLAYER_LINE_TYPE = 1;
@@ -857,161 +773,4 @@ var MSLAYER_POLYGON_TYPE = 2;
 var MSLAYER_SOLID_TYPE = 3;
 var MSLAYER_RASTER_TYPE = 4;
 
-/******************************************************************************
- * Class: Fusion.Maps.MapServer.Layer
- *
-* Implements individual map legend layers for MapServer services
-*/
 
-Fusion.Maps.MapServer.Layer = OpenLayers.Class(Fusion.Widget.Map.Group, {
-
-    scaleRanges: null,
-
-    oMap: null,
-
-    initialize: function(o, oMap) {
-        this.uniqueId = o.uniqueId;
-        Fusion.Widget.Map.Layer.prototype.initialize.apply(this, [this.uniqueId]);
-        this.oMap = oMap;
-        this.layerName = o.layerName;
-        this.uniqueId = o.uniqueId;
-        this.resourceId = o.resourceId;
-        this.legendLabel = o.legendLabel;
-        this.selectable = o.selectable;
-        this.selectedFeatureCount = 0;
-        this.layerTypes = [].concat(o.layerTypes);
-        this.displayInLegend = o.displayInLegend;
-        this.expandInLegend = o.expandInLegend;
-        this.visible = o.visible;
-        this.actuallyVisible = o.actuallyVisible;
-        this.editable = o.editable;
-        this.parentGroup = o.parentGroup;
-        this.metadata = o.metadata;
-        this.extent = o.extent;
-        this.scaleRanges = [];
-        this.minScale = o.minScale;
-        this.maxScale = o.maxScale;
-        
-        /*
-        for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new Fusion.Maps.MapServer.ScaleRange(o.scaleRanges[i], this.supportsType(4));
-            this.scaleRanges.push(scaleRange);
-      			this.minScale = Math.min(this.minScale, scaleRange.minScale);
-      			this.maxScale = Math.max(this.maxScale, scaleRange.maxScale);
-        
-        }
-        */
-    },
-
-    clear: function() {
-        Fusion.Widget.Map.Layer.prototype.clear.apply(this, []);
-        this.oMap = null;
-        this.legend = null;
-    },
-
-    supportsType: function(type) {
-        for (var i=0; i<this.layerTypes.length; i++) {
-            if (this.layerTypes[i] == type) {
-                return true;
-            }
-        }
-        return false;
-    },
-
-    getScaleRange: function(fScale) {
-        for (var i=0; i<this.scaleRanges.length; i++) {
-            if (this.scaleRanges[i].contains(fScale)) {
-                return this.scaleRanges[i];
-            }
-        }
-        return null;
-    },
-
-    show: function() {
-        this.set('visible', true);
-        this.oMap.showLayer(this.layerName);
-    },
-
-    hide: function() {
-        this.set('visible',false);
-        this.oMap.hideLayer(this.layerName);
-    },
-
-    isVisible: function() {
-        var bParentVisible = this.parentGroup ? this.parentGroup.isVisible() : true;
-        return this.visible && bParentVisible;
-    },
-
-    getMetadata: function(key) {
-        if (typeof this.metadata[key] != 'undefined') {
-            return this.metadata[key];
-        } else {
-            return '';
-        }
-    }
-});
-
-/******************************************************************************
- * Class: Fusion.Maps.MapServer.ScaleRange
- *
-* Implements a scale range object for MapServer services
-*/
-
-Fusion.Maps.MapServer.ScaleRange = OpenLayers.Class({
-    styles: null,
-    initialize: function(o, bRaster) {
-        this.minScale = o.minScale;
-        this.maxScale = o.maxScale;
-        this.styles = [];
-        if (!o.styles) {
-            return;
-        }
-
-        /*special case : if there are no classes and it is a raster layer
-          we set it to use the default static raster icon*/
-        if (o.styles.length == 0 && bRaster)
-        {
-          var tmpsyle = {};
-          tmpsyle.legendLabel = "raster";
-          tmpsyle.filter = "";
-          tmpsyle.index = 0;
-          tmpsyle.staticIcon = true;
-          var styleItem = new Fusion.Maps.MapServer.StyleItem(tmpsyle, tmpsyle.staticIcon);
-          this.styles.push(styleItem);
-        }
-        else
-        {
-          var staticIcon = o.styles.length>=1 ? false : bRaster;
-          for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new Fusion.Maps.MapServer.StyleItem(o.styles[i], staticIcon);
-            this.styles.push(styleItem);
-          }
-        }
-    },
-    contains: function(fScale) {
-        var testScale = Math.round(fScale);
-        return testScale >= this.minScale && testScale <= this.maxScale;
-    }
-});
-
-/******************************************************************************
- * Class: Fusion.Maps.MapServer.StyleItem
- *
-* Implements the legend style items to get a legend icon from the server
-*/
-
-Fusion.Maps.MapServer.StyleItem = OpenLayers.Class({
-    initialize: function(o, staticIcon) {
-        this.legendLabel = o.legendLabel;
-        this.filter = o.filter;
-        this.index = o.index;
-        this.staticIcon = staticIcon;
-    },
-    getLegendImageURL: function(fScale, layer) {
-        var sl = Fusion.getScriptLanguage();
-        var url = Fusion.getFusionURL() + '/' + layer.oMap.arch + '/' + sl  + '/LegendIcon.' + sl;
-        var sessionid = layer.oMap.getSessionID();
-        var params = 'mapname='+layer.oMap._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
-        return url + '?'+params;
-    }
-});
