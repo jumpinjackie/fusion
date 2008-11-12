@@ -28,7 +28,7 @@
  * Purpose: get map initial information
  *****************************************************************************/
 
-include(dirname(__FILE__).'/../../common/php/Utilities.php');
+include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include('Common.php');
 include('Utilities.php');
 
