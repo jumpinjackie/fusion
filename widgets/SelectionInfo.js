@@ -79,11 +79,17 @@ Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {
     update: function() {
         var olMap = this.getMap();
         var aMaps = olMap.getAllMaps();
-        var map = aMaps[0];
-        if (map.hasSelection()) {
-            var layers = map.getSelectedLayers();
-            var nLayers = layers.length;
-            var nFeatures = map.getSelectedFeatureCount();
+        var nLayers = 0;
+        var nFeatures = 0;
+        for (var i=0; i<aMaps.length; ++i) { 
+          var map = aMaps[i];
+          if (map.hasSelection()) {
+              var layers = map.getSelectedLayers();
+              nLayers += layers.length;
+              nFeatures += map.getSelectedFeatureCount();
+          }
+        }
+        if (nFeatures > 0) {
             if (this.template) {
               this.domSpan.innerHTML = this.template.replace('{0}',nFeatures).replace('{1}',nLayers);
             } else {

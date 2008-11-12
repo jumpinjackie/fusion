@@ -27,6 +27,72 @@
         </Extension>
       </Map>
     </MapGroup>
+    <MapGroup id="mixed" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>WMS</Type>
+        <Extension>
+          <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
+          <Options>
+            <name>test WMS</name>
+            <isBaseLayer>true</isBaseLayer>
+            <singleTile>true</singleTile>
+            <!--maxResolution>auto</maxResolution>
+            <minScale>1000000000</minScale-->
+          </Options>
+          <Parameters>
+            <layers>bathymetry</layers>
+            <transparent>true</transparent>
+          </Parameters>
+        </Extension>
+      </Map>
+      <Map xsi:type="MapLayerType">
+        <Type>MapServer</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmapLonLat.map</MapFile>
+            <Options>
+              <isBaseLayer>false</isBaseLayer>
+              <singleTile>true</singleTile>
+            </Options>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="wmsOnly" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>WMS</Type>
+        <Extension>
+          <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
+          <Options>
+            <name>test WMS</name>
+            <singleTile>true</singleTile>
+            <isBaseLayer>true</isBaseLayer>
+            <transitionEffect>resize</transitionEffect>
+            <maxExtent>-141,41,-43,90</maxExtent>
+            <maxResolution>auto</maxResolution>
+            <!--minScale>1000000000</minScale-->
+          </Options>
+          <Parameters>
+            <layers>bathymetry</layers>
+            <transparent>true</transparent>
+          </Parameters>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="google" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>Google</Type>
+        <Extension>
+          <ResourceId>google</ResourceId>
+          <Options>
+            <name>GoogleLayer</name>
+            <type>G_PHYSICAL_MAP</type>
+            <isBaseLayer>true</isBaseLayer>
+            <sphericalMercator>true</sphericalMercator>
+            <maxExtent>-141,41,-43,90</maxExtent>
+          </Options>
+        </Extension>
+      </Map>
+    </MapGroup>
     <MapGroup id="mapserverKeymap" xsi:type="MapType">
       <Map xsi:type="MapLayerType">
         <Type>MapServer</Type>
@@ -1060,14 +1126,15 @@
       <MapId>reliance-roads</MapId>
     </MapWidget>
 
-<!-- OVERVIEW MAP -->
+<!-- OVERVIEW MAP     -->
+
 
     <Widget xsi:type="WidgetType">
       <Name>OverviewMap</Name>
       <Type>OverviewMap</Type>
       <Description/>
       <Extension xsi:type="CustomContentType">
-        <!--MapId>sheboyganOverview</MapId-->
+        <!--MapId>mapserverKeymap</MapId-->
       </Extension>
     </Widget>
 

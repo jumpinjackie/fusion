@@ -185,14 +185,14 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
           map.deactivateWidget(map.oActiveWidget);
         }
         if (!this.bInternalChange) {
-            var map = this.getMap().oMapOL;
-            var baseLayer = map.baseLayer;
+            var olMap = this.getMap().oMapOL;
+            var baseLayer = olMap.baseLayer;
             if (baseLayer.singleTile) {
                 var scale = Math.pow(9,value/9);
                 var resolution = OpenLayers.Util.getResolutionFromScale(scale, baseLayer.units);
                 resolution += baseLayer.minResolution;
                 this.bInternalChange = true;
-                map.zoomTo(map.getZoomForResolution(resolution));
+                olMap.zoomTo(olMap.getZoomForResolution(resolution));
                 this.bInternalChange = false;
             } else {
                 var res = olMap.baseLayer.resolutions;
