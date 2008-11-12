@@ -82,7 +82,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         if (!this.session[0]) {
             this.session[0] = this;
             var sl = Fusion.getScriptLanguage();
-            var scriptURL = this.arch + '/' + sl + '/CreateSession.' + sl;
+            var scriptURL = 'layers/' + this.arch + '/' + sl + '/CreateSession.' + sl;
             var options = {onSuccess: OpenLayers.Function.bind(this.createSessionCB, this)};
             Fusion.ajaxRequest(scriptURL,options);
         }
@@ -151,7 +151,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         this._bSelectionIsLoading = false;
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
+        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
         var params = {
             'mapfile': mapfile,
             'session': this.getSessionID()
@@ -266,7 +266,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         this.aLayers = [];
 
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = this.arch + '/' + sl  + '/LoadMap.' + sl;
+        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
 
         var params = {
             'mapname': this._sMapname,
@@ -293,7 +293,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         
     loadScaleRanges: function(userFunc) {
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
+        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
         
         var sessionid = this.getSessionID();
         
@@ -357,7 +357,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     reorderLayers: function(aLayerIndex) {
         var sl = Fusion.getScriptLanguage();
-        var loadmapScript = this.arch + '/' + sl  + '/SetLayers.' + sl;
+        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/SetLayers.' + sl;
 
         var params = {
             'mapname': this._sMapname,
@@ -608,7 +608,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
         if (userFunc)
         {
-            var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
+            var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
             var params = {
                 'mapname': this._sMapname,
                 'session': this.getSessionID(),
@@ -693,7 +693,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         }
         var zoomTo = options.zoomTo || false;
         var sl = Fusion.getScriptLanguage();
-        var queryScript = this.arch + '/' + sl  + '/Query.' + sl;
+        var queryScript = 'layers/' + this.arch + '/' + sl  + '/Query.' + sl;
 
         var params = {
             'mapname': this._sMapname,
@@ -720,7 +720,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     pingServer: function() {
-        var s = this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
+        var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
         var params = {};
         params.parameters = {'session': this.getSessionID()};
         Fusion.ajaxRequest(s, params);
@@ -758,7 +758,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     getLegendImageURL: function(fScale, layer) {
         var sl = Fusion.getScriptLanguage();
-        var url = Fusion.getFusionURL() + '/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
+        var url = Fusion.getFusionURL() + '/layers/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
         var sessionid = this.getSessionID();
         var params = 'mapname='+this._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
         return url + '?'+params;

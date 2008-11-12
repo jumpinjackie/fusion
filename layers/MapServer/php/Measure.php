@@ -29,7 +29,7 @@
 /* set up the session */
 include ("Common.php");
 include ("Utilities.php");
-include('../../common/php/Utilities.php');
+include('../../../common/php/Utilities.php');
 
 try {
     if (!isset($_REQUEST['session']) || 

@@ -30,7 +30,7 @@
  
  /* initialize a session and return the session id to the caller */
 include(dirname(__FILE__).'/Common.php');
-include('../../common/php/Utilities.php');
+include('../../../common/php/Utilities.php');
 
 initializeSession( "sid", "", "" );
 $sessionId = session_id();
