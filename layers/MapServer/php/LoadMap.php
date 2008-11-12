@@ -30,7 +30,7 @@
  *****************************************************************************/
 
 /* Common starts the session */
-include(dirname(__FILE__).'/../../common/php/Utilities.php');
+include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include(dirname(__FILE__).'/Common.php');
 include(dirname(__FILE__).'/Utilities.php');
 
