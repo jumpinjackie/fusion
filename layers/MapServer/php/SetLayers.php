@@ -70,9 +70,10 @@ if (count($currentLayers) != count($layers) ) {
 }
 
 if ($res) {
-	$oMap->save($_SESSION['maps'][$mapName]);
-	$currentLayers = $oMap->getlayersdrawingorder();
-    echo "{success: true, layerindex: [".implode(",",$currentLayers)."]}";
+    $oMap->save($_SESSION['maps'][$mapName]);
+    $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
+    $newLayers = $oMap->getlayersdrawingorder();
+    echo "{success: true, layerindex: [".implode(",",$newLayers)."]}";
 } else {
     echo "{success: false, layerindex: [".$_REQUEST['layerindex']."]}";
 }
