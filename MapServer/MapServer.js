@@ -44,8 +44,8 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
     oSelection: null,
-    bMapLoaded : false,
-    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
+    bMapLoaded: false,
+    bIsMapWidgetLayer: true,  //Setthis to false for overview map layers
     bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
     mapMetadataKeys: null,
     layerMetadataKeys: null,
@@ -258,18 +258,18 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
       				singleTile: true,
       				ratio: this.ratio,
               units: this.units,
-      				maxExtent : this._oMaxExtent,
-              maxResolution : 'auto',
-      				minScale : maxScale,	//OL interpretation of min/max scale is reversed from Fusion
-      				maxScale : minScale
+      				maxExtent: this._oMaxExtent,
+              maxResolution: 'auto',
+      				minScale: maxScale,	//OL interpretation of min/max scale is reversed from Fusion
+      				maxScale: minScale
       			};
 
             //create the OL layer for this Map layer
             var params = {
               layers: this.aVisibleLayers.join(' '),
-              session : this.getSessionID(),
-              map : this._sMapFile,
-              map_imagetype : this._sImageType
+              session: this.getSessionID(),
+              map: this._sMapFile,
+              map_imagetype: this._sImageType
             };
 
             //remove this layer if it was already loaded
@@ -379,11 +379,16 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         eval('o='+r.responseText);
   			if (o.success) {
   				var layerCopy = this.aLayers.clone();
+          var nLayers = layerCopy.length -1;
+          
+          //Mapserver has list of layers reversed from MapGuide
+          aLayerIndex.reverse();
+    
   				this.aLayers = [];
   				this.aVisibleLayers = [];
 
           for (var i=0; i<aLayerIndex.length; ++i) {
-            this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+            this.aLayers.push( layerCopy[ nLayers - aLayerIndex[i] ] );
             if (this.aLayers[i].visible) {
                 this.aVisibleLayers.push(this.aLayers[i].layerName);
             }
