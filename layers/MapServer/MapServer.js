@@ -375,11 +375,16 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         eval('o='+r.responseText);
   			if (o.success) {
   				var layerCopy = $A(this.aLayers);
+          var nLayers = layerCopy.length -1;
+          
+          //Mapserver has list of layers reversed from MapGuide
+          aLayerIndex.reverse();
+    
   				this.aLayers = [];
   				this.aVisibleLayers = [];
 
           for (var i=0; i<aLayerIndex.length; ++i) {
-            this.aLayers.push( layerCopy[ aLayerIndex[i] ] );
+            this.aLayers.push( layerCopy[ nLayers - aLayerIndex[i] ] );
             if (this.aLayers[i].visible) {
                 this.aVisibleLayers.push(this.aLayers[i].layerName);
             }
@@ -388,9 +393,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
   				this.drawMap();
   				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-  			} else {
-          alert(OpenLayers.i18n('setLayersError', {'error':o.layerindex}));
-  			}
       }
     },
 
