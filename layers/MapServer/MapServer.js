@@ -393,6 +393,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
   				this.drawMap();
   				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+        }
       }
     },
 
