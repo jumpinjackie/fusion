@@ -6,8 +6,8 @@
   <Label>Help</Label>
   <Tooltip>Click to get help</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/help.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>help</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

@@ -6,8 +6,8 @@
   <Label>Invoke script</Label>
   <Tooltip>Click to invoke a javascript method</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/invoke-script.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>invoke-script</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

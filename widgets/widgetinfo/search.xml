@@ -6,8 +6,8 @@
   <Label>Search</Label>
   <Tooltip>Click to carry out a search on the map data</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/search.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>search</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

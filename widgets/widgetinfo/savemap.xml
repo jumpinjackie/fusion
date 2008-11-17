@@ -4,7 +4,8 @@
   <Description>A widget to save the map as an image</Description>
   <Label>Save map</Label>
   <Tooltip>Click to save the map as an image</Tooltip>
-  <ImageUrl>images/icons/file-save.png</ImageUrl>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>file-save</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>
@@ -15,7 +16,7 @@
     <AllowedValue>
       <Name>dwf</Name>
       <Label>DWF</Label>
-    </AllowedValue>    
+    </AllowedValue>
     <AllowedValue>
       <Name>png</Name>
       <Label>PNG</Label>

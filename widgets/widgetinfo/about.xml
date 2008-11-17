@@ -6,8 +6,8 @@
   <Label>About</Label>
   <Tooltip>Click to show information about this application</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/about.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>about</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

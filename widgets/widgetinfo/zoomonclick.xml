@@ -6,8 +6,8 @@
   <Label>ZoomOnClick</Label>
   <Tooltip>Click to zoom in</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/zoom-out-fixed.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>zoom-out-fixed</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

@@ -6,8 +6,8 @@
   <Label>Select</Label>
   <Tooltip>Click to select features</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

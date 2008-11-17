@@ -3,7 +3,8 @@
   <LocalizedType>Extent History</LocalizedType>
   <Description>A widget to navigate forward or backward in the map view extent history</Description>
   <Label>Go To Extent</Label>
-  <ImageUrl>images/icons/view-back.png</ImageUrl>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>view-back</ImageClass>
   <Tooltip>Navigate to the previous extents</Tooltip>
   <Direction>Previous</Direction>
   <StandardUi>true</StandardUi>

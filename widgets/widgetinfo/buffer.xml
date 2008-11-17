@@ -6,7 +6,8 @@ wil be merged in the future -->
     <Description>This widget will perform a buffering operation on selected features in the Map.  Either a popup window or the task pane will be used to gather user input, depending on the setting of the Target parameter</Description>
     <Label>Create a buffer</Label>
     <Tooltip>Click to create a buffer</Tooltip>
-    <ImageUrl>images/icons/buffer.png</ImageUrl>
+    <ImageUrl>images/icons.png</ImageUrl>
+    <ImageClass>buffer</ImageClass>
     <StandardUi>true</StandardUi>
     <ContainableBy>Any</ContainableBy>
     <Parameter>

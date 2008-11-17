@@ -6,8 +6,8 @@
   <Label>Zoom Selection</Label>
   <Tooltip>Click to zoom to the selection</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select-zoom.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select-zoom</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>
