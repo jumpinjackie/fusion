@@ -6,8 +6,8 @@
   <Label>Zoom Extents</Label>
   <Tooltip>Click to zoom to the full map extents</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/zoom-full.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>zoom-full</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

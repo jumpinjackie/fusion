@@ -4,7 +4,8 @@
   <Description>Produces a printable version of the page</Description>
   <Label>Print</Label>
   <Tooltip>Print the current map view</Tooltip>
-  <ImageUrl>images/icons/file-print.png</ImageUrl>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>file-print</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

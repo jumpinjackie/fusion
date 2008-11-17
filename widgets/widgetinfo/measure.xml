@@ -6,8 +6,8 @@
   <Label>Measure</Label>
   <Tooltip>Measure distances on the map</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/measure.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>measure</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

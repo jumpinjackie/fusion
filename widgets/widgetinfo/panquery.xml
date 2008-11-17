@@ -6,8 +6,8 @@
   <Label>Pan query</Label>
   <Tooltip>Drag the mouse to pan, click to query</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/pan.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>pan</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

@@ -6,8 +6,8 @@
   <Label>Refresh</Label>
   <Tooltip>Click to redraw the map</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/view-refresh.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>view-refresh</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
 </WidgetInfo>

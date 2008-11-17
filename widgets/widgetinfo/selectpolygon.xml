@@ -6,8 +6,8 @@
   <Label>Select Polygon</Label>
   <Tooltip>Draw a polygon to perform a selection</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select-polygon.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select-polygon</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

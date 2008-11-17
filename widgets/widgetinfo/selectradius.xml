@@ -4,7 +4,8 @@
   <Description>Perform a selection within a certain radius of a click</Description>
   <Label>Select Radius</Label>
   <Tooltip>Click to select within a radius</Tooltip>
-  <ImageUrl>images/icons/select-radius.png</ImageUrl>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select-radius</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

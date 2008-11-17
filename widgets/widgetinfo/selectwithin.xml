@@ -6,8 +6,8 @@
   <Label>Select within</Label>
   <Tooltip>Click to select features within this selection</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select-features.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select-features</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

@@ -6,8 +6,8 @@
   <Label>Center selection</Label>
   <Tooltip>Click to center the map on the current selection</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons/select-centre.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>select-centre</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
 </WidgetInfo>

@@ -5,8 +5,8 @@
   <Label>Zoom Rectangle</Label>
   <Tooltip>Click or click and drag on the map to zoom in</Tooltip>
   <StatusText>Click or click and drag on the map to zoom in</StatusText>
-  <ImageUrl>images/icons/zoom-in.png</ImageUrl>
-  <ImageClass></ImageClass>
+  <ImageUrl>images/icons.png</ImageUrl>
+  <ImageClass>zoom-in</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>
@@ -44,5 +44,5 @@
     <DefaultValue>in</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
-  
+
 </WidgetInfo>
