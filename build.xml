@@ -118,8 +118,7 @@ $Id$
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
             includes="configHeader.json
-                      MapGuide/** 
-                      MapServer/** 
+                      layers/** 
                       common/** 
                       containerinfo/**
                       docs/** 
@@ -194,7 +193,7 @@ $Id$
 
   
 <!-- =================== concat build ================================== -->
-  <target description="concatenate core files into a single file" name="concat" depends="clean,prepare">
+  <target description="concatenate core files into a single file" name="concat" depends="prepare">
     <echo message="concatenating core files"/>
     <delete dir="${buildOutput}.js"/>
     
@@ -234,7 +233,7 @@ $Id$
     <!-- merge everything into a single file -->
     <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
         <fileset dir="${build.home}/widgets" includes="**/*.js"/>
-        <filelist dir="${build.home}" files="MapGuide/MapGuide.js MapServer/MapServer.js"/>
+        <fileset dir="${build.home}" includes="layers/**"/>
     </concat>
   </target>
 
@@ -322,7 +321,7 @@ $Id$
     dependencies) will have been assembled
 -->
 
-  <target name="dist" description="Create binary distribution" depends="docs,compress">
+  <target name="dist" description="Create binary distribution" depends="clean,docs,compress">
     
     <echo message="Creating distribution archive"/>
     <mkdir dir="${dist.home}"/>
