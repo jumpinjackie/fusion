@@ -55,7 +55,15 @@ $Name$
   </xsl:template>
   
   <xsl:template match="MapGroup/Map">
-    <xsl:value-of select="Type"/>/<xsl:value-of select="Type"/>.js 
+    <xsl:variable name="layerType">
+      <xsl:choose>
+        <xsl:when test="Type='MapGuide' or Type='MapServer'">
+          <xsl:value-of select="Type"/>
+        </xsl:when>
+        <xsl:otherwise>Generic</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    layers/<xsl:value-of select="$layerType"/>/<xsl:value-of select="$layerType"/>.js 
   </xsl:template>
   
   <xsl:template name="removeDuplicates"> <!-- tokenize a string -->
