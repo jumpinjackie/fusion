@@ -1,5 +1,5 @@
 /**
- * Fusion.Maps.Generic
+ * Fusion.Layers.Generic
  *
  * $Id: Generic.js 1590 2008-10-10 14:01:27Z madair $
  *
@@ -24,9 +24,9 @@
  */
 
 /***************************************************************************
-* Class: Fusion.Maps.Generic
+* Class: Fusion.Layers.Generic
 *
-* Implements the map widget for Generic mapping services.
+* Implements the map layer for Generic mapping services.
 */
 
 Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {

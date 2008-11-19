@@ -195,7 +195,7 @@ $Id$
 <!-- =================== concat build ================================== -->
   <target description="concatenate core files into a single file" name="concat" depends="prepare">
     <echo message="concatenating core files"/>
-    <delete dir="${buildOutput}.js"/>
+    <delete file="${buildOutput}.js"/>
     
     <!-- Fusion looks for it's own script name to set paths for other widgets
         so replace the value to look for with the sfName used to create the file-->
@@ -220,6 +220,7 @@ $Id$
         />
         <fileset dir="${build.home}/text" includes="**/*.json"/>
         <filelist dir="${build.home}" files="configHeader.json config.json"/>
+        <filelist dir="${build.home}/layers" files="Layers.js"/>
     </concat>
     
     <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}"/>
@@ -233,7 +234,7 @@ $Id$
     <!-- merge everything into a single file -->
     <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
         <fileset dir="${build.home}/widgets" includes="**/*.js"/>
-        <fileset dir="${build.home}" includes="layers/**"/>
+        <fileset dir="${build.home}/layers" includes="**/*.js" excludes="Layers.js"/>
     </concat>
   </target>
 
