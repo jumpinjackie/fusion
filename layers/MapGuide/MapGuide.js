@@ -201,7 +201,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                           parseInt(bits[2]),
                                           parseInt(bits[3])
             );
-            
+
 
             this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
@@ -493,7 +493,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
         this.oLayerOL.mergeNewParams(params);
     },
-    
+
     drawSelection: function() {
         if (this.queryLayer) {
             this.queryLayer.redraw(true);
@@ -509,7 +509,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      */
     createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
       /* prevent the useOverlay flag based on site version       */
-      if ( this.siteVersion[0] > 1 && this.siteVersion[1]<1 ) { //v2.0.x or higher
+      if (( this.siteVersion[0] == 2 && this.siteVersion[1] < 1 ) || this.siteVersion[0] < 2) { //v2.0.0 or previous
         this.selectionAsOverlay = false;
       }
       var layerOptions = {
@@ -519,7 +519,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
-      if (behaviour != 1 && !/WebKit/.test(navigator.userAgent)) {
+      if ((behaviour & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
       }
 
@@ -779,7 +779,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", false, true, 1);
+                  this.queryLayer = this.createOLLayer("query layer", false, true, 5);
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING,
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
