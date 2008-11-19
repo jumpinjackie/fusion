@@ -671,7 +671,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
                 }
                 this.newSelection();
                 if (zoomTo) {
-                var ext = oNode.extents
+                var ext = oNode.extents;
                 var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
                 this.zoomToSelection(extents);
               }
@@ -706,7 +706,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             'maxfeatures': options.maxFeatures || -1, //-1 means select all features
             'layers': layers,
             'variant': options.selectionType || this.selectionType
-        }
+        };
         if (options.filter) {
             params.filter = options.filter;
         }

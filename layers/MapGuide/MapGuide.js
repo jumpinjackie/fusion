@@ -249,7 +249,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
                 this.bSingleTile = false;
-                this.groupName = o.groups[0].groupName  //assumes only one group for now
+                this.groupName = o.groups[0].groupName;  //assumes only one group for now
                 this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED,
                     OpenLayers.Function.bind(this.mapExtentsChanged, this));
               } else {
@@ -482,7 +482,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
         this.oLayerOL.mergeNewParams(params);
 
-        if (this.queryLayer) this.queryLayer.redraw(true);
+        if (this.queryLayer) {
+          this.queryLayer.redraw(true);
+        }
     },
 
     /**
@@ -778,7 +780,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
               }
 
               if (zoomTo) {
-                var ext = oNode.extents
+                var ext = oNode.extents;
                 var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
                 this.zoomToSelection(extents);
               }
@@ -815,7 +817,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             'maxfeatures': options.maxFeatures || 0, //zero means select all features
             'layers': options.layers || '',
             'variant': options.selectionType || this.selectionType
-        }
+        };
         if (options.filter) {
             params.filter= options.filter;
         }
