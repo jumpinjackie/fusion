@@ -105,8 +105,11 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = G_NORMAL_MAP;
                 break;
             }
+            this.mapTag.layerOptions.maxExtent = null;    //maxExtent not allowed on Google layers
             this.oLayerOL = new OpenLayers.Layer.Google(this.getMapName(), this.mapTag.layerOptions );
-            break;
+            this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
+            this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
+           break;
           default:
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
@@ -126,7 +129,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         }
         
         //this.triggerEvent(Fusion.Event.LAYER_LOADED);
-        window.setTimeout(OpenLayers.Function.bind(this.asyncTrigger, this),1000);
+        window.setTimeout(OpenLayers.Function.bind(this.asyncTrigger, this),1);
     },
     
     asyncTrigger: function() {
