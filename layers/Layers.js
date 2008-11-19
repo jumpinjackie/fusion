@@ -45,6 +45,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     sMapResourceId: null,    //pointer to the resource that defines the map (URL, MapFile, MGOS, etc)
     sImageType: 'png',      //TODO: set this in AppDef?
     clientAgent: 'Fusion Viewer',
+    noCache: false,
     _sMapTitle: null,
     _sMapname: null,
     
@@ -65,6 +66,9 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         
         this.mapTag = mapTag; 
+        if (!this.mapTag.layerOptions) {
+          this.mapTag.layerOptions = {};
+        }
         this.ratio = this.mapTag.layerOptions.MapRatio ? this.extension.MapRatio[0] : 1.0;
         this.bSingleTile = mapTag.singleTile; //this is set in thhe AppDef.Map class
         this.bIsBaseLayer = mapTag.isBaseLayer;

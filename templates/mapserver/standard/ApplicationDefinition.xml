@@ -86,9 +86,6 @@
           <Options>
             <name>GoogleLayer</name>
             <type>G_PHYSICAL_MAP</type>
-            <isBaseLayer>true</isBaseLayer>
-            <sphericalMercator>true</sphericalMercator>
-            <maxExtent>-141,41,-43,90</maxExtent>
           </Options>
         </Extension>
       </Map>
@@ -1126,7 +1123,7 @@
       <MapId>reliance-roads</MapId>
     </MapWidget>
 
-<!-- OVERVIEW MAP     -->
+<!-- OVERVIEW MAP    
 
 
     <Widget xsi:type="WidgetType">
@@ -1134,10 +1131,10 @@
       <Type>OverviewMap</Type>
       <Description/>
       <Extension xsi:type="CustomContentType">
-        <!--MapId>mapserverKeymap</MapId-->
+        <MapId>mapserverKeymap</MapId>
       </Extension>
     </Widget>
-
+ -->
 <!-- PRINT -->
 
     <Widget xsi:type="UiWidgetType">

@@ -69,6 +69,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         this.layerRoot = new Fusion.Layers.Group(rootOpts,this);
 
         this.keepAliveInterval = parseInt(mapTag.extension.KeepAliveInterval ? mapTag.extension.KeepAliveInterval[0] : 300);
+        this.noCache = true;
 
         if (mapTag.sid) {
             this.session[0] = mapTag.sid;

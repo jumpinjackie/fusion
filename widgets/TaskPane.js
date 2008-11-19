@@ -56,8 +56,6 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
             initialTask = url + initialTask;
         }
         
-        console.log(homeIcon);
-        
         homeIcon  = json.HomeIcon  ? json.HomeIcon[0]  : homeIcon;
         homeClass = json.HomeClass ? json.HomeClass[0] : homeClass;
         prevIcon  = json.PreviousIcon  ? json.PreviousIcon[0]  : prevIcon;
