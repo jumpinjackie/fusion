@@ -234,7 +234,7 @@ $Id$
     <!-- merge everything into a single file -->
     <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
         <fileset dir="${build.home}/widgets" includes="**/*.js"/>
-        <fileset dir="${build.home}/layers" includes="**/*.js" excludes="Layers.js"/>
+        <fileset dir="${build.home}/layers" includes="**/*.js" excludes="Layers.js MapGuide/MapGuideViewerApi.js"/>
     </concat>
   </target>
 
