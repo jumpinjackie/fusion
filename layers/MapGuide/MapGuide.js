@@ -192,6 +192,16 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
             this.mapWidget.setMetersPerUnit(o.metersPerUnit);
+            this.mapWidget.setBackgroundColor(o.backgroundColor);
+
+            var version = o.siteVersion;
+            var bits = version.split('.');
+            this.siteVersion = new Array(parseInt(bits[0]),
+                                          parseInt(bits[1]),
+                                          parseInt(bits[2]),
+                                          parseInt(bits[3])
+            );
+            
 
             this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
@@ -249,6 +259,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
                 this.bSingleTile = false;
+                this.noCache = false;
                 this.groupName = o.groups[0].groupName;  //assumes only one group for now
                 this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED,
                     OpenLayers.Function.bind(this.mapExtentsChanged, this));
@@ -481,9 +492,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.aRefreshLayers = [];
 
         this.oLayerOL.mergeNewParams(params);
-
+    },
+    
+    drawSelection: function() {
         if (this.queryLayer) {
-          this.queryLayer.redraw(true);
+            this.queryLayer.redraw(true);
+        } else {
+            this.drawMap();
         }
     },
 
@@ -493,6 +508,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      * Returns an OpenLayers MapGuide layer object
      */
     createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
+      /* prevent the useOverlay flag based on site version       */
+      if ( this.siteVersion[0] > 1 && this.siteVersion[1]<1 ) { //v2.0.x or higher
+        this.selectionAsOverlay = false;
+      }
       var layerOptions = {
         units: this.units,
         isBaseLayer: bIsBaseLayer,
@@ -500,7 +519,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
-      if (!/WebKit/.test(navigator.userAgent)) {
+      if (behaviour != 1 && !/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
       }
 
@@ -603,14 +622,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.oSelection = null;
         }
         this.bSelectionOn = true;
-        this.drawMap();
+        this.drawSelection();
         this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedFeatureCount : function() {
+    getSelectedFeatureCount: function() {
       var total = 0;
       for (var j=0; j<this.aLayers.length; ++j) {
         total += this.aLayers[j].selectedFeatureCount;
@@ -621,7 +640,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedLayers : function() {
+    getSelectedLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectedFeatureCount>0) {
@@ -634,7 +653,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectableLayers : function() {
+    getSelectableLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectable) {
@@ -680,7 +699,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *         six elements for layer 2 starting at index 6). If it is not
      *        given, all the elemsnts will be returned.
      */
-    getSelection : function(userFunc, layers, startcount) {
+    getSelection: function(userFunc, layers, startcount) {
 
       /*for now always go back to server to fetch selection */
 
@@ -706,7 +725,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
        Call back function when selection is cleared
     */
-    selectionCleared : function()
+    selectionCleared: function()
     {
         //clear the selection count for the layers
         for (var j=0; j<this.aLayers.length; ++j) {
@@ -725,7 +744,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
        Utility function to clear current selection
     */
-    clearSelection : function() {
+    clearSelection: function() {
       if (this.hasSelection()) {
           var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
           var options = {
@@ -740,7 +759,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
        removes the queryLayer from the map
     */
-    removeQueryLayer : function() {
+    removeQueryLayer: function() {
       if (this.queryLayer) {
         this.queryLayer.destroy();
         this.queryLayer = null;
@@ -751,7 +770,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(zoomTo, r) {
+    processQueryResults: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -795,7 +814,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     /**
        Do a query on the map
     */
-    query : function(options) {
+    query: function(options) {
         this.mapWidget._addWorker();
 
         //clear the selection count for the layers
