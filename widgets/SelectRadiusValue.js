@@ -44,7 +44,7 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {
         this.label = json.Label ? json.Label[0] : '';
         this.className = json.ClassName ? json.ClassName[0] : '';
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, OpenLayers.Function.bind(this.mapLoaded, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
     },
     
