@@ -73,7 +73,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         this.arch = this.getMap().getAllMaps()[0].arch;
         if (this.arch == 'MapGuide' && json.Folder) {
             this.rootFolder = json.Folder ? json.Folder[0] : 'Library://';
-            var s =       this.arch + '/' + Fusion.getScriptLanguage() +
+            var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() +
                           '/MapMenu.' + Fusion.getScriptLanguage();
             var params =  {parameters: {'folder': this.rootFolder},
                           onComplete: OpenLayers.Function.bind(this.processMapMenu, this)};
