@@ -614,6 +614,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         return oLayer;
     },
 
+    getSelectionCB: function(userFunc, r) {
+      if (r.status == 200) {
+          var o;
+          eval("o="+r.responseText);
+          var oSelection = new Fusion.SelectionObject(o);
+          userFunc(oSelection);
+      }
+    },
+    
     /**
      * advertise a new selection is available and redraw the map
      */
@@ -716,7 +725,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                           'mapname': this._sMapname,
                           'layers': layers,
                           'startcount': startcount},
-              onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc, layers, startcount)
+              onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc)
           };
           Fusion.ajaxRequest(s, options);
       }

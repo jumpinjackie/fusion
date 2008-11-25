@@ -531,12 +531,10 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     hasSelection: function() { return this.bSelectionOn; },
 
-    getSelectionCB: function(userFunc, layers, startend, r) {
-      if (r.status == 200)
-      {
+    getSelectionCB: function(userFunc, r) {
+      if (r.status == 200) {
           var o;
           eval("o="+r.responseText);
-
           var oSelection = new Fusion.SelectionObject(o);
           userFunc(oSelection);
       }
@@ -622,7 +620,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             };
             var options = {
                 parameters:params,
-                onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc, layers, startcount)
+                onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc)
             };
             Fusion.ajaxRequest(s, options);
         }
