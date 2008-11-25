@@ -93,7 +93,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.iframe.scrolling = 'no';
         this.iframe.frameborder = 0;
         
-         OpenLayers.Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
+        OpenLayers.Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
         OpenLayers.Event.observe(this.domObj, 'mouseout', OpenLayers.Function.bind(this.mouseOutTip, this));
         
         var oDomElem =  this.getMap().getDomObj();
@@ -120,7 +120,12 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         if (this.bOverTip) {
             return;
         }
-        var p = this.getMap().getEventPosition(e);
+        
+        var map = this.getMap();
+        this.mapSize = map.getSize();
+        this.mapOffset = map._oDomObj.offsets;
+        
+        var p = map.getEventPosition(e);
         this.oCurrentPosition = p;
         this.oMapTipPosition = p;
         if (this.oCurrentPosition) {
@@ -214,17 +219,14 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
               empty = false;
             }
             if (!empty) {
-                var map = this.getMap();
-                var mapSize = map.getSize();
                 var size = $(this.domObj).getBorderBoxSize();
-                var offset = map._oDomObj.offsets;
-                this.oMapTipPosition = this.oMapTipPosition.add(offset[0], offset[1]);
-                if (this.oCurrentPosition.x < mapSize.w/2) {
+                this.oMapTipPosition = this.oMapTipPosition.add(this.mapOffset[0], this.mapOffset[1]);
+                if (this.oCurrentPosition.x < this.mapSize.w/2) {
                   this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
                   this.domObj.style.left = (this.oMapTipPosition.x - (size.width+this.offset.x)) + 'px';
                 }
-                if (this.oCurrentPosition.y < mapSize.h/2) {
+                if (this.oCurrentPosition.y < this.mapSize.h/2) {
                   this.domObj.style.top = (this.oMapTipPosition.y + this.offset.y) + 'px';
                 } else {
                   this.domObj.style.top = (this.oMapTipPosition.y - (size.height+this.offset.y)) + 'px';
