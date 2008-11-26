@@ -41,8 +41,6 @@ define('MAX_SCALE', 1000000000);
 /* could potentially make this optional */
 $moveToSession = true;
 
-
-
 /**
    TODO make it possible to specify only a relative path
    in the WebLayout and have this code know where to
@@ -51,14 +49,40 @@ $moveToSession = true;
 
 /* only do something if a mapfile was requested */
 if (isset($_REQUEST['mapfile'])) {
-    $oMap = ms_newMapObj($_REQUEST['mapfile']);
+
+    /* look for mapFileRoot specified in config.json and test to see if the map path in appdef is realitive to it.*/
+    $configObj = $_SESSION['fusionConfig'];
+    $szFusionRoot = dirname(__FILE__).'/../../../'; // TODO : not a very elegant way of doing this
+    $szDblSeparator = DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR;
+
+    $szMapFromFusionRoot = str_replace($szDblSeparator,DIRECTORY_SEPARATOR,$szFusionRoot.DIRECTORY_SEPARATOR.$_REQUEST['mapfile']);
+    $szMapFileRoot = str_replace($szDblSeparator,DIRECTORY_SEPARATOR,$configObj->mapserver->mapFileRoot.DIRECTORY_SEPARATOR.$_REQUEST['mapfile']);
+
+    if( file_exists($szMapFileRoot) ) {
+        /* use the realitive path specified in config.json */
+        $szMapFile = $szMapFileRoot;
+    }
+    else
+    {
+        if( file_exists($szMapFromFusionRoot) ) {
+            /* use the realitive path from fusion install root */
+            $szMapFile = $szMapFromFusionRoot;
+        }
+        else
+        {
+            /* use absolute path from appdef */
+            $szMapFile = $_REQUEST['mapfile'];
+        }
+    }
+
+    $oMap = ms_newMapObj($szMapFile);
 
     /* optionally move the mapfile to the session */
     if ($moveToSession) {
         //path to map file in the session is used by the client
         $mapId = getSessionSavePath().($oMap->name).".map";
         //modify various paths if necessary
-        $pathToMap = dirname($_REQUEST['mapfile']);
+        $pathToMap = dirname($szMapFile);
         $cwd = getcwd();
         chdir($pathToMap);
         $shapePath = $oMap->shapepath;
