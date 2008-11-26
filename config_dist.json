@@ -32,6 +32,8 @@
 	    "imageUrl": "http://localhost/ms_tmp",
 	    /* The file system path to where mapserver should put
 	        web-accessible temporary legend images. */
-	    "legendIconCacheDir":"/ms4w/tmp/ms_tmp"
+	    "legendIconCacheDir":"/ms4w/tmp/ms_tmp",
+            /* The file  system path to where the maps are stored. */
+            "mapFileRoot":"/ms4w/apps/"
     }
 }
