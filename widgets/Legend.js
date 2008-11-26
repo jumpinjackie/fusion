@@ -473,7 +473,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         $(this.currentNode.domObj.childNodes[1]).addClass('jxTreeItemSelected');
        
         var data = o.domObj.retrieve('data');
-        if (data instanceof Fusion.Widget.Map.Group) {
+        if (data instanceof Fusion.Layers.Group) {
             this.getMap().setActiveLayer(null);
         } else {
             this.getMap().setActiveLayer(data);
@@ -556,6 +556,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 }
             } else {
                 var newTreeItem = this.createTreeItem(layer, null, null, this.bIncludeVisToggle);
+                OpenLayers.Event.observe(newTreeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                 if (layer.legend.treeItem) {
                     layer.legend.treeItem.checkBox.disabled = true;
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);

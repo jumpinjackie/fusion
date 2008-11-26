@@ -207,6 +207,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
             this.layerRoot.clear();
             this.layerRoot.legendLabel = this._sMapTitle;
+            this.layerRoot.displayInLegend = true;
+            this.layerRoot.expandInLegend = true;
 
             this.parseMapLayersAndGroups(o);
 
