@@ -97,23 +97,23 @@ function DuplicateSessionLayer($map, $resourceService, $sourceLayerId, $suffix) 
     //instantiate the new layer from its MgResourceIdentifier
     $layer = new MgLayer($destinationLayerId, $resourceService);
 
-	//add the edit layer to the session map and set it to redraw but not be visible in the legend
-	$layerCollection=$map->GetLayers();
-	$originalLayer = FindLayer($layerCollection,$sourceLayer->GetLayerDefinition()->ToString());
+    //add the edit layer to the session map and set it to redraw but not be visible in the legend
+    $layerCollection=$map->GetLayers();
+    $originalLayer = FindLayer($layerCollection,$sourceLayer->GetLayerDefinition()->ToString());
     $nPosition = $layerCollection->IndexOf($originalLayer);
     $layerCollection->Insert($nPosition,$layer);
-	$layer->SetDisplayInLegend(false);
-	$layer->SetSelectable(true);
+    $layer->SetDisplayInLegend(false);
+    $layer->SetSelectable(true);
     $layer->ForceRefresh();
 
-	//OR
-	//remove the source layer from the session map and replace it with the
+    //OR
+    //remove the source layer from the session map and replace it with the
     //session copy
     //ReplaceLayer($map, $sourceLayer, $layer);
 
     //save the session map
     try{
-	    $map->Save($resourceService);
+        $map->Save($resourceService);
     }
      catch (MgException $e)
     {
@@ -157,22 +157,22 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
     //instantiate the new layer from its MgResourceIdentifier
     $layer = new MgLayer($destinationLayerId, $resourceService);
 
-	//add the edit layer to the session map and set it to redraw but not be visible in the legend
-	$layerCollection=$map->GetLayers();
-	$originalLayer = FindLayer($layerCollection,$libraryLayer->GetLayerDefinition()->ToString());
+    //add the edit layer to the session map and set it to redraw but not be visible in the legend
+    $layerCollection=$map->GetLayers();
+    $originalLayer = FindLayer($layerCollection,$libraryLayer->GetLayerDefinition()->ToString());
     $nPosition = $layerCollection->IndexOf($originalLayer);
     $layerCollection->Insert($nPosition,$layer);
-	$layer->SetDisplayInLegend(false);
-	$layer->SetSelectable(true);
+    $layer->SetDisplayInLegend(false);
+    $layer->SetSelectable(true);
     $layer->ForceRefresh();
 
-	//OR
-	//remove the library layer from the session map and replace it with the
+    //OR
+    //remove the library layer from the session map and replace it with the
     //session copy
     //ReplaceLayer($map, $libraryLayer, $layer);
 
     //save the session map
-	    $map->Save($resourceService);
+        $map->Save($resourceService);
     }
      catch (MgException $e)
     {
@@ -568,41 +568,41 @@ function GetLayerTypes($featureService, $layer) {
         $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         if($dataSourceId->GetResourceType() != MgResourceType::DrawingSource)
         {
-    		//get class definition from the featureSource
-    		$classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
+            //get class definition from the featureSource
+            $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
 
-    		//MgPropertyDefinition classProps
-    		$classProps = $classDefinition->GetProperties();
-    		$aLayerTypes = array();
-    		for ($i=0; $i< $classProps->GetCount(); $i++)
-    		{
-    			$prop = $classProps->GetItem($i);
-    			if ($prop->GetPropertyType() == MgFeaturePropertyType::GeometricProperty) {
-    				$featureClass = $prop->GetGeometryTypes();
-    				if ($featureClass & MgFeatureGeometricType::Surface) {
-    					array_push($aLayerTypes, '2'/*'surface'*/);
-    				}
-    				if ($featureClass & MgFeatureGeometricType::Curve) {
-    					array_push($aLayerTypes, '1'/*'curve'*/);
-    				}
-    				if ($featureClass & MgFeatureGeometricType::Solid) {
-    					array_push($aLayerTypes, '3'/*'solid'*/); //could use surface here for editing purposes?
-    				}
-    				if ($featureClass & MgFeatureGeometricType::Point){
-    					array_push($aLayerTypes, '0'/*'point'*/);
-    				}
-    				break;
-    			} else if ($prop->GetPropertyType() == MgFeaturePropertyType::RasterProperty) {
-    				array_push($aLayerTypes, '4' /* raster */);
-    			}
+            //MgPropertyDefinition classProps
+            $classProps = $classDefinition->GetProperties();
+            $aLayerTypes = array();
+            for ($i=0; $i< $classProps->GetCount(); $i++)
+            {
+                $prop = $classProps->GetItem($i);
+                if ($prop->GetPropertyType() == MgFeaturePropertyType::GeometricProperty) {
+                    $featureClass = $prop->GetGeometryTypes();
+                    if ($featureClass & MgFeatureGeometricType::Surface) {
+                        array_push($aLayerTypes, '2'/*'surface'*/);
+                    }
+                    if ($featureClass & MgFeatureGeometricType::Curve) {
+                        array_push($aLayerTypes, '1'/*'curve'*/);
+                    }
+                    if ($featureClass & MgFeatureGeometricType::Solid) {
+                        array_push($aLayerTypes, '3'/*'solid'*/); //could use surface here for editing purposes?
+                    }
+                    if ($featureClass & MgFeatureGeometricType::Point){
+                        array_push($aLayerTypes, '0'/*'point'*/);
+                    }
+                    break;
+                } else if ($prop->GetPropertyType() == MgFeaturePropertyType::RasterProperty) {
+                    array_push($aLayerTypes, '4' /* raster */);
+                }
 
-    		}
-    	}
-    	else
-    	{
-    				array_push($aLayerTypes, '5' /* DWF */);
+            }
+        }
+        else
+        {
+                    array_push($aLayerTypes, '5' /* DWF */);
 
-    	}
+        }
     } catch (MgException $e) { }
     return $aLayerTypes;
 }
@@ -751,7 +751,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
              $val = "";
         }
     } catch (MgException $e) {
-        //this switch block seems to throw an exception rather for null property values rather than just returning 
+        //this switch block seems to throw an exception rather for null property values rather than just returning
         //a null value, so catch the exception here and set value to an empty string
         $val = "";
     }
@@ -886,7 +886,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
 
 function getUtmWkt($lon, $lat) {
     $siteVersion = explode(".",GetSiteVersion());
-    if ((integer)$siteVersion[0] > 1 && (integer)$siteVersion[1] > 0) {  //v2.1.x or greater
+    if ((integer)$siteVersion[0] > 2 || (integer)$siteVersion[0] == 2 && (integer)$siteVersion[1] > 0) {  //v2.1.x or greater
       $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
     } else {
       $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
