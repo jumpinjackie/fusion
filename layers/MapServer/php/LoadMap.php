@@ -41,6 +41,8 @@ define('MAX_SCALE', 1000000000);
 /* could potentially make this optional */
 $moveToSession = true;
 
+
+
 /**
    TODO make it possible to specify only a relative path
    in the WebLayout and have this code know where to
@@ -73,9 +75,12 @@ if (isset($_REQUEST['mapfile'])) {
          eg STYLE
              SYMBOL "../etc/markers/target-7.gif" : this is relative to the map file
         */
+
         for ($i=0; $i<$oMap->numlayers; $i++)
         {
-            $oLayer = $oMap->GetLayer($i);
+            $oLayer = &$oMap->GetLayer($i);
+            /* check layername for invalid URI characters and replace */
+            $oLayer->set("name",replaceInvalidLayerName($oLayer->name));
 
             for ($j=0; $j<$oLayer->numclasses; $j++)
             {
@@ -147,6 +152,9 @@ if ($oMap) {
         $layer=$oMap->getLayer($i);
         $layerObj = NULL;
 
+        /* rename layes names with invalid characters */
+        $layer->set("name",replaceInvalidLayerName($layer->name));
+
         $layerObj->metadata = NULL;
         if (isset($_REQUEST['layer_metadata'])) {
             $layerMetadataKeys = explode(',',$_REQUEST['layer_metadata']);
@@ -211,7 +219,7 @@ if ($oMap) {
 
          $selectable = strtolower($layer->getMetaData('selectable'));
          $layerObj->selectable = $selectable == 'true' ? true : false;
-         
+
          $layerObj->visible = ($layer->status == MS_ON || $layer->status == MS_DEFAULT);
          $layerObj->actuallyVisible = true;
 
@@ -336,4 +344,34 @@ function GetMetersPerUnit($unit)
       return 1;
 
 }
+
+function replaceInvalidLayerName($szLayerName){
+    /*
+    bug http://trac.osgeo.org/fusion/ticket/96 - Invalid characters in layer name (pdeschamps)
+
+    Fusion requests the map imavge via the Mapserver CGI to toggle the layer visibility.
+    The layer paramerter for the cgi uses spaces as a delimiter for the layer names this creates
+    an issue for the mapserver binary to toggle layers that have these reserved URI characters.
+    also removing characters that could pose potential issues with json.
+    */
+    $aInvalidLayerNameCharacters = array();
+    $aInvalidLayerNameCharacters[0] ="&";
+    $aInvalidLayerNameCharacters[1] =" ";
+    $aInvalidLayerNameCharacters[2] ="#";
+    $aInvalidLayerNameCharacters[3] ="\\";
+    $aInvalidLayerNameCharacters[4] ="=";
+    $aInvalidLayerNameCharacters[5] ="/";
+    $aInvalidLayerNameCharacters[6] ="'";
+
+    $aReplace[0] = "_";
+    $aReplace[1] = "_";
+    $aReplace[2] = "_";
+    $aReplace[3] = "_";
+    $aReplace[4] = "_";
+    $aReplace[5] = "_";
+    $aReplace[6] = "_";
+
+    return str_replace($aInvalidLayerNameCharacters,$aReplace,$szLayerName);
+}
+
 ?>
