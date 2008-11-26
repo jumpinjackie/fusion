@@ -46,7 +46,7 @@ try {
     if (isset($_REQUEST['maxfeatures'])) {
       $maxFeatures = $_REQUEST['maxfeatures'];
     }
-    
+
     // echo "<!--";
     //     print_r($_REQUEST);
     //     echo "-->";
@@ -76,7 +76,7 @@ try {
 
     /* add the features to the map selection and save it*/
     $selection = new MgSelection($map);
-    
+
     /* if extending the current selection */
     $bExtendSelection = isset($_REQUEST['extendselection']) && strcasecmp($_REQUEST['extendselection'], 'true') == 0;
     if ($bExtendSelection) {
@@ -84,10 +84,10 @@ try {
         $selection->Open($resourceService, $mapName);
         $aLayers = selectionToArray($selection, array());
     }
-    
+
     $bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['computed'], 'true') == 0;
     $bQueryHiddenLayers = isset($_REQUEST['queryHiddenLayers']) && strcasecmp($_REQUEST['queryHiddenLayers'], 'true') == 0;
-    
+
     /*holds selection array*/
     $properties = NULL;
     $properties->layers = array();
@@ -114,7 +114,7 @@ try {
                 $layerObj = $mapLayers->GetItem($i);
             }
             $bVisFlag = $layerObj->IsVisible() || $bQueryHiddenLayers;
-            
+
             $className = $layerObj->GetFeatureClassName();
             if (!$layerObj->GetSelectable() || !$bVisFlag ||
                 $className=='RedlineSchema:Redline' ||
@@ -135,7 +135,7 @@ try {
 
             //only retrieve properties that we actually need
             $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];
-            
+
             //TODO : seems that property mapping breaks the selection ????
             //could it be that $selection->AddFeatures($layerObj, $featureReader, 0) is
             //the one causing a problem when the properies are limited ?
@@ -202,7 +202,7 @@ try {
                 echo $e->GetDetails() . "\n";
                 echo $e->GetStackTrace() . "\n";
             }
-            
+
             //debug block
             //$testSelection = new MgSelection($map);
             //$testSelection->AddFeatures($layerObj, $featureReader, $maxFeatures);
@@ -328,7 +328,6 @@ try {
                 //
                 $bLayerSrsIsArbitrary = ($srsLayer->GetType() == MgCoordinateSystemType::Arbitrary);
                 $bMapSrsIsArbitrary = ($srsMap->GetType() == MgCoordinateSystemType::Arbitrary);
-                $bComputedProperties = true;
                 $bNeedsTransform = false;
                 if (($bLayerSrsIsArbitrary != $bMapSrsIsArbitrary) ||
                     ($bLayerSrsIsArbitrary && ($srsLayer->GetUnits() != $srsMap->GetUnits()))) {
