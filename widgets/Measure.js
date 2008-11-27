@@ -533,6 +533,7 @@ Fusion.Widget.Measure.DistanceMarker = OpenLayers.Class(
     destroy: function() {
       if (this.domObj.parentNode) {
           this.domObj.parentNode.removeChild(this.domObj);
+          this.domObj.style.display = 'none'; //Also hide it because Safari leaves the domObj on the page 
       }
     },
     
