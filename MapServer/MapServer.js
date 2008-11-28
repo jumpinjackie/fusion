@@ -96,6 +96,10 @@ Fusion.Maps.MapServer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.layerRoot = new Fusion.Maps.MapServer.Group(rootOpts,this);
 
         this.sMapFile = extension.MapFile ? extension.MapFile[0] : '';
+        var newTheme = Fusion.getQueryParam('theme');
+        if (newTheme != '') {
+          this.sMapFile = newTheme;
+        }
 
         this.mapMetadataKeys = extension.MapMetadata ? extension.MapMetadata[0] : null;
         this.layerMetadataKeys = extension.LayerMetadata ? extension.LayerMetadata[0] : null;
