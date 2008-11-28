@@ -128,15 +128,15 @@ try
         $layerObj->resourceId = $layerDefinition->ToString();
         $layerObj->parentGroup = $layer->GetGroup() ? $layer->GetGroup()->GetObjectId() : '';
         
-        $layerObj->selectable = BooleanToString($layer->GetSelectable());
-        $layerObj->visible = BooleanToString($layer->GetVisible());
-        $layerObj->actuallyVisible = BooleanToString($layer->isVisible());
+        $layerObj->selectable = $layer->GetSelectable();
+        $layerObj->visible = $layer->GetVisible();
+        $layerObj->actuallyVisible = $layer->isVisible();
         $layerObj->editable = IsLayerEditable($resourceService, $layer) ? 'true' : 'false';
 
 
         $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
-        $layerObj->displayInLegend = BooleanToString($layer->GetDisplayInLegend());
-        $layerObj->expandInLegend = BooleanToString($layer->GetExpandInLegend());
+        $layerObj->displayInLegend = $layer->GetDisplayInLegend();
+        $layerObj->expandInLegend = $layer->GetExpandInLegend();
 
         $oScaleRanges = buildScaleRanges($layer);
         $_SESSION['scale_ranges'][$layer->GetObjectId()] = $oScaleRanges;
@@ -354,12 +354,12 @@ function OutputGroupInfo($group)
     $groupObj->groupName = addslashes($group->GetName());
     $groupObj->legendLabel = addslashes($group->GetLegendLabel());
     $groupObj->uniqueId = $group->GetObjectId();
-    $groupObj->displayInLegend = BooleanToString($group->GetDisplayInLegend());
-    $groupObj->expandInLegend = BooleanToString($group->GetExpandInLegend());
+    $groupObj->displayInLegend = $group->GetDisplayInLegend();
+    $groupObj->expandInLegend = $group->GetExpandInLegend();
     $parent = $group->GetGroup();
     $groupObj->parentUniqueId = $parent != null ? $parent->GetObjectId() : '';
-    $groupObj->visible = BooleanToString($group->GetVisible());
-    $groupObj->actuallyVisible = BooleanToString($group->isVisible());
+    $groupObj->visible = $group->GetVisible();
+    $groupObj->actuallyVisible = $group->isVisible();
     
     return $groupObj;
 }
