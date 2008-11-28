@@ -311,10 +311,10 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.legendLabel = o.legendLabel;
         this.parentUniqueId = o.parentUniqueId;
         this.groupType = o.groupType;
-        this.displayInLegend = o.displayInLegend=="true"?true:false;
-        this.expandInLegend = o.expandInLegend=="true"?true:false;
-        this.visible = o.visible=="true"?true:false;
-        this.actuallyVisible = o.actuallyVisible=="true"?true:false;
+        this.displayInLegend = o.displayInLegend;
+        this.expandInLegend = o.expandInLegend;
+        this.visible = o.visible;
+        this.actuallyVisible = o.actuallyVisible;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
     },
     
@@ -437,28 +437,13 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.selectedFeatureCount = 0;
         this.layerTypes = [].concat(o.layerTypes);
         this.legendLabel = o.legendLabel;
+        this.displayInLegend = o.displayInLegend;
+        this.expandInLegend = o.expandInLegend;
+        this.actuallyVisible = o.actuallyVisible;
+        this.editable = o.editable;
+        this.visible = o.visible;
+        this.selectable = o.selectable;
         
-        /* In mapserver - flags are boolean's where as  in MapGuide they need to be converted from strings. 
-            http://trac.osgeo.org/fusion/ticket/186
-        */
-        if(typeof(o.displayInLegend)=="boolean"){
-            this.displayInLegend = o.displayInLegend;
-            this.expandInLegend = o.expandInLegend;
-            this.actuallyVisible = o.actuallyVisible;
-            this.editable = o.editable;
-            this.visible = o.visible;
-            this.selectable = o.selectable;
-        }
-        else
-        {
-            this.editable = o.editable=="true"?true:false;
-            this.visible = o.visible=="true"?true:false;
-            this.selectable = o.selectable=="true"?true:false;
-            this.displayInLegend = o.displayInLegend=="true"?true:false;
-            this.expandInLegend = o.expandInLegend=="true"?true:false;
-            this.actuallyVisible = o.actuallyVisible=="true"?true:false;
-        }
-
        
         //determine the layer type so that the correct icon can be displayed in the legend
         this.layerType = null;
