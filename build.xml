@@ -224,11 +224,11 @@ $Id$
     </concat>
     
     <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}"/>
-   
+    <copy file="${buildOutput}.js" todir="${basedir}/lib"/>
   </target>
 
 <!-- =================== concat all support files (no appdef supplied) ================================== -->
-  <target description="concatenate core files into a single file" name="concatNoAppDef" depends="prepare" unless="appDef">
+  <target description="concatenate core files into a single file" name="concatNoAppDef" unless="appDef">
     <echo message="concatenating all widget and map layer files"/>
     
     <!-- merge everything into a single file -->
@@ -239,7 +239,7 @@ $Id$
   </target>
 
 <!-- =================== concat support files included in AppDef ================================== -->
-  <target description="concatenate core files into a single file" name="concatWithAppDef" depends="prepare,appDef2Json" if="appDef">
+  <target description="concatenate core files into a single file" name="concatWithAppDef" depends="appDef2Json" if="appDef">
     <echo message="preparing single file build for ${appDef}"/>
     
     <!-- merge everything into a single file -->
@@ -260,6 +260,8 @@ $Id$
           output="${buildOutput}-compressed.js">
         <arg value="${buildOutput}.js"/>
     </java>
+    <copy file="${buildOutput}-compressed.js" todir="${basedir}/lib"/>
+    
   </target>
 
 <!-- =================== concat all CSS files ================================== -->
@@ -352,8 +354,8 @@ $Id$
 
   <target description="Delete old build and dist directories" name="clean">
     <echo message="Removing build directories"/>
-    <delete dir="${build.home}"/>
-    <delete dir="${dist.home}"/>
+    <!--delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/-->
   </target>
 
 

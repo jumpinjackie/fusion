@@ -131,7 +131,7 @@ try
         $layerObj->selectable = $layer->GetSelectable();
         $layerObj->visible = $layer->GetVisible();
         $layerObj->actuallyVisible = $layer->isVisible();
-        $layerObj->editable = IsLayerEditable($resourceService, $layer) ? 'true' : 'false';
+        $layerObj->editable = IsLayerEditable($resourceService, $layer);
 
 
         $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
@@ -339,13 +339,13 @@ function buildScaleRanges($layer)
 
 // Converts a boolean to "yes" or "no"
 // --from MG Web Tier API Reference
-function BooleanToString($boolean)
-{
-    if (is_bool($boolean))
-        return ($boolean ? "true" : "false");
-    else
-        return "'ERROR in BooleanToString.'";
-}
+// function BooleanToString($boolean)
+// {
+//     if (is_bool($boolean))
+//         return ($boolean ? "true" : "false");
+//     else
+//         return "'ERROR in BooleanToString.'";
+// }
 
 function OutputGroupInfo($group)
 {
