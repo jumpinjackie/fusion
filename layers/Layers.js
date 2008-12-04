@@ -440,6 +440,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
         this.actuallyVisible = o.actuallyVisible;
+        this.statusDefault = o.statusdefault;
         this.editable = o.editable;
         this.visible = o.visible;
         this.selectable = o.selectable;
