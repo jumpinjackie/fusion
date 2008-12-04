@@ -488,6 +488,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }   
     },
     updateLayer: function(layer, fScale) {
+
         if (!layer.displayInLegend) {
             return;
         }
@@ -602,7 +603,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     createTreeItem: function(layer, style, scale, bCheckBox) {
         var opt = {};
-        if (bCheckBox) {
+        opt.statusIsDefault = layer.statusDefault;
+
+        if (bCheckBox ) {
             opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
             opt.draw = this.renderItemCheckBox;
         } else {
@@ -621,7 +624,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         } else {
             opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
         }
-       
+
         var item = new Jx.TreeItem(opt);
         item.contextMenu = this.getContextMenu(layer.parentGroup.legend.treeItem);
         if (bCheckBox) {
@@ -697,6 +700,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     
     renderItem: function() {
+
         var domLabel = document.createElement('div');
         domLabel.className = 'fusionLegendItem';
         
@@ -732,6 +736,13 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         
         this.checkBox = document.createElement('input');
         this.checkBox.type = 'checkbox';
+
+        /* layer is set to "status default" set checkbox to checked , disabled , read only*/
+        if(this.options.statusIsDefault){
+            this.checkBox.checked = true;
+            this.checkBox.disabled = true;
+            this.checkBox.readOnly = true;
+        }
         
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
