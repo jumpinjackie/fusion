@@ -176,6 +176,12 @@ if ($oMap) {
         $layer=$oMap->getLayer($i);
         $layerObj = NULL;
 
+        /* Status Default - If a layer is status Default trac it in layerObj */
+        if($layer->status == MS_DEFAULT)
+            $layerObj->statusdefault = true;
+         else
+            $layerObj->statusdefault = false;
+
         /* rename layes names with invalid characters */
         $layer->set("name",replaceInvalidLayerName($layer->name));
 
