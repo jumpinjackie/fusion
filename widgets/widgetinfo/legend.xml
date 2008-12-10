@@ -15,7 +15,7 @@
     <Description>Suppress invisible layers from the legend</Description>
     <Type>boolean</Type>
     <Label>Hide Invisible Layers</Label>
-    <DefaultValue>false</DefaultValue>
+    <DefaultValue>true</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
   <Parameter>
