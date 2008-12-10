@@ -26,14 +26,14 @@
 /***************************************************************************
 * Class: Fusion.Layers
 *
-* Implements Layers for Fusion.  
+* Implements Layers for Fusion.
 */
 
 Fusion.Event.MAP_LAYER_TOGGLED = Fusion.Event.lastEventId++;
 Fusion.Event.MAP_LAYER_ORDER_CHANGED = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_LOADED = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_LOADING = Fusion.Event.lastEventId++;
- 
+
 Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bSingleTile: null,
     bIsBaseLayer: false,     //TODO: set this in AppDef?
@@ -48,10 +48,10 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     noCache: false,
     _sMapTitle: null,
     _sMapname: null,
-    
+
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Fusion.Layers.initialize');
-                
+
         this.registerEventID(Fusion.Event.MAP_SELECTION_ON);
         this.registerEventID(Fusion.Event.MAP_SELECTION_OFF);
         this.registerEventID(Fusion.Event.MAP_LOADED);
@@ -64,8 +64,8 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         if (isMapWidgetLayer != null) {
             this.bIsMapWidgetLayer = isMapWidgetLayer;
         }
-        
-        this.mapTag = mapTag; 
+
+        this.mapTag = mapTag;
         if (!this.mapTag.layerOptions) {
           this.mapTag.layerOptions = {};
         }
@@ -75,39 +75,39 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         this.mapInfo = mapTag.mapInfo;
         this.layerType = mapTag.type;
-        
+
     },
 
     /**
      * Function: loadScaleRanges
-     * 
+     *
      * This function should be called after the map has loaded. It
      * loads the scsle ranges for each layer. I tis for now only
      * used by the legend widget.
      */
-        
+
     loadScaleRanges: function(userFunc) {
       userFunc();
     },
 
-    
+
     getMapName: function() {
         return this._sMapname;
     },
-    
+
     getMapTitle: function() {
         return this._sMapTitle;
     },
-    
+
     /**
      * Function: isMapLoaded
-     * 
+     *
      * Returns true if the Map has been laoded succesfully form the server
      */
     isMapLoaded: function() {
         return this.bMapLoaded;
     },
-    
+
     getMaxExtent: function() {
       var maxExtent = null;
       if (this.oLayerOL) {
@@ -116,10 +116,10 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
       return maxExtent;
     },
 
-    hasSelection: function() { 
-      return this.bSelectionOn; 
+    hasSelection: function() {
+      return this.bSelectionOn;
     },
-    
+
     /**
      * Returns the number of features selected for this map layer
      */
@@ -159,14 +159,14 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
      *
      * @param layers {string} Optional parameter.  A comma separated
      *        list of layer names (Roads,Parcels). If it is not
-     *        given, all the layers that have a selection will be used  
+     *        given, all the layers that have a selection will be used
      *
      * @param startcount {string} Optional parameter.  A comma separated
      *        list of a statinh index and the number of features to be retured for
      *        each layer given in the layers parameter. Index starts at 0
      *        (eg: 0:4,2:6 : return 4 elements for the first layers starting at index 0 and
      *         six elements for layer 2 starting at index 6). If it is not
-     *        given, all the elemsnts will be returned.  
+     *        given, all the elemsnts will be returned.
      */
     getSelection: function(userFunc, layers, startcount) {
     },
@@ -182,7 +182,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     */
     query: function(options) {
     },
-    
+
     processLayerEvents: function(layer, isEnabling) {
         if (this.mapInfo && this.mapInfo.mapEvents.layerEvents[layer.layerName]) {
             var layerEvent = this.mapInfo.mapEvents.layerEvents[layer.layerName];
@@ -198,7 +198,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
                             l.hide(true);
                         }
                     }
-                    
+
                 } else if (o.type == 'group') {
                     var g = this.layerRoot.findGroupByAttribute('groupName', o.name);
                     if (g) {
@@ -212,7 +212,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
     },
-    
+
     processGroupEvents: function(group, isEnabling) {
         if (this.mapInfo && this.mapInfo.mapEvents.groupEvents[group.groupName]) {
             var groupEvent = this.mapInfo.mapEvents.groupEvents[group.groupName];
@@ -228,7 +228,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
                             l.hide(true);
                         }
                     }
-                    
+
                 } else if (o.type == 'group') {
                     var g = this.layerRoot.findGroupByAttribute('groupName', o.name);
                     if (g) {
@@ -242,11 +242,11 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
     },
-        
+
     refreshLayer: function( layer ) {
         this.drawMap();
     },
-    
+
     setParameter: function(param, value) {
         if (param == 'SelectionType') {
             this.selectionType = value;
@@ -264,7 +264,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.mapWidget._removeWorker();
       }
     },
-    
+
     getGroupInfoUrl: function(groupName) {
         if (this.mapInfo) {
             var groups = this.mapInfo.links.groups;
@@ -288,7 +288,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         return null;
     }
 });
-    
+
 /***************************************************************************
 * Class: Fusion.Layers.Group
 *
@@ -317,7 +317,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.actuallyVisible = o.actuallyVisible;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
     },
-    
+
     show: function(noDraw) {
         if (this.visible) {
             return;
@@ -328,7 +328,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.legend.checkBox.checked = true;
         }
     },
-    
+
     hide: function(noDraw) {
         if (!this.visible) {
             return;
@@ -339,11 +339,11 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.legend.checkBox.checked = false;
         }
     },
-    
+
     isVisible: function() {
         return this.visible;
     },
-    
+
     clear: function() {
         for (var i=0; i<this.groups.length; i++) {
             this.groups[i].clear();
@@ -354,12 +354,12 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.groups = [];
         this.layers = [];
     },
-    
+
     set: function(property, value) {
         this[property] = value;
         this.triggerEvent(Fusion.Event.GROUP_PROPERTY_CHANGED, this);
     },
-    
+
     addGroup: function(group,reverse) {
         group.parentGroup = this;
         if (reverse) {
@@ -368,7 +368,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
           this.groups.push(group);
         }
     },
-    
+
     addLayer: function(layer,reverse) {
         layer.parentGroup = this;
         if (reverse) {
@@ -377,11 +377,11 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
           this.layers.push(layer);
         }
     },
-    
+
     findGroup: function(name) {
         return this.findGroupByAttribute('name', name);
     },
-    
+
     findGroupByAttribute: function(attribute, value) {
         if (this[attribute] == value) {
             return this;
@@ -394,11 +394,11 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         return null;
     },
-    
+
     findLayer: function(name) {
         return this.findLayerByAttribute('name', name);
     },
-    
+
     findLayerByAttribute: function(attribute, value) {
         for (var i=0; i<this.layers.length; i++) {
             if (this.layers[i][attribute] == value) {
@@ -413,7 +413,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         return null;
     }
-    
+
 });
 
 /***************************************************************************
@@ -424,11 +424,11 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
 Fusion.Event.LAYER_PROPERTY_CHANGED = Fusion.Event.lastEventId++;
 
 Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
-    
+
     name: null,
     scaleRanges: null,
     oMap: null,
-    
+
     initialize: function(o, oMap) {
         this.oMap = oMap;
         this.layerName = o.layerName;
@@ -444,8 +444,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.editable = o.editable;
         this.visible = o.visible;
         this.selectable = o.selectable;
-        
-       
+
+
         //determine the layer type so that the correct icon can be displayed in the legend
         this.layerType = null;
         if (this.supportsType(Fusion.Constant.LAYER_RASTER_TYPE)) {   //raster layers
@@ -453,26 +453,26 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         } else if (this.supportsType(Fusion.Constant.LAYER_DWF_TYPE)) {  //DWF layers
           this.layerType = Fusion.Constant.LAYER_DWF_TYPE;
         }
-        
+
         this.parentGroup = o.parentGroup;
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity') {
-          this.maxScale = 100000000;
+          this.maxScale = 1000000000000;
         }
         this.scaleRanges = [];
 
         if (o.scaleRanges)
         {
           for (var i=0; i<o.scaleRanges.length; i++) {
-            var scaleRange = new Fusion.Layers.ScaleRange(o.scaleRanges[i], 
+            var scaleRange = new Fusion.Layers.ScaleRange(o.scaleRanges[i],
                                                                  this.layerType);
             this.scaleRanges.push(scaleRange);
           }
         }
         this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
     },
-    
+
     supportsType: function(type) {
         for (var i=0; i<this.layerTypes.length; i++) {
             if (this.layerTypes[i] == type) {
@@ -481,7 +481,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         return false;
     },
-    
+
     getScaleRange: function(fScale) {
         for (var i=0; i<this.scaleRanges.length; i++) {
             if (this.scaleRanges[i].contains(fScale)) {
@@ -516,14 +516,14 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     isVisible: function() {
         return this.visible;
     },
-    
+
     clear: function() {},
-    
+
     set: function(property, value) {
         this[property] = value;
         this.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
     }
-    
+
 });
 
 /***************************************************************************
