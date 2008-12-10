@@ -71,10 +71,7 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
             jxl.addEvent('sizeChange', OpenLayers.Function.bind(this.sizeChanged, this));
         }
         
-        Fusion.addWidgetStyleSheet(widgetTag.location + 'OverviewMap/OverviewMap.css');
-        this.oMapOptions = {
-            theme: null
-        };  //TODO: allow setting some mapOptions in AppDef
+        this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
         //this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
     },
