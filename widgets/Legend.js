@@ -387,7 +387,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             startGroup.legend.treeItem = this.oRoot;
         }
         for (var i=0; i<startGroup.groups.length; i++) {
-            startGroup.groups[i].visible = true;
+            //startGroup.groups[i].visible = true;
             this.processMapGroup(startGroup.groups[i], this.oRoot);
         }
         for (var i=0; i<startGroup.layers.length; i++) {
@@ -643,8 +643,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         var item = new Jx.TreeItem(opt);
-        item.contextMenu = this.getContextMenu(item); //layer.parentGroup.legend.treeItem);
-        if (bCheckBox) {
+        item.contextMenu = this.getContextMenu(item); if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
             var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
