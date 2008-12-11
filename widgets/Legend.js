@@ -264,28 +264,45 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     
     getContextMenu: function(folder) {
-        return new Jx.Menu.Context(this.name).add(
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('collapse'),
-                onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('expand'),
-                onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('refresh'),
-                onClick: OpenLayers.Function.bind(this.update, this, folder)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('collapseAll'),
-                onClick: OpenLayers.Function.bind(this.collapseAll, this, folder)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('expandAll'),
-                onClick: OpenLayers.Function.bind(this.expandAll, this, folder)
-            })
-        );
+        if (folder instanceof Jx.TreeFolder) {
+                        return new Jx.Menu.Context(this.name).add(
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('collapse'),
+                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('expand'),
+                    onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('refresh'),
+                    onClick: OpenLayers.Function.bind(this.update, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('collapseAll'),
+                    onClick: OpenLayers.Function.bind(this.collapseAll, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('expandAll'),
+                    onClick: OpenLayers.Function.bind(this.expandAll, this, folder)
+                })
+            );
+        } else {
+            return new Jx.Menu.Context(this.name).add(
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('refresh'),
+                    onClick: OpenLayers.Function.bind(this.update, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('collapseAll'),
+                    onClick: OpenLayers.Function.bind(this.collapseAll, this, folder)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('expandAll'),
+                    onClick: OpenLayers.Function.bind(this.expandAll, this, folder)
+                })
+            );
+        }
     },
     expandAll: function(folder) {
         this.recurseTree('expand', this.oRoot);
@@ -626,7 +643,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         var item = new Jx.TreeItem(opt);
-        item.contextMenu = this.getContextMenu(layer.parentGroup.legend.treeItem);
+        item.contextMenu = this.getContextMenu(item); //layer.parentGroup.legend.treeItem);
         if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
