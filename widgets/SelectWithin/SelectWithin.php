@@ -24,7 +24,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-  $fusionMGpath = '../../MapGuide/php/';
+  $fusionMGpath = '../../layers/MapGuide/php/';
   include $fusionMGpath . 'Common.php';
   include $fusionMGpath . 'Utilities.php';
   include('../../common/php/Utilities.php');

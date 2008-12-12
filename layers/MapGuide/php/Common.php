@@ -170,7 +170,7 @@ function GetLocalizationPath()
     $pos = strrpos($thisFile, '\\');
     if ($pos == false)
         $pos = strrpos($thisFile, '/');
-    return substr($thisFile, 0, $pos+1) . "../../../localized/";
+    return substr($thisFile, 0, $pos+1) . "../../../../localized/";
 }
 
 function FormatMessage($id, $locale, $params)
