@@ -27,7 +27,7 @@
     // Start output buffering
     ob_start();
 
-    $fusionMGpath = '../../MapGuide/php/';
+    $fusionMGpath = '../../layers/MapGuide/php/';
     include $fusionMGpath . 'Common.php';
 
     //$logHandle = fopen("debug.log","at");
