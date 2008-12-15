@@ -9,6 +9,15 @@
  ****************************************** -->
 
   <MapSet xsi:type="MapSetType">
+    <MapGroup id="hawaii" xsi:type="MapType">
+      <Map xsi:type="MapLayerType">
+        <Type>MapServer</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+            <MapFile>/ms4w/apps/dmsg/hawaii/map/hawaii.map</MapFile>
+        </Extension>
+      </Map>
+    </MapGroup>
     <MapGroup id="reliance-roads" xsi:type="MapType">
       <Map xsi:type="MapLayerType">
         <Type>MapServer</Type>
@@ -1120,7 +1129,7 @@
       <Extension xsi:type="CustomContentType">
         <MenuContainer>MapContextMenu</MenuContainer>
       </Extension>
-      <MapId>reliance-roads</MapId>
+      <MapId>hawaii</MapId>
     </MapWidget>
 
 <!-- OVERVIEW MAP    

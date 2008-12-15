@@ -102,7 +102,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       var map = this.getMap();
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
-        this.mapBlock.className = 'jxLmanMap';
+        mapBlock.className = 'jxLmanMap';
         mapBlock.id = 'mapBlock_'+i;
         
         //add a handle so the map blocks can be re-arranged
