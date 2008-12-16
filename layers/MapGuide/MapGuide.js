@@ -624,7 +624,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           userFunc(oSelection);
       }
     },
-    
+
     /**
      * advertise a new selection is available and redraw the map
      */
@@ -812,7 +812,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
               if (zoomTo) {
                 var ext = oNode.extents;
                 var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
-                this.zoomToSelection(extents);
+                this.mapWidget.setExtents(extents);
               }
               this.newSelection();
             } else {
