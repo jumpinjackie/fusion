@@ -101,7 +101,6 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
                 this.oMenu.add(menuItem);
             }
         } else {
-            Object.inheritFrom(this, Fusion.Widget.prototype, []);
             if (json.Width && json.Width[0] != '') {
                 this.imageWidth = json.Width[0];
             }
@@ -137,7 +136,7 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
      * called when the button is clicked by the Fusion.Widget widget
      * prompts user to save the map.
      */
-    execute: function() {
+    activate: function() {
         if (!this.iframe) {
             this.iframe = document.createElement('iframe');
             this.iframe.id = 'w';
