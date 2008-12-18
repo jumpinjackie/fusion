@@ -56,7 +56,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     aLayers: null,
     bOverTip: false,
     sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
-    offset: new OpenLayers.Pixel(0,20),
+    offset: new OpenLayers.Pixel(2,20),
     
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -100,7 +100,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         document.getElementsByTagName('BODY')[0].appendChild(this.domObj);
         
         this.getMap().observeEvent('mousemove', OpenLayers.Function.bind(this.mouseMove, this));
-        this.getMap().observeEvent('mousedown', OpenLayers.Function.bind(this._hide, this));
+        this.getMap().observeEvent('mousedown', OpenLayers.Function.bind(this.mouseDown, this));
+        this.getMap().observeEvent('mouseup', OpenLayers.Function.bind(this.mouseUp, this));
         this.getMap().observeEvent('mouseout', OpenLayers.Function.bind(this.mouseOut, this));
         
     },
@@ -118,7 +119,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     
     mouseMove: function(e) {
       //console.log('map tip mouseMove');
-        if (this.bOverTip) {
+        if (this.bOverTip || this.mouseIsDown) {
             return;
         }
         
@@ -135,6 +136,15 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         }
         this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
         //Event.stop(e);
+    },
+    
+    mouseDown: function() {
+        this.mouseIsDown = true;
+        this._hide();
+    },
+    
+    mouseUp: function() {
+        this.mouseIsDown = false;
     },
     
     showMaptip: function(r) {
@@ -186,6 +196,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     },
     
     _display: function(tooltip) {
+        if (this.mouseIsDown) {
+            return;
+        }
+        
       //console.log('maptip _display');
             this.domObj.innerHTML = '&nbsp;';
             var contentDiv = document.createElement('div');
