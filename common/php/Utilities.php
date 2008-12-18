@@ -65,6 +65,7 @@ function xml2json($domElement) {
     if ($domElement->nodeType == XML_TEXT_NODE) {
         /* text node, just return content */
         $text = trim($domElement->textContent);
+        $text = addslashes($text);
         if ($text != '') {
             $result = '"'.$text.'"';
         } else {
@@ -93,6 +94,7 @@ function xml2json($domElement) {
                 }
                 if ($child->nodeType == XML_TEXT_NODE) {
                     $text = trim($child->textContent);
+                    $text = addslashes($text);
                     if ($text == '') {
                         continue;
                     }
