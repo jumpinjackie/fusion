@@ -60,7 +60,13 @@ function DigitizePoint(handler) {
       var digitizer = new Fusion.Tool.Canvas.Point(mapWidget);
       digitizer.mouseUp = PointHandlers.prototype.mouseUp;
       Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.handler = handler;
+      digitizer.initializeCanvas();
+      var activeWidget = mapWidget.buttonSet.activeButton;
+      mapWidget.buttonSet.setActiveButton(null);
+      digitizer.handler = function() {
+          handler.apply(null, arguments);
+          activeWidget.setActive(true);
+      }
       digitizer.activateCanvas();
       
       //add a listener to update the position of the features
@@ -83,7 +89,13 @@ function DigitizeLine(handler) {
       digitizer.mouseDown = LineHandlers.prototype.mouseDown;
       digitizer.mouseMove = LineHandlers.prototype.mouseMove;
       Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.handler = handler;
+      digitizer.initializeCanvas();
+      var activeWidget = mapWidget.buttonSet.activeButton;
+      mapWidget.buttonSet.setActiveButton(null);
+      digitizer.handler = function() {
+          handler.apply(null, arguments);
+          activeWidget.setActive(true);
+      }
       digitizer.activateCanvas();
       
       //add a listener to update the position of the features
@@ -107,7 +119,13 @@ function DigitizeLineString(handler) {
       digitizer.mouseMove = MultiPointHandlers.prototype.mouseMove;
       digitizer.dblClick = MultiPointHandlers.prototype.dblClick;
       Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.handler = handler;
+      digitizer.initializeCanvas();
+      var activeWidget = mapWidget.buttonSet.activeButton;
+      mapWidget.buttonSet.setActiveButton(null);
+      digitizer.handler = function() {
+          handler.apply(null, arguments);
+          activeWidget.setActive(true);
+      }
       digitizer.activateCanvas();
       
       //add a listener to update the position of the features
@@ -130,7 +148,13 @@ function DigitizeRectangle(handler) {
       digitizer.mouseDown = RectangleHandlers.prototype.mouseDown;
       digitizer.mouseMove = RectangleHandlers.prototype.mouseMove;
       Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.handler = handler;
+      digitizer.initializeCanvas();
+      var activeWidget = mapWidget.buttonSet.activeButton;
+      mapWidget.buttonSet.setActiveButton(null);
+      digitizer.handler = function() {
+          handler.apply(null, arguments);
+          activeWidget.setActive(true);
+      }
       digitizer.activateCanvas();
       
       //add a listener to update the position of the features
@@ -154,7 +178,13 @@ function DigitizePolygon(handler) {
       digitizer.mouseMove = MultiPointHandlers.prototype.mouseMove;
       digitizer.dblClick = MultiPointHandlers.prototype.dblClick;
       Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.handler = handler;
+      digitizer.initializeCanvas();
+      var activeWidget = mapWidget.buttonSet.activeButton;
+      mapWidget.buttonSet.setActiveButton(null);
+      digitizer.handler = function() {
+          handler.apply(null, arguments);
+          activeWidget.setActive(true);
+      }
       digitizer.activateCanvas();
       
       //add a listener to update the position of the features
