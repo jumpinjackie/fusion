@@ -37,12 +37,11 @@ include('Utilities.php');
         //
         $map = new MgMap();
         $map->Open($resourceService, $mapName);
-        // Create the selection set and save it
+        // Create the selection set
         $selection = new MgSelection($map);
         if($selText != "") {
             $selection->FromXml($selText);
         }
-        $selection->Save($resourceService, $mapName);
         
         //now return a data struture which is the same as Query.php
         $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
@@ -93,34 +92,39 @@ include('Utilities.php');
             $layerName = $oLayer->GetName();
             array_push($properties->layers, $layerName);
 
-            $spatialContext = $featureService->GetSpatialContexts($featureResId, true);
-            $srsLayerWkt = false;
-            if($spatialContext != null && $spatialContext->ReadNext() != null) {
-                $srsLayerWkt = $spatialContext->GetCoordinateSystemWkt();
-                /* skip this layer if the srs is empty */
-            }
-            if ($srsLayerWkt == null) {
-                $srsLayerWkt = $srsDefMap;
-            }
-            /* create a coordinate system from the layer's SRS wkt */
-            $srsLayer = $srsFactory->Create($srsLayerWkt);
-
-            // exclude layer if:
-            //  the map is non-arbitrary and the layer is arbitrary or vice-versa
-            //     or
-            //  layer and map are both arbitrary but have different units
-            //
-            $bLayerSrsIsArbitrary = ($srsLayer->GetType() == MgCoordinateSystemType::Arbitrary);
-            $bMapSrsIsArbitrary = ($srsMap->GetType() == MgCoordinateSystemType::Arbitrary);
+	    // TODO: Check if computed properties are needed?
             $bComputedProperties = false;
             $bNeedsTransform = false;
-            if (($bLayerSrsIsArbitrary != $bMapSrsIsArbitrary) ||
-                ($bLayerSrsIsArbitrary && ($srsLayer->GetUnits() != $srsMap->GetUnits()))) {
-                $bComputedProperties = false;
-            } else {
-                $srsTarget = null;
-                $srsXform = null;
-                $bNeedsTransform = ($srsLayer->GetUnitScale() != 1.0);
+            $srsLayer = NULL;
+            if ($bComputedProperties)
+            {
+		$spatialContext = $featureService->GetSpatialContexts($featureResId, true);
+		$srsLayerWkt = false;
+		if($spatialContext != null && $spatialContext->ReadNext() != null) {
+		    $srsLayerWkt = $spatialContext->GetCoordinateSystemWkt();
+		    /* skip this layer if the srs is empty */
+		}
+		if ($srsLayerWkt == null) {
+		    $srsLayerWkt = $srsDefMap;
+		}
+		/* create a coordinate system from the layer's SRS wkt */
+		$srsLayer = $srsFactory->Create($srsLayerWkt);
+
+		// exclude layer if:
+		//  the map is non-arbitrary and the layer is arbitrary or vice-versa
+		//     or
+		//  layer and map are both arbitrary but have different units
+		//
+		$bLayerSrsIsArbitrary = ($srsLayer->GetType() == MgCoordinateSystemType::Arbitrary);
+		$bMapSrsIsArbitrary = ($srsMap->GetType() == MgCoordinateSystemType::Arbitrary);
+		if (($bLayerSrsIsArbitrary != $bMapSrsIsArbitrary) ||
+		    ($bLayerSrsIsArbitrary && ($srsLayer->GetUnits() != $srsMap->GetUnits()))) {
+		    $bComputedProperties = false;
+		} else {
+		    $srsTarget = null;
+		    $srsXform = null;
+		    $bNeedsTransform = ($srsLayer->GetUnitScale() != 1.0);
+		}
             }
 
             $properties = BuildSelectionArray($featureReader, $layerName, $properties,
@@ -158,9 +162,7 @@ include('Utilities.php');
               $layerName = $layer->GetName();
               array_push($result->layers, $layerName);
               $layerClassName = $layer->GetFeatureClassName();
-              $filter = $selection->GenerateFilter($layer, $layerClassName);
-              $a = explode('OR', $filter);
-              $result->$layerName->featureCount = count($a);
+              $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
             }
 
             /*save selection in the session*/
