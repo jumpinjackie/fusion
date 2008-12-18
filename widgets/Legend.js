@@ -332,6 +332,16 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             if (item instanceof Jx.TreeFolder) {
                 this.recurseTree(op, item);
                 item[op]();
+                if (item.domObj) {
+                    var p = $(item.domObj).getPrevious();
+                    if (p) {
+                        item.domObj.dispose();
+                        $(item.domObj).inject(p, 'before');
+                    } else {
+                        p = $(item.domObj).getParent();
+                        $(item.domObj).inject(p, 'top');
+                    }
+                }
             }
         }
     },
