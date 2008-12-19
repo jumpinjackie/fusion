@@ -673,34 +673,58 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       return layers;
     },
 
+    /**
+     * Updates the current map selection with the provided XML selection string.
+     * Optionally zooms to the new selection on the map, if zoomTo is set to true.
+     */
     setSelection: function (selText, zoomTo) {
-      this.mapWidget._addWorker();
-      var sl = Fusion.getScriptLanguage();
-      var setSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SetSelection.' + sl;
-      var params = {
-          'mapname': this.getMapName(),
-          'session': this.getSessionID(),
-          'selection': selText,
-          'seq': Math.random()
-      };
-      var options = {onSuccess: OpenLayers.Function.bind(this.processQueryResults, this, zoomTo),
-                     parameters:params, asynchronous:false};
-      Fusion.ajaxRequest(setSelectionScript, options);
+
+        //TODO Update this.previousSelection when the selection is set using
+        //this API to allow the selection to be extended with a shift-click.
+
+        if(selText != "" && selText != null) {
+            this.updateSelection(selText, zoomTo, false);
+        }
+        else {
+            this.clearSelection();
+        }
     },
 
-    highlightSelection: function (selText, zoomTo) {
+    updateSelection: function (selText, zoomTo, extendSelection) {
+        this.updateMapSelection(selText, zoomTo);
+        this.getSelectedFeatureProperties(selText);
+    },
+
+
+    getSelectedFeatureProperties: function (selText) {
       this.mapWidget._addWorker();
       var sl = Fusion.getScriptLanguage();
-      var highlightSelectionScript = 'layers/' + this.arch + '/' + sl  + '/HighlightSelection.' + sl;
+      var getPropertiesScript = 'layers/' + this.arch + '/' + sl  + '/GetSelectionProperties.' + sl;
       var params = {
           'mapname': this.getMapName(),
           'session': this.getSessionID(),
           'selection': selText,
           'seq': Math.random()
       };
-      var options = {onSuccess: OpenLayers.Function.bind(this.processResultsForRendering, this, zoomTo),
-                     parameters:params, asynchronous:false};
-      Fusion.ajaxRequest(highlightSelectionScript, options);
+      var options = {onSuccess: OpenLayers.Function.bind(this.processSelectedFeatureProperties, this),
+                     parameters:params};
+      Fusion.ajaxRequest(getPropertiesScript, options);
+    },
+
+    updateMapSelection: function (selText, zoomTo) {
+      this.mapWidget._addWorker();
+      var sl = Fusion.getScriptLanguage();
+      var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
+      var params = {
+          'mapname': this.getMapName(),
+          'session': this.getSessionID(),
+          'selection': selText,
+          'seq': Math.random(),
+          'getextents' : zoomTo ? 'true' : 'false'
+      };
+      var options = {onSuccess: OpenLayers.Function.bind(this.renderSelection, this, zoomTo),
+                     parameters:params};
+      Fusion.ajaxRequest(updateSelectionScript, options);
     },
 
 
@@ -779,10 +803,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
               onSuccess: OpenLayers.Function.bind(this.selectionCleared, this)
           };
           Fusion.ajaxRequest(s, options);
-          if (this.previousSelection != null)
-          {
-              this.previousSelection.clear();
       }
+      if (this.previousSelection != null)
+      {
+          this.previousSelection.clear();
       }
     },
 
@@ -801,7 +825,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
        Call back function when select functions are called (eg queryRect)
        to handle feature attributes
     */
-    processQueryResults: function(zoomTo, r) {
+    processSelectedFeatureProperties: function(r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -820,7 +844,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
        Call back function when select functions are called (eg queryRect)
        to render the selection
     */
-    processResultsForRendering: function(zoomTo, r) {
+    renderSelection: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -879,9 +903,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         {
             maxFeatures = -1;
         }
-        if (options.extendSelection == true)
-        {
-            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                                 this._sMapname,
                                                                 options.geometry,
                                                                 maxFeatures,
@@ -889,22 +911,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                 options.selectionType || this.selectionType,
                                                                 options.layers,
                                                                 layerAttributeFilter);
-            var callback = OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this);
-            Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
-        }
-        else
-        {
-            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
-                                                                this._sMapname,
-                                                                options.geometry,
-                                                                maxFeatures,
-                                                                persist,
-                                                                options.selectionType || this.selectionType,
-                                                                options.layers,
-                                                                layerAttributeFilter);
-            var callback = OpenLayers.Function.bind(this.processFeatureInfo, this);
-            Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
-        }
+        var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
+        Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
     },
 
     showLayer: function( layer, noDraw ) {
@@ -1037,47 +1045,26 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
 
-    processFeatureInfo: function (r)
-    {
-        eval('o='+r.responseText);
-        var newSelection = new Fusion.SimpleSelectionObject(o);
-        var selText = newSelection.getSelectionXml();
-        if(selText != "" && selText != null)
-        {
-            this.highlightSelection(selText, false);
-            this.setSelection(selText, false);
-
-            this.previousSelection = newSelection;
-    }
-        else
-        {
-            this.clearSelection();
-        }
-        this.mapWidget._removeWorker();
+    processAndMergeFeatureInfo: function (r) {
+        this.processSelectedFeatureInfo(r, true);
     },
 
-    processAndMergeFeatureInfo: function (r)
-    {
-        // get the current selection
+    processFeatureInfo: function (r) {
+        this.processSelectedFeatureInfo(r, false);
+    },
+
+    processSelectedFeatureInfo: function (r, mergeSelection) {
         eval('o='+r.responseText);
+
         var newSelection = new Fusion.SimpleSelectionObject(o);
-        
-        // merge the previousSelection with the currentSelection
-        newSelection.merge(this.previousSelection);
-        
-        
+        if(mergeSelection == true)
+        {
+            newSelection.merge(this.previousSelection);
+        }
+        this.previousSelection = newSelection;
+
         var selText = newSelection.getSelectionXml();
-        if(selText != "" && selText != null)
-        {
-            this.highlightSelection(selText, false);
-            this.setSelection(selText, false);
-            
-            this.previousSelection = newSelection;
-        }
-        else
-        {
-            this.clearSelection();
-        }
+        this.setSelection(selText, false);
         this.mapWidget._removeWorker();
     }
 });
@@ -1111,7 +1098,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                     {
                         layer.addFeature(features[j]);
                     }
-                }    
+                }
             }
         }
         catch(e) {}
@@ -1177,7 +1164,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
         }
         return xmlSelection;
     },
-    
+
     merge : function(previousSelection)
     {
         if (previousSelection != null && previousSelection.nLayers > 0)
@@ -1224,7 +1211,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
             }
         }
     },
-    
+
     clear: function()
     {
         this.aLayers = [];
@@ -1266,7 +1253,7 @@ Fusion.SimpleSelectionObject.Layer = OpenLayers.Class({
     {
         return this.nFeatures;
     },
-    
+
     removeFeatures : function (featureIndexes)
     {
         var numIndexes = featureIndexes.length;

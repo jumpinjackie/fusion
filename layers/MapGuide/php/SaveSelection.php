@@ -29,6 +29,8 @@ include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
     $selText = "";
+    $getExtents = false;
+
     GetRequestParameters();
 
     try
@@ -43,33 +45,45 @@ include('Utilities.php');
             $selection->FromXml($selText);
         }
         $selection->Save($resourceService, $mapName);
-        
+
         //now return a data struture which is the same as Query.php
-        
-        //process 
+
+        //process
         header('Content-type: text/x-json');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
-        
+
         $result = NULL;
         $result->hasSelection = false;
         if ($layers && $layers->GetCount() >= 0)
         {
             $result->hasSelection = true;
             $result->extents = NULL;
-            
+            if($getExtents)
+            {
+                $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
+                $oExtents = $selection->GetExtents($featureService);
+                if ($oExtents)
+                {
+                    $oMin = $oExtents->GetLowerLeftCoordinate();
+                    $oMax = $oExtents->GetUpperRightCoordinate();
+                    $result->extents->minx = $oMin->GetX();
+                    $result->extents->miny = $oMin->GetY();
+                    $result->extents->maxx = $oMax->GetX();
+                    $result->extents->maxy = $oMax->GetY();
+                }
+            }
             $result->layers = array();
-            for ($i=0; $i<$layers->GetCount(); $i++) {
+            for ($i=0; $i<$layers->GetCount(); $i++)
+            {
               $layer = $layers->GetItem($i);
               $layerName = $layer->GetName();
               array_push($result->layers, $layerName);
               $layerClassName = $layer->GetFeatureClassName();
-              $filter = $selection->GenerateFilter($layer, $layerClassName);
-              $a = explode('OR', $filter);
-              $result->$layerName->featureCount = count($a);
+              $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
             }
-
         }
+
         echo var2json($result);
 
 
@@ -80,8 +94,10 @@ include('Utilities.php');
 function GetParameters($params)
 {
     global $selText;
+    global $getExtents;
 
     $selText = UnescapeMagicQuotes($params['selection']);
+    $getExtents = ($params['getextents'] == "true") ? true : false;
 }
 
 
