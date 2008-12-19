@@ -44,14 +44,16 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     oSelection: null,
     bDisplayInLegend: true,   //TODO: set this in AppDef?
     bExpandInLegend: true,   //TODO: set this in AppDef?
-    bMapLoaded : false,
-    bIsMapWidgetLayer : true,  //Setthis to false for overview map layers
+    bMapLoaded: false,
+    bIsMapWidgetLayer: true,  //Setthis to false for overview map layers
     bLayersReversed: false,     //MGOS returns layers top-most layer first
 
     //the resource id of the current MapDefinition
     _sResourceId: null,
 
+    //request params
     clientAgent: 'Fusion Viewer',
+    defaultFormat: 'PNG',
     
     initialize : function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -71,6 +73,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var extension = mapTag.extension; //TBD: this belongs in layer tag?
         this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
         this.ratio = extension.MapRatio ? extension.MapRatio[0] : 1.0;
+        this.imageFormat = extension.ImageFormat ? extension.ImageFormat[0] : this.defaultFormat;
         
         //add in the handler for CTRL-click actions for the map, not an overviewmap
         if (this.bIsMapWidgetLayer) {
@@ -509,6 +512,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         params = {        //single tile params
           session: this.getSessionID(),
           mapName: this._sMapname,
+          format: this.imageFormat,
           clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
