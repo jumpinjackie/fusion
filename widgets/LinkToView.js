@@ -31,7 +31,7 @@
 
 
 Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
-    initialize : function(widgetTag) {
+    initialize: function(widgetTag) {
         //console.log('LinkToView.initialize');
 
         Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
@@ -46,7 +46,12 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
           if (typeof queryParams[param] == 'function') {
               continue;
           }
-          if (param == 'extent') {
+          if (param == 'extent' ||
+              param == 'filter' ||
+              param == 'spatialfilter' ||
+              param == 'variant' ||
+              param == 'theme' ||
+              param == 'selectlayer') {
               continue;
           }
           this.baseUrl += join + param + '=' + queryParams[param];
@@ -63,13 +68,20 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.anchor);
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateLink, this));
+        this.getMap().oMapOL.events.register("addlayer", this, this.setListener);
         this.enable();                   
     },
     
-    updateLink : function() {
-        var sBbox = this.getMap().getCurrentExtents().toBBOX();
+    setListener: function(evt) {
+        var layer = evt.layer;
+        //register on the OL loadend event to update the link because this event
+        //is fired whenever the layers are redrawn
+        layer.events.register("loadend", this, this.updateLink);
+    },
+    
+    updateLink: function() {
         var join = (this.baseUrl.indexOf('?')==this.baseUrl.length-1)?'':'&';
-        this.anchor.href = this.baseUrl + join +'extent=' + sBbox;
+        var queryStr = this.getMap().getLinkParams();
+        this.anchor.href = this.baseUrl + join + queryStr;
     }
 });

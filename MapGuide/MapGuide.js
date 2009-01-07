@@ -139,7 +139,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
     },
     
-    createSessionCB : function(xhr) {
+    createSessionCB: function(xhr) {
         if (xhr.status == 200) {
             var o;
             eval('o='+xhr.responseText);
@@ -540,7 +540,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      * 
      * Returns the MapGuide layer object as identified by the layer name
      */
-    getLayerByName : function(name)
+    getLayerByName: function(name)
     {
         var oLayer = null;
         for (var i=0; i<this.aLayers.length; i++)
@@ -565,7 +565,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     hasSelection: function() { return this.bSelectionOn; },
     
-    getSelectionCB : function(userFunc, layers, startend, r) {
+    getSelectionCB: function(userFunc, layers, startend, r) {
       if (r.status == 200) 
       {
           var o;
@@ -592,7 +592,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedFeatureCount : function() {
+    getSelectedFeatureCount: function() {
       var total = 0;
       for (var j=0; j<this.aLayers.length; ++j) {
         total += this.aLayers[j].selectedFeatureCount;
@@ -603,7 +603,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectedLayers : function() {
+    getSelectedLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectedFeatureCount>0) {
@@ -616,7 +616,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
      * Returns the number of features selected for this map layer
      */
-    getSelectableLayers : function() {
+    getSelectableLayers: function() {
       var layers = [];
       for (var j=0; j<this.aLayers.length; ++j) {
         if (this.aLayers[j].selectable) {
@@ -677,7 +677,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
      *         six elements for layer 2 starting at index 6). If it is not
      *        given, all the elemsnts will be returned.  
      */
-    getSelection : function(userFunc, layers, startcount) {
+    getSelection: function(userFunc, layers, startcount) {
 
       /*for now always go back to server to fetch selection */
        
@@ -703,7 +703,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Call back function when selection is cleared
     */
-    selectionCleared : function()
+    selectionCleared: function()
     {
         //clear the selection count for the layers
         for (var j=0; j<this.aLayers.length; ++j) {
@@ -722,7 +722,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Utility function to clear current selection
     */
-    clearSelection : function() {
+    clearSelection: function() {
       if (this.hasSelection()) {
           var s = this.arch + '/' + Fusion.getScriptLanguage() + "/ClearSelection." + Fusion.getScriptLanguage() ;
           var options = {
@@ -737,7 +737,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        removes the queryLayer from the map
     */
-    removeQueryLayer : function() {
+    removeQueryLayer: function() {
       if (this.queryLayer) {
         this.queryLayer.destroy();
         this.queryLayer = null;
@@ -748,7 +748,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Call back function when slect functions are called (eg queryRect)
     */
-    processQueryResults : function(zoomTo, r) {
+    processQueryResults: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -792,7 +792,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     /**
        Do a query on the map
     */
-    query : function(options) {
+    query: function(options) {
         this.mapWidget._addWorker();
         
         //clear the selection count for the layers
@@ -917,6 +917,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
     },
+    
     hideGroup: function( group, noDraw ) {
         this.processGroupEvents(group, false);
         if (group.groupName == 'layerRoot') {
@@ -928,11 +929,13 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
     },
+    
     refreshLayer: function( layer ) {
         this.aRefreshLayers.push(layer.uniqueId);        
         this.drawMap();
     },
-    setParameter : function(param, value) {
+    
+    setParameter: function(param, value) {
         if (param == 'SelectionType') {
             this.selectionType = value;
         }
@@ -1027,6 +1030,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         params.parameters = {'session': this.getSessionID()};
         Fusion.ajaxRequest(s, params);
     },
+    
     getGroupInfoUrl: function(groupName) {
         if (this.mapInfo) {
             var groups = this.mapInfo.links.groups;
@@ -1038,6 +1042,7 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         return null;
     },
+    
     getLayerInfoUrl: function(layerName) {
         if (this.mapInfo) {
             var layers = this.mapInfo.links.layers;
@@ -1048,6 +1053,24 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
         return null;
+    },
+    
+    getLinkParams: function() {
+      var queryParams = {};
+      queryParams.theme = this.sMapResourceId;
+      if (this.aShowLayers.length > 0) {
+        queryParams.showlayers = this.aShowLayers.toString();
+      }
+      if (this.aHideLayers.length > 0) {
+        queryParams.hidelayers = this.aHideLayers.toString();
+      }
+      if (this.aShowGroups.length > 0) {
+        queryParams.showgroups = this.aShowGroups.toString();
+      }
+      if (this.aHideGroups.length > 0) {
+        queryParams.hidegroups = this.aHideGroups.toString();
+      }
+      return queryParams;
     }
 });
     
