@@ -1078,10 +1078,10 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       for (var i=0; i<this.aLayers.length; ++i) {
         var layer = this.aLayers[i];
         if (layer.visible && !layer.initiallyVisible) {  //layer was turned on
-          showLayers.push(layer.name);
+          showLayers.push(layer.layerName);
         }
         if (!layer.visible && layer.initiallyVisible) {  //layer was turned off
-          hideLayers.push(layer.name);
+          hideLayers.push(layer.layerName);
         }
       }
       queryParams.showlayers = showLayers.join(',');
@@ -1093,10 +1093,10 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
       for (var i=0; i<this.layerRoot.groups.length; ++i) {
         var group = this.layerRoot.groups[i];
         if (group.visible && !group.initiallyVisible) {  //layer was turned on
-          showGroups.push(group.name);
+          showGroups.push(group.groupName);
         }
         if (!group.visible && group.initiallyVisible) {  //layer was turned off
-          hideGroups.push(group.name);
+          hideGroups.push(group.groupName);
         }
       }
       queryParams.showgroups = showGroups.join(',');
