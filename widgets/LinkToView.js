@@ -31,41 +31,63 @@
 
 
 Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
+    
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?';
 
         //remove any existing extent param
-        var queryParams = Fusion.parseQueryString();
         var join = '';
-        for (var param in queryParams) {
-          if (typeof queryParams[param] == 'function') {
-              continue;
+        for (var param in Fusion.queryParams) {
+          if (typeof Fusion.queryParams[param] == 'string') {
+            if (param == 'extent' ||
+                param == 'filter' ||
+                param == 'spatialfilter' ||
+                param == 'variant' ||
+                param == 'theme' ||
+                param == 'selectlayer' ||
+                param == 'showlayers' ||
+                param == 'hidelayers' ||
+                param == 'showgroups' ||
+                param == 'hidegroups' ) {
+                continue;
+            }
+            this.baseUrl += join + param + '=' + Fusion.queryParams[param];
+            join = '&';
           }
-          if (param == 'extent') {
-              continue;
-          }
-          this.baseUrl += join + param + '=' + queryParams[param];
-          join = '&';
         }
+        this.anchorLabel = json.Label ? json.Label[0] : (this.domObj ? this.domObj.innerHTML : 'Link to View');
 
-        this.anchorLabel = json.Label ? json.Label[0] : (this.domObj.innerHTML ? this.domObj.innerHTML : 'Link to View');
-
+        Fusion.addWidgetStyleSheet(widgetTag.location + 'LinkToView/LinkToView.css');
         this.anchor = document.createElement('a');
         this.anchor.className = 'anchorLinkToView';
         this.anchor.href = this.baseUrl;
         this.anchor.innerHTML = this.anchorLabel;
         this.anchor.title = json.Tooltip ? json.Tooltip[0] : 'Right-click to copy or bookmark link to current view';
-        this.domObj.innerHTML = '';
-        this.domObj.appendChild(this.anchor);
-
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateLink, this));
+        
+        this.getMap().oMapOL.events.register("addlayer", this, this.setListener);
         this.enable();                   
     },
     
-    updateLink : function() {
-        var sBbox = this.getMap().getCurrentExtents().toBBOX();
+    setUiObject: function(uiObj) {
+        Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        if (this.uiObj.domObj) {
+            this.uiObj.domObj.appendChild(this.anchor);
+        } else {
+            this.uiObj.appendChild(this.anchor);
+        }
+    },
+    
+    setListener: function(evt) {
+        var layer = evt.layer;
+        //register on the OL loadend event to update the link because this event
+        //is fired whenever the layers are redrawn
+        layer.events.register("loadend", this, this.updateLink);
+    },
+    
+    updateLink: function() {
         var join = (this.baseUrl.indexOf('?')==this.baseUrl.length-1)?'':'&';
-        this.anchor.href = this.baseUrl + join +'extent=' + sBbox;
+        var queryStr = this.getMap().getLinkParams();
+        this.anchor.href = this.baseUrl + join + queryStr;
     }
 });
