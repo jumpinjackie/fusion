@@ -133,10 +133,24 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     mapSessionCreated: function() {
         if (this.sMapResourceId != '') {
-            this.loadMap(this.sMapResourceId);
+          var options = {};
+          if (this.bIsMapWidgetLayer) {
+            var showlayers = Fusion.getQueryParam('showlayers');
+            var hidelayers = Fusion.getQueryParam('hidelayers');
+            var showgroups = Fusion.getQueryParam('showgroups');
+            var hidegroups = Fusion.getQueryParam('hidegroups');
+            var options = {
+              showlayers: showlayers == '' ? [] : showlayers.split(','),
+              hidelayers: hidelayers == '' ? [] : hidelayers.split(','),
+              showgroups: showgroups == '' ? [] : showgroups.split(','),
+              hidegroups: hidegroups == '' ? [] : hidegroups.split(',')
+            };
+          }
+          this.loadMap(this.sMapResourceId, options);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), this.keepAliveInterval * 1000);
     },
+
 
     sessionReady: function() {
         return (typeof this.session[0] == 'string');
@@ -978,6 +992,43 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         Fusion.ajaxRequest(s, params);
     },
 
+    getLinkParams: function() {
+      var queryParams = {};
+      queryParams.theme = this.sMapResourceId;
+      
+      //determine which layers have been toggled
+      var showLayers = [];
+      var hideLayers = [];
+      for (var i=0; i<this.aLayers.length; ++i) {
+        var layer = this.aLayers[i];
+        if (layer.visible && !layer.initiallyVisible) {  //layer was turned on
+          showLayers.push(layer.layerName);
+        }
+        if (!layer.visible && layer.initiallyVisible) {  //layer was turned off
+          hideLayers.push(layer.layerName);
+        }
+      }
+      queryParams.showlayers = showLayers.join(',');
+      queryParams.hidelayers = hideLayers.join(',');
+      
+      //determine which groups have been toggled
+      var showGroups = [];
+      var hideGroups = [];
+      for (var i=0; i<this.layerRoot.groups.length; ++i) {
+        var group = this.layerRoot.groups[i];
+        if (group.visible && !group.initiallyVisible) {  //layer was turned on
+          showGroups.push(group.groupName);
+        }
+        if (!group.visible && group.initiallyVisible) {  //layer was turned off
+          hideGroups.push(group.groupName);
+        }
+      }
+      queryParams.showgroups = showGroups.join(',');
+      queryParams.hidegroups = hideGroups.join(',');
+      
+      return queryParams;
+    },
+    
     getLegendImageURL: function(fScale, layer, style) {
       var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();

@@ -314,6 +314,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
         this.visible = o.visible;
+        this.initiallyVisible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
     },
@@ -443,6 +444,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.statusDefault = o.statusdefault;
         this.editable = o.editable;
         this.visible = o.visible;
+        this.initiallyVisible = o.visible;
         this.selectable = o.selectable;
 
 
