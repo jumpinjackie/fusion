@@ -51,7 +51,11 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
               param == 'spatialfilter' ||
               param == 'variant' ||
               param == 'theme' ||
-              param == 'selectlayer') {
+              param == 'selectlayer' ||
+              param == 'showlayers' ||
+              param == 'hidelayers' ||
+              param == 'showgroups' ||
+              param == 'hidegroups' ) {
               continue;
           }
           this.baseUrl += join + param + '=' + queryParams[param];

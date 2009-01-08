@@ -150,7 +150,20 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     mapSessionCreated: function() {
         if (this.sMapResourceId != '') {
-            this.loadMap(this.sMapResourceId);
+          var options = {};
+          if (this.bIsMapWidgetLayer) {
+            var showlayers = Fusion.getQueryParam('showlayers');
+            var hidelayers = Fusion.getQueryParam('hidelayers');
+            var showgroups = Fusion.getQueryParam('showgroups');
+            var hidegroups = Fusion.getQueryParam('hidegroups');
+            var options = {
+              showlayers: showlayers == '' ? [] : showlayers.split(','),
+              hidelayers: hidelayers == '' ? [] : hidelayers.split(','),
+              showgroups: showgroups == '' ? [] : showgroups.split(','),
+              hidegroups: hidegroups == '' ? [] : hidegroups.split(',')
+            };
+          }
+          this.loadMap(this.sMapResourceId, options);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), this.keepAliveInterval * 1000);
     },
@@ -1058,18 +1071,37 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
     getLinkParams: function() {
       var queryParams = {};
       queryParams.theme = this.sMapResourceId;
-      if (this.aShowLayers.length > 0) {
-        queryParams.showlayers = this.aShowLayers.toString();
+      
+      //determine which layers have been toggled
+      var showLayers = [];
+      var hideLayers = [];
+      for (var i=0; i<this.aLayers.length; ++i) {
+        var layer = this.aLayers[i];
+        if (layer.visible && !layer.initiallyVisible) {  //layer was turned on
+          showLayers.push(layer.name);
+        }
+        if (!layer.visible && layer.initiallyVisible) {  //layer was turned off
+          hideLayers.push(layer.name);
+        }
       }
-      if (this.aHideLayers.length > 0) {
-        queryParams.hidelayers = this.aHideLayers.toString();
+      queryParams.showlayers = showLayers.join(',');
+      queryParams.hidelayers = hideLayers.join(',');
+      
+      //determine which groups have been toggled
+      var showGroups = [];
+      var hideGroups = [];
+      for (var i=0; i<this.layerRoot.groups.length; ++i) {
+        var group = this.layerRoot.groups[i];
+        if (group.visible && !group.initiallyVisible) {  //layer was turned on
+          showGroups.push(group.name);
+        }
+        if (!group.visible && group.initiallyVisible) {  //layer was turned off
+          hideGroups.push(group.name);
+        }
       }
-      if (this.aShowGroups.length > 0) {
-        queryParams.showgroups = this.aShowGroups.toString();
-      }
-      if (this.aHideGroups.length > 0) {
-        queryParams.hidegroups = this.aHideGroups.toString();
-      }
+      queryParams.showgroups = showGroups.join(',');
+      queryParams.hidegroups = hideGroups.join(',');
+      
       return queryParams;
     }
 });
@@ -1092,6 +1124,7 @@ Fusion.Maps.MapGuide.Group = OpenLayers.Class(Fusion.Widget.Map.Group, {
         this.groupType = o.groupType;
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
+        this.initiallyVisible = o.visible;
         this.visible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
     },
@@ -1148,6 +1181,7 @@ Fusion.Maps.MapGuide.Layer = OpenLayers.Class(Fusion.Widget.Map.Layer, {
         this.displayInLegend = o.displayInLegend;
         this.expandInLegend = o.expandInLegend;
         this.visible = o.visible;
+        this.initiallyVisible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.editable = o.editable;
         
