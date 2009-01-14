@@ -30,14 +30,13 @@
  * 
  * **********************************************************************/
 
-Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
+Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
-    nTolerance : 3, //default pixel tolernace for a point click
+    nTolerance: 3, //default pixel tolernace for a point click
+    
     initializeWidget: function(widgetTag) {
-        this.initializeCanvas();
-        
         this.asCursor = ['auto'];
 
         var json = widgetTag.extension;
@@ -50,7 +49,12 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas
                            (json.ComputeMetadata[0] == 'true' ||
                             json.ComputeMetadata[0] == '1')) ? true : false;
         
-        this.polygon = new Fusion.Tool.Canvas.Polygon();
+        //add in the OL Polygon handler
+        var mapWidget = this.getMap();
+        this.map = mapWidget.oMapOL;
+        this.handlerOptions = {};
+        this.handler = new OpenLayers.Handler.Polygon(this, {done: this.execute}, this.handlerOptions);
+        mapWidget.handlers.push(this.handler);
     },
     
     /**
@@ -58,11 +62,9 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas
      * This function should be defined for all functions that register
      * as a widget in the map
      */
-    activate : function() {
-        this.activateCanvas();
+    activate: function() {
+        this.handler.activate();
         this.getMap().setCursor(this.asCursor);
-        /*icon button*/
-        this.polygon = new Fusion.Tool.Canvas.Polygon(this.getMap());
     },
 
     /**
@@ -70,109 +72,25 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate : function()
+    deactivate: function()
     {
-         this.deactivateCanvas();
-         this.getMap().setCursor('auto');
-         /*icon button*/
+        this.handler.deactivate();
+        this.getMap().setCursor('auto');
     },
     
-    /**
-     * (public) mouseDown(e)
-     *
-     * handle the mouse down event
-     *
-     * @param e Event the event that happened on the mapObj
-     */
-    mouseDown: function(e) {
-        //console.log('SelectRadius.mouseDown');
-        if (OpenLayers.Event.isLeftClick(e)) {
-            var p = this.getMap().getEventPosition(e);
-
-            if (!this.isDigitizing) {
-                this.polygon = new Fusion.Tool.Canvas.Polygon(this.getMap());
-                var point = this.getMap().pixToGeo(p.x, p.y);
-                var from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var seg = new Fusion.Tool.Canvas.Segment(from,to);
-                seg.setEditing(true);
-                this.polygon.addSegment(seg);
-                this.clearContext();
-                this.polygon.draw(this.context);     
-
-                this.isDigitizing = true;
-            } else {
-                var seg = this.polygon.lastSegment();
-                seg.setEditing(false);
-                seg = this.polygon.extendLine();
-                seg.setEditing(true);
-                this.clearContext();
-                this.polygon.draw(this.context);
-            }
-        }
-    },
-
-    /**
-     * (public) mouseMove(e)
-     *
-     * handle the mouse move event
-     *
-     * @param e Event the event that happened on the mapObj
-     */
-    mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) {
-            return;
-        }
-    
-        var p = this.getMap().getEventPosition(e);
-        var seg = this.polygon.lastSegment();
-        seg.to.setPx(p.x,p.y);
-        seg.to.updateGeo();
-        this.clearContext();
-        this.polygon.draw(this.context);
-    },
-    
-    /**
-     * (public) dblClick(e)
-     *
-     * handle the mouse dblclick event
-     *
-     * @param e Event the event that happened on the mapObj
-     */
-    dblClick: function(e) {
-        //console.log('Digitizer.dblClick');
-        if (!this.isDigitizing) {
-            return;
-        }
-        this.event = e;
-        var p = this.getMap().getEventPosition(e);
-        var point = this.getMap().pixToGeo(p.x, p.y);
-        var seg = this.polygon.lastSegment();
-        seg.setEditing(false);
-        seg.to.set(point.x,point.y);
-        this.clearContext();
-        this.isDigitizing = false;
-        this.execute();
-    },
-
     /**
      *  
      **/
-    execute : function() {
-        var wkt = 'POLYGON((';
-        var nodes = this.polygon.getNodes();
-        var sep = '';
-        for (var i=0; i<nodes.length; i++) {
-            wkt = wkt + sep + nodes[i].x + ' ' + nodes[i].y;
-            sep = ',';
-        }
-        wkt = wkt + sep + nodes[0].x + ' ' + nodes[0].y + '))';
+    execute: function(geom) {
         
         var options = {};
-        options.geometry = wkt;
+        options.geometry = geom.toString();
         options.selectionType = this.selectionType;
         options.computed = this.bComputeMetadata;
+        
+        if (this.handler.evt.ctrlKey) {
+          options.extendSelection = true;
+        }
 
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
@@ -183,14 +101,10 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas
             }
         }
         
-        if (this.event.shiftKey) {
-            options.extendSelection = true;
-        }
-        
         this.getMap().query(options);
     },
     
-    setParameter : function(param, value) {
+    setParameter: function(param, value) {
         if (param == "Tolerance" && value > 0) {
             this.nTolerance = value;
         }

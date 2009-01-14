@@ -39,7 +39,7 @@ Fusion.Event.MEASURE_SEGMENT_UPDATE = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_CLEAR = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_COMPLETE = Fusion.Event.lastEventId++;
 
-Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
+Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     
@@ -80,8 +80,6 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
     areaStyle: null,
     
     initializeWidget: function(widgetTag) {
-        this.initializeCanvas();
-        
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
@@ -91,7 +89,6 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         this.sTarget = json.Target ? json.Target[0] : "";
         this.sBaseUrl = Fusion.getFusionURL() + 'widgets/Measure/Measure.php';
         
-              
         //init measure type
         this.measureType = Fusion.Constant.MEASURE_TYPE_BOTH;
         if (json.Type) {
@@ -111,8 +108,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         var fillStyle = json.FillStyle ? json.FillStyle[0] : 'rgba(0,0,255, 0.3)';
         var lineStyleWidth = json.LineStyleWidth ? json.LineStyleWidth[0] : 2;
         var lineStyleColor = json.LineStyleColor ? json.LineStyleColor[0] : 'rgba(0,0,255,0.3)';     
-        this.fillStyle = new Fusion.Tool.Canvas.Style({fillStyle:fillStyle});
-        this.lineStyle = new Fusion.Tool.Canvas.Style({lineWidth:lineStyleWidth,strokeStyle:lineStyleColor});  	
+        //this.fillStyle = new Fusion.Tool.Canvas.Style({fillStyle:fillStyle});
+        //this.lineStyle = new Fusion.Tool.Canvas.Style({lineWidth:lineStyleWidth,strokeStyle:lineStyleColor});  	
         this.distanceMarkers = [];
         this.distances = [];
         
@@ -120,12 +117,58 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         this.registerEventID(Fusion.Event.MEASURE_CLEAR);
         this.registerEventID(Fusion.Event.MEASURE_COMPLETE);
         
-        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.resetCanvas, this));
+        var mapWidget = this.getMap();
+        mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.resetMeasure, this));
         this.keyHandler = OpenLayers.Function.bind(this.onKeyPress, this);
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Measure/Measure.css');
 
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this, this.units));
+        mapWidget.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this, this.units));
         this.registerParameter('Units');
+        
+            // style the sketch fancy
+        this.sketchSymbolizers = {
+                "Point": {
+                    pointRadius: 4,
+                    graphicName: "square",
+                    fillColor: "white",
+                    fillOpacity: 1,
+                    strokeWidth: 1,
+                    strokeOpacity: 1,
+                    strokeColor: "#333333"
+                },
+                "Line": {
+                    strokeWidth: 3,
+                    strokeOpacity: 1,
+                    strokeColor: "#666666",
+                    strokeDashstyle: "dash"
+                },
+                "Polygon": {
+                    strokeWidth: 2,
+                    strokeOpacity: 1,
+                    strokeColor: "#666666",
+                    fillColor: "white",
+                    fillOpacity: 0.3
+                }
+        };
+        var style = new OpenLayers.Style();
+        style.addRules([
+            new OpenLayers.Rule({symbolizer: this.sketchSymbolizers})
+        ]);
+        var styleMap = new OpenLayers.StyleMap({"default": style});
+            
+        //add in the OL Polygon handler
+        this.map = mapWidget.oMapOL;
+        this.handlerOptions = {                    
+            style: "default", // this forces default render intent
+            layerOptions: {styleMap: styleMap},
+            persist: true
+        };
+        this.handler = new OpenLayers.Handler.Path(this, {
+                done: this.dblClick,
+                point: this.mouseDown
+            }, this.handlerOptions);
+        this.handler.mousemove = OpenLayers.Function.bind(this.mouseMove, this);
+        mapWidget.handlers.push(this.handler);
     },
     
     onKeyPress: function(e) {
@@ -133,8 +176,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
         //console.log(charCode);
         if (charCode == OpenLayers.Event.KEY_ESC) {
-            this.resetCanvas();
-        } 
+            this.handler.clear();
+        }
     },
     
     /**
@@ -151,14 +194,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
     },
     
     activate: function() {
-        this.activateCanvas();
-        this.initVars();
-        this.triggerEvent(Fusion.Event.MEASURE_CLEAR, this);
-         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
+        this.handler.activate();
+        this.resetMeasure();
+        OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.loadDisplayPanel();
     },
     
-    loadDisplayPanel : function() {
+    loadDisplayPanel: function() {
         if (this.sTarget) {
             var url = this.sBaseUrl;
             var queryStr = 'locale='+Fusion.locale;
@@ -187,13 +229,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
                 this.totalDistanceMarker.domObj.parentNode != oDomElem) {
                 oDomElem.appendChild(this.totalDistanceMarker.domObj);
             }
-            this.totalDistanceMarker.domObj.className = 'divMeasureTotal';
+            this.totalDistanceMarker.domObj.addClass = 'divMeasureTotal';
             this.totalDistanceMarker.domObj.style.display = 'none';
             this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));  
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
             this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateTotalDistance, this));
         }
-    },    
+    },
     
     /**
      * (public) deactivate()
@@ -203,15 +245,14 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
     deactivate: function() {
         console.log('Ruler.deactivate');
         OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);           
-        this.deactivateCanvas();
-        this.resetCanvas();
+        this.handler.activate();
+        this.resetMeasure();
     },
     
-    resetCanvas: function() {
+    resetMeasure: function() {
         if (this.isDigitizing) {
             this.isDigitizing = false;
         }
-        this.clearContext();
         this.initVars();
         for (var i=0; i<this.distanceMarkers.length; i++)  {
             this.distanceMarkers[i].destroy();
@@ -227,45 +268,38 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
      *
      * @param e Event the event that happened on the mapObj
      */
-    mouseDown: function(e) {
-        if (OpenLayers.Event.isLeftClick(e)) {
+    mouseDown: function(geom2) {
+        var evt = this.handler.evt;
+        //OL appears to be calling this for mouseup too so filter on mousedown
+        if (OpenLayers.Event.isLeftClick(evt) && evt.type=='mousedown') {
             var map = this.getMap();
-            var p = map.getEventPosition(e);
-            var gp = map.pixToGeo(p.x, p.y);
+            var p = map.getEventPosition(evt);
             
             if (!this.isDigitizing) {
-                this.resetCanvas();
-                var from = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
-                var to = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
-                var lastSegment = new Fusion.Tool.Canvas.Segment(from,to);
-                if (this.measureType == Fusion.Constant.MEASURE_TYPE_DISTANCE) {
-                    this.feature = new Fusion.Tool.Canvas.Line(map);
-                    this.feature.lineStyle = this.lineStyle;
-                } else {
-                    this.feature = new Fusion.Tool.Canvas.Polygon(map);
-                    this.feature.fillStyle = this.fillStyle;
-                    this.feature.lineStyle = this.lineStyle;
-                }
-                this.feature.addSegment(lastSegment);
-                this.aAreaFirstPoint = new Fusion.Tool.Canvas.Node(gp.x,gp.y, map);
-                this.isDigitizing = true;                                  
+                this.resetMeasure();
+                this.isDigitizing = true;
+                this.segStart = p;
+                
             } else {
                 //if digitizing
-                var lastSegment = this.feature.lastSegment();
-                lastSegment.to.set(gp.x,gp.y);
-                if (lastSegment.from.x == lastSegment.to.x && 
-                    lastSegment.from.y == lastSegment.to.y) {
-                    this.dblClick(e);
+                if (p == this.segStart) {
+                    this.dblClick(geom2);
                     return;
                 }
-                this.feature.extendLine();
-                this.updateMarker(this.lastMarker, lastSegment, e);
+                //create a new geometry to measure the last line segment drawn
+                //new point already added on mousedown so use -3,-2
+                var geom = this.handler.getGeometry();
+                var lastSeg =  new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString());
+                var p1 = geom.components[geom.components.length-3];
+                var p2 = geom.components[geom.components.length-2];
+                lastSeg.geometry.addPoint(p1.clone());
+                lastSeg.geometry.addPoint(p2.clone());
+                this.updateMarker(this.lastMarker, this.segStart, p, lastSeg);
+                this.segStart = p;
             }
             //create a new marker
             this.lastMarker = new Fusion.Widget.Measure.DistanceMarker(this.units, this.distPrecision);
             this.distanceMarkers.push(this.lastMarker);
-            this.clearContext();
-            this.feature.draw(this.context);
         }
     },
 
@@ -276,10 +310,14 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
      *
      * @param e Event the event that happened on the mapObj
      */
-    mouseMove: function(e) {
+    mouseMove: function(evt) {
+        //var evt = this.handler.evt;
         if (!this.isDigitizing) {
             return;
         }
+        OpenLayers.Handler.Path.prototype.mousemove.apply(this.handler, [evt]);
+        var geom = this.handler.getGeometry();
+        
         var offset = {x:0,y:0};
         var oElement = this.getMap().getDomObj();
         //var target = e.target || e.srcElement;
@@ -287,17 +325,20 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
             window.clearTimeout(this.delayUpdateTimer);
         }
         var map = this.getMap();
-        var p = map.getEventPosition(e);
-        var gp = map.pixToGeo(p.x, p.y);
+        var p = map.getEventPosition(evt);
         
-        var lastSegment = this.feature.lastSegment();
-        lastSegment.to.set(gp.x,gp.y);
-        this.clearContext();
-        this.feature.draw(this.context);
         this.lastMarker.setCalculating();
-        this.delayUpdateTimer = window.setTimeout(OpenLayers.Function.bind(this.delayUpdate, this, lastSegment, e), 100);
         
-        this.positionMarker(this.lastMarker, lastSegment);
+        //create a new geometry to measure the last line segment drawn
+        //from the last 2 points
+        var lastSeg =  new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString());
+        var p1 = geom.components[geom.components.length-2];
+        var p2 = geom.components[geom.components.length-1];
+        lastSeg.geometry.addPoint(p1.clone());
+        lastSeg.geometry.addPoint(p2.clone());
+        this.delayUpdateTimer = window.setTimeout(OpenLayers.Function.bind(this.delayUpdate, this, this.segStart, p, lastSeg), 100);
+        
+        this.positionMarker(this.lastMarker, this.segStart, p);
         if (this.totalDistanceMarker) {
           var size = this.totalDistanceMarker.getSize();
           this.totalDistanceMarker.domObj.style.top = (p.y - size.height) + 'px';
@@ -305,9 +346,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         }
     },
     
-    delayUpdate: function(lastSegment, e) {
+    delayUpdate: function(from, to, geom) {
         this.delayUpdateTimer = null;
-        this.updateMarker(this.lastMarker, lastSegment, e);
+        this.updateMarker(this.lastMarker, from, to, geom);
     },
    
     /**
@@ -317,17 +358,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
      *
      * @param e Event the event that happened on the mapObj
      */
-    dblClick: function(e) {
+    dblClick: function(geom) {
         //console.log('Digitizer.dblClick');
         if (!this.isDigitizing) {
             return;
         }
-        var p = this.getMap().getEventPosition(e);
-        var gp = this.getMap().pixToGeo(p.x, p.y);   
-        var seg = this.feature.lastSegment();
-        seg.to.set(gp.x,gp.y);
-        this.clearContext();
-        this.feature.draw(this.context);
+        var evt = this.handler.evt;
+        var p = this.getMap().getEventPosition(evt);
         
         if (this.measureType == Fusion.Constant.MEASURE_TYPE_AREA || this.measureType == Fusion.Constant.MEASURE_TYPE_BOTH) {
             
@@ -340,49 +377,181 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
         //mousedown creates a new segment before dblClick so remove the last one
         var lastMarker = this.distanceMarkers.pop();
         lastMarker.destroy();
-        this.triggerEvent(Fusion.Event.MEASURE_COMPLETE);                    
+        this.triggerEvent(Fusion.Event.MEASURE_COMPLETE);
     },
     
-    positionMarker: function(marker, segment) {
+    positionMarker: function(marker, from, to) {
         var oDomElem =  this.getMap().getDomObj();
         if (!marker.domObj.parentNode || 
             marker.domObj.parentNode != oDomElem) {
             oDomElem.appendChild(marker.domObj);
         }
         var size = marker.getSize();
-        var t = (segment.from.py + segment.to.py - size.height)/2 ;
-        var l = (segment.from.px + segment.to.px - size.width)/2;
+        var t = (from.y + to.y - size.height)/2 ;
+        var l = (from.x + to.x - size.width)/2;
         marker.domObj.style.top = t + 'px';
         marker.domObj.style.left = l + 'px';
     },
     
-    updateMarker: function(marker, segment, e) {
+    updateMarker: function(marker, from, to, geom) {
         if (!marker) {
             return;
         }
-        this.measureSegment(segment, marker);
-        this.positionMarker(marker, segment);
+        this.measureSegment2(marker, geom);
+        this.positionMarker(marker, from, to);
+        this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);                    
     },
     
-    measureSegment: function(segment, marker) {
-        var aMaps = this.getMap().getAllMaps();
-        var s = 'layers/' + aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage() ;
+    measureSegment2: function(marker, geom) {
+        var dist = this.measure(geom.geometry);
+        marker.setDistance(dist);
+        geom.destroy();
+    },
+    
+    /**
+     * Method: measure
+     *
+     * Parameters:
+     * geometry - {<OpenLayers.Geometry>}
+     * eventType - {String}
+     */
+    measure: function(geometry, eventType) {
+        var stat, order;
+        if(geometry.CLASS_NAME.indexOf('LineString') > -1) {
+            stat = this.getLength(geometry, this.units);
+            order = 1;
+        } else {
+            stat = this.getArea(geometry, this.units);
+            order = 2;
+        }
+        return stat;
+        /*
+        this.events.triggerEvent(eventType, {
+            measure: stat[0],
+            units: stat[1],
+            order: order,
+            geometry: geometry
+        });
+        */
+    },
+    
+    /**
+     * Method: getBestArea
+     * Based on the <displaySystem> returns the area of a geometry.
+     *
+     * Parameters:
+     * geometry - {<OpenLayers.Geometry>}
+     *
+     * Returns:
+     * {Array([Float, String])}  Returns a two item array containing the
+     *     area and the units abbreviation.
+     */
+    displaySystemUnits: {
+        geographic: ['dd'],
+        english: ['mi', 'ft', 'in'],
+        metric: ['km', 'm']
+    },
+    getBestArea: function(geometry) {
+        var units = this.displaySystemUnits['metric'];
+        var unit, area;
+        for(var i=0, len=units.length; i<len; ++i) {
+            unit = units[i];
+            area = this.getArea(geometry, unit);
+            if(area > 1) {
+                break;
+            }
+        }
+        return [area, unit];
+    },
+    
+    /**
+     * Method: getArea
+     *
+     * Parameters:
+     * geometry - {<OpenLayers.Geometry>}
+     * units - {String} Unit abbreviation
+     *
+     * Returns:
+     * {Float} The geometry area in the given units.
+     */
+    getArea: function(geometry, units) {
+        var area = geometry.getArea();
+        var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
+        if(inPerDisplayUnit) {
+            var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[this.map.getUnits()];
+            area *= Math.pow((inPerMapUnit / inPerDisplayUnit), 2);
+        }
+        return area;
+    },
+    
+    /**
+     * Method: getBestLength
+     * Based on the <displaySystem> returns the length of a geometry.
+     *
+     * Parameters:
+     * geometry - {<OpenLayers.Geometry>}
+     *
+     * Returns:
+     * {Array([Float, String])}  Returns a two item array containing the
+     *     length and the units abbreviation.
+     */
+    getBestLength: function(geometry) {
+        var units = this.displaySystemUnits['metric'];
+        var unit, length;
+        for(var i=0, len=units.length; i<len; ++i) {
+            unit = units[i];
+            length = this.getLength(geometry, unit);
+            if(length > 1) {
+                break;
+            }
+        }
+        return [length, unit];
+    },
+
+    /**
+     * Method: getLength
+     *
+     * Parameters:
+     * geometry - {<OpenLayers.Geometry>}
+     * units - {String} Unit abbreviation
+     *
+     * Returns:
+     * {Float} The geometry length in the given units.
+     */
+    getLength: function(geometry, fusionUnits) {
+        var units = Fusion.aUnitNames[fusionUnits];
+        var units = "m";
+        var length = geometry.getLength();
+        var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
+        if(inPerDisplayUnit) {
+            var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[this.map.getUnits()];
+            length *= (inPerMapUnit / inPerDisplayUnit);
+        }
+        return length;
+    },
+    
+    measureSegment: function(marker, from, to, geom) {
+        var mapWidget = this.getMap();
+        var aMaps = mapWidget.getAllMaps();
+        var s = 'layers/' + aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage();
+        var fromGeo = mapWidget.pixToGeo(from.x, from.y);
+        var toGeo = mapWidget.pixToGeo(to.x, to.y);
         var options = {
             parameters: {
                 'session': aMaps[0].getSessionID(),
                 'locale': Fusion.locale,
-                'mapname': this.getMap().getMapName(),
-                'x1': segment.from.x,
-                'y1': segment.from.y,
-                'x2': segment.to.x,
-                'y2': segment.to.y
+                'mapname': mapWidget.getMapName(),
+                'x1': fromGeo.x,
+                'y1': fromGeo.y,
+                'x2': toGeo.x,
+                'y2': toGeo.y
             },
-            'onComplete': OpenLayers.Function.bind(this.measureCompleted, this, segment, marker)
+            'onComplete': OpenLayers.Function.bind(this.measureCompleted, this, from, to, marker)
         };
         Fusion.ajaxRequest(s, options);
     },
     
-    measureCompleted: function(segment, marker, r) {
+    measureCompleted: function(from, to, marker, r) {
         if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
@@ -397,7 +566,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
               }
               
               marker.setDistance(o.distance);
-              this.positionMarker(marker, segment);
+              this.positionMarker(marker, from, to);
               this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);                    
             }
         }
@@ -511,8 +680,6 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
 * A class for handling the 'tooltip' for the distance measurement.  Markers also hold the distance
 values and all markers are held in an array in the Measure widget for access.
 */
-//Fusion.Widget.Measure.DistanceMarker = Class.create();
-//Fusion.Widget.Measure.DistanceMarker.prototype = {
 Fusion.Widget.Measure.DistanceMarker = OpenLayers.Class(
 {
     calculatingImg: null,

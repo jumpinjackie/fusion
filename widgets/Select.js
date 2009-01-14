@@ -35,7 +35,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
-    nTolerance : 3,     //default pixel tolernace for a point click
+    nTolerance: 3,     //default pixel tolernace for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
     maxFeatures: 0,     //deafult of 0 selects all features (i.e. no maximum)
     
@@ -70,11 +70,11 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         
         var mapWidget = this.getMap();
         this.map = mapWidget.oMapOL;
-        this.handler = new OpenLayers.Handler.Box(this,{done: this.execute},{keyMask:0});
-        this.shiftHandler = new OpenLayers.Handler.Box(this,{done: this.extend},
-                                        {keyMask:OpenLayers.Handler.MOD_SHIFT});
+        this.handler = new OpenLayers.Handler.Box(this,{done: this.execute});
+        //this.shiftHandler = new OpenLayers.Handler.Box(this,{done: this.extend},
+        //                                {keyMask:OpenLayers.Handler.MOD_SHIFT});
         mapWidget.handlers.push(this.handler);
-        mapWidget.handlers.push(this.shiftHandler);
+        //mapWidget.handlers.push(this.shiftHandler);
         
     },
     
@@ -96,9 +96,9 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
        * This function should be defined for all functions that register
        * as a widget in the map
        */
-    activate : function() {
+    activate: function() {
         this.handler.activate();
-        this.shiftHandler.activate();
+        //this.shiftHandler.activate();
         this.getMap().setCursor(this.asCursor);
     },
 
@@ -107,9 +107,9 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
        * This function should be defined for all functions that register
        * as a widget in the map
        **/
-    deactivate : function() {
+    deactivate: function() {
         this.handler.deactivate();
-        this.shiftHandler.deactivate();
+        //this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
     },
 
@@ -121,7 +121,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         *   position will be either an instance of OpenLayers.Bounds when the mouse has
         *   moved, or an OpenLayers.Pixel for click without dragging on the map
         **/
-    execute : function(position, extend) {
+    execute: function(position, extend) {
         //ctrl click is used to launch a URL defined on the feature. See ClickCTRL widget
         if (this.keyModifiers & OpenLayers.Handler.MOD_CTRL) {
           //return;
@@ -166,7 +166,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
             }
         }
         
-        if (extend) {
+        if (this.handler.dragHandler.evt.shiftKey) {
             options.extendSelection = true;
         }
         
@@ -214,7 +214,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         *               'Tolerance' and 'SelectionType'
         * value - the value to sue for the parameter
         */
-    setParameter : function(param, value) {
+    setParameter: function(param, value) {
         if (param == "Tolerance" && value > 0) {
             this.nTolerance = value;
         }

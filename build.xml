@@ -207,14 +207,11 @@ $Id$
                           fusion.js
                           OpenLayers/OpenLayers.js
                           jxlib.uncompressed.js
-                          excanvas/excanvas.js
                           Error.js 
                           EventMgr.js
                           ApplicationDefinition.js
                           MGBroker.js 
                           Widget.js 
-                          CanvasTool.js 
-                          RectTool.js 
                           Search.js
                           Map.js"
         />
