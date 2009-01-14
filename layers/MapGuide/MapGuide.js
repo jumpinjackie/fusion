@@ -42,6 +42,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     bSelectionOn: false,
     oSelection: null,
     selectionAsOverlay: true,
+    defaultFormat: 'PNG',
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -55,6 +56,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
         this.mapInfo = mapTag.mapInfo;
+        this.imageFormat = mapTag.extension.ImageFormat ? mapTag.extension.ImageFormat[0] : this.defaultFormat;
         this.selectionType = mapTag.extension.SelectionType ? mapTag.extension.SelectionType[0] : 'INTERSECTS';
         this.selectionColor = mapTag.extension.SelectionColor ? mapTag.extension.SelectionColor[0] : '';
         this.selectionFormat = mapTag.extension.SelectionFormat ? mapTag.extension.SelectionFormat[0] : 'PNG';
@@ -563,6 +565,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         params = {        //single tile params
           session: this.getSessionID(),
           mapname: this._sMapname,
+          format: this.imageFormat,
+          behavior: behaviour,
+          version: "2.0.0",
           clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
@@ -571,9 +576,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         params.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
         params.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
 
-        if (behaviour != null) {
-          params.behavior = behaviour;
-          params.version = "2.0.0";
+        if (behaviour == 5) {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
         }
