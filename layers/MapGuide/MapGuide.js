@@ -525,7 +525,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behaviour) {
+    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behavior) {
       /* prevent the useOverlay flag based on site version       */
       if (( this.siteVersion[0] == 2 && this.siteVersion[1] < 1 ) || this.siteVersion[0] < 2) { //v2.0.0 or previous
         this.selectionAsOverlay = false;
@@ -537,7 +537,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         useOverlay: this.selectionAsOverlay,
         ratio: this.ratio
       };
-      if ((behaviour & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
+      if ((behavior & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
         layerOptions.transitionEffect = 'resize';
       }
 
@@ -566,7 +566,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           session: this.getSessionID(),
           mapname: this._sMapname,
           format: this.imageFormat,
-          behavior: behaviour,
+          behavior: behavior,
           version: "2.0.0",
           clientagent: this.clientAgent
         };
@@ -576,7 +576,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         params.hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
         params.refreshLayers = this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null;
 
-        if (behaviour == 5) {
+        if (behavior == 5) {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
         }
