@@ -26,11 +26,14 @@
 /***************************************************************************
 * This is a simple API layer to mimick the MapGuide ajaxviewer API
 */
-var mapWidgetId = 'Map';
+var mgApiMapWidgetId = 'Map';
+var mgApimgApiActiveWidget = null;
+var mgApiActiveControl = null;
+var mgApiDrawControls;
 
 function Refresh() {
     var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mapWidgetId);
+    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.redraw();
     }
@@ -38,7 +41,7 @@ function Refresh() {
 
 function SetSelectionXML(selectionXml) {
     var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mapWidgetId);
+    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.setSelection(selectionXml, true);
     }
@@ -46,7 +49,7 @@ function SetSelectionXML(selectionXml) {
 
 function ZoomToView(x, y, scale, refresh) {
     var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mapWidgetId);
+    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         var extent = mapWidget.getExtentFromPoint(x, y, scale);
         mapWidget.setExtents(extent);
@@ -54,372 +57,26 @@ function ZoomToView(x, y, scale, refresh) {
 }
 
 function DigitizePoint(handler) {
-    if (handler) {
-      var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      var digitizer = new Fusion.Tool.Canvas.Point(mapWidget);
-      digitizer.mouseUp = PointHandlers.prototype.mouseUp;
-      Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.initializeCanvas();
-      var activeWidget = mapWidget.buttonSet.activeButton;
-      mapWidget.buttonSet.setActiveButton(null);
-      digitizer.handler = function() {
-          handler.apply(null, arguments);
-          activeWidget.setActive(true);
-      }
-      digitizer.activateCanvas();
-      
-      //add a listener to update the position of the features
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
-        function(){
-          digitizer.updatePx();
-          digitizer.clearContext();
-          digitizer.draw(digitizer.context);
-        }
-      );
-    }
+    mgApiStartDigitizing('point', handler)
 }
 
 function DigitizeLine(handler) {
-    if (handler) {
-      var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      var digitizer = new Fusion.Tool.Canvas.Line(mapWidget);
-      digitizer.mouseDown = LineHandlers.prototype.mouseDown;
-      digitizer.mouseMove = LineHandlers.prototype.mouseMove;
-      Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.initializeCanvas();
-      var activeWidget = mapWidget.buttonSet.activeButton;
-      mapWidget.buttonSet.setActiveButton(null);
-      digitizer.handler = function() {
-          handler.apply(null, arguments);
-          activeWidget.setActive(true);
-      }
-      digitizer.activateCanvas();
-      
-      //add a listener to update the position of the features
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
-        function(){
-          digitizer.updatePx();
-          digitizer.clearContext();
-          digitizer.draw(digitizer.context);
-        }
-      );
-    }
+    mgApiStartDigitizing('line', handler)
 }
 
 function DigitizeLineString(handler) {
-    if (handler) {
-      var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      var digitizer = new Fusion.Tool.Canvas.Line(mapWidget);
-      digitizer.mouseDown = MultiPointHandlers.prototype.mouseDown;
-      digitizer.mouseMove = MultiPointHandlers.prototype.mouseMove;
-      digitizer.dblClick = MultiPointHandlers.prototype.dblClick;
-      Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.initializeCanvas();
-      var activeWidget = mapWidget.buttonSet.activeButton;
-      mapWidget.buttonSet.setActiveButton(null);
-      digitizer.handler = function() {
-          handler.apply(null, arguments);
-          activeWidget.setActive(true);
-      }
-      digitizer.activateCanvas();
-      
-      //add a listener to update the position of the features
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
-        function(){
-          digitizer.updatePx();
-          digitizer.clearContext();
-          digitizer.draw(digitizer.context);
-        }
-      );
-    }
+    mgApiStartDigitizing('linestr', handler)
 }
 
 function DigitizeRectangle(handler) {
-    if (handler) {
-      var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      var digitizer = new Fusion.Tool.Canvas.Polygon(mapWidget);
-      digitizer.mouseDown = RectangleHandlers.prototype.mouseDown;
-      digitizer.mouseMove = RectangleHandlers.prototype.mouseMove;
-      Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.initializeCanvas();
-      var activeWidget = mapWidget.buttonSet.activeButton;
-      mapWidget.buttonSet.setActiveButton(null);
-      digitizer.handler = function() {
-          handler.apply(null, arguments);
-          activeWidget.setActive(true);
-      }
-      digitizer.activateCanvas();
-      
-      //add a listener to update the position of the features
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
-        function(){
-          digitizer.updatePx();
-          digitizer.clearContext();
-          digitizer.draw(digitizer.context);
-        }
-      );
-    }
+    mgApiStartDigitizing('rectangle', handler)
 }
 
 function DigitizePolygon(handler) {
-    if (handler) {
-      var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      var digitizer = new Fusion.Tool.Canvas.Polygon(mapWidget);
-      digitizer.mouseDown = MultiPointHandlers.prototype.mouseDown;
-      digitizer.mouseMove = MultiPointHandlers.prototype.mouseMove;
-      digitizer.dblClick = MultiPointHandlers.prototype.dblClick;
-      Object.inheritFrom(digitizer, Fusion.Tool.Canvas.prototype, []);
-      digitizer.initializeCanvas();
-      var activeWidget = mapWidget.buttonSet.activeButton;
-      mapWidget.buttonSet.setActiveButton(null);
-      digitizer.handler = function() {
-          handler.apply(null, arguments);
-          activeWidget.setActive(true);
-      }
-      digitizer.activateCanvas();
-      
-      //add a listener to update the position of the features
-      var mapWidget = Fusion.getWidgetById(mapWidgetId);
-      mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, 
-        function(){
-          digitizer.updatePx();
-          digitizer.clearContext();
-          digitizer.draw(digitizer.context);
-        }
-      );
-    }
+    mgApiStartDigitizing('polygon', handler)
 }
 
-Fusion.Tool.Canvas.prototype.getMap = function() {
-  return Fusion.getWidgetById(mapWidgetId);
-}
-
-Fusion.Tool.Canvas.prototype.deactivateCanvas = function() {
-    var map = this.getMap();
-    map.deregisterForEvent(Fusion.Event.MAP_RESIZED, this.resizeCanvasFn);
-    map.stopObserveEvent('mousemove', this.mouseMoveCB);
-    map.stopObserveEvent('mouseup', this.mouseUpCB);
-    map.stopObserveEvent('mousedown', this.mouseDownCB);
-    map.stopObserveEvent('dblclick', this.dblClickCB);
-}
-
-
-PointHandlers = Class.create();
-PointHandlers.prototype = {
-    mouseUp: function(e) {
-        var p = this.getMap().getEventPosition(e);
-        var point = this.getMap().pixToGeo(p.x, p.y);
-        this.setPoint(point.x, point.y);
-        this.clearContext();
-        this.draw(this.context);
-        this.isDigitizing = false;
-        this.deactivateCanvas();
-        this.handler(new Point(point.x, point.y));
-    }
-}
-    
-LineHandlers = Class.create();
-LineHandlers.prototype = {
-    mouseDown: function(e) {
-        if (OpenLayers.Event.isLeftClick(e)) {
-            var p = this.getMap().getEventPosition(e);
-
-            if (!this.isDigitizing) {
-                this.segments = [];
-                var point = this.getMap().pixToGeo(p.x, p.y);
-                var from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var seg = new Fusion.Tool.Canvas.Segment(from,to);
-                seg.setEditing(true);
-                this.addSegment(seg);
-                this.clearContext();
-                this.draw(this.context);     
-
-                this.isDigitizing = true;
-            } else {
-                this.isDigitizing = false;
-                var seg = this.lastSegment();
-                seg.setEditing(false);
-                //seg = this.extendLine();
-                this.clearContext();
-                this.draw(this.context);
-                this.deactivateCanvas();
-                
-                this.clean();
-                var ls = new LineString();
-                var nodes = this.getNodes();
-                for (var i=0; i<nodes.length; ++i) {
-                  var node = nodes[i];
-                  ls.AddPoint(new Point(node.x, node.y));
-                }
-                this.handler(ls);
-                
-            }
-        }
-    },
-
-    mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) {
-            return;
-        }
-    
-        var p = this.getMap().getEventPosition(e);
-        var seg = this.lastSegment();
-        seg.to.setPx(p.x,p.y);
-        seg.to.updateGeo();
-        this.clearContext();
-        this.draw(this.context);
-    }
-}
-    
-RectangleHandlers = Class.create();
-RectangleHandlers.prototype = {
-    mouseDown: function(e) {
-        if (OpenLayers.Event.isLeftClick(e)) {
-            var p = this.getMap().getEventPosition(e);
-
-            if (!this.isDigitizing) {
-                this.segments = [];
-                var point = this.getMap().pixToGeo(p.x, p.y);
-                var from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                this.seg1 = new Fusion.Tool.Canvas.Segment(from,to);
-                this.addSegment(this.seg1);
-                from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                this.seg2 = new Fusion.Tool.Canvas.Segment(from,to);
-                this.addSegment(this.seg2);
-                from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                this.seg3 = new Fusion.Tool.Canvas.Segment(from,to);
-                this.addSegment(this.seg3);
-                from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                this.seg4 = new Fusion.Tool.Canvas.Segment(from,to);
-                this.addSegment(this.seg4);
-                this.clearContext();
-                this.draw(this.context);     
-
-                this.isDigitizing = true;
-            } else {
-                this.clearContext();
-                this.draw(this.context);
-                this.deactivateCanvas();
-                
-                this.clean();
-                var p1 = new Point(this.seg1.from.x,this.seg1.from.y);
-                var p2 = new Point(this.seg3.from.x,this.seg3.from.y);
-                var rect = new Rectangle(p1, p2);
-                this.handler(rect);
-                
-            }
-        }
-    },
-
-    mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) {
-            return;
-        }
-    
-        var p = this.getMap().getEventPosition(e);
-        this.seg1.to.setPx(p.x, this.seg1.from.py);
-        this.seg1.to.updateGeo();
-        this.seg2.from.setPx(p.x, this.seg1.from.py);
-        this.seg2.from.updateGeo();
-        this.seg2.to.setPx(p.x, p.y);
-        this.seg2.to.updateGeo();
-        this.seg3.from.setPx(p.x, p.y);
-        this.seg3.from.updateGeo();
-        this.seg3.to.setPx(this.seg1.from.px, p.y);
-        this.seg3.to.updateGeo();
-        this.seg4.from.setPx(this.seg1.from.px, p.y);
-        this.seg4.from.updateGeo();
-        this.clearContext();
-        this.draw(this.context);
-    }
-}
-    
-MultiPointHandlers = Class.create();
-MultiPointHandlers.prototype = {
-    mouseDown: function(e) {
-        if (OpenLayers.Event.isLeftClick(e)) {
-            var p = this.getMap().getEventPosition(e);
-
-            if (!this.isDigitizing) {
-                this.segments = [];
-                var point = this.getMap().pixToGeo(p.x, p.y);
-                var from = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var to = new Fusion.Tool.Canvas.Node(point.x,point.y, this.getMap());
-                var seg = new Fusion.Tool.Canvas.Segment(from,to);
-                seg.setEditing(true);
-                this.addSegment(seg);
-                this.clearContext();
-                this.draw(this.context);     
-
-                this.isDigitizing = true;
-            } else {
-                var seg = this.lastSegment();
-                seg.setEditing(false);
-                seg = this.extendLine();
-                seg.setEditing(true);
-                this.clearContext();
-                this.draw(this.context);
-            }
-        }
-    },
-
-    mouseMove: function(e) {
-        //console.log('SelectRadius.mouseMove');
-        if (!this.isDigitizing) {
-            return;
-        }
-    
-        var p = this.getMap().getEventPosition(e);
-        var seg = this.lastSegment();
-        seg.to.setPx(p.x,p.y);
-        seg.to.updateGeo();
-        this.clearContext();
-        this.draw(this.context);
-    },
-    
-    dblClick: function(e) {
-        //console.log('Digitizer.dblClick');
-        if (!this.isDigitizing) {
-            return;
-        }
-        this.event = e;
-        var p = this.getMap().getEventPosition(e);
-        var point = this.getMap().pixToGeo(p.x, p.y);
-        var seg = this.lastSegment();
-        seg.setEditing(false);
-        seg.to.set(point.x,point.y);
-        this.clearContext();
-        this.draw(this.context);
-        this.isDigitizing = false;
-        this.deactivateCanvas();
-        
-        this.clean();
-        var ls = new LineString();
-        var nodes = this.getNodes();
-        for (var i=0; i<nodes.length; ++i) {
-          var node = nodes[i];
-          ls.AddPoint(new Point(node.x, node.y));
-        }
-        this.handler(ls);
-    }
-}
-    
+//Theses are the Geometry classes used in the MapGuide Viewer API
 function Point(x, y) {
     this.X = x;
     this.Y = y;
@@ -468,4 +125,165 @@ function Polygon()
     this.LineStringInfo = LineString;
     this.LineStringInfo();
 }
+
+//The following methods are private and not intended for use by applications
+//
+function mgApiStartDigitizing(type, handler) {
+    if (handler) {
+      var Fusion = window.top.Fusion;
+      var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
+      mgApiActiveWidget = mapWidget.oActiveWidget;
+      if (mgApiActiveWidget) {
+        mapWidget.deactivateWidget(mgApiActiveWidget);
+      }
+      
+      var control = mgApiDrawControls[type];
+      control.userHandler = handler;
+      mgApiActiveControl = control;
+      control.activate();
+    }
+}
+
+function mgApiCallHandler(evt) {
+  var geom = evt.feature.geometry;
+  var apiGeom = null;
+  switch (geom.CLASS_NAME) {
+    case 'OpenLayers.Geometry.Point':
+      apiGeom = new Point(geom.x, geom.y);
+      break;
+    case 'OpenLayers.Geometry.LineString':
+      apiGeom = new LineString();
+      var nodes = geom.components;
+      for (var i=0; i<nodes.length; ++i) {
+        var node = nodes[i];
+        apiGeom.AddPoint(new Point(node.x, node.y));
+      }
+      break;
+    case 'OpenLayers.Geometry.Polygon':
+      apiGeom = new LineString();
+      var nodes = geom.components[0].components;
+      for (var i=0; i<nodes.length; ++i) {
+        var node = nodes[i];
+        apiGeom.AddPoint(new Point(node.x, node.y));
+      }
+      break;
+  }
+  this.userHandler(apiGeom);
+  
+  //deactivate the control in a separate thread so that the chain of event
+  //handlers has a chance to finish before the deactivation occurs
+  window.setTimeout(mgApiDeactivate, 100);
+  
+  return false;
+}
+
+function mgApiDeactivate() {
+  mgApiActiveControl.deactivate();
+  mgApiActiveControl = null;
+  if (mgApiActiveWidget) {
+    var Fusion = window.top.Fusion;
+    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
+    mapWidget.activateWidget(mgApiActiveWidget);
+    mgApiActiveWidget = null;
+  }
+}
+
+// set the Stylemap for the MGAPI
+var mgApiStyle = new OpenLayers.Style({
+            pointRadius: 4,
+            graphicName: "square",
+            fillColor: "white",
+            fillOpacity: 0.4,
+            strokeWidth: 2,
+            strokeOpacity: 1,
+            strokeColor: "#666666"
+        });
+var mgApiStyleMap = new OpenLayers.StyleMap(mgApiStyle);
+    
+window.top.Fusion.registerForEvent(window.top.Fusion.Event.FUSION_INITIALIZED, mgApiInit);
+
+//set up of digitizing tools once everything is initialized
+function mgApiInit() {
+  var map = window.top.Fusion.getWidgetById(mgApiMapWidgetId).oMapOL;
+  
+  var digiLayer = new OpenLayers.Layer.Vector("Digitizing Layer", {styleMap: mgApiStyleMap});
+  map.addLayers([digiLayer]);
+
+  mgApiDrawControls = {
+      point: new OpenLayers.Control.DrawFeature(digiLayer,
+              OpenLayers.Handler.Point, {
+                handlerOptions: {
+                  layerOptions: {
+                    styleMap: mgApiStyleMap
+                  }
+                }
+              }),
+      line: new OpenLayers.Control.DrawFeature(digiLayer,
+                  OpenLayers.Handler.Path, {
+                    handlerOptions: {
+                      freehandToggle: null, 
+                      freehand: false, 
+                      persist: true,
+                      style: "default", // this forces default render intent
+                      layerOptions: {
+                        styleMap: mgApiStyleMap
+                      }
+                    },
+                    callbacks: {
+                      'point': mgApiCheckLine
+                    }
+                  }),
+      linestr: new OpenLayers.Control.DrawFeature(digiLayer,
+                  OpenLayers.Handler.Path, {
+                    handlerOptions: {
+                      freehand: false, 
+                      persist: true, 
+                      style: "default", // this forces default render intent
+                      layerOptions: {
+                        styleMap: mgApiStyleMap
+                      }
+                    }
+                  }),
+      rectangle: new OpenLayers.Control.DrawFeature(digiLayer,
+                  OpenLayers.Handler.RegularPolygon, {
+                    handlerOptions: {
+                      persist: true, 
+                      sides: 4, 
+                      irregular: true,
+                      style: "default", // this forces default render intent
+                      layerOptions: {
+                        styleMap: mgApiStyleMap
+                      }
+                    }
+                  }),
+      polygon: new OpenLayers.Control.DrawFeature(digiLayer,
+                  OpenLayers.Handler.Polygon, {
+                    handlerOptions: {
+                      freehand: false, 
+                      persist: true, 
+                      style: "default", // this forces default render intent
+                      layerOptions: {
+                        styleMap: mgApiStyleMap
+                      }
+                    }
+                  })
+  };
+
+  for(var key in mgApiDrawControls) {
+      mgApiDrawControls[key].events.register('featureadded', null, mgApiCallHandler);
+      map.addControl(mgApiDrawControls[key]);
+  }
+
+}
+
+//this callback method for the 'line' control to limit the number of points 
+//in the linestring to 2 - there is an extra point in the feature that gets
+//removed when the feature is finalized
+function mgApiCheckLine(point, geom) {
+  if (geom.components.length == 3) {
+    this.handler.dblclick();
+    //this.handler.finalize();
+  }
+}
+
 
