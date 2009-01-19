@@ -178,10 +178,10 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
         }
         var m = this.getMap().aMaps[0];
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+            var url = Fusion.fusionURL + 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format.toUpperCase() + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+            var s = Fusion.fusionURL + 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format.toUpperCase() + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             
             this.iframe.src = s;
         }
