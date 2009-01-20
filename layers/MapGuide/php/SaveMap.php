@@ -28,7 +28,7 @@
  * Purpose: get map initial information
  *****************************************************************************/
 include('Common.php');
-$format     = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'png';
+$format     = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'PNG';
 $layout     = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
 $scale      = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
 $imgWidth   = isset($_REQUEST['width']) ? $_REQUEST['width'] : null;
