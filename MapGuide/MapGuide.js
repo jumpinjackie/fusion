@@ -94,6 +94,8 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         var newTheme = Fusion.getQueryParam('theme');
         if (newTheme != '') {
           this.sMapResourceId = newTheme;
+          //clear the query param after it has been used once
+          Fusion.queryParams['theme'] = null;
         } else {
           this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         }
@@ -153,9 +155,13 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
           var options = {};
           if (this.bIsMapWidgetLayer) {
             var showlayers = Fusion.getQueryParam('showlayers');
+            Fusion.queryParams['showlayers'] = null;  //clear the query param after it has been used once
             var hidelayers = Fusion.getQueryParam('hidelayers');
+            Fusion.queryParams['hidelayers'] = null;
             var showgroups = Fusion.getQueryParam('showgroups');
+            Fusion.queryParams['showgroups'] = null;
             var hidegroups = Fusion.getQueryParam('hidegroups');
+            Fusion.queryParams['hidegroups'] = null;
             var options = {
               showlayers: showlayers == '' ? [] : showlayers.split(','),
               hidelayers: hidelayers == '' ? [] : hidelayers.split(','),
