@@ -31,6 +31,8 @@
 
 
 Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
+    useDialog: true,
+    
     initialize: function(widgetTag) {
         //console.log('LinkToView.initialize');
 
@@ -38,6 +40,7 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         
         var json = widgetTag.extension;
         this.baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?';
+        this.dialogContent = Fusion.getFusionURL() + 'widgets/LinkToView/LinkToView.html';
 
         //remove any existing extent param
         var queryParams = Fusion.parseQueryString();
@@ -66,14 +69,45 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
 
         this.anchor = document.createElement('a');
         this.anchor.className = 'anchorLinkToView';
-        this.anchor.href = this.baseUrl;
         this.anchor.innerHTML = this.anchorLabel;
         this.anchor.title = json.Tooltip ? json.Tooltip[0] : 'Right-click to copy or bookmark link to current view';
+        
         this.domObj.innerHTML = '';
         this.domObj.appendChild(this.anchor);
+        
+        if (this.useDialog) {
+          this.createDialog();
+          this.anchor.href = '#';
+          this.anchor.onclick = OpenLayers.Function.bind(this.dialog.open, this.dialog);
+        } else {
+          this.anchor.href = this.baseUrl;
+          this.getMap().oMapOL.events.register("addlayer", this, this.setListener);
+        }
 
-        this.getMap().oMapOL.events.register("addlayer", this, this.setListener);
         this.enable();                   
+    },
+    
+    createDialog: function() {
+        var o = {
+            id: 'linkDialog',
+            title: 'Link to the map view',
+            contentURL: this.dialogContent,
+            width: 360,
+            height: 100,
+            right: 0,
+            bottom: 20,
+            onOpen: this.onOpen.bind(this)
+        };
+        this.dialog = new Jx.Dialog( o );
+        this.dialog.domObj.style.lineHeight = '20px';
+    },
+    
+    onOpen: function() {
+      var linkField = document.getElementById('linkField');
+      var mapLink = this.getLink();
+      linkField.value = mapLink;
+      var linkToMap = document.getElementById('linkToMap');
+      linkToMap.href = mapLink;
     },
     
     setListener: function(evt) {
@@ -83,9 +117,13 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         layer.events.register("loadend", this, this.updateLink);
     },
     
-    updateLink: function() {
+    getLink: function() {
         var join = (this.baseUrl.indexOf('?')==this.baseUrl.length-1)?'':'&';
         var queryStr = this.getMap().getLinkParams();
-        this.anchor.href = this.baseUrl + join + queryStr;
+        return this.baseUrl + join + queryStr;
+    },
+    
+    updateLink: function() {
+        this.anchor.href = this.getLink();
     }
 });
