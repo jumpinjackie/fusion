@@ -49,10 +49,10 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
         var json = widgetTag.extension;
         this.format = (json.Format && json.Format[0] != '')?
                        json.Format[0] : 'png';
-        
+
         //for DWF, parse printLayouts and build menu
         if (this.format == 'DWF' && json.PrintLayout.length) {
-            
+
             var layouts = json.PrintLayout;
             for (var i = 0; i < layouts.length; i++) {
                 var layout = layouts[i];
@@ -100,8 +100,28 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
                 };
                 this.oMenu.add(menuItem);
             }
+        } else if(this.format.toLowerCase() == 'dwf') {
+            var layout = json;
+            if(layout.ResourceId) {
+                this.printLayout = layout.ResourceId[0];
+            };
+            if (layout.PageHeight) {
+                this.pageHeight = layout.PageHeight[0];
+            };
+            if (layout.PageWidth) {
+                this.pageWidth = layout.PageWidth[0];
+            };
+            if (layout.Margins) {
+                this.margins = [layout.Margins[0].Top[0],
+                                layout.Margins[0].Left[0],
+                                layout.Margins[0].Right[0],
+                                layout.Margins[0].Bottom[0]];
+            };
+            if (layout.Scale) {
+                this.printScale = layout.Scale[0];
+            };
+
         } else {
-            Object.inheritFrom(this, Fusion.Widget.prototype, []);
             if (json.Width && json.Width[0] != '') {
                 this.imageWidth = json.Width[0];
             }
@@ -112,11 +132,11 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
 
         this.enable = Fusion.Widget.SaveMap.prototype.enable;
     },
-    
+
     enable: function() {
         Fusion.Widget.prototype.enable.apply(this, []);
     },
-    
+
     setLayout: function(data) {
         this.printLayout = data.rid;
         this.pageHeight = data.pageHeight;
@@ -137,7 +157,7 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
      * called when the button is clicked by the Fusion.Widget widget
      * prompts user to save the map.
      */
-    execute: function() {
+    activate: function() {
         if (!this.iframe) {
             this.iframe = document.createElement('iframe');
             this.iframe.id = 'w';
@@ -149,16 +169,16 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
         var szPageHeight = '';
         var szPageWidth = '';
         var szPageMargins = '';
-        if (this.format === 'DWF') {
+        if (this.format.toLowerCase() == 'dwf') {
             if (this.printLayout) {
-                szLayout = '&layout=' + this.printLayout;                
-            } else {
-                alert('DWF Save is not properly configured.');
-                return;
+                szLayout = '&layout=' + this.printLayout;
+            //} else {
+            //    alert('DWF Save is not properly configured.');
+            //    return;
             }
             if (this.printScale) {
                 szScale = '&scale=' + this.printScale;
-            }            
+            }
             if (this.pageHeight) {
                 szPageHeight = '&pageheight=' + this.pageHeight;
             }
@@ -179,11 +199,11 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
         }
         var m = this.getMap().aMaps[0];
         if(navigator.appVersion.match(/\bMSIE\b/)) {
-            var url = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+            var url = Fusion.fusionURL + 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format.toUpperCase() + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
         } else {
-            var s = Fusion.fusionURL + '/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
-            
+            var s = Fusion.fusionURL + 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMap." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format.toUpperCase() + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
+
             this.iframe.src = s;
         }
     }
