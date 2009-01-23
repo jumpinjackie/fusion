@@ -117,7 +117,7 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
                                 layout.Margins[0].Right[0],
                                 layout.Margins[0].Bottom[0]];
             };
-            if (layout.Scale) {
+            if (layout.Scale && layout.Scale != '0') {
                 this.printScale = layout.Scale[0];
             };
 
