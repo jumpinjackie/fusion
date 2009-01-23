@@ -147,12 +147,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
               showgroups: showgroups == '' ? [] : showgroups.split(','),
               hidegroups: hidegroups == '' ? [] : hidegroups.split(',')
             };
-          }
+        }
           this.loadMap(this.sMapResourceId, options);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), this.keepAliveInterval * 1000);
     },
-
 
     sessionReady: function() {
         return (typeof this.session[0] == 'string');
@@ -643,14 +642,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     /**
-     * advertise a new selection is available and redraw the map
+     * advertise a new selection is available
      */
     newSelection: function() {
         if (this.oSelection) {
             this.oSelection = null;
         }
         this.bSelectionOn = true;
-        this.drawSelection();
         this.triggerEvent(Fusion.Event.MAP_SELECTION_ON);
     },
 
@@ -691,20 +689,60 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       return layers;
     },
 
+    /**
+     * Updates the current map selection with the provided XML selection string.
+     * Optionally zooms to the new selection on the map, if zoomTo is set to true.
+     */
     setSelection: function (selText, zoomTo) {
+
+        //TODO Update this.previousSelection when the selection is set using
+        //this API to allow the selection to be extended with a shift-click.
+
+        if(selText != "" && selText != null) {
+            this.updateSelection(selText, zoomTo, false);
+        }
+        else {
+            this.clearSelection();
+        }
+    },
+
+    updateSelection: function (selText, zoomTo, extendSelection) {
+        this.updateMapSelection(selText, zoomTo);
+        this.getSelectedFeatureProperties(selText);
+    },
+
+
+    getSelectedFeatureProperties: function (selText) {
       this.mapWidget._addWorker();
       var sl = Fusion.getScriptLanguage();
-      var setSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SetSelection.' + sl;
+      var getPropertiesScript = 'layers/' + this.arch + '/' + sl  + '/GetSelectionProperties.' + sl;
       var params = {
           'mapname': this.getMapName(),
           'session': this.getSessionID(),
           'selection': selText,
           'seq': Math.random()
       };
-      var options = {onSuccess: OpenLayers.Function.bind(this.processQueryResults, this, zoomTo),
-                     parameters:params, asynchronous:false};
-      Fusion.ajaxRequest(setSelectionScript, options);
+      var options = {onSuccess: OpenLayers.Function.bind(this.processSelectedFeatureProperties, this),
+                     parameters:params};
+      Fusion.ajaxRequest(getPropertiesScript, options);
     },
+
+    updateMapSelection: function (selText, zoomTo) {
+      this.mapWidget._addWorker();
+      var sl = Fusion.getScriptLanguage();
+      var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
+      var params = {
+          'mapname': this.getMapName(),
+          'session': this.getSessionID(),
+          'selection': selText,
+          'seq': Math.random(),
+          'getextents' : zoomTo ? 'true' : 'false'
+      };
+      var options = {onSuccess: OpenLayers.Function.bind(this.renderSelection, this, zoomTo),
+                     parameters:params};
+      Fusion.ajaxRequest(updateSelectionScript, options);
+    },
+
 
 
      /**
@@ -782,6 +820,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           };
           Fusion.ajaxRequest(s, options);
       }
+      if (this.previousSelection != null)
+      {
+          this.previousSelection.clear();
+      }
     },
 
     /**
@@ -796,9 +838,29 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
 
     /**
-       Call back function when slect functions are called (eg queryRect)
+       Call back function when select functions are called (eg queryRect)
+       to handle feature attributes
     */
-    processQueryResults: function(zoomTo, r) {
+    processSelectedFeatureProperties: function(r) {
+        this.mapWidget._removeWorker();
+        if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
+            var oNode;
+            eval('oNode='+r.responseText);
+
+            if (oNode.hasSelection) {
+              this.newSelection();
+            } else {
+              this.clearSelection();
+              return;
+            }
+        }
+    },
+
+    /**
+       Call back function when select functions are called (eg queryRect)
+       to render the selection
+    */
+    renderSelection: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode;
@@ -831,7 +893,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
                 this.mapWidget.setExtents(extents);
               }
-              this.newSelection();
+              this.drawSelection();
             } else {
               this.clearSelection();
               return;
@@ -850,34 +912,23 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           this.aLayers[j].selectedFeatureCount = 0;
         }
 
-        var bPersistant = options.persistent || true;
-        var zoomTo = options.zoomTo ?  true : false;
-        var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/Query.' + sl;
-
-        var params = {
-            'mapname': this._sMapname,
-            'session': this.getSessionID(),
-            'spatialfilter': options.geometry || '',
-            'computed': options.computed || '',
-            'queryHiddenLayers': options.queryHiddenLayers || 'false',
-            'maxfeatures': options.maxFeatures || 0, //zero means select all features
-            'layers': options.layers || '',
-            'variant': options.selectionType || this.selectionType
-        };
-        if (options.filter) {
-            params.filter= options.filter;
+        var persist = 1;
+        var layerAttributeFilter = 3;
+        var maxFeatures = options.maxFeatures;
+        if(maxFeatures == null || maxFeatures == 0)
+        {
+            maxFeatures = -1;
         }
-        if (options.extendSelection) {
-            params.extendselection = true;
-        }
-        if (options.computedProperties) {
-            params.computed = true;
-        }
-        var ajaxOptions = {
-            onSuccess: OpenLayers.Function.bind(this.processQueryResults, this, zoomTo),
-            parameters: params};
-        Fusion.ajaxRequest(loadmapScript, ajaxOptions);
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
+                                                                this._sMapname,
+                                                                options.geometry,
+                                                                maxFeatures,
+                                                                persist,
+                                                                options.selectionType || this.selectionType,
+                                                                options.layers,
+                                                                layerAttributeFilter);
+        var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
+        Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
     },
 
     showLayer: function( layer, noDraw ) {
@@ -1044,7 +1095,250 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         url += "&TS=" + (new Date()).getTime();
       }
       return url;
-    }
+    },
 
+
+    processAndMergeFeatureInfo: function (r) {
+        this.processSelectedFeatureInfo(r, true);
+    },
+
+    processFeatureInfo: function (r) {
+        this.processSelectedFeatureInfo(r, false);
+    },
+
+    processSelectedFeatureInfo: function (r, mergeSelection) {
+        eval('o='+r.responseText);
+
+        var newSelection = new Fusion.SimpleSelectionObject(o);
+        if(mergeSelection == true)
+        {
+            newSelection.merge(this.previousSelection);
+        }
+        this.previousSelection = newSelection;
+
+        var selText = newSelection.getSelectionXml();
+        this.setSelection(selText, false);
+        this.mapWidget._removeWorker();
+    }
 });
+
+Fusion.SimpleSelectionObject = OpenLayers.Class({
+    aLayers : null,
+    nLayers : 0,
+
+    initialize: function(featureInfoResponse)
+    {
+        this.aLayers = [];
+        this.nLayers = 0;
+        try
+        {
+            var layers = featureInfoResponse.FeatureInformation.FeatureSet[0].Layer;
+            if (layers != null)
+            {
+                for(var i = 0; i < layers.length; i++)
+                {
+                    var layerId = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['@id'][0];
+
+                    var classElt = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['Class'][0];
+                    var className = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['Class'][0]['@id'][0];
+
+                    var layer = new Fusion.SimpleSelectionObject.Layer(layerId, className);
+
+                    this.addLayer(layer);
+
+                    var features = classElt.ID;
+                    for(var j=0; j < features.length; j++)
+                    {
+                        layer.addFeature(features[j]);
+                    }
+                }
+            }
+        }
+        catch(e) {}
+
+    },
+
+    addLayer: function(layer)
+    {
+        this.aLayers[this.nLayers] = layer;
+        this.nLayers++;
+    },
+
+    getNumLayers : function()
+    {
+        return this.nLayers;
+    },
+
+    getLayerByName : function(name)
+    {
+        var oLayer = null;
+        for (var i=0; i<this.nLayers; i++)
+        {
+            if (this.aLayers[i].getName() == name)
+            {
+                oLayer = this.aLayers[i];
+                break;
+            }
+        }
+        return oLayer;
+    },
+
+    getLayer : function(iIndice)
+    {
+        if (iIndice >=0 && iIndice < this.nLayers)
+        {
+            return this.aLayers[iIndice];
+        }
+        else
+        {
+            return null;
+        }
+    },
+
+    getSelectionXml : function()
+    {
+        var xmlSelection = "";
+        if(this.nLayers > 0)
+        {
+            xmlSelection = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FeatureSet>\n";
+            for(var i = 0; i < this.nLayers; i++)
+            {
+                var layer = this.aLayers[i];
+                xmlSelection += "<Layer id=\"" + layer.getName() + "\">\n";
+                xmlSelection += "<Class id=\"" + layer.getClassName() + "\">\n";
+                for(var j = 0; j < layer.getNumFeatures(); j++)
+                {
+                    var featId = layer.featIds[j];
+                    xmlSelection += "<ID>" +  featId + "</ID>\n";
+                }
+                xmlSelection += "</Class>\n</Layer>\n";
+            }
+            xmlSelection += "</FeatureSet>\n";
+        }
+        return xmlSelection;
+    },
+
+    merge : function(previousSelection)
+    {
+        if (previousSelection != null && previousSelection.nLayers > 0)
+        {
+            for (var prevSelIndex = 0; prevSelIndex < previousSelection.nLayers; prevSelIndex++)
+            {
+                var prevSelLayer = previousSelection.aLayers[prevSelIndex];
+
+                // find the previously selected layer name in the current selection
+                var currentLayer = this.getLayerByName(prevSelLayer.getName());
+                if (currentLayer != null)
+                {
+                    // add the previously selected features for this layer
+                    for (var j = 0; j < prevSelLayer.getNumFeatures(); j++)
+                    {
+                        var prevSelFeatureIndexes = currentLayer.featIds.find(prevSelLayer.featIds[j]);
+                        if (prevSelFeatureIndexes == null)
+                        {
+                            currentLayer.addFeature(prevSelLayer.featIds[j]);
+                        }
+                        else
+                        {
+                            // the feature was previously selected, so toggle it off when selected again
+                            currentLayer.removeFeatures(prevSelFeatureIndexes);
+                        }
+                    }
+                    if (currentLayer.featIds.length == 0)
+                    {
+                        this.clear();
+                    }
+                }
+                else
+                {
+                    // the current selection does not include this previously selected layer
+
+                    // need to add this previously selected layer and its features
+                    var missingLayer = new Fusion.SimpleSelectionObject.Layer(prevSelLayer.getName(), prevSelLayer.getClassName());
+                    for (var k = 0; k < prevSelLayer.getNumFeatures(); k++)
+                    {
+                        missingLayer.addFeature(prevSelLayer.featIds[k]);
+                    }
+                    this.addLayer(missingLayer);
+                }
+            }
+        }
+    },
+
+    clear: function()
+    {
+        this.aLayers = [];
+        this.nLayers = 0;
+    }
+});
+
+Fusion.SimpleSelectionObject.Layer = OpenLayers.Class({
+    name: "",
+    className: "",
+    featIds: null,
+    nFeatures: 0,
+
+    initialize: function(layerName, className)
+    {
+        this.name =  layerName;
+        this.className = className;
+        this.nFeatures = 0;
+        this.featIds =  [];
+    },
+
+    addFeature : function (featId)
+    {
+        this.featIds[this.nFeatures] = featId;
+        this.nFeatures++;
+    },
+
+    getName : function()
+    {
+        return this.name;
+    },
+
+    getClassName : function()
+    {
+        return this.className;
+    },
+
+    getNumFeatures : function()
+    {
+        return this.nFeatures;
+    },
+
+    removeFeatures : function (featureIndexes)
+    {
+        var numIndexes = featureIndexes.length;
+        for (var featIndex = 0; featIndex < numIndexes; featIndex++)
+        {
+            this.featIds.remove(featureIndexes[featIndex]);
+            this.nFeatures--;
+        }
+    }
+});
+
+Array.prototype.find = function(searchStr) {
+  var returnArray = null;
+  for (i=0; i<this.length; i++) {
+    if (typeof(searchStr) == 'function') {
+      if (searchStr.test(this[i])) {
+        if (!returnArray) { returnArray = [] }
+        returnArray.push(i);
+      }
+    } else {
+      if (this[i]===searchStr) {
+        if (!returnArray) { returnArray = [] }
+        returnArray.push(i);
+      }
+    }
+  }
+  return returnArray;
+};
+
+Array.prototype.remove = function(indexToRemove) {
+    this.splice(indexToRemove, 1);
+};
+
+
 
