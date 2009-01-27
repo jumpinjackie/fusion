@@ -823,6 +823,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     /**
        Call back function when select functions are called (eg queryRect)
+    */
+    processQueryResults: function(zoomTo, r) {
+        this.renderSelection(zoomTo, r);
+        this.processSelectedFeatureProperties(r);
+    },
+
+    /**
+       Call back function when select functions are called (eg queryRect)
        to handle feature attributes
     */
     processSelectedFeatureProperties: function(r) {
