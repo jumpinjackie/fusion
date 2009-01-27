@@ -842,6 +842,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
     },
 
+    /**
+       Call back function when select functions are called (eg queryRect)
+    */
+    processQueryResults: function(zoomTo, r) {
+        this.renderSelection(zoomTo, r);
+        this.processSelectedFeatureProperties(r);
+    },
 
     /**
        Call back function when select functions are called (eg queryRect)
@@ -1055,7 +1062,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     getLinkParams: function() {
       var queryParams = {};
       queryParams.theme = this.sMapResourceId;
-      
+
       //determine which layers have been toggled
       var showLayers = [];
       var hideLayers = [];
@@ -1070,7 +1077,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       queryParams.showlayers = showLayers.join(',');
       queryParams.hidelayers = hideLayers.join(',');
-      
+
       //determine which groups have been toggled
       var showGroups = [];
       var hideGroups = [];
@@ -1085,10 +1092,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       queryParams.showgroups = showGroups.join(',');
       queryParams.hidegroups = hideGroups.join(',');
-      
+
       return queryParams;
     },
-    
+
     getLegendImageURL: function(fScale, layer, style) {
       var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
