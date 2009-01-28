@@ -1,13 +1,13 @@
 <WidgetInfo>
   <Type>PanOnClick</Type>
   <LocalizedType>Pan on Click</LocalizedType>
-  <Description>Pans the map in the specified diretion on a click</Description>
+  <Description>Pans the map in the specified direction on a click</Description>
   <Location></Location>
-  <Label>Pan on click</Label>
-  <Tooltip>Pan the map</Tooltip>
+  <Label></Label>
+  <Tooltip></Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons.png</ImageUrl>
-  <ImageClass>pan</ImageClass>
+  <ImageUrl></ImageUrl>
+  <ImageClass></ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

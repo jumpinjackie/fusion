@@ -3,11 +3,11 @@
   <LocalizedType>Invoke URL</LocalizedType>
   <Description>A widget to call up a URL into the TaskPane, a new window or HTML element. The map name and Session ID are automatically added to the URL, as well as any additional parameters specifed</Description>
   <Location></Location>
-  <Label>Invoke URL</Label>
-  <Tooltip>Click to execute the URL</Tooltip>
+  <Label></Label>
+  <Tooltip></Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons.png</ImageUrl>
-  <ImageClass>invoke-url</ImageClass>
+  <ImageUrl></ImageUrl>
+  <ImageClass></ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>

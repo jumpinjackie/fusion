@@ -3,11 +3,11 @@
   <LocalizedType>Zoom on Click</LocalizedType>
   <Description>Zoom the map by a fixed amount when a button is clicked</Description>
   <Location></Location>
-  <Label>ZoomOnClick</Label>
-  <Tooltip>Click to zoom in</Tooltip>
+  <Label></Label>
+  <Tooltip></Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/icons.png</ImageUrl>
-  <ImageClass>zoom-out-fixed</ImageClass>
+  <ImageUrl></ImageUrl>
+  <ImageClass></ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>
   <Parameter>
