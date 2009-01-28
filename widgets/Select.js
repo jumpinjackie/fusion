@@ -27,7 +27,7 @@
  * Class: Fusion.Widget.Select
  *
  * perform a selection on map features
- * 
+ *
  * **********************************************************************/
 
 
@@ -35,39 +35,44 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
-    nTolerance: 3,     //default pixel tolernace for a point click
+    nTolerance : 3,     //default pixel tolerance for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
-    maxFeatures: 0,     //deafult of 0 selects all features (i.e. no maximum)
-    
+    maxFeatures: 0,     //default of 0 selects all features (i.e. no maximum)
+    pointClickSingleSelect: true, //default of true causes a point click always to select only a single feature
+
     initializeWidget: function(widgetTag) {
         this.asCursor = ['auto'];
-        
+
         this.enable = Fusion.Widget.Select.prototype.enable;
 
         var json = widgetTag.extension;
-        
+
         this.selectionType = json.SelectionType ? json.SelectionType[0] : 'INTERSECTS';
-        
+
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
-            nTolerance = parseInt(json.Tolerance[0]);
+            this.nTolerance = parseInt(json.Tolerance[0]);
         }
 
         if (json.MaxFeatures) {
             this.maxFeatures = parseInt(json.MaxFeatures[0]);
         }
-        
+
+        if(json.PointClickSingleSelect) {
+            this.pointClickSingleSelect = (json.PointClickSingleSelect[0] != 'false');
+        }
+
         this.bActiveOnly = (json.QueryActiveLayer &&
                            (json.QueryActiveLayer[0] == 'true' ||
                             json.QueryActiveLayer[0] == '1')) ? true : false;
-        
+
         this.bComputeMetadata = (json.ComputeMetadata &&
                            (json.ComputeMetadata[0] == 'true' ||
                             json.ComputeMetadata[0] == '1')) ? true : false;
-        
+
         if (this.bActiveOnly) {
             this.getMap().registerForEvent(Fusion.Event.MAP_ACTIVE_LAYER_CHANGED, OpenLayers.Function.bind(this.enable, this));
         }
-        
+
         var mapWidget = this.getMap();
         this.map = mapWidget.oMapOL;
         this.handler = new OpenLayers.Handler.Box(this,{done: this.execute});
@@ -75,13 +80,13 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         //                                {keyMask:OpenLayers.Handler.MOD_SHIFT});
         mapWidget.handlers.push(this.handler);
         //mapWidget.handlers.push(this.shiftHandler);
-        
+
     },
-    
+
     enable: function() {
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
-            if (layer && layer.selectable) { 
+            if (layer && layer.selectable) {
                 Fusion.Widget.prototype.enable.apply(this, []);
             } else {
                 this.disable();
@@ -90,13 +95,13 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
             Fusion.Widget.prototype.enable.apply(this,[]);
         }
     },
-    
+
     /**
        * activate the widget (listen to mouse events and change cursor)
        * This function should be defined for all functions that register
        * as a widget in the map
        */
-    activate: function() {
+    activate : function() {
         this.handler.activate();
         //this.shiftHandler.activate();
         this.getMap().setCursor(this.asCursor);
@@ -107,7 +112,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
        * This function should be defined for all functions that register
        * as a widget in the map
        **/
-    deactivate: function() {
+    deactivate : function() {
         this.handler.deactivate();
         //this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
@@ -116,33 +121,38 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     /**
        *  set the extants of the map based on the pixel coordinates
        * passed
-       * 
+       *
        * Parameters:
         *   position will be either an instance of OpenLayers.Bounds when the mouse has
         *   moved, or an OpenLayers.Pixel for click without dragging on the map
         **/
-    execute: function(position, extend) {
+    execute : function(position, extend) {
         //ctrl click is used to launch a URL defined on the feature. See ClickCTRL widget
         if (this.keyModifiers & OpenLayers.Handler.MOD_CTRL) {
           //return;
         }
-        
+
         var nRight, nTop;
         var nLeft = position.left;
         var nBottom = position.bottom;
+        var maxFeaturesToSelect = this.maxFeatures;
+
         if (position instanceof OpenLayers.Bounds) {
           nRight = position.right;
           nTop = position.top;
         } else { // it's a pixel
           nRight = nLeft = position.x;
           nTop = nBottom = position.y;
+          if(this.pointClickSingleSelect) {
+              maxFeaturesToSelect = 1;
+          }
         }
 
         var sMin = this.getMap().pixToGeo(nLeft,nBottom);
         var sMax = this.getMap().pixToGeo(nRight,nTop);
         var nXDelta = Math.abs(nLeft-nRight);
         var nYDelta = Math.abs(nBottom- nTop);
-        
+
         var options = {};
         if (nXDelta <=this.nTolerance && nYDelta <=this.nTolerance) {
             var dfGeoTolerance = this.getMap().pixToGeoMeasure(this.nTolerance);
@@ -151,10 +161,10 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
             sMax.x = sMax.x+dfGeoTolerance;
             sMax.y = sMax.y+dfGeoTolerance;
         }
-        
+
         options.geometry = 'POLYGON(('+ sMin.x + ' ' +  sMin.y + ', ' +  sMax.x + ' ' +  sMin.y + ', ' + sMax.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMax.y + ', ' + sMin.x + ' ' +  sMin.y + '))';
         options.selectionType = this.selectionType;
-        options.maxFeatures = this.maxFeatures;
+        options.maxFeatures = maxFeaturesToSelect;
         options.computed = this.bComputeMetadata;
 
         if (this.bActiveOnly) {
@@ -165,11 +175,11 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
                 return;
             }
         }
-        
+
         if (this.handler.dragHandler.evt.shiftKey) {
             options.extendSelection = true;
         }
-        
+
         this.getMap().query(options);
     },
 
@@ -182,9 +192,9 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     extend: function(position) {
         this.execute(position, true);
     },
-    
+
     /**
-        * calculate the keyboard modifier mask for this event 
+        * calculate the keyboard modifier mask for this event
         *
         * Parameters:
         * evt - the OpenLayers.Event object that is being responded to
@@ -195,9 +205,9 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
             (evt.ctrlKey  ? OpenLayers.Handler.MOD_CTRL  : 0) |
             (evt.altKey   ? OpenLayers.Handler.MOD_ALT   : 0);
     },
-    
+
     /**
-        * clears the keyboard modifier mask for this event 
+        * clears the keyboard modifier mask for this event
         *
         * Parameters:
         * evt - the OpenLayers.Event object that is being responded to
@@ -207,14 +217,14 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     },
 
     /**
-        * allows run-time setting of widget parameters 
+        * allows run-time setting of widget parameters
         *
         * Parameters:
         * param - the widget parameter name to set; for the Select widget these may be:
         *               'Tolerance' and 'SelectionType'
         * value - the value to sue for the parameter
         */
-    setParameter: function(param, value) {
+    setParameter : function(param, value) {
         if (param == "Tolerance" && value > 0) {
             this.nTolerance = value;
         }
