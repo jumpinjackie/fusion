@@ -113,7 +113,13 @@ $Id$
     <echo message="Preparing uncompressed build"/>
     <!-- Create build directories as needed -->
     <mkdir dir="${build.home}"/>
+    
+    <!-- first copy over the distributed version of the config file -->
     <copy file="config_dist.json" tofile="${build.home}/config.json"/>
+    <!-- overwrite that with the customized config.json file if it exists
+         it is safe to ignore warnings issued by this step -->
+    <copy file="config.json" tofile="${build.home}/config.json" overwrite="true" failonerror="false"/>
+    
     <!-- Copy static content -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}" 
@@ -189,6 +195,7 @@ $Id$
 <!-- =================== single file build ================================== -->
   <target description="single file build" name="singleFile" depends="concat,concatWithAppDef,concatNoAppDef">
     <echo message="preparing single file build"/>
+    <copy file="${buildOutput}.js" todir="${basedir}/lib"/>
   </target>
 
   
@@ -215,13 +222,13 @@ $Id$
                           Search.js
                           Map.js"
         />
-        <fileset dir="${build.home}/text" includes="**/*.json"/>
-        <filelist dir="${build.home}" files="configHeader.json config.json"/>
         <filelist dir="${build.home}/layers" files="Layers.js"/>
+        <fileset dir="${build.home}/text" includes="**/*.json"/>
+        <fileset dir="${build.home}/lib/OpenLayers/Lang" includes="**/*.js"/>
+        <filelist dir="${build.home}" files="configHeader.json config.json"/>
     </concat>
     
     <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}"/>
-    <copy file="${buildOutput}.js" todir="${basedir}/lib"/>
   </target>
 
 <!-- =================== concat all support files (no appdef supplied) ================================== -->
@@ -351,8 +358,8 @@ $Id$
 
   <target description="Delete old build and dist directories" name="clean">
     <echo message="Removing build directories"/>
-    <!--delete dir="${build.home}"/>
-    <delete dir="${dist.home}"/-->
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
   </target>
 
 
