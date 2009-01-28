@@ -260,11 +260,8 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     reloadMap: function() {
         this.mapWidget._addWorker();
-        this.aShowLayers = [];
-        this.aHideLayers = [];
-        this.aShowGroups = [];
-        this.aHideGroups = [];
-        this.aRefreshLayers = [];
+        this.aVisibleLayers = [];
+        this.aVisibleGroups = [];
         this.layerRoot.clear();
         this.aLayers = [];
 
@@ -475,10 +472,16 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(true);
         } else {
-            this.aShowGroups.push(group.uniqueId);
-            if (!noDraw) {
-                this.drawMap();
+            this.aVisibleGroups.push(group.uniqueId);
+            this.deferredDraw = true;
+            for (var i=0; i<group.layers.length; ++i) {
+              if (group.layers[i].wasVisibleInGroup) {
+                group.layers[i].show();
+              }
+              group.layers[i].wasVisibleInGroup = null;
             }
+            this.deferredDraw = false;
+            this.drawMap();
         }
     },
     hideGroup: function( group, noDraw ) {
@@ -486,10 +489,21 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(false);
         } else {
-            this.aHideGroups.push(group.uniqueId);
-            if (!noDraw) {
-                this.drawMap();
+            for (var i=0; i<this.aVisibleGroups.length; i++) {
+                if (this.aVisibleGroups[i] == group.uniqueId) {
+                    this.aVisibleGroups.splice(i,1);
+                    break;
+                }
             }
+            this.deferredDraw = true;
+            for (var i=0; i<group.layers.length; ++i) {
+              if (group.layers[i].visible) {
+                group.layers[i].wasVisibleInGroup = true;
+                group.layers[i].hide();
+              }
+            }
+            this.deferredDraw = false;
+            this.drawMap();
         }
     },
     showGroupOLD: function( sGroup ) {
