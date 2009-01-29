@@ -113,7 +113,13 @@ $Id$
     <echo message="Preparing uncompressed build"/>
     <!-- Create build directories as needed -->
     <mkdir dir="${build.home}"/>
+
+    <!-- first copy over the distributed version of the config file -->
     <copy file="config_dist.json" tofile="${build.home}/config.json"/>
+    <!-- overwrite that with the customized config.json file if it exists
+         it is safe to ignore warnings issued by this step -->
+    <copy file="config.json" tofile="${build.home}/config.json" overwrite="true" failonerror="false"/>
+
     <!-- Copy static content -->
     <copy todir="${build.home}">
       <fileset dir="${basedir}"
@@ -189,6 +195,7 @@ $Id$
 <!-- =================== single file build ================================== -->
   <target description="single file build" name="singleFile" depends="concat,concatWithAppDef,concatNoAppDef">
     <echo message="preparing single file build"/>
+    <copy file="${buildOutput}.js" todir="${basedir}/lib"/>
   </target>
 
 
@@ -201,7 +208,7 @@ $Id$
         so replace the value to look for with the sfName used to create the file-->
 
     <!-- merge everything into a single file -->
-    <concat destfile="${buildOutput}.js" outputencoding="UTF-8">
+    <concat destfile="${buildOutput}.js" encoding="UTF-8" outputencoding="UTF-8">
         <filelist dir="${build.home}/lib"
                   files=" SingleFile.js
                           fusion.js
@@ -218,13 +225,13 @@ $Id$
                           Search.js
                           Map.js"
         />
-        <fileset dir="${build.home}/text" includes="**/*.json"/>
-        <filelist dir="${build.home}" files="configHeader.json config.json"/>
         <filelist dir="${build.home}/layers" files="Layers.js"/>
+        <fileset dir="${build.home}/text" includes="**/*.json"/>
+        <fileset dir="${build.home}/lib/OpenLayers/Lang" includes="**/*.js"/>
+        <filelist dir="${build.home}" files="configHeader.json config.json"/>
     </concat>
 
-    <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}"/>
-    <copy file="${buildOutput}.js" todir="${basedir}/lib"/>
+    <replace file="${buildOutput}.js" token="lib/fusion" value="lib/${sfName}" encoding="UTF-8"/>
   </target>
 
 <!-- =================== concat all support files (no appdef supplied) ================================== -->
@@ -232,7 +239,7 @@ $Id$
     <echo message="concatenating all widget and map layer files"/>
 
     <!-- merge everything into a single file -->
-    <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
+    <concat destfile="${buildOutput}.js" encoding="UTF-8" outputencoding="UTF-8" append="true">
         <fileset dir="${build.home}/widgets" includes="**/*.js"/>
         <fileset dir="${build.home}/layers" includes="**/*.js" excludes="Layers.js MapGuide/MapGuideViewerApi.js"/>
     </concat>
@@ -243,7 +250,7 @@ $Id$
     <echo message="preparing single file build for ${appDef}"/>
 
     <!-- merge everything into a single file -->
-    <concat destfile="${buildOutput}.js" outputencoding="UTF-8" append="true">
+    <concat destfile="${buildOutput}.js" encoding="UTF-8" outputencoding="UTF-8" append="true">
         <filelist dir="${build.home}" files="${AppDef.Maps}"/>
         <filelist dir="${build.home}" files="${AppDef.Widgets}"/>
         <filelist dir="${build.home}" files="appDef.json"/>
@@ -270,7 +277,7 @@ $Id$
 
     <!-- merge everything into a single file -->
     <echo message="merging with ${cssFiles}"/>
-    <concat destfile="${cssOutput}.css">
+    <concat destfile="${cssOutput}.css" encoding="UTF-8" outputencoding="UTF-8">
         <filelist files="${cssFiles}"/>
         <fileset dir="${build.home}/widgets" includes="**/*.css" excludes="**/*scalebar*"/>
     </concat>
@@ -287,7 +294,7 @@ $Id$
 
     <!-- merge everything into a single file -->
     <echo message="merging ${cssFiles}"/>
-    <concat destfile="${cssOutput}.css">
+    <concat destfile="${cssOutput}.css" encoding="UTF-8" outputencoding="UTF-8">
         <filelist files="${cssFiles}"/>
     </concat>
 
@@ -354,8 +361,8 @@ $Id$
 
   <target description="Delete old build and dist directories" name="clean">
     <echo message="Removing build directories"/>
-    <!--delete dir="${build.home}"/>
-    <delete dir="${dist.home}"/-->
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
   </target>
 
 
