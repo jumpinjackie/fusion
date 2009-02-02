@@ -29,6 +29,7 @@
  * Implementation of the map widget for MapServer CGI interface services
 */
 Fusion.Event.MAP_LAYER_ORDER_CHANGED = Fusion.Event.lastEventId++;
+Fusion.Event.MAP_MAPTIP_REQ_FINISHED = Fusion.Event.lastEventId++;
 
 Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     arch: 'MapServer',
@@ -40,6 +41,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     bLayersReversed: true,     //MS returns layers bottom-most layer first, we treat layer order in reverse sense
     mapMetadataKeys: null,
     layerMetadataKeys: null,
+    oMaptip:null,
 
     //the map file
     sMapFile: null,
@@ -48,7 +50,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         //console.log('Fusion.Layers.MapServer.initialize');
         Fusion.Layers.prototype.initialize.apply(this, arguments);
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
-        
+        this.registerEventID(Fusion.Event.MAP_MAPTIP_REQ_FINISHED);
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
 
         this.sMapFile = mapTag.extension.MapFile ? mapTag.extension.MapFile[0] : '';
@@ -780,8 +782,50 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         var sessionid = this.getSessionID();
         var params = 'mapname='+this._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
         return url + '?'+params;
-    }
+    },
 
+    getMapTip: function(oMapTips,oOptions){
+        //console.log("MAPSERVER:getMapTip");
+        var pos = this.mapWidget.pixToGeo(oMapTips.oCurrentPosition.x, oMapTips.oCurrentPosition.y);
+        var options = {};
+        var dfGeoTolerance = this.mapWidget.pixToGeoMeasure(oOptions.nTolerance);
+        var minx = pos.x-dfGeoTolerance;
+        var miny = pos.y-dfGeoTolerance;
+        var maxx = pos.x+dfGeoTolerance;
+        var maxy = pos.y+dfGeoTolerance;
+        options.geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + minx + ' ' + maxy + ', ' + maxx + ' ' + maxy + ', ' + maxx + ' ' + miny + ', ' + minx + ' ' + miny + '))';
+        options.selectionType = "INTERSECTS";
+
+        var Map = this.mapWidget.aMaps[0];
+        var bPersistant = options.persistent || true;
+        var zoomTo = options.zoomTo ?  true : false;
+        var loadmapScript = '/layers/'+Map.arch + '/php/Maptip.php';
+        var params = {
+            'mapname': Map._sMapname,
+            'session': Map.getSessionID(),
+            'spatialfilter': options.geometry || '',
+            'maxfeatures': options.maxFeatures || 0, //zero means select all features
+            'variant': 'intersects',
+            'layer': oOptions.layer[0] || '',
+            'textfield': oOptions.textField || '',
+            'customURL': oOptions.customURL || ''
+        }
+        var parseMapTip = this.parseMapTip.bind(this);
+        var ajaxOptions = {
+            onSuccess: function(response){
+                    eval("rjson=" + response.responseText);
+                    parseMapTip(rjson);
+                    },
+                    parameters: params};
+        Fusion.ajaxRequest(loadmapScript, ajaxOptions);
+    },
+    
+    parseMapTip: function(json){
+        this.oMaptip = {};
+        this.oMaptip.t =json.mapTipText;
+        this.oMaptip. h =json.mapTipLink;
+        this.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,this.oMaptip);
+    },
 });
 
 
