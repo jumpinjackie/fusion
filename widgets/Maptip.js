@@ -57,6 +57,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     bOverTip: false,
     sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
     offset: new OpenLayers.Pixel(2,20),
+    szTip: '',
+    szHref:'',
     
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -67,13 +69,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         }
         this.delay = json.Delay ? parseInt(json.Delay[0]) : 350;
         this.nTolerance = json.Tolerance ? parseInt(json.Tolerance[0]) : 2;
-        
-        this.aLayers = [];
-        if (json.Layer) {
-            for (var i=0; i<json.Layer.length; i++) {
-                this.aLayers.push(json.Layer[i]);
-            }
-        }
+
+        this.layer = json.Layer;
+        this.customURL =  json.CustomURL;
+        this.textField = json.TextField;
         
         //prepare the container div for the maptips
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Maptip/Maptip.css');
@@ -103,6 +102,9 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.getMap().observeEvent('mousedown', OpenLayers.Function.bind(this.mouseDown, this));
         this.getMap().observeEvent('mouseup', OpenLayers.Function.bind(this.mouseUp, this));
         this.getMap().observeEvent('mouseout', OpenLayers.Function.bind(this.mouseOut, this));
+
+        this.eventListener = false;
+        this.getMap().aMaps[0].registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
         
     },
     
@@ -118,6 +120,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     },
     
     mouseMove: function(e) {
+        if(!this.eventListener){
+            
+            this.eventListener = true;
+        }
       //console.log('map tip mouseMove');
         if (this.bOverTip || this.mouseIsDown) {
             return;
@@ -126,15 +132,24 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         var map = this.getMap();
         this.mapSize = map.getSize();
         this.mapOffset = map._oDomObj.offsets;
-        
+
         var p = map.getEventPosition(e);
         this.oCurrentPosition = p;
         this.oMapTipPosition = p;
+
         if (this.oCurrentPosition) {
             window.clearTimeout(this.nTimer);
             this.nTimer = null;
         }
-        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
+        
+        this.options = {};
+        this.options.e = e;
+        this.options.nTolerance = this.nTolerance;
+        this.options.textField = this.textField
+        this.options.layer = this.layer
+        this.options.customURL = this.customURL
+
+        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this,this.options,e), this.delay);
         //Event.stop(e);
     },
     
@@ -147,119 +162,80 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.mouseIsDown = false;
     },
     
-    showMaptip: function(r) {
-      //console.log('showMaptip');
-        var map = this.getMap();
-        if (map == null) {
-          return;
-        }
-
-        var oBroker = Fusion.oBroker;
-        var x = this.oCurrentPosition.x;
-        var y = this.oCurrentPosition.y;
-        var min = map.pixToGeo(x-this.nTolerance, y-this.nTolerance);
-        var max = map.pixToGeo(x+this.nTolerance, y+this.nTolerance);
-        //this can fail if no map is loaded
-        if (!min) {
-            return;
-        }
-        var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
-
-        //var sGeometry = 'POINT('+ min.x + ' ' +  min.y + ')';
-
-        var maxFeatures = 1;
-        var persist = 0;
-        var selection = 'INTERSECTS';
-        // only select visible layers with maptips defined (1+4)
-        var layerAttributeFilter = 5;
-        var maps = this.getMap().getAllMaps();
-        //TODO: possibly make the layer names configurable?
-        var layerNames = this.aLayers.toString();
-        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(maps[0].getSessionID(),
-                                        maps[0]._sMapname,
-                                        sGeometry,
-                                        maxFeatures, persist, selection, layerNames,
-                                        layerAttributeFilter);
-        oBroker.dispatchRequest(r, 
-            OpenLayers.Function.bind(Fusion.xml2json, this, 
-                  OpenLayers.Function.bind(this.requestCB, this)));
+    showMaptip: function(oOptions) {
+        //console.log("MAPTIP: showMaptip");
+        this.getMap().aMaps[0].getMapTip(this,oOptions);
+       
     },
     
-    requestCB: function(xhr) {
-        var o;
-        eval("o="+xhr.responseText);
-        this._display(o);
-        if (this.nHideTimer) {
-          window.clearTimeout(this.nHideTimer);
-          this.nHideTimer = null;
-        }
-    },
-    
-    _display: function(tooltip) {
-        if (this.mouseIsDown) {
+    _display: function(eventID,oMapTip) {
+        //console.log("MAPTIP: _display");
+        if (typeof(oMapTip) == "undefined" || oMapTip.t == '') {
             return;
         }
-        
-      //console.log('maptip _display');
-            this.domObj.innerHTML = '&nbsp;';
+        if(this.domObj.style.visibility != 'visible' || oMapTip.t != this.szTip ){
+            this.domObj.innerHTML = null;
             var contentDiv = document.createElement('div');
             contentDiv.className = 'maptipContent';
             this.domObj.appendChild(contentDiv);
-            
             var empty = true;
             this.bIsVisible = true;
-            var t = tooltip['FeatureInformation']['Tooltip'];
+            var t = oMapTip.t;
+            this.szTip = t;
+            this.szHref = h;
             if (t) {
-              contentDiv.innerHTML = t[0].replace(/\n/g, "<br>");
-              empty = false;
+                contentDiv.innerHTML = t.replace(/\n/g, "<br>");
+                empty = false;
             }
-            var h = tooltip['FeatureInformation']['Hyperlink'];
+            var h =oMapTip.h;
             if (h) {
-              var a, linkURL;
-              var linkDiv = document.createElement('div');
-              if (h[0].indexOf('href=') > 0) {   //MGOS allows complete anchor tags as the hyperlink
-                linkDiv.innerHTML = h[0];
+                var a, linkURL;
+                var linkDiv = document.createElement('div');
+                if (h.indexOf('href=') > 0) {   //MGOS allows complete anchor tags as the hyperlink
+                linkDiv.innerHTML = h;
                 a = linkDiv.firstChild;
                 linkURL = a.href;
-              } else {
+                } else {
                 a = document.createElement('a');
-                a.innerHTML = h[0];
-                linkURL = h[0];
+                a.innerHTML = h;
+                linkURL = h;
                 linkDiv.appendChild(a);
-              }
-              a.href = 'javascript:void(0)';
-              var openLink = OpenLayers.Function.bind(this.openLink, this, linkURL);
-              a.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
-              contentDiv.appendChild(linkDiv);
-              empty = false;
+                }
+                a.href = 'javascript:void(0)';
+                var openLink = OpenLayers.Function.bind(this.openLink, this, linkURL);
+                a.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
+                contentDiv.appendChild(linkDiv);
+                empty = false;
             }
             if (!empty) {
                 var size = $(this.domObj).getBorderBoxSize();
                 this.oMapTipPosition = this.oMapTipPosition.add(this.mapOffset[0], this.mapOffset[1]);
                 if (this.oCurrentPosition.x < this.mapSize.w/2) {
-                  this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
+                    this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
-                  this.domObj.style.left = (this.oMapTipPosition.x - (size.width+this.offset.x)) + 'px';
+                    this.domObj.style.left = (this.oMapTipPosition.x - (size.width+this.offset.x)) + 'px';
                 }
                 if (this.oCurrentPosition.y < this.mapSize.h/2) {
-                  this.domObj.style.top = (this.oMapTipPosition.y + this.offset.y) + 'px';
+                    this.domObj.style.top = (this.oMapTipPosition.y + this.offset.y) + 'px';
                 } else {
-                  this.domObj.style.top = (this.oMapTipPosition.y - (size.height+this.offset.y)) + 'px';
+                    this.domObj.style.top = (this.oMapTipPosition.y - (size.height+this.offset.y)) + 'px';
                 }
                 this.domObj.style.visibility = 'hidden';
                 this.domObj.style.display = 'block';
-                
+
                 if (!window.opera) {
                     contentDiv.appendChild(this.iframe);
                     var size = $(this.domObj).getContentBoxSize();
                     this.iframe.style.width = size.width + "px";
                     this.iframe.style.height = size.height + "px";
                 }
-                
+
                 this.domObj.style.visibility = 'visible';
+                //this.hideTimer = window.setTimeout(OpenLayers.Function.bind(this._hide, this),10000);
             } else {
                 this.hideMaptip();
             }
+        }
     },
     
     hideMaptip: function() {
@@ -272,6 +248,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
       //console.log('maptip _hide');
         this.hideTimer = null;
         this.domObj.style.display = 'none';
+        this.domObj.style.visibility = '';
         //this.oMapTipPosition = null;
     },
     
