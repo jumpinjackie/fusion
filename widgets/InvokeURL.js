@@ -113,7 +113,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
             if ( pageElement ) {
                 pageElement.src = url;
             } else {
-                window.open(url, this.sTarget, this.sWinFeatures);
+                window.open(url, this.sTarget, this.sFeatures);
             }
         }
     }
