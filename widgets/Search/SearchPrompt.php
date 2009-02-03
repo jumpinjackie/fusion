@@ -39,21 +39,31 @@
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
     $vpath = GetSurroundVirtualPath();
-    print sprintf($templ, $popup, $widgetName, $vpath."Search.php", $mapName, $sessionId);
+    print sprintf($templ, $popup, $properties, $propNames, $title, $prompt, $target, $filter, $layer, $limit, $vpath."Search.php", $mapName, $sessionId);
 
 
 
 function GetParameters($params)
 {
     global $popup, $locale;
-    global $mapName, $sessionId, $widgetName;
+    global $mapName, $sessionId;
+    global $title, $prompt, $target, $filter, $layer, $limit;
+    global $propNames, $properties;
 
-    if(isset($params['locale']))
+    if(isset($params['locale'])) {
         $locale = $params['locale'];
+    }
     $popup = $params['popup'];
-    $widgetName = $params['widgetname'];
     $mapName = $params['mapname'];
     $sessionId = $params['session'];
+    $propNames = $params['propNames'];
+    $properties = $params['properties'];
+    $title = $params['title'];
+    $prompt = $params['prompt'];
+    $target = $params['target'];
+    $filter = $params['filter'];
+    $layer = $params['layer'];
+    $limit = $params['limit'];
 }
 
 function GetRequestParameters()
