@@ -1095,7 +1095,54 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
       return queryParams;
     },
+    
+    getMapTip: function(mapTipWidget) {
+      //console.log('showMaptip');
+        var oBroker = Fusion.oBroker;
+        var x = mapTipWidget.oCurrentPosition.x;
+        var y = mapTipWidget.oCurrentPosition.y;
+        var min = this.mapWidget.pixToGeo(x-mapTipWidget.nTolerance, y-mapTipWidget.nTolerance);
+        var max = this.mapWidget.pixToGeo(x+mapTipWidget.nTolerance, y+mapTipWidget.nTolerance);
+        //this can fail if no map is loaded
+        if (!min) {
+            return;
+        }
+        var sGeometry = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  min.x + ' ' +  max.y + ', ' + max.x + ' ' +  max.y + ', ' + max.x + ' ' +  min.y + ', ' + min.x + ' ' +  min.y + '))';
 
+        //var sGeometry = 'POINT('+ min.x + ' ' +  min.y + ')';
+
+        var maxFeatures = 1;
+        var persist = 0;
+        var selection = 'INTERSECTS';
+        // only select visible layers with maptips defined (1+4)
+        var layerAttributeFilter = 5;
+        //TODO: possibly make the layer names configurable?
+        var layerNames = mapTipWidget.aLayers.toString();
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
+                                        this._sMapname,
+                                        sGeometry,
+                                        maxFeatures, persist, selection, layerNames,
+                                        layerAttributeFilter);
+        oBroker.dispatchRequest(r, 
+            OpenLayers.Function.bind(Fusion.xml2json, this, 
+                  OpenLayers.Function.bind(this.parseMapTip, this)));
+    },
+    
+    parseMapTip: function(xhr) {
+        var o;
+        eval("tooltip="+xhr.responseText);
+        this.oMaptip = {t:"",h:""};
+        var t = tooltip['FeatureInformation']['Tooltip'];
+        if (t) {
+          this.oMaptip.t = t[0].replace(/\\n/g, "<br>");
+        }
+        var h = tooltip['FeatureInformation']['Hyperlink'];
+        if (h) {
+          this.oMaptip.h = h[0];
+        }
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
+    },
+    
     getLegendImageURL: function(fScale, layer, style) {
       var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();

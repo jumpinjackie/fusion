@@ -70,9 +70,14 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.delay = json.Delay ? parseInt(json.Delay[0]) : 350;
         this.nTolerance = json.Tolerance ? parseInt(json.Tolerance[0]) : 2;
 
-        this.layer = json.Layer;
         this.customURL =  json.CustomURL;
         this.textField = json.TextField;
+        this.aLayers = [];
+        if (json.Layer) {
+            for (var i=0; i<json.Layer.length; i++) {
+                this.aLayers.push(json.Layer[i]);
+            }
+        }
         
         //prepare the container div for the maptips
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Maptip/Maptip.css');
@@ -104,7 +109,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.getMap().observeEvent('mouseout', OpenLayers.Function.bind(this.mouseOut, this));
 
         this.eventListener = false;
-        this.getMap().aMaps[0].registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
         
     },
     
@@ -142,14 +147,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             this.nTimer = null;
         }
         
-        this.options = {};
-        this.options.e = e;
-        this.options.nTolerance = this.nTolerance;
-        this.options.textField = this.textField
-        this.options.layer = this.layer
-        this.options.customURL = this.customURL
-
-        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this,this.options,e), this.delay);
+        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
         //Event.stop(e);
     },
     
@@ -162,9 +160,9 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.mouseIsDown = false;
     },
     
-    showMaptip: function(oOptions) {
+    showMaptip: function() {
         //console.log("MAPTIP: showMaptip");
-        this.getMap().aMaps[0].getMapTip(this,oOptions);
+        this.getMap().getMapTip(this);
        
     },
     
