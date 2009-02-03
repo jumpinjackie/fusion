@@ -38,24 +38,36 @@ var agent = navigator.userAgent.toLowerCase();
 var msie = agent.indexOf("msie") != -1;
 
 var popup = %s;
-var widgetId = '%s';
-var resultColumns;
+var propsIn = "%s";
+var properties = [];
+var namesIn = "%s";
+var names = [];
+var title = "%s";
+var prompt = "%s";
+var target = "%s";
+var filter = "%s";
+var layer = "%s";
+var limit = "%s";
 
 function InitDocument()
 {
     if(!msie) document.getElementById("lf").innerHTML = "<br>";
     if(!popup) document.onmousedown = OnMouseDown;
 
-    var widget = GetParent().Fusion.getWidgetById(widgetId);
-    resultColumns = widget.resultColumns;
-
-    document.getElementById('title').innerHTML = widget.title;  //TODO use a better property than this
-    document.getElementById('prompt').innerHTML = widget.prompt;  //TODO use a better property than this
-    document.getElementById('target').value = widget.sTarget;  //TODO use a better property than this
-    document.getElementById('filter').value = widget.filter;  //TODO use a better property than this
-    document.getElementById('layer').value = widget.layer;  //TODO use a better property than this
-    document.getElementById('limit').value = widget.limit;  //TODO use a better property than this
-    document.getElementById('popup').value = popup;  //TODO use a better property than this
+    if (propsIn != "") {
+      properties = propsIn.split(',');
+    }
+    if (namesIn != "") {
+      names = namesIn.split(',');
+    }
+    
+    document.getElementById('title').innerHTML = title;  //TODO use a better property than this
+    document.getElementById('prompt').innerHTML = prompt;  //TODO use a better property than this
+    document.getElementById('target').value = target;  //TODO use a better property than this
+    document.getElementById('filter').value = filter;  //TODO use a better property than this
+    document.getElementById('layer').value = layer;  //TODO use a better property than this
+    document.getElementById('limit').value = limit;  //TODO use a better property than this
+    document.getElementById('popup').value = popup?"true":"false";  //TODO use a better property than this
 
     var field = document.getElementById("Fld")
     field.focus();
@@ -76,11 +88,11 @@ function GetParent()
 
 function SetMatchLabel()
 {
-    var colDef = "<input type=\"hidden\" name=\"cols\" value=\"" + resultColumns.length + "\">";
-    for(var i = 0; i < resultColumns.length; i++)
+    var colDef = "<input type=\"hidden\" name=\"cols\" value=\"" + properties.length + "\">";
+    for(var i = 0; i < properties.length; i++)
     {
-        colDef += "<input type=\"hidden\" name=\"CN" + i + "\" value=\"" + resultColumns[i].Name + "\">";
-        colDef += "<input type=\"hidden\" name=\"CP" + i + "\" value=\"" + resultColumns[i].Property + "\">";
+        colDef += "<input type=\"hidden\" name=\"CN" + i + "\" value=\"" + names[i] + "\">";
+        colDef += "<input type=\"hidden\" name=\"CP" + i + "\" value=\"" + properties[i] + "\">";
     }
     document.getElementById("MatchLabel").innerHTML = colDef;
 }

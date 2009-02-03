@@ -27,10 +27,10 @@
  * Class: Fusion.Widget.InvokeURL
  *
  * A widget that will open the configured URL in the target element.
- * 
+ *
  * If the Target property points to TaskPane widget, the task will be listed in
  * the menu list of the TaskPane and loaded there.
- * Otherwise if the target is an existing HTML elementt in the page it will be 
+ * Otherwise if the target is an existing HTML elementt in the page it will be
  * loaded there, otherwise it will open a new window with that name.
  *
  * **********************************************************************/
@@ -43,11 +43,11 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "InvokeUrlWindow";
         this.sBaseUrl = json.Url[0];  //must be supplied
-        
+
         this.bSelectionOnly = (json.DisableIfSelectionEmpty &&
                            (json.DisableIfSelectionEmpty[0] == 'true' ||
                             json.DisableIfSelectionEmpty[0] == '1')) ? true : false;
-                            
+
         this.additionalParameters = [];
         if (json.AdditionalParameter) {
             for (var i=0; i<json.AdditionalParameter.length; i++) {
@@ -57,7 +57,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
                 this.additionalParameters.push(k+'='+encodeURIComponent(v));
             }
         }
-        
+
         this.enable = Fusion.Widget.InvokeURL.prototype.enable;
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.enable, this));
@@ -88,11 +88,11 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
             }
         }
     },
-    
+
     activate: function() {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
-        
+
         var map = this.getMap();
         var params = [];
         params.push('LOCALE='+Fusion.locale);
@@ -113,7 +113,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
             if ( pageElement ) {
                 pageElement.src = url;
             } else {
-                window.open(url, this.sTarget, this.sWinFeatures);
+                window.open(url, this.sTarget, this.sFeatures);
             }
         }
     }

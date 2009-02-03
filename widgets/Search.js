@@ -29,11 +29,12 @@
  * A widget that displays a pre-configured search form to the user and then
  * runs the search.  Searches are done on the attributes of specifiedd layers.
  *
- * uses JavaScript Scale Bar for MapServer 
+ * uses JavaScript Scale Bar for MapServer
  * (http://mapserver.commenspace.org/tools/scalebar/
  * **********************************************************************/
 
 Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
+    uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,status=no,scrollbars=yes',
 
     initializeWidget: function(widgetTag) {
@@ -51,7 +52,7 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
     activate: function() {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
-        
+
         var map = this.getMap();
         var mapLayers = map.getAllMaps();
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
@@ -66,7 +67,20 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
         } else {
           params.push('popup=true');
         }
-        params.push('widgetname='+this.id);  
+        params.push('title='+this.title);
+        params.push('prompt='+this.prompt);
+        params.push('target='+this.sTarget);
+        params.push('filter='+this.filter);
+        params.push('layer='+this.layer);
+        params.push('limit='+this.limit);
+        var names = [];
+        var props = [];
+        for (var i=0; i<this.resultColumns.length; ++i) {
+          names.push(this.resultColumns[i].Name);
+          props.push(this.resultColumns[i].Property);
+        }
+        params.push('properties='+props.join(","));
+        params.push('propNames='+names.join(","));
 
         if (url.indexOf('?') < 0) {
             url += '?';
@@ -80,7 +94,7 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
             if ( pageElement ) {
                 pageElement.src = url;
             } else {
-                window.open(url, this.sTarget, this.sWinFeatures);
+                window.open(url, this.sTarget, this.sFeatures);
             }
         }
     }
