@@ -85,13 +85,13 @@ function ExecuteCommand()
     var mapWidget = GetParent().Fusion.getMapByName(mapName);
     var map = mapWidget.aMaps[0];
     var params = {
-      "mapname": encodeURIComponent(mapName),
+      "mapname": mapName,
       "session": sessionId,
-      "layers": encodeURIComponent(layerSet)
+      "layers": layerSet
     };
     var options = {
       onSuccess: selectedSuccess,
-      onFailure: selectedError, 
+      onFailure: selectedError,
       parameters:params
     };
     GetParent().Fusion.ajaxRequest(webAgent, options);
@@ -126,7 +126,7 @@ function FillLayerList()
     var listNames = document.getElementById("layerNames");
     list.options.length = 0;
     var map = GetParent().Fusion.getMapByName(mapName);
-    var layers = map.aMaps[0].getSelectableLayers();  
+    var layers = map.aMaps[0].getSelectableLayers();
     if(layers.length > 0) {
       for(var i = 0; i < layers.length; i++) {
         var layer = layers[i];
