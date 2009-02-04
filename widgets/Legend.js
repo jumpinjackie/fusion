@@ -224,7 +224,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      */
     bIncludeVisToggle: true,
    
-    initialize : function(legend, widgetTag) {   
+    initialize: function(legend, widgetTag) {   
         Fusion.Widget.Legend.LegendRenderer.prototype.initialize.apply(this, [legend]);
 
         var json = widgetTag.extension;
@@ -246,19 +246,23 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.showRootFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true:false;
         //do show the map folder by default
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
-        if (this.showRootFolder) {
-            var opt = {
-                label: OpenLayers.i18n('defaultMapTitle'),
-                open: true,
-                draw: this.renderFolder,
-                'class':'fusionLegendFolder'
-            };
-            this.oRoot = new Jx.TreeFolder(opt);
-            this.oRoot.contextMenu = this.getContextMenu(this.oRoot);
-            
-            this.oTree.append(this.oRoot);
-        } else {
-            this.oRoot = this.oTree;
+        
+        var opt = {
+            label: OpenLayers.i18n('defaultMapTitle'),
+            open: true,
+            draw: this.renderFolder,
+            'class':'fusionLegendFolder'
+        };
+        this.oRoot = new Jx.TreeFolder(opt);
+        this.oRoot.contextMenu = this.getContextMenu(this.oRoot);
+        
+        this.oTree.append(this.oRoot);
+        
+        //if root folder is to be hidden, just shift the tree so that it is not
+        //visible so that there is always a top level folder for expand/collapse
+        if (!this.showRootFolder) {
+            this.oRoot.domObj.parentNode.style.top = "-16px";
+            this.oRoot.domObj.parentNode.style.left = "-12px";
         }
         this.extentsChangedWatcher = this.update.bind(this);
     },
@@ -305,11 +309,27 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
     },
     expandAll: function(folder) {
-        this.recurseTree('expand', this.oRoot);
+        for (var i=0; i<this.oTree.nodes.length; i++) {
+            var item = this.oTree.nodes[i];
+            if (item instanceof Jx.TreeFolder) {
+              this.recurseTree('expand', item);
+            }
+        }
+        if (this.showRootFolder) {
+          this.oRoot.expand();
+        }
     },
     
     collapseAll: function(folder) {
-        this.recurseTree('collapse', this.oRoot);
+        for (var i=0; i<this.oTree.nodes.length; i++) {
+            var item = this.oTree.nodes[i];
+            if (item instanceof Jx.TreeFolder) {
+              this.recurseTree('collapse', item);
+            }
+        }
+        if (this.showRootFolder) {
+          this.oRoot.collapse();
+        }
     },
     
     collapseBranch: function(folder) {
@@ -332,16 +352,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             if (item instanceof Jx.TreeFolder) {
                 this.recurseTree(op, item);
                 item[op]();
-                if (item.domObj) {
-                    var p = $(item.domObj).getPrevious();
-                    if (p) {
-                        item.domObj.dispose();
-                        $(item.domObj).inject(p, 'before');
-                    } else {
-                        p = $(item.domObj).getParent();
-                        $(item.domObj).inject(p, 'top');
-                    }
-                }
             }
         }
     },
@@ -653,7 +663,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         var item = new Jx.TreeItem(opt);
-        item.contextMenu = this.getContextMenu(item); if (bCheckBox) {
+        item.contextMenu = this.getContextMenu(item); 
+        if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
             var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
