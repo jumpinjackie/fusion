@@ -110,7 +110,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
 
         this.eventListener = false;
         this.getMap().registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
-        
+        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
     },
     
     mouseOut: function(e) {
@@ -263,6 +263,13 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.bOverTip = false;
     },
     
+    busyChanged: function() {
+        if (this.getMap().isBusy()){
+        this.bIsVisible = false;
+        this.hideMaptip();
+        }
+    },
+
     openLink: function(url, evt) {
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         if ( taskPaneTarget ) {
