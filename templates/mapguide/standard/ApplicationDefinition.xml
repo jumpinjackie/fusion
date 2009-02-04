@@ -15,6 +15,35 @@
         <SingleTile>true</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
+          <ImageFormat>PNG8</ImageFormat>
+          <SelectionAsOverlay>true</SelectionAsOverlay>
+          <SelectionFormat>PNG</SelectionFormat>
+          <SelectionColor>0xFF0000FF</SelectionColor>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="mixed" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>WMS</Type>
+        <Extension>
+          <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
+          <Options>
+            <name>test WMS</name>
+            <singleTile>true</singleTile>
+            <!--maxResolution>auto</maxResolution>
+            <minScale>1000000000</minScale-->
+          </Options>
+          <Parameters>
+            <layers>bathymetry</layers>
+            <transparent>true</transparent>
+          </Parameters>
+        </Extension>
+      </Map>
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
           <SelectionAsOverlay>true</SelectionAsOverlay>
           <SelectionFormat>PNG</SelectionFormat>
           <SelectionColor>0xFF0000FF</SelectionColor>
@@ -45,6 +74,42 @@
         <SingleTile>false</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Gmap/Maps/gmap.MapDefinition</ResourceId>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="wmsOnly" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>WMS</Type>
+        <Extension>
+          <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
+          <Options>
+            <name>test WMS</name>
+            <singleTile>true</singleTile>
+            <isBaseLayer>true</isBaseLayer>
+            <transitionEffect>resize</transitionEffect>
+            <maxExtent>-141,41,-43,90</maxExtent>
+            <maxResolution>auto</maxResolution>
+            <!--minScale>1000000000</minScale-->
+          </Options>
+          <Parameters>
+            <layers>bathymetry</layers>
+            <transparent>true</transparent>
+          </Parameters>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="google" xsi:type="MapType">
+      <Map xsi:type="WMSLayerType">
+        <Type>Google</Type>
+        <Extension>
+          <ResourceId>google</ResourceId>
+          <Options>
+            <name>GoogleLayer</name>
+            <type>G_PHYSICAL_MAP</type>
+            <isBaseLayer>true</isBaseLayer>
+            <sphericalMercator>false</sphericalMercator>
+            <maxExtent>-141,41,-43,90</maxExtent>
+          </Options>
         </Extension>
       </Map>
     </MapGroup>
@@ -279,6 +344,22 @@
       <Item xsi:type="WidgetItemType">
         <Function>Widget</Function>
         <Widget>toolbarSecondaryZoomSelection</Widget>
+      </Item>
+      <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>toolbarSelectPolygon</Widget>
+      </Item>
+      <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>toolbarSelectRadius</Widget>
+      </Item>
+      <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>toolbarMeasure</Widget>
+      </Item>
+      <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>toolbarSaveMap</Widget>
       </Item>
     </Container>
 
@@ -672,12 +753,23 @@
         <DistancePrecision>0</DistancePrecision>
         <AreaPrecision>0</AreaPrecision>
         <Units>meters</Units>
-        <Target>TaskPane</Target>
+        <!--Target>TaskPane</Target-->
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>measure</ImageClass>
       <Tooltip>Measure</Tooltip>
       <Label>Measure</Label>
+      <Disabled/>
+    </Widget>
+
+    <Widget xsi:type="UiWidgetType">
+      <Name>toolbarSaveMap</Name>
+      <Type>SaveMap</Type>
+      <StatusText></StatusText>
+      <Extension xsi:type="CustomContentType">
+      </Extension>
+      <Tooltip>SaveMap</Tooltip>
+      <Label>Save Map</Label>
       <Disabled/>
     </Widget>
 
@@ -745,6 +837,9 @@
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>select-radius</ImageClass>
       <Tooltip>Select Radius</Tooltip>
+      <Extension>
+        <RadiusTooltipContainer>RadiusTip</RadiusTooltipContainer>
+      </Extension>
       <Label></Label>
       <Disabled/>
     </Widget>
@@ -905,14 +1000,17 @@
 * Widgets belonging to the status bar
  ****************************************** -->
 
-<!-- LEGEND -->
+<!-- LEGEND 
+-->
 
     <Widget xsi:type="WidgetType">
       <Name>Legend</Name>
       <Type>Legend</Type>
+      <Extension>
+        <ShowRootFolder>false</ShowRootFolder>
+      </Extension>
       <StatusText/>
     </Widget>
-
 <!-- SELECTION -->
 
     <Widget xsi:type="WidgetType">
@@ -1015,7 +1113,9 @@
       <Name>MapMenu</Name>
       <Type>MapMenu</Type>
       <StatusText/>
-      <Extension/>
+      <Extension>
+        <Folder>Library://Samples/Sheboygan/</Folder>
+      </Extension>
       <ImageUrl/>
       <ImageClass/>
       <Tooltip/>
@@ -1023,7 +1123,8 @@
       <Disabled/>
     </Widget>
 
-<!-- OVERVIEW MAP
+<!-- OVERVIEW MAP -->
+
 
     <Widget xsi:type="WidgetType">
       <Name>OverviewMap</Name>
@@ -1032,7 +1133,7 @@
       <Extension xsi:type="CustomContentType">
       </Extension>
     </Widget>
- -->
+    
 <!-- PRINT -->
 
     <Widget xsi:type="UiWidgetType">
