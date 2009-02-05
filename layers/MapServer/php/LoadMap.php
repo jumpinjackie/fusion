@@ -268,6 +268,16 @@ if ($oMap) {
          $layerMin = $layer->minscale == -1 ? $minScale : $layer->minscale;
          $layerMax = $layer->maxscale == -1 ? $maxScale : $layer->maxscale;
 
+        /* check to see that the layer has a vaild scale range
+         * inside the defined map's main min max scale ranges
+         * set them to the maps scale ranges if they exceede 
+         */
+        if($layer->minscale != -1 && $layerMin < $minScale)
+            $layerMin = $minScale;
+
+        if($layer->maxscale != -1 && $layerMax > $maxScale)
+            $layerMax = $maxScale;
+
          //find all the unique scale breaks in this layer
          $aScaleBreaks = array($layerMin, $layerMax);
          for ($j=0; $j<$layer->numclasses; $j++) {
@@ -352,6 +362,7 @@ function getGroupObject($layer) {
     $b = $layer->getMetaData('groupVisible');
     $group->visible = ($b == 'false') ? false : true;
     $group->actuallyVisible = $layer->isVisible();
+    $group->groupParent = $layer->getMetaData('groupParent');
 
     return $group;
 }
