@@ -1179,6 +1179,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var selText = newSelection.getSelectionXml();
         this.setSelection(selText, false);
         this.mapWidget._removeWorker();
+    },
+
+    parseMapTip: function(){
+    
+    },
+    getMapTip: function(){
+
     }
 });
 
