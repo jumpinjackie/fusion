@@ -77,12 +77,17 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     if ($spatialFilter !== false ) {
         $oSpatialFilter = ms_shapeObjFromWkt($spatialFilter);
     }
-    
+
     $aMapTips = array();
     $aURL = array();
     $aTipLabel = array();
     foreach($aLayer as $key=>$layer){
-        $oLayer = $oMap->GetLayerByName($layer);
+        $oLayer = @$oMap->GetLayerByName($layer);
+
+        if(!is_object($oLayer)){
+            echo  "{'maptips':'','url':'','label':'','error':' The layer [".$layer."] was not found'}";
+            die();
+        }
 
         $oLayer->set('tolerance', 0);
 
@@ -98,7 +103,7 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
             $oLayer->open();
 
             $oShape = $oLayer->getShape($oRes->tileindex,$oRes->shapeindex);
-           
+
             $szMapTipText .= $oLayer->name." : ".$oShape->values[$aMapTipTextField[$key]].$szBreak;
 
             $szLabels = $aLabel[$key];
@@ -109,12 +114,12 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
             $szMapTip = $szMapTip != "undefined" ? $szMapTip : "";
             $szURL = $szURL != "undefined" ? $szURL : "";
             $szLabels = $szLabels != "undefined" ? $szLabels : "";
-            
+
 
             array_push($aMapTips, $szMapTip);
             array_push($aURL, $szURL);
             array_push($aTipLabel,$szLabels);
-            
+
             $oLayer->close();
         }
     }
