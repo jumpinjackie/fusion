@@ -84,49 +84,44 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     foreach($aLayer as $key=>$layer){
         $oLayer = @$oMap->GetLayerByName($layer);
 
-        if(!is_object($oLayer)){
-            echo  "{'maptips':'','url':'','label':'','error':' The layer [".$layer."] was not found'}";
-            die();
-        }
+        // make sure the layer exists in the map. 
+        if(is_object($oLayer)){
+            $oLayer->set('tolerance', 0);
 
-        $oLayer->set('tolerance', 0);
+            if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
+                    $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
+                    die("{'error':'maptips are only valid for vector layers'}");
+                }
 
-        if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
-                $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
-                die("{'error':'maptips are only valid for vector layers'}");
+
+            if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+
+                $oRes = $oLayer->getResult(0);
+                $oLayer->open();
+
+                $oShape = $oLayer->getShape($oRes->tileindex,$oRes->shapeindex);
+
+                $szMapTipText .= $oLayer->name." : ".$oShape->values[$aMapTipTextField[$key]].$szBreak;
+
+                $szLabels = $aLabel[$key];
+
+                $szMapTip  = $oShape->values[$aMapTipTextField[$key]];
+                $szURL = buildCustonUrl($oShape->values,$aMapTipURL[$key]);
+
+                $szMapTip = $szMapTip != "undefined" ? $szMapTip : "";
+                $szURL = $szURL != "undefined" ? $szURL : "";
+                $szLabels = $szLabels != "undefined" ? $szLabels : "";
+
+
+                array_push($aMapTips, $szMapTip);
+                array_push($aURL, $szURL);
+                array_push($aTipLabel,$szLabels);
+
+                $oLayer->close();
             }
-
-
-        if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
-
-            $oRes = $oLayer->getResult(0);
-            $oLayer->open();
-
-            $oShape = $oLayer->getShape($oRes->tileindex,$oRes->shapeindex);
-
-            $szMapTipText .= $oLayer->name." : ".$oShape->values[$aMapTipTextField[$key]].$szBreak;
-
-            $szLabels = $aLabel[$key];
-
-            $szMapTip  = $oShape->values[$aMapTipTextField[$key]];
-            $szURL = buildCustonUrl($oShape->values,$aMapTipURL[$key]);
-
-            $szMapTip = $szMapTip != "undefined" ? $szMapTip : "";
-            $szURL = $szURL != "undefined" ? $szURL : "";
-            $szLabels = $szLabels != "undefined" ? $szLabels : "";
-
-
-            array_push($aMapTips, $szMapTip);
-            array_push($aURL, $szURL);
-            array_push($aTipLabel,$szLabels);
-
-            $oLayer->close();
         }
     }
-
-echo "{'maptips':".var2json($aMapTips).",'url':".var2json($aURL).",'label':".var2json($aTipLabel)."}";
-
-
+    echo "{'maptips':".var2json($aMapTips).",'url':".var2json($aURL).",'label':".var2json($aTipLabel)."}";
 }
 else
 {
