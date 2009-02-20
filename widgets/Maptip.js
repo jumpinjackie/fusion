@@ -219,14 +219,13 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             }
             else
             {
-                if (t) {
-                    contentDiv.innerHTML = t.replace(/\n/g, "<br>");
+                if (tip) {
+                    contentDiv.innerHTML = tip.replace(/\n/g, "<br>");
                     empty = false;
                 }
 
-                if (h) {
-
-                    contentDiv.appendChild(linkDiv);
+                if (hyperlink) {
+                    contentDiv.innerHTML = contentDiv.innerHTML + hyperlink.replace(/\n/g, "<br>");
                     empty = false;
                 }
             }
