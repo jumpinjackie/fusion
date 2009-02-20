@@ -220,12 +220,16 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             else
             {
                 if (tip) {
-                    contentDiv.innerHTML = tip.replace(/\n/g, "<br>");
+                    var mapTipContent = document.createElement('DIV');
+                    mapTipContent.innerHTML = tip.replace(/\n/g, "<br>");
+                    contentDiv.appendChild(mapTipContent);
                     empty = false;
                 }
 
                 if (hyperlink) {
-                    contentDiv.innerHTML = contentDiv.innerHTML + hyperlink.replace(/\n/g, "<br>");
+                    var mapTipContent = document.createElement('DIV');
+                    mapTipContent.innerHTML =  hyperlink.replace(/\n/g, "<br>");
+                    contentDiv.appendChild(mapTipContent);
                     empty = false;
                 }
             }
