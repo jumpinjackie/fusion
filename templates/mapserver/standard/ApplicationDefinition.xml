@@ -23,7 +23,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmap75.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
