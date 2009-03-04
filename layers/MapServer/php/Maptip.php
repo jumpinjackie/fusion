@@ -84,7 +84,11 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     foreach($aLayer as $key=>$layer){
         $oLayer = @$oMap->GetLayerByName($layer);
 
-        // make sure the layer exists in the map. 
+        if(!is_object($oLayer)){
+            $szMessage = "{'maptips':'','url':'','label':'','error':' The layer [".$layer."] was not found'}";
+            die($szMessage);
+        }
+        // make sure the layer exists in the map.
         if(is_object($oLayer)){
             $oLayer->set('tolerance', 0);
 
