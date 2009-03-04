@@ -14,7 +14,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmap_groups.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap_groups.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -23,7 +23,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmap75.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -49,7 +49,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmapLonLat.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
             <Options>
               <isBaseLayer>false</isBaseLayer>
               <singleTile>true</singleTile>
@@ -1192,6 +1192,12 @@
             <Label>Area KMSQ</Label>
             <TextField>AREA_KMSQ</TextField>
             <CustomURL>http://localhost/showParkArea.php?parkId=[PARK_ID]&amp;areakmsq=[AREA_KMSQ]</CustomURL>
+        </Maptip>
+        
+        <Maptip>
+            <Layer>Precipitation</Layer>
+            <Label>Station ID</Label>
+            <TextField>STATN_ID</TextField>
         </Maptip>
         <Maptip>
             <Layer>park</Layer>

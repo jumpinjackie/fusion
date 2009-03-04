@@ -122,7 +122,7 @@ for ($i=0; $i<$nLayers; $i++) {
 if ($bExtendSelection) {
 }
 
-header('Content-type: text/x-json');
+header('Content-type: application/json');
 header('X-JSON: true');
 if ($result->hasSelection) {
     $oMap->savequery(getSessionSavePath()."query.qry");

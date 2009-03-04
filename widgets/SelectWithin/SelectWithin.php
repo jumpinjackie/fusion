@@ -123,7 +123,7 @@
       }
     }
     
-    header('Content-type: text/x-json');
+    header('Content-type: application/json');
     header('X-JSON: true');
     echo var2json($result);
   } catch(MgException $e) {

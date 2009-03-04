@@ -49,7 +49,7 @@ include('Utilities.php');
         //now return a data struture which is the same as Query.php
 
         //process
-        header('Content-type: text/x-json');
+        header('Content-type: application/json');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
 
