@@ -317,7 +317,6 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.initiallyVisible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
-        this.groupParent = o.groupParent;
     },
 
     show: function(noDraw) {
@@ -525,7 +524,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     set: function(property, value) {
         this[property] = value;
         this.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
-    },
+    }
 
 });
 
