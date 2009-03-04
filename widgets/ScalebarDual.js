@@ -34,8 +34,8 @@ Fusion.Widget.ScalebarDual = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         var maxWidth = json.MaxWidth ? parseInt(json.MaxWidth[0]) : 300;
-        var topInUnits = json.TopInUnits ? json.TopInUnits[0] : 'in';
-        var topOutUnits = json.TopOutUnits ? json.TopOutUnits[0] : 'cm';
+        var topInUnits = json.TopInUnits ? json.TopInUnits[0] : 'ft';
+        var topOutUnits = json.TopOutUnits ? json.TopOutUnits[0] : 'mi';
         var bottomInUnits = json.BottomInUnits ? json.BottomInUnits[0] : 'm';
         var bottomOutUnits = json.BottomOutUnits ? json.BottomOutUnits[0] : 'km';
         var options = {   //set these from widgetTag extension
