@@ -85,8 +85,8 @@ try
     }   
 
 
-    //header('Content-type: text/x-json');
-    //header('X-JSON: true');
+    header('Content-type: application/json');
+    header('X-JSON: true');
 
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapid;

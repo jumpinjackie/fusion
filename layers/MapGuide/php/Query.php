@@ -350,7 +350,7 @@ try {
     //print_r($properties);
     //echo "/* SelectionXML:".$selection->ToXML()."*/";
 
-    header('Content-type: text/x-json');
+    header('Content-type: application/json');
     header('X-JSON: true');
     $layers = $selection->GetLayers();
     $result = NULL;

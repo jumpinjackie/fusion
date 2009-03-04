@@ -63,8 +63,8 @@ $variant = 'intersects';
 /* a spatial filter in the form on a WKT geometry */
 $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
 
-   // header('Content-type: text/x-json');
-   // header('X-JSON: true');
+header('Content-type: application/json');
+header('X-JSON: true');
 
 if (!isset($mapName)) {
     die("{'error':'mapname not set'}");
