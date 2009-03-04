@@ -54,6 +54,14 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
         this.sMapFile = mapTag.extension.MapFile ? mapTag.extension.MapFile[0] : '';
 
+        // load mapfrom the querystring if "theme" is present.
+        var newTheme = Fusion.getQueryParam('theme');
+        if (newTheme != '') {
+        this.sMapFile = newTheme;
+          //clear the query param after it has been used once
+          Fusion.queryParams['theme'] = null;
+        }
+
         this.mapMetadataKeys = mapTag.extension.MapMetadata ? mapTag.extension.MapMetadata[0] : null;
         this.layerMetadataKeys = mapTag.extension.LayerMetadata ? mapTag.extension.LayerMetadata[0] : null;
         
