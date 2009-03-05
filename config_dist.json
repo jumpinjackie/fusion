@@ -18,7 +18,9 @@
 	       with http and end with /mapguide.  If you have installed
 	       fusion inside the www directory of MapGuide, then you can
 	       leave this empty as it will be automatically calculated. */
-           "webTierUrl": ""
+           "webTierUrl": "",
+      /* for MapGuide OS version > 2.1 and MGE2010 and higher set this to true*/
+          "useAsyncOverlay": true
     },
     /* The MapServer section is required if you are installing fusion
        for MapServer. */
