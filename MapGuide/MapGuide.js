@@ -549,6 +549,11 @@ Fusion.Maps.MapGuide = OpenLayers.Class(Fusion.Lib.EventMgr, {
         };
       }
 
+      //Fix for IE6 PNG transparency
+      if (params.format && params.format.toLowerCase().indexOf('png') >= 0) {
+        layerOptions.alpha = true;
+      }
+
       var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       return oLayerOL;
