@@ -62,6 +62,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     szLabel:'',
     aTextFields: null,
     mapTipFired: false,
+    bStartMapTips:false,
     
     initializeWidget: function(widgetTag) {
         //var json = widgetTag.extension;
@@ -120,6 +121,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.eventListener = false;
         this.getMap().registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
         this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.startMapTips.bind(this));
     },
     
     mouseOut: function(e) {
@@ -132,32 +134,37 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             }
         }
     },
+
+    startMapTips: function(){
+        this.bStartMapTips = true;
+    },
     
     mouseMove: function(e) {
-        if(!this.eventListener){
-            
-            this.eventListener = true;
-        }
-      //console.log('map tip mouseMove');
-        if (this.bOverTip || this.mouseIsDown) {
-            return;
-        }
-        
-        var map = this.getMap();
-        this.mapSize = map.getSize();
-        this.mapOffset = map._oDomObj.offsets;
+        if( this.bStartMapTips == true){
+            if(!this.eventListener){
+                this.eventListener = true;
+            }
+        //console.log('map tip mouseMove');
+            if (this.bOverTip || this.mouseIsDown) {
+                return;
+            }
 
-        var p = map.getEventPosition(e);
-        this.oCurrentPosition = p;
-        this.oMapTipPosition = p;
+            var map = this.getMap();
+            this.mapSize = map.getSize();
+            this.mapOffset = map._oDomObj.offsets;
 
-        if(typeof( this.nTimer) == "number") {
-            window.clearTimeout(this.nTimer);
-            this.nTimer = null;
-        }
-        
-        this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
-        //Event.stop(e);
+            var p = map.getEventPosition(e);
+            this.oCurrentPosition = p;
+            this.oMapTipPosition = p;
+
+            if(typeof( this.nTimer) == "number") {
+                window.clearTimeout(this.nTimer);
+                this.nTimer = null;
+            }
+
+            this.nTimer = window.setTimeout(OpenLayers.Function.bind(this.showMaptip, this), this.delay);
+            //Event.stop(e);
+        } // bStartMapTips 
     },
     
     mouseDown: function() {
