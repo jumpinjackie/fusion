@@ -87,7 +87,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         return (widget instanceof Fusion.Widget.Select &&
                 widget.bActiveOnly == this.bActiveOnly);
         
-    }
+    },
     enable: function() {
         if (this.bActiveOnly) {
             var layer = this.getMap().getActiveLayer();
