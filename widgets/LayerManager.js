@@ -42,7 +42,7 @@
  *
  * LayerThemeIcon: (string, optional)
  *
- * The url to an image to use for layers that are currently themed.
+ * The url to an image toTopography use for layers that are currently themed.
  *
  * DisabledLayerIcon: (string, optional)
  *
@@ -102,7 +102,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       var map = this.getMap();
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
-        this.mapBlock.className = 'jxLmanMap';
+        mapBlock.className = 'jxLmanMap';
         mapBlock.id = 'mapBlock_'+i;
         
         //add a handle so the map blocks can be re-arranged
@@ -145,11 +145,13 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         blockItem.layer = processArray[i];
       }
       
+      /*
       var options = [];
       options.onUpdate = OpenLayers.Function.bind(this.updateLayer, this, map);
       options.scroll = this.domObj.id;    //docs for this at: http://wiki.script.aculo.us/scriptaculous/show/Sortable.create
       Position.includeScrollOffsets = true;
       Sortable.create(mapBlockList.id, options);
+      */
     },
    
   createItemHtml: function(parent, layer) {
@@ -189,15 +191,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   setGrabCursor: function(ev) {
-    this.setCursor(this.cursorNormal, Event.element(ev) );
+   // this.setCursor(this.cursorNormal, Event.element(ev) );
   },
   
   setDragCursor: function(ev) {
-    this.setCursor(this.cursorDrag, Event.element(ev) );
+   // this.setCursor(this.cursorDrag, Event.element(ev) );
   },
   
   setNormalCursor: function(ev) {
-    this.setCursor('auto', Event.element(ev) );
+    //this.setCursor('auto', Event.element(ev) );
   },
   
   setCursor : function(cursor, domObj) {
