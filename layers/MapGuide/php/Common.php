@@ -36,8 +36,8 @@
  * this file to configure Fusion.
  */
 
-$defaultInstallDir = dirname(__FILE__)."/../../../../../../";
-$defaultExtensionDir = realpath($defaultInstallDir . "webserverextensions/www/");
+$defaultExtensionDir = dirname(__FILE__)."/../../../../";
+$defaultInstallDir = realpath($defaultExtensionDir)."/../../";
 
 /**
  * Developer's notes:
