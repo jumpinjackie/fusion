@@ -321,8 +321,7 @@ function ResourceExists($resourceSrvc, $dataSourceId)
 {
     try
     {
-        $cnt = $resourceSrvc->GetResourceContent($dataSourceId);
-        return true;
+        return $resourceSrvc->ResourceExists($dataSourceId);
     }
     catch(MgResourceNotFoundException $rnfe)
     {
@@ -650,18 +649,7 @@ function IsLayerEditable($resourceService, $layer) {
 
 function ByteReaderToString($byteReader)
 {
-    $buffer = '';
-    do
-    {
-        $data = str_pad("\0", 50000, "\0");
-        $len = $byteReader->Read($data, 50000);
-        if ($len > 0)
-        {
-            $buffer = $buffer . substr($data, 0, $len);
-        }
-    } while ($len > 0);
-
-    return $buffer;
+    return $byteReader->ToString();
 }
 
 
