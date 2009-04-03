@@ -102,7 +102,7 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, {
                 options.extendSelection = true;
             }
 
-            this.getMap().aMaps[0].query(options);
+            this.getMap().query(options);
         }
         Event.stop(e);
     },    

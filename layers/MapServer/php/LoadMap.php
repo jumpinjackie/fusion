@@ -139,8 +139,8 @@ if (isset($_REQUEST['mapfile'])) {
 
 $mapObj = NULL;
 if ($oMap) {
-  //header('Content-type: text/x-json');
-  //header('X-JSON: true');
+    header('Content-type: application/json');
+    header('X-JSON: true');
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapId;
 

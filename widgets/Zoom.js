@@ -58,7 +58,14 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
         mapWidget.handlers.push(this.handler);
         mapWidget.handlers.push(this.shiftHandler);
     },
-
+    
+    shouldActivateWith: function(widget) {
+        return (widget instanceof Fusion.Widget.Zoom &&
+                widget.zoomIn == this.zoomIn &&
+                widget.factor == this.factor &&
+                widget.tolerance == this.tolerance);
+    },
+    
    /**
      * activate the widget (listen to mouse events and change cursor)
      * This function should be defined for all functions that register

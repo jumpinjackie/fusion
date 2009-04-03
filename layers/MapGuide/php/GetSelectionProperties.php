@@ -57,7 +57,7 @@ include('Utilities.php');
         $properties->layers = array();
 
         //process
-        header('Content-type: text/x-json');
+        header('Content-type: application/json');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
         $nLayers = $layers->GetCount();

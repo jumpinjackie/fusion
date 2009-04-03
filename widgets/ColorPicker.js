@@ -63,12 +63,13 @@ Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {
     
     setUiObject: function(uiObj) {
         Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
-        this.uiObj.addEvent('colorChange', OpenLayers.Function.bind(this.colorChanged, this));
+        this.uiObj.setColor(this.color);
+        this.uiObj.addEvent('change', OpenLayers.Function.bind(this.colorChanged, this));
     },
     
     colorChanged: function(button) {
-        var a = parseInt(this.uiObj.alpha*255/100).toString(16);
-        var c = a + this.uiObj.color.substring(1);
+        var a = parseInt(button.options.alpha*255/100).toString(16);
+        var c = a + button.options.color.substring(1);
         if (this.colorInput) {
             this.colorInput.value = c;
         }
