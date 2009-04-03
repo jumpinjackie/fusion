@@ -20,7 +20,7 @@
 	       leave this empty as it will be automatically calculated. */
            "webTierUrl": "",
       /* for MapGuide OS version > 2.1 and MGE2010 and higher set this to true*/
-          "useAsyncOverlay": true
+          "useAsyncOverlay": true,
 	    /* The tileCacheUrl is the root url to a static mapguide tile cache.
 	       A relative URL will be relative to your application.
 	       The root url will be appended with the 'Sn'
