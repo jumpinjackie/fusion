@@ -312,7 +312,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, this.bIsBaseLayer, this.bSingleTile,2);
+            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
@@ -531,7 +531,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behavior) {
+    createOLLayer: function(layerName, bSingleTile, behavior) {
       /* prevent the useOverlay flag based on MapGuide config element */
       this.useAsyncOverlay = Fusion.getConfigurationItem('mapguide', 'useAsyncOverlay');
       if (!this.useAsyncOverlay) {          //v2.0.1 or earlier
@@ -540,7 +540,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       
       var layerOptions = {
         units: this.units,
-        isBaseLayer: bIsBaseLayer,
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
         useAsyncOverlay: this.useAsyncOverlay,
@@ -608,7 +607,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         layerOptions.alpha = true;
       }
 
-      var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+      var url;
+      if ( !bSingleTile && layerOptions.useHttpTile) {
+        url = Fusion.getConfigurationItem('mapguide', 'tileCacheUrl');
+      } else {
+        url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+      }
       var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       return oLayerOL;
     },
