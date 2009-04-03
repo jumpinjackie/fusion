@@ -59,7 +59,7 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
     /**
      * Constant: defaultRootFolderIcon
      * {String} The default image for the root folder
-     */   
+     */
     defaultRootFolderIcon: 'images/icons/legend-map.png',
     
     /**
@@ -74,7 +74,7 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      */
     defaultGroupInfoIcon: 'images/icons/tree_group_info.png',
     
-    initializeWidget: function(widgetTag) {           
+    initializeWidget: function(widgetTag) {
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         // duplication if we plan to apply this pattern to others widgets
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Legend/Legend.css');
@@ -85,7 +85,7 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         if (json.LegendRenderer)
         {
             var renderer = eval(json.LegendRenderer[0]);
-            if (renderer && renderer.prototype.CLASS_NAME 
+            if (renderer && renderer.prototype.CLASS_NAME
                 && renderer.prototype.CLASS_NAME == "Fusion.Widget.Legend.LegendRenderer") {
                 this.renderer = new renderer(this, widgetTag);
             } else if (typeof renderer == "function") {
@@ -102,13 +102,13 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         }
 
         if (this.renderer.mapReloaded)
-            this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, 
+            this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED,
                                            OpenLayers.Function.bind(this.renderer.mapReloaded, this.renderer));
         if (this.renderer.mapLoading)
-            this.getMap().registerForEvent(Fusion.Event.MAP_LOADING, 
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADING,
                                            OpenLayers.Function.bind(this.renderer.mapLoading,this.renderer));
         if (this.renderer.mapLoaded)
-            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, 
+            this.getMap().registerForEvent(Fusion.Event.MAP_LOADED,
                                            OpenLayers.Function.bind(this.renderer.mapLoaded, this.renderer));
     }
 });
@@ -187,15 +187,15 @@ Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
 
 /* Class: Fusion.Widget.Legend.LegendRendererDefault
  * This class provide a default legend as a collapsable tree.
- * 
+ *
  */
 
-Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Legend.LegendRenderer,  
+Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Legend.LegendRenderer,
 {
     /**
      * Property: showRootFolder
      * {Boolean} This controls whether the tree will have a single root node that
-     * contains the name of the map as its label.  By default, the root node does 
+     * contains the name of the map as its label.  By default, the root node does
      * not appear.  Set to "true" or "1" to make the root node appear.
      */
     showRootFolder: false,
@@ -231,7 +231,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.imgLayerDWFIcon = json.LayerDWFIcon ? json.LayerDWFIcon[0] : this.oLegend.defaultLayerDWFIcon;
         this.imgLayerRasterIcon = json.LayerRasterIcon ? json.LayerRasterIcon[0] : this.oLegend.defaultLayerRasterIcon;
         this.imgLayerThemeIcon = json.LayerThemeIcon ? json.LayerThemeIcon[0] : this.oLegend.defaultLayerThemeIcon;
-        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;       
+        this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.oLegend.defaultLayerInfoIcon;
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.oLegend.defaultGroupInfoIcon;
        
@@ -251,10 +251,20 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             label: OpenLayers.i18n('defaultMapTitle'),
             open: true,
             draw: this.renderFolder,
+            contextMenu: this.getContextMenu(),
             'class':'fusionLegendFolder'
         };
         this.oRoot = new Jx.TreeFolder(opt);
-        this.oRoot.contextMenu = this.getContextMenu(this.oRoot);
+        this.oRoot.options.contextMenu.add(
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('collapse'),
+                onClick: OpenLayers.Function.bind(this.collapseBranch, this, this.oRoot)
+            }),
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('expand'),
+                onClick: OpenLayers.Function.bind(this.expandBranch, this, this.oRoot)
+            })
+        );
         
         this.oTree.append(this.oRoot);
         
@@ -267,47 +277,23 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.extentsChangedWatcher = this.update.bind(this);
     },
     
-    getContextMenu: function(folder) {
-        if (folder instanceof Jx.TreeFolder) {
-                        return new Jx.Menu.Context(this.name).add(
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('collapse'),
-                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('expand'),
-                    onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('refresh'),
-                    onClick: OpenLayers.Function.bind(this.update, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('collapseAll'),
-                    onClick: OpenLayers.Function.bind(this.collapseAll, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('expandAll'),
-                    onClick: OpenLayers.Function.bind(this.expandAll, this, folder)
-                })
-            );
-        } else {
-            return new Jx.Menu.Context(this.name).add(
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('refresh'),
-                    onClick: OpenLayers.Function.bind(this.update, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('collapseAll'),
-                    onClick: OpenLayers.Function.bind(this.collapseAll, this, folder)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('expandAll'),
-                    onClick: OpenLayers.Function.bind(this.expandAll, this, folder)
-                })
-            );
-        }
+    getContextMenu: function() {
+        return new Jx.Menu.Context(this.name).add(
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('refresh'),
+                onClick: OpenLayers.Function.bind(this.update, this)
+            }),
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('collapseAll'),
+                onClick: OpenLayers.Function.bind(this.collapseAll, this)
+            }),
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('expandAll'),
+                onClick: OpenLayers.Function.bind(this.expandAll, this)
+            })
+        );
     },
+    
     expandAll: function(folder) {
         for (var i=0; i<this.oTree.nodes.length; i++) {
             var item = this.oTree.nodes[i];
@@ -425,12 +411,22 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 label: group.legendLabel,
                 open: group.expandInLegend,
                 draw: this.renderFolder,
-                'class':'fusionLegendFolder'                
+                contextMenu: this.getContextMenu(),
+                'class':'fusionLegendFolder'
             };
             group.legend.treeItem = new Jx.TreeFolder(opt);
-            group.legend.treeItem.contextMenu = this.getContextMenu(group.legend.treeItem);
             group.legend.treeItem.domObj.store('data', group);
-            
+            group.legend.treeItem.options.contextMenu.add(
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('collapse'),
+                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, group.legend.treeItem)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('expand'),
+                    onClick: OpenLayers.Function.bind(this.expandBranch, this, group.legend.treeItem)
+                })
+            );
+
             folder.append(group.legend.treeItem);
             group.legend.treeItem.checkBox.checked = group.visible?true:false;
             OpenLayers.Event.observe(group.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, group));
@@ -522,7 +518,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         for (var i=0; i<group.layers.length; i++) {
             this.updateLayer(group.layers[i], fScale);
-        }   
+        }
     },
     updateLayer: function(layer, fScale) {
 
@@ -564,7 +560,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
                     OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                     
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);                   
+                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
                     this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
@@ -578,7 +574,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     } else {
                         $(layer.legend.treeItem.domObj).addClass('jxDisabled');
                     }
-                }               
+                }
             }
             layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
             if (layer.layerTypes[0] == 4 || range.styles.length > 0) {
@@ -616,11 +612,23 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             isOpen: layer.expandInLegend,
             draw: this.renderFolder,
             'class':'fusionLegendItemCheckbox',
+            contextMenu: this.getContextMenu(),
             // image overrides
             image: this.imgLayerThemeIcon
         };
         var folder = new Jx.TreeFolder(opt);
-        folder.contextMenu = this.getContextMenu(folder);
+        folder.options.contextMenu.add(
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('collapse'),
+                onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
+            }),
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('expand'),
+                onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
+            })
+        );
+        
+        
         var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
         if (layerInfo) {
             var a = document.createElement('a');
@@ -661,9 +669,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         } else {
             opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
         }
+        opt.contextMenu = this.getContextMenu(); 
 
         var item = new Jx.TreeItem(opt);
-        item.contextMenu = this.getContextMenu(item); 
         if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
@@ -726,7 +734,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             events: {
                 click: this.selected.bindWithEvent(this),
                 dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.showMenu.bindWithEvent(this)
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
         domA.appendChild(this.domImg);
@@ -756,7 +764,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             events: {
                 click: this.selected.bindWithEvent(this),
                 dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.showMenu.bindWithEvent(this)
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
         
@@ -796,7 +804,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             events: {
                 click: this.selected.bindWithEvent(this),
                 dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.showMenu.bindWithEvent(this)
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
         

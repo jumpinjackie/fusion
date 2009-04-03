@@ -31,7 +31,7 @@
  * **********************************************************************/
 Fusion.Event.RADIUS_WIDGET_ACTIVATED = Fusion.Event.lastEventId++;
 
-Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, Fusion.Tool.Canvas, {
+Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',

@@ -32,7 +32,7 @@
 include ("Common.php");
 include ("Utilities.php");
 
-header('Content-type: text/x-json');
+header('Content-type: application/json');
 header('X-JSON: true');
 
 if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
@@ -49,7 +49,7 @@ $currentLayers = $oMap->getlayersdrawingorder();
 
 if (count($currentLayers) != count($layers) ) {
   echo "/* removing layers ";
-	for ($i=0; $i<count($currentLayers); $i++) {
+	for ($i=0; $i<=count($currentLayers); $i++) {
 		if ($i != $layers[$i]) {
 		  echo $i." ";
 			$layer = $oMap->getLayer($i);

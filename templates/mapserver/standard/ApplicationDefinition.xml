@@ -14,7 +14,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmap_groups.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap_groups.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -23,7 +23,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmap75.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -49,7 +49,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/ms4w/apps/gmap/htdocs/gmapLonLat.map</MapFile>
+            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
             <Options>
               <isBaseLayer>false</isBaseLayer>
               <singleTile>true</singleTile>
@@ -443,6 +443,7 @@
       <Label>Refresh Map</Label>
       <Disabled/>
     </Widget>
+    
 
 <!-- CONTEXT MENU ZOOM FIXED (OUT) -->
 
@@ -1167,6 +1168,43 @@
       <Tooltip>Pan mode</Tooltip>
       <Label/>
       <Disabled/>
+    </Widget>
+
+<!-- MAPTIPS -->
+    <Widget xsi:type="UiWidgetType">
+      <Name>Maptip</Name>
+      <Type>Maptip</Type>
+      <Extension xsi:type="CustomContentType">
+        <Delay>250</Delay>
+        <Tolerance>5</Tolerance>
+        <Maptip>
+            <Layer>popplace </Layer>
+            <Label>Populated Places</Label>
+            <TextField>NAME</TextField>
+            <CustomURL>http://localhost/populationInfo.php?cityname=[NAME]</CustomURL>
+        </Maptip>
+        <Maptip>
+            <Layer>park</Layer>
+            <TextField>NAME_E</TextField>   
+        </Maptip>
+        <Maptip>
+            <Layer>park</Layer>
+            <Label>Area KMSQ</Label>
+            <TextField>AREA_KMSQ</TextField>
+            <CustomURL>http://localhost/showParkArea.php?parkId=[PARK_ID]&amp;areakmsq=[AREA_KMSQ]</CustomURL>
+        </Maptip>
+        
+        <Maptip>
+            <Layer>Precipitation</Layer>
+            <Label>Station ID</Label>
+            <TextField>STATN_ID</TextField>
+        </Maptip>
+        <Maptip>
+            <Layer>park</Layer>
+            <Label>Year Established</Label>
+            <TextField>YEAR_EST</TextField>
+        </Maptip>
+      </Extension>
     </Widget>
 
     </WidgetSet>

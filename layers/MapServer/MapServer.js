@@ -41,6 +41,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     mapMetadataKeys: null,
     layerMetadataKeys: null,
     oMaptip:null,
+    bMapTipFired: false,
 
     //the map file
     sMapFile: null,
@@ -52,6 +53,14 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
 
         this.sMapFile = mapTag.extension.MapFile ? mapTag.extension.MapFile[0] : '';
+
+        // load mapfrom the querystring if "theme" is present.
+        var newTheme = Fusion.getQueryParam('theme');
+        if (newTheme != '') {
+        this.sMapFile = newTheme;
+          //clear the query param after it has been used once
+          Fusion.queryParams['theme'] = null;
+        }
 
         this.mapMetadataKeys = mapTag.extension.MapMetadata ? mapTag.extension.MapMetadata[0] : null;
         this.layerMetadataKeys = mapTag.extension.LayerMetadata ? mapTag.extension.LayerMetadata[0] : null;
@@ -783,41 +792,49 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     getMapTip: function(oMapTips){
-        //console.log("MAPSERVER:getMapTip");
-        var pos = this.mapWidget.pixToGeo(oMapTips.oCurrentPosition.x, oMapTips.oCurrentPosition.y);
-        var dfGeoTolerance = this.mapWidget.pixToGeoMeasure(oMapTips.nTolerance);
-        var minx = pos.x-dfGeoTolerance;
-        var miny = pos.y-dfGeoTolerance;
-        var maxx = pos.x+dfGeoTolerance;
-        var maxy = pos.y+dfGeoTolerance;
-        var geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + minx + ' ' + maxy + ', ' + maxx + ' ' + maxy + ', ' + maxx + ' ' + miny + ', ' + minx + ' ' + miny + '))';
-        var selectionType = "INTERSECTS";
+        if(this.bMapTipFired == false){
+            //console.log("MAPSERVER:getMapTip");
+            var pos = this.mapWidget.pixToGeo(oMapTips.oCurrentPosition.x, oMapTips.oCurrentPosition.y);
+            var dfGeoTolerance = this.mapWidget.pixToGeoMeasure(oMapTips.nTolerance);
+            var minx = pos.x-dfGeoTolerance;
+            var miny = pos.y-dfGeoTolerance;
+            var maxx = pos.x+dfGeoTolerance;
+            var maxy = pos.y+dfGeoTolerance;
+            var geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + minx + ' ' + maxy + ', ' + maxx + ' ' + maxy + ', ' + maxx + ' ' + miny + ', ' + minx + ' ' + miny + '))';
+            var selectionType = "INTERSECTS";
 
-        var loadmapScript = '/layers/'+ this.arch + '/php/Maptip.php';
-        var params = {
-            'mapname': this._sMapname,
-            'session': this.getSessionID(),
-            'spatialfilter': geometry,
-            'maxfeatures': 0, //zero means select all features
-            'variant': selectionType,
-            'layer': oMapTips.aLayers[0] || '',
-            'textfield': oMapTips.textField || '',
-            'customURL': oMapTips.customURL || ''
+            var loadmapScript = '/layers/'+ this.arch + '/php/Maptip.php';
+            var params = {
+                'mapname': this._sMapname,
+                'session': this.getSessionID(),
+                'spatialfilter': geometry,
+                'maxfeatures': 0, //zero means select all features
+                'variant': selectionType,
+                'layer': oMapTips.aLayers || '',
+                'textfield': oMapTips.aTextFields || '',
+                'label': oMapTips.aLabels || '',
+                'customURL': oMapTips.aCustomURL || ''
+            }
+            var parseMapTip = this.parseMapTip.bind(this);
+            this.bMapTipFired = true;
+            var ajaxOptions = {
+                onSuccess: function(response){
+                        eval("rjson=" + response.responseText);
+                        parseMapTip(rjson);
+                        },
+                        parameters: params};
+            Fusion.ajaxRequest(loadmapScript, ajaxOptions);
         }
-        var parseMapTip = this.parseMapTip.bind(this);
-        var ajaxOptions = {
-            onSuccess: function(response){
-                    eval("rjson=" + response.responseText);
-                    parseMapTip(rjson);
-                    },
-                    parameters: params};
-        Fusion.ajaxRequest(loadmapScript, ajaxOptions);
     },
     
     parseMapTip: function(json){
-        this.oMaptip = {};
-        this.oMaptip.t = json.mapTipText;
-        this.oMaptip.h = json.mapTipLink;
+        this.bMapTipFired = false;
+        this.oMaptip = {};       
+        this.oMaptip.t = json.maptips;
+        this.oMaptip.h = json.url;
+        // mapserver only
+        this.oMaptip.l= json.label;
+        
         this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
     }
 });

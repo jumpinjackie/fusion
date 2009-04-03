@@ -35,7 +35,7 @@ if (isset($_FILES['xml'])) {
     if (!isset($REQUEST_VARS['xml'])) {
         die('xml not set');
     }
-    header('Content-type: text/plain');
+    header('Content-type: application/json');
     header('X-JSON: true');
     $xml = rawurldecode ($REQUEST_VARS['xml']);
     $xml = trim($xml);

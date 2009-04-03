@@ -37,7 +37,7 @@ try {
     $sessionId =  $site->CreateSession();
     $user->SetMgSessionId($sessionId);
 
-    header('Content-type: text/x-json');
+    header('Content-type: application/json');
     header('X-JSON: true');
     $result = null;
     $result->sessionId = $sessionId;

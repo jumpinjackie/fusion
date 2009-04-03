@@ -42,6 +42,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     bSelectionOn: false,
     oSelection: null,
     selectionAsOverlay: true,
+    useAsyncOverlay: false,
     defaultFormat: 'PNG',
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
@@ -311,7 +312,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, this.bIsBaseLayer, this.bSingleTile,2);
+            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
@@ -530,16 +531,18 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bIsBaseLayer, bSingleTile, behavior) {
-      /* prevent the useOverlay flag based on site version       */
-      if (( this.siteVersion[0] == 2 && this.siteVersion[1] < 1 ) || this.siteVersion[0] < 2) { //v2.0.0 or previous
+    createOLLayer: function(layerName, bSingleTile, behavior) {
+      /* prevent the useOverlay flag based on MapGuide config element */
+      this.useAsyncOverlay = Fusion.getConfigurationItem('mapguide', 'useAsyncOverlay');
+      if (!this.useAsyncOverlay) {          //v2.0.1 or earlier
         this.selectionAsOverlay = false;
       }
+      
       var layerOptions = {
         units: this.units,
-        isBaseLayer: bIsBaseLayer,
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
+        useAsyncOverlay: this.useAsyncOverlay,
         ratio: this.ratio
       };
       if ((behavior & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
@@ -572,7 +575,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           mapname: this._sMapname,
           format: this.imageFormat,
           behavior: behavior,
-          version: "2.0.0",
           clientagent: this.clientAgent
         };
         params.showLayers = this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null;
@@ -594,8 +596,18 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           clientagent: this.clientAgent
         };
       }
+      
+      //Fix for IE6 PNG transparency
+      if (params.format && params.format.toLowerCase().indexOf('png') >= 0) {
+        layerOptions.alpha = true;
+      }
 
-      var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+      var url;
+      if ( !bSingleTile && layerOptions.useHttpTile) {
+        url = Fusion.getConfigurationItem('mapguide', 'tileCacheUrl');
+      } else {
+        url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+      }
       var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       return oLayerOL;
     },
@@ -1180,6 +1192,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.setSelection(selText, false);
         this.mapWidget._removeWorker();
     }
+
 });
 
 Fusion.SimpleSelectionObject = OpenLayers.Class({

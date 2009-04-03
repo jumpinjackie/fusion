@@ -58,7 +58,7 @@ try {
         $distance = GetMetersPerUnit($oMap->units)*$distance;
     }
       
-    header('Content-type: text/x-json');
+    header('Content-type: application/json');
     header('X-JSON: true');
     echo "{distance:$distance}";
     exit;

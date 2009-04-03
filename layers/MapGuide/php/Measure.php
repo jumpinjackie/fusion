@@ -57,7 +57,7 @@ try {
         $distance = $srsMap->MeasureEuclideanDistance($x1, $y1, $x2, $y2);
     }
     $distance = $srsMap->ConvertCoordinateSystemUnitsToMeters($distance);   
-    header('Content-type: text/x-json');
+    header('Content-type: application/json');
     header('X-JSON: true');
     echo "{distance:$distance}";
     exit;
