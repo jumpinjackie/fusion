@@ -2,6 +2,7 @@ div.olMap {
 	z-index: 0;
     padding: 0px!important;
     margin: 0px!important;
+    cursor: default;
 }
 
 div.olMapViewport {
@@ -75,11 +76,10 @@ div.olControlMousePosition {
 }
 
 .olControlOverviewMapElement {
-/* modified for fusion    
     padding: 10px 18px 10px 10px;
     background-color: #00008B;
     -moz-border-radius: 1em 0 0 0;
-    */}
+}
 
 .olControlOverviewMapMinimizeButton {
     right: 0px;
@@ -328,4 +328,16 @@ div.olControlMousePosition {
 
 .olCursorWait {
     cursor: wait;
+}
+.olDragDown {
+    cursor: move;
+}
+.olDrawBox {
+    cursor: crosshair;
+}
+.olControlDragFeatureOver {
+    cursor: move;
+}
+.olControlDragFeatureActive.olControlDragFeatureOver.olDragDown {
+    cursor: -moz-grabbing;
 }
