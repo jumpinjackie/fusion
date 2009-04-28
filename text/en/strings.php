@@ -112,7 +112,9 @@ COLORPICKER100TRANSPARENCY      = 100%% transparency
 COLORPICKERHEXFORMAT            = Hex format
 
 # MeasureUI
-MEASURETITLE            = Measure Distance
+MEASUREDISTANCETITLE    = Measure Distance
+MEASUREAREATITLE        = Measure Area
+MEASUREBOTHTITLE        = Measure Distance And Area
 MEASUREINFO             = Click a start and end point.
 RESUME                  = Resume
 STOP                    = Stop
@@ -121,8 +123,9 @@ MILES                   = Miles
 KILOMETERS              = Kilometers
 MEASUREHELP             = <li>To measure multiple distances, continue clicking new points.</li><li>To finish, click &quot;Stop&quot;.</li><li>You can pan or zoom and continue measuring by clicking &quot;Resume&quot;.</li><li>To start over, click &quot;Clear&quot;.</li>
 SEGMENT                 = Segment
-TOTAL                   = Total
 LENGTH                  = Length
+TOTALLENGTH             = Total Length
+TOTALAREA               = Total Area
 MEASUREERROR            = Measure Error
 
 # Measure
