@@ -17,10 +17,6 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-?>
-
-<?php
-
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
     require_once $fusionMGpath . 'Utilities.php';

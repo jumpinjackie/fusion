@@ -17,10 +17,6 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
-?>
-
-<?php
-
 require_once('property.php');
 require_once('feature.php');
 // require_once '../Common/JSON.php';
