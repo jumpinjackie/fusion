@@ -69,7 +69,9 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         };
         this.layerRoot = new Fusion.Layers.Layer(rootOpts,this);
         //this.layerRoot = new Fusion.Layers.Group(rootOpts,this);
-        this.loadMap(this.sMapResourceId);
+        if (isMapWidgetLayer) {
+            this.loadMap(this.sMapResourceId);            
+        }
     },
 
     loadMap: function(resourceId) {
@@ -105,7 +107,15 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = G_NORMAL_MAP;
                 break;
             }
-            this.mapTag.layerOptions.maxExtent = null;    //maxExtent not allowed on Google layers
+            if (!this.mapTag.layerOptions.maxExtent) {
+                this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
+            }
+            if (typeof this.mapTag.layerOptions.sphericalMercator == 'undefined') {
+                this.mapTag.layerOptions.sphericalMercator = true;
+            }
+            if (typeof this.mapTag.layerOptions.numZoomLevels == 'undefined') {
+                this.mapTag.layerOptions.numZoomLevels = 20;
+            }
             this.oLayerOL = new OpenLayers.Layer.Google(this.getMapName(), this.mapTag.layerOptions );
             this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
