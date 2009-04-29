@@ -161,26 +161,29 @@ function mgApiStartDigitizing(type, handler) {
 function mgApiCallHandler(evt) {
   var geom = evt.feature.geometry;
   var apiGeom = null;
-  switch (geom.CLASS_NAME) {
-    case 'OpenLayers.Geometry.Point':
-      apiGeom = new Point(geom.x, geom.y);
-      break;
-    case 'OpenLayers.Geometry.LineString':
-      apiGeom = new LineString();
-      var nodes = geom.components;
-      for (var i=0; i<nodes.length; ++i) {
-        var node = nodes[i];
-        apiGeom.AddPoint(new Point(node.x, node.y));
-      }
-      break;
-    case 'OpenLayers.Geometry.Polygon':
-      apiGeom = new LineString();
-      var nodes = geom.components[0].components;
-      for (var i=0; i<nodes.length; ++i) {
-        var node = nodes[i];
-        apiGeom.AddPoint(new Point(node.x, node.y));
-      }
-      break;
+  if (this.handler.CLASS_NAME == 'OpenLayers.Handler.RegularPolygon') {
+      var v = geom.getVertices();
+      apiGeom = new Rectangle(new Point(v[0].x, v[0].y), new Point(v[2].x, v[2].y));
+  } else {
+      switch (geom.CLASS_NAME) {
+        case 'OpenLayers.Geometry.Point':
+          apiGeom = new Point(geom.x, geom.y);
+          break;
+        case 'OpenLayers.Geometry.LineString':
+          apiGeom = new LineString();
+          var v = geom.getVertices();
+          for (var i=0; i<v.length; ++i) {
+            apiGeom.AddPoint(new Point(v[i].x, v[i].y));
+          }
+          break;
+        case 'OpenLayers.Geometry.Polygon':
+          apiGeom = new LineString();
+          var v = geom.getVertices();
+          for (var i=0; i<v.length; ++i) {
+            apiGeom.AddPoint(new Point(v[i].x, v[i].y));
+          }
+          break;
+      }      
   }
   this.userHandler(apiGeom);
   
@@ -288,8 +291,10 @@ function mgApiInit() {
   };
 
   for(var key in mgApiDrawControls) {
-      mgApiDrawControls[key].events.register('featureadded', null, mgApiCallHandler);
-      map.addControl(mgApiDrawControls[key]);
+      if (mgApiDrawControls[key].events) {
+          mgApiDrawControls[key].events.register('featureadded', null, mgApiCallHandler);
+          map.addControl(mgApiDrawControls[key]);          
+      }
   }
 
 }
