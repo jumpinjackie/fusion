@@ -30,6 +30,13 @@ var mgApiMapWidgetId = 'Map';
 var mgApimgApiActiveWidget = null;
 var mgApiActiveControl = null;
 var mgApiDrawControls;
+var mgApiDigitizingLayer = null;
+var mgApiInitialized = false;
+var MainFusionWindow = GetFusionWindow();
+var OpenLayers = MainFusionWindow.OpenLayers;
+var Fusion = MainFusionWindow.Fusion;
+var Class = MainFusionWindow.Class;
+var Object = MainFusionWindow.Object;
 
 function Refresh() {
     var Fusion = window.top.Fusion;
@@ -74,6 +81,12 @@ function DigitizeRectangle(handler) {
 
 function DigitizePolygon(handler) {
     mgApiStartDigitizing('polygon', handler)
+}
+
+function ClearDigitization() {
+    if (mgApiDigitizingLayer) {
+        mgApiDigitizingLayer.removeFeatures(mgApiDigitizingLayer.features);
+    }
 }
 
 //Theses are the Geometry classes used in the MapGuide Viewer API
@@ -129,6 +142,7 @@ function Polygon()
 //The following methods are private and not intended for use by applications
 //
 function mgApiStartDigitizing(type, handler) {
+    mgApiInit();
     if (handler) {
       var Fusion = window.top.Fusion;
       var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
@@ -204,13 +218,17 @@ window.top.Fusion.registerForEvent(window.top.Fusion.Event.FUSION_INITIALIZED, m
 
 //set up of digitizing tools once everything is initialized
 function mgApiInit() {
+    if (mgApiInitialized) {
+        return;
+    }
+    mgApiInitialized = true;
   var map = window.top.Fusion.getWidgetById(mgApiMapWidgetId).oMapOL;
   
-  var digiLayer = new OpenLayers.Layer.Vector("Digitizing Layer", {styleMap: mgApiStyleMap});
-  map.addLayers([digiLayer]);
+  mgApiDigitizingLayer = new OpenLayers.Layer.Vector("Digitizing Layer", {styleMap: mgApiStyleMap});
+  map.addLayers([mgApiDigitizingLayer]);
 
   mgApiDrawControls = {
-      point: new OpenLayers.Control.DrawFeature(digiLayer,
+      point: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
               OpenLayers.Handler.Point, {
                 handlerOptions: {
                   layerOptions: {
@@ -218,7 +236,7 @@ function mgApiInit() {
                   }
                 }
               }),
-      line: new OpenLayers.Control.DrawFeature(digiLayer,
+      line: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
                   OpenLayers.Handler.Path, {
                     handlerOptions: {
                       freehandToggle: null, 
@@ -233,7 +251,7 @@ function mgApiInit() {
                       'point': mgApiCheckLine
                     }
                   }),
-      linestr: new OpenLayers.Control.DrawFeature(digiLayer,
+      linestr: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
                   OpenLayers.Handler.Path, {
                     handlerOptions: {
                       freehand: false, 
@@ -244,7 +262,7 @@ function mgApiInit() {
                       }
                     }
                   }),
-      rectangle: new OpenLayers.Control.DrawFeature(digiLayer,
+      rectangle: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
                   OpenLayers.Handler.RegularPolygon, {
                     handlerOptions: {
                       persist: true, 
@@ -256,7 +274,7 @@ function mgApiInit() {
                       }
                     }
                   }),
-      polygon: new OpenLayers.Control.DrawFeature(digiLayer,
+      polygon: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
                   OpenLayers.Handler.Polygon, {
                     handlerOptions: {
                       freehand: false, 
@@ -286,4 +304,18 @@ function mgApiCheckLine(point, geom) {
   }
 }
 
-
+/* locate the Fusion window */
+function GetFusionWindow() {
+    var curWindow = window;
+    while (!curWindow.Fusion) {
+        if (curWindow.parent && curWindow != curWindow.parent) {
+            curWindow = curWindow.parent;
+        } else if(curWindow.opener) {
+            curWindow = curWindow.opener;
+        } else {
+            alert('Could not find Fusion instance');
+            break;
+        }
+    }
+    return curWindow;
+}
