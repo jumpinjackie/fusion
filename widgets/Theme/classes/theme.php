@@ -16,11 +16,6 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
-
-?>
-
-<?php
-
 require_once('layerinfo.php');
 require_once('property.php');
 // require_once('../Common/constants.php');
@@ -87,6 +82,7 @@ class Theme
         $map = new MgMap();
         $map->Open($resourceService, $this->args['MAPNAME']);
         $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
+        
 
         // First get a list of all of the Feature Class properties that can be used for theming.
 
@@ -229,6 +225,8 @@ class Theme
         // Load the Layer Definition and Navigate to the specified <VectorScaleRange>
 
         $doc = DOMDocument::loadXML($byteReader->ToString());
+        $version = $doc->documentElement->getAttribute('version');
+        $template = 'templates/arearuletemplate-'.$version.'.xml';
         $nodeList = $doc->getElementsByTagName('VectorScaleRange');
 
         $vectorScaleRangecElement = $nodeList->item($this->args['SCALERANGEINDEX']);
@@ -246,7 +244,7 @@ class Theme
 
         // Now create the new <AreaRule> elements.
 
-        $areaRuleTemplate = file_get_contents("templates/arearuletemplate.xml");
+        $areaRuleTemplate = file_get_contents($template);
         $aggregateOptions = new MgFeatureAggregateOptions();
 
         $portion = 0.0;
