@@ -286,7 +286,9 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
         return null;
-    }
+    },
+    
+    getMapTip: function(mapTipWidget) {}
 });
 
 /***************************************************************************
