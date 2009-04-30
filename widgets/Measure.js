@@ -446,33 +446,33 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
      */
      updateDisplay: function(outputWin) {
         var outputDoc = outputWin.document;
-        var tbody = outputDoc.getElementById('segmentTBody');
+        this.clearDisplay(outputWin);
+        var units = Fusion.unitAbbr(this.units);
         var value;
-        if (tbody) {
-            this.clearDisplay(outputWin);
-            var totalDistance = 0;
-            var units = Fusion.unitAbbr(this.units);
-            
-            var createEntry = function(idx, distance) {
-                if (distance < 1) {
-                    return;
-                }
-                var tr = outputDoc.createElement('tr');
-                var td = outputDoc.createElement('td');
-                td.innerHTML = OpenLayers.i18n('segment',{'seg':idx});
-                tr.appendChild(td);
-                td = outputDoc.createElement('td');
-                if (this.distPrecision == 0) {
-                  value = Math.floor(distance);
-                }
-                else {
-                  value = distance.toPrecision(this.distPrecision);
-                }
-                td.innerHTML = value + ' ' + units;
-                tr.appendChild(td);
-                tbody.appendChild(tr);                
+        
+        var createEntry = function(idx, distance) {
+            if (distance < 1) {
+                return;
             }
-            if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
+            var tr = outputDoc.createElement('tr');
+            var td = outputDoc.createElement('td');
+            td.innerHTML = OpenLayers.i18n('segment',{'seg':idx});
+            tr.appendChild(td);
+            td = outputDoc.createElement('td');
+            if (this.distPrecision == 0) {
+              value = Math.floor(distance);
+            }
+            else {
+              value = distance.toPrecision(this.distPrecision);
+            }
+            td.innerHTML = value + ' ' + units;
+            tr.appendChild(td);
+            tbody.appendChild(tr);                
+        }
+        if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
+            var tbody = outputDoc.getElementById('segmentTBody');
+            var totalDistance = 0;
+            if (tbody) {
                 for (var i=0; i<this.distanceMarkers.length; i++) {
                     var distance = this.distanceMarkers[i].getQuantity();
                     totalDistance += distance;
@@ -491,17 +491,16 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 }
                 tDist.innerHTML = value + ' ' + units;                
             }
-            if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
-                var tArea = outputDoc.getElementById('totalArea');
-                value = this.areaMarker.getQuantity();
-                if (this.areaPrecision == 0) {
-                    value = Math.floor(value);
-                } else {
-                    value = value.toPrecision(this.areaPrecision);
-                }
-                tArea.innerHTML = value + ' ' + units + '<sup>2</sup>';
+        }
+        if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
+            var tArea = outputDoc.getElementById('totalArea');
+            value = this.areaMarker.getQuantity();
+            if (this.areaPrecision == 0) {
+                value = Math.floor(value);
+            } else {
+                value = value.toPrecision(this.areaPrecision);
             }
-            
+            tArea.innerHTML = value + ' ' + units + '<sup>2</sup>';
         }
     },
     
