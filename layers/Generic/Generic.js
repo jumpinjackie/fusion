@@ -107,6 +107,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = G_NORMAL_MAP;
                 break;
             }
+         case 'VirtualEarth':
+         case 'Yahoo':
             if (!this.mapTag.layerOptions.maxExtent) {
                 this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
             }
@@ -116,7 +118,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             if (typeof this.mapTag.layerOptions.numZoomLevels == 'undefined') {
                 this.mapTag.layerOptions.numZoomLevels = 20;
             }
-            this.oLayerOL = new OpenLayers.Layer.Google(this.getMapName(), this.mapTag.layerOptions );
+            this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
             this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
            break;
@@ -126,6 +128,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                                   this.sMapResourceId, 
                                   this.mapTag.layerParams, 
                                   this.mapTag.layerOptions );
+            
             break;
         }
         this.oLayerOL.events.register("loadstart", this, this.loadStart);
