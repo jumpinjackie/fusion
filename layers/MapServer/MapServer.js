@@ -783,11 +783,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    getLegendImageURL: function(fScale, layer) {
+    getLegendImageURL: function(fScale, layer, style) {
         var sl = Fusion.getScriptLanguage();
         var url = Fusion.getFusionURL() + '/layers/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
         var sessionid = this.getSessionID();
-        var params = 'mapname='+this._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+this.index;
+        var params = 'mapname='+this._sMapname+"&session="+sessionid + '&layername='+layer.resourceId + '&classindex='+style.index;
         return url + '?'+params;
     },
 
