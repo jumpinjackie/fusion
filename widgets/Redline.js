@@ -124,45 +124,45 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     createDrawControls: function() {
         this.drawControls = {
             point: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                                                      OpenLayers.Handler.Point, {
-                                                          handlerOptions: {
-                                                              layerOptions: {
-                                                                  styleMap: this.styleMap
-                                                              }
-                                                          }
-                                                      }),
+                OpenLayers.Handler.Point, {
+                  handlerOptions: {
+                      layerOptions: {
+                          styleMap: this.styleMap
+                      }
+                  }
+            }),
             line: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                                                     OpenLayers.Handler.Path, {
-                                                         handlerOptions: {
-                                                             freehandToggle: null, 
-                                                             freehand: false, 
-                                                             style: "default", // this forces default render intent
-                                                             layerOptions: {
-                                                                 styleMap: this.styleMap
-                                                             }
-                                                         }
-                                                     }),
-            rectangle: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                                                          OpenLayers.Handler.RegularPolygon, {
-                                                              handlerOptions: {
-                                                                  sides: 4, 
-                                                                  irregular: true,
-                                                                  style: "default", // this forces default render intent
-                                                                  layerOptions: {
-                                                                      styleMap: this.styleMap
-                                                                  }
-                                                              }
-                                                          }),
+                 OpenLayers.Handler.Path, {
+                     handlerOptions: {
+                         freehandToggle: null, 
+                         freehand: false, 
+                         style: "default", // this forces default render intent
+                         layerOptions: {
+                             styleMap: this.styleMap
+                         }
+                     }
+                 }),
+            rectangle: new     OpenLayers.Control.DrawFeature(this.vectorLayers[0],
+              OpenLayers.Handler.RegularPolygon, {
+                  handlerOptions: {
+                      sides: 4, 
+                      irregular: true,
+                      style: "default", // this forces default render intent
+                      layerOptions: {
+                          styleMap: this.styleMap
+                      }
+                  }
+              }),
             polygon: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                                                        OpenLayers.Handler.Polygon, {
-                                                            handlerOptions: {
-                                                                freehand: false, 
-                                                                style: "default", // this forces default render intent
-                                                                layerOptions: {
-                                                                    styleMap: this.styleMap
-                                                                }
-                                                            }
-                                                        })
+                OpenLayers.Handler.Polygon, {
+                    handlerOptions: {
+                        freehand: false, 
+                        style: "default", // this forces default render intent
+                        layerOptions: {
+                            styleMap: this.styleMap
+                        }
+                    }
+                })
         };
         
         for(var key in this.drawControls) {
@@ -346,16 +346,15 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         }
         outputWin.parent = window;
         this.taskPaneWin = outputWin;
-        var initFunction = OpenLayers.Function.bind(this.initPanel, this);
-        this.intervalID = setInterval(initFunction,300);
+        this.timeoutID = setTimeout(OpenLayers.Function.bind(this.initPanel, this),300);
     },
 
     // when the panel is loaded....
     initPanel: function() {
-        if (!this.taskPaneWin.document.getElementById("panelIsLoaded"))
-            return;        
-        clearInterval(this.intervalID);
-        this.intervalID = null;
+        if (!this.taskPaneWin.document.getElementById("panelIsLoaded")) {
+            this.timeoutID = setTimeout(OpenLayers.Function.bind(this.initPanel, this), 300);
+            return;
+        }
 
         // select the default control
         var radioName = this.widget.defaultControl.charAt(0).toUpperCase() + this.widget.defaultControl.substr(1);
