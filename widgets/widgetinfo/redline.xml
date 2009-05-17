@@ -6,7 +6,7 @@
     <Label>Redline</Label>
     <Tooltip>Click to draw redline features</Tooltip>
     <ImageUrl>images/icons.png</ImageUrl>
-    <ImageClass>redline</ImageClass>
+    <ImageClass>invoke-url</ImageClass>
     <StandardUi>true</StandardUi>
     <ContainableBy>Any</ContainableBy>
     <Parameter>
