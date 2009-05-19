@@ -72,9 +72,6 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     saveForm: null,
     uploadForm: null,
 
-    // The upload directory
-    uploadDirectory: '/uploads/',
-
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
@@ -82,7 +79,6 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);
 
-        this.uploadDirectory  = json.UploadDirectory ? json.UploadDirectory[0] : '/uploads/';
         this.sTarget = json.Target ? json.Target[0] : "";
         if (this.sTarget)
             this.taskPane = new Fusion.Widget.Redline.DefaultTaskPane(this, widgetTag.location);
@@ -124,45 +120,45 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     createDrawControls: function() {
         this.drawControls = {
             point: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                OpenLayers.Handler.Point, {
-                  handlerOptions: {
-                      layerOptions: {
-                          styleMap: this.styleMap
-                      }
-                  }
-            }),
+                                                      OpenLayers.Handler.Point, {
+                                                          handlerOptions: {
+                                                              layerOptions: {
+                                                                  styleMap: this.styleMap
+                                                              }
+                                                          }
+                                                      }),
             line: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                 OpenLayers.Handler.Path, {
-                     handlerOptions: {
-                         freehandToggle: null, 
-                         freehand: false, 
-                         style: "default", // this forces default render intent
-                         layerOptions: {
-                             styleMap: this.styleMap
-                         }
-                     }
-                 }),
-            rectangle: new     OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-              OpenLayers.Handler.RegularPolygon, {
-                  handlerOptions: {
-                      sides: 4, 
-                      irregular: true,
-                      style: "default", // this forces default render intent
-                      layerOptions: {
-                          styleMap: this.styleMap
-                      }
-                  }
-              }),
+                                                     OpenLayers.Handler.Path, {
+                                                         handlerOptions: {
+                                                             freehandToggle: null, 
+                                                             freehand: false, 
+                                                             style: "default", // this forces default render intent
+                                                             layerOptions: {
+                                                                 styleMap: this.styleMap
+                                                             }
+                                                         }
+                                                     }),
+            rectangle: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
+                                                          OpenLayers.Handler.RegularPolygon, {
+                                                              handlerOptions: {
+                                                                  sides: 4, 
+                                                                  irregular: true,
+                                                                  style: "default", // this forces default render intent
+                                                                  layerOptions: {
+                                                                      styleMap: this.styleMap
+                                                                  }
+                                                              }
+                                                          }),
             polygon: new OpenLayers.Control.DrawFeature(this.vectorLayers[0],
-                OpenLayers.Handler.Polygon, {
-                    handlerOptions: {
-                        freehand: false, 
-                        style: "default", // this forces default render intent
-                        layerOptions: {
-                            styleMap: this.styleMap
-                        }
-                    }
-                })
+                                                        OpenLayers.Handler.Polygon, {
+                                                            handlerOptions: {
+                                                                freehand: false, 
+                                                                style: "default", // this forces default render intent
+                                                                layerOptions: {
+                                                                    styleMap: this.styleMap
+                                                                }
+                                                            }
+                                                        })
         };
         
         for(var key in this.drawControls) {
@@ -208,24 +204,25 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         /* Create a hidden form for the Upload action ,
            this form will be placed the the TaskPane manager */
         var sl = Fusion.getScriptLanguage();
-        var scriptURL = Fusion.getFusionURL() + 'layers/Generic/' + sl + '/upload.' + sl;
+        var scriptURL = Fusion.getFusionURL() + 'widgets/Redline/Redline.php';
         var file = document.createElement("input");
         var submit = document.createElement("input");
-        var page = document.createElement("input");
+        var action = document.createElement("input");
 
         this.uploadForm = document.createElement("form");
         submit.type="submit";
         submit.name="submit_element";
         submit.value="Upload";
-        page.type = "hidden";
-        page.name = "page";
+        action.type = "hidden";
+        action.name = "action";
+        action.value = "upload";
         this.uploadForm.enctype = "multipart/form-data";
         this.uploadForm.action = scriptURL;
         this.uploadForm.method = "POST";
         file.name="uploadedfile";
         file.type="file";
         this.uploadForm.appendChild(file);
-        this.uploadForm.appendChild(page);
+        this.uploadForm.appendChild(action);
         this.uploadForm.appendChild(document.createElement("br"));
         this.uploadForm.appendChild(submit);
     },
@@ -272,7 +269,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         var fileContent = gmlParser.write(this.activeLayer.features);
         this.saveForm.elements[0].value = "text/xml";
         this.saveForm.elements[1].value = escape(fileContent);
-        this.saveForm.elements[2].value = this.activeLayer.name + ".gml"; 
+        this.saveForm.elements[2].value = this.activeLayer.name + '.gml'; 
         this.saveForm.submit();
     },
 
@@ -287,7 +284,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.vectorLayers[i] = new OpenLayers.Layer.Vector("Digitizing layer "+this.vectorLayers.length, {
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
-                url: this.uploadDirectory+"/"+fileName,
+                url: Fusion.getFusionURL() +"widgets/Redline/Redline.php?"+"file="+fileName,
                 format: new OpenLayers.Format.GML()
             }),
             styleMap: this.styleMap
@@ -322,10 +319,6 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     // the panel CSS
     panelCss: 'Redline/Redline.css',
 
-    // determine if a file has been uploaded... and should be added to the redline widget
-    fileUploaded: false,
-    fileUploadedName: '',
-
     initialize: function(widget,widgetLocation) {
         this.widget = widget;
         this.widget.registerForEvent(Fusion.Event.REDLINE_FEATURE_ADDED, OpenLayers.Function.bind(this.featureAdded, this));
@@ -346,15 +339,16 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         }
         outputWin.parent = window;
         this.taskPaneWin = outputWin;
-        this.timeoutID = setTimeout(OpenLayers.Function.bind(this.initPanel, this),300);
+        var initFunction = OpenLayers.Function.bind(this.initPanel, this);
+        this.intervalID = setInterval(initFunction,300);
     },
 
     // when the panel is loaded....
     initPanel: function() {
-        if (!this.taskPaneWin.document.getElementById("panelIsLoaded")) {
-            this.timeoutID = setTimeout(OpenLayers.Function.bind(this.initPanel, this), 300);
-            return;
-        }
+        if (!this.taskPaneWin.document.getElementById("panelIsLoaded"))
+            return;        
+        clearInterval(this.intervalID);
+        this.intervalID = null;
 
         // select the default control
         var radioName = this.widget.defaultControl.charAt(0).toUpperCase() + this.widget.defaultControl.substr(1);
@@ -366,11 +360,10 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         this.widget.uploadForm.elements[2].style.display = "none";
         this.taskPaneWin.document.getElementById("RedlineWidgetUploadTd").appendChild(this.widget.uploadForm);
         this.taskPaneWin.document.getElementById("RedlineWidgetUploadTd").appendChild(uploadButton);
-        if (this.fileUploaded) {
+        // do we have an uploaded file ?
+        if (this.taskPaneWin.document.getElementById("uploadedFileName")) {
             this.widget.activateControl(this.widget.defaultControl,0); //hack to reset the right control/radio
-            this.widget.newLayerFromFile(this.fileUploadedName);
-            this.fileUploaded = false;
-            this.fileUploadedName = '';
+            this.widget.newLayerFromFile(this.taskPaneWin.document.getElementById("uploadedFileName").getAttribute("value"));
         }
         this.bindEvents();
         this.updateLayerList();
@@ -432,11 +425,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     },
 
     uploadFile: function() {
-        var page = Fusion.getFusionURL() + this.panelUrl;
-        this.widget.uploadForm.elements[1].value = page;
-        this.fileUploadedName = this.widget.uploadForm.elements[0].value;
         this.widget.uploadForm.submit();
-        this.fileUploaded = true;
         var initFunction = OpenLayers.Function.bind(this.initPanel, this);
         this.intervalID = setInterval(initFunction,300);
     },
