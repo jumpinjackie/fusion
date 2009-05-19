@@ -23,6 +23,38 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+/*****************************************************************************
+ *  Redline panel. It also allows a user to upload a file on the server.
+ *  The max file size should be setted in the php5.ini.
+ *****************************************************************************/
+
+
+$fileUpload = false;
+
+$action = $_POST['action'];
+$file = $_GET['file'];
+
+if (isset($file)) { // it's a uploaded file request
+    returnFile($file);
+}
+else {
+    if (isset($action) && ($action == 'upload') && ($_FILES['uploadedfile']['error'] == UPLOAD_ERR_OK)) {
+        $fileUpload = true;
+
+        $target_path = tempnam(sys_get_temp_dir(), preg_replace("/\.[^\.]+$/", "", basename( $_FILES['uploadedfile']['name'])).'_');
+        
+        if (file_exists($target_path)) { 
+            unlink($target_path);
+        }
+        $target_path = $target_path.'.gml';
+        $uploadedFilename = basename($target_path);
+        if ((!move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target_path))) {
+            $fileUpload = false;
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -41,6 +73,11 @@
             div = document.createElement("div");
             div.innerHTML = "<div id=\"panelIsLoaded\"/>";
             document.body.appendChild(div);
+            <? if ($fileUpload) { ?>
+            div = document.createElement("div");
+            div.innerHTML = "<div id=\"uploadedFileName\" value=\"<?= $uploadedFilename ?>\"/>";
+            document.body.appendChild(div);
+            <? } ?>
         }
       </script>
 
@@ -108,3 +145,22 @@
      
     </body>
   </html>
+
+
+<?php
+                                                     
+function returnFile($filename) {
+
+header("Content-type: text/xml");
+header("Content-Disposition: attachment; filename=$filename");
+
+$filename = sys_get_temp_dir().'/'.$filename;
+$handle = fopen($filename, "r");
+$contents = fread($handle, filesize($filename));
+fclose($handle);
+
+echo $contents;
+exit;
+}
+
+?>
