@@ -329,7 +329,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         var url = Fusion.getFusionURL() + this.panelUrl;
         
         var taskPaneTarget = Fusion.getWidgetById(this.widget.sTarget);
-        var outpuWin = window;
+        var outputWin = window;
         
         if ( taskPaneTarget ) {
             taskPaneTarget.setContent(url);
@@ -337,19 +337,20 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         } else {
             outputWin = window.open(url, this.widget.sTarget, this.widget.sWinFeatures);
         }
-        outputWin.parent = window;
+        //outputWin.parent = window;
         this.taskPaneWin = outputWin;
         var initFunction = OpenLayers.Function.bind(this.initPanel, this);
-        this.intervalID = setInterval(initFunction,300);
+        setTimeout(initFunction,300);
     },
 
     // when the panel is loaded....
     initPanel: function() {
-        if (!this.taskPaneWin.document.getElementById("panelIsLoaded"))
-            return;        
-        clearInterval(this.intervalID);
-        this.intervalID = null;
-
+        if (!this.taskPaneWin.document.getElementById("panelIsLoaded")) {
+            var initFunction = OpenLayers.Function.bind(this.initPanel, this);
+            setTimeout(initFunction,300);
+            return;
+        }
+        
         // select the default control
         var radioName = this.widget.defaultControl.charAt(0).toUpperCase() + this.widget.defaultControl.substr(1);
         this.taskPaneWin.document.getElementById("RedlineWidget"+radioName+"Radio").checked = true;
@@ -427,7 +428,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     uploadFile: function() {
         this.widget.uploadForm.submit();
         var initFunction = OpenLayers.Function.bind(this.initPanel, this);
-        this.intervalID = setInterval(initFunction,300);
+        setTimeout(initFunction,300);
     },
 
     updateLayerList: function() {
