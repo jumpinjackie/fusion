@@ -129,7 +129,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 "Line": {
                     strokeWidth: 3,
                     strokeOpacity: 1,
-                    strokeColor: "#666666",
+                    strokeColor: "#666666"
                 },
                 "Polygon": {
                     strokeWidth: 2,
@@ -434,7 +434,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 o.distance = Fusion.convert(mapUnits, this.units, o.distance);
               }
               
-              marker.setDistance(o.distance);
+              marker.setQuantity(o.distance);
               this.positionMarker(marker, from, to);
               this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);                    
             }
@@ -516,7 +516,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             totalDistance += distance;
         }
         this.totalDistanceMarker.domObj.style.display = 'block';
-        this.totalDistanceMarker.setDistance(totalDistance);
+        this.totalDistanceMarker.setQuantity(totalDistance);
       }
     },
     
