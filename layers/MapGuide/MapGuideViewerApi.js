@@ -39,7 +39,7 @@ var Class = MainFusionWindow.Class;
 var Object = MainFusionWindow.Object;
 
 function Refresh() {
-    var Fusion = window.top.Fusion;
+    //var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.redraw();
@@ -47,7 +47,7 @@ function Refresh() {
 }
 
 function SetSelectionXML(selectionXml) {
-    var Fusion = window.top.Fusion;
+    //var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.setSelection(selectionXml, true);
@@ -55,7 +55,7 @@ function SetSelectionXML(selectionXml) {
 }
 
 function ZoomToView(x, y, scale, refresh) {
-    var Fusion = window.top.Fusion;
+    //var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     if (mapWidget && mapWidget.isMapLoaded()) {
         var extent = mapWidget.getExtentFromPoint(x, y, scale);
@@ -144,7 +144,7 @@ function Polygon()
 function mgApiStartDigitizing(type, handler) {
     mgApiInit();
     if (handler) {
-      var Fusion = window.top.Fusion;
+      //var Fusion = window.top.Fusion;
       var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
       mgApiActiveWidget = mapWidget.oActiveWidget;
       if (mgApiActiveWidget) {
@@ -323,4 +323,8 @@ function GetFusionWindow() {
         }
     }
     return curWindow;
+}
+
+function GetFusionMapWidget() {
+    return Fusion.getWidgetById(mgApiMapWidgetId);
 }
