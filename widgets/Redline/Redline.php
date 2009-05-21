@@ -29,7 +29,6 @@
  *  The max file size should be setted in the php5.ini.
  *****************************************************************************/
 
-
 $fileUpload = false;
 
 $action = $_POST['action'];
@@ -53,6 +52,7 @@ else {
             $fileUpload = false;
         }
     }
+    else if (isset($action)){ echo "--> ".$_FILES['uploadedfile']['error']; exit(1);}
 }
 
 ?>
@@ -118,7 +118,14 @@ else {
         </td>
       </tr>
       <tr>
-        <td id="RedlineWidgetUploadTd" colspan="2"/>
+        <td id="RedlineWidgetUploadTd" colspan="2">
+          <form id="RedlineWidgetUploadForm" enctype="multipart/form-data" action="Redline.php" method="post">
+             <input type="file" name="uploadedfile"/>
+             <input type="hidden" name="action" value="upload"/>
+             <br/>
+             <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="Upload" />
+          </form>
+    </td>
       </tr>
       <tr><td><!-- dummy col --></td></tr>
       <tr>

@@ -70,7 +70,6 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
     // the hidden html form for the save action
     saveForm: null,
-    uploadForm: null,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -114,7 +113,6 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         }
 
         this.createSaveForm();
-        this.createUploadForm();
     },
 
     createDrawControls: function() {
@@ -168,7 +166,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
     },    
 
-    createSaveForm: function() {
+    createSaveForm: function(panelDocument) {
         /* Create a hidden form for the Save action */
         var sl = Fusion.getScriptLanguage();
         var scriptURL = Fusion.getFusionURL() + 'layers/Generic/' + sl + '/save.' + sl;
@@ -198,33 +196,6 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.saveForm.appendChild(submit);
         div.appendChild(this.saveForm);
         document.body.appendChild(div);
-    },
-
-    createUploadForm: function() {
-        /* Create a hidden form for the Upload action ,
-           this form will be placed the the TaskPane manager */
-        var sl = Fusion.getScriptLanguage();
-        var scriptURL = Fusion.getFusionURL() + 'widgets/Redline/Redline.php';
-        var file = document.createElement("input");
-        var submit = document.createElement("input");
-        var action = document.createElement("input");
-
-        this.uploadForm = document.createElement("form");
-        submit.type="submit";
-        submit.name="submit_element";
-        submit.value="Upload";
-        action.type = "hidden";
-        action.name = "action";
-        action.value = "upload";
-        this.uploadForm.enctype = "multipart/form-data";
-        this.uploadForm.action = scriptURL;
-        this.uploadForm.method = "POST";
-        file.name="uploadedfile";
-        file.type="file";
-        this.uploadForm.appendChild(file);
-        this.uploadForm.appendChild(action);
-        this.uploadForm.appendChild(document.createElement("br"));
-        this.uploadForm.appendChild(submit);
     },
 
     // activate the redline widget
@@ -354,13 +325,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         // select the default control
         var radioName = this.widget.defaultControl.charAt(0).toUpperCase() + this.widget.defaultControl.substr(1);
         this.taskPaneWin.document.getElementById("RedlineWidget"+radioName+"Radio").checked = true;
-        // wrapper around the original upload button of the form
-        var uploadButton = document.createElement("button");
-        uploadButton.id = "RedlineWidgetUploadButton";
-        uploadButton.innerHTML = "Upload";
-        this.widget.uploadForm.elements[2].style.display = "none";
-        this.taskPaneWin.document.getElementById("RedlineWidgetUploadTd").appendChild(this.widget.uploadForm);
-        this.taskPaneWin.document.getElementById("RedlineWidgetUploadTd").appendChild(uploadButton);
+
         // do we have an uploaded file ?
         if (this.taskPaneWin.document.getElementById("uploadedFileName")) {
             this.widget.activateControl(this.widget.defaultControl,0); //hack to reset the right control/radio
@@ -402,7 +367,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     removeLayer: function() {
         var i = this.taskPaneWin.document.getElementById("RedlineWidgetLayerList").selectedIndex;
         this.widget.removeLayer(i);
-        this.updateLayerList();
+        this.updateLayerList(); 
         this.updateFeatureList();
     },
 
@@ -426,7 +391,6 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     },
 
     uploadFile: function() {
-        this.widget.uploadForm.submit();
         var initFunction = OpenLayers.Function.bind(this.initPanel, this);
         setTimeout(initFunction,300);
     },
@@ -441,7 +405,14 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
             opt.text = this.widget.vectorLayers[i].name;
             if (i == selectedIndex)
                 opt.selected = true;
-            select.add(opt,null);
+            try
+            {
+                select.add(opt,null); // standards compliant
+            }
+            catch(ex)
+            {
+                select.add(opt); // IE only
+            }
         }
     },
 
@@ -449,7 +420,14 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         var select = this.taskPaneWin.document.getElementById('RedlineWidgetFeatureList');
         var opt = document.createElement('option');
         opt.text = feature.id;
-        select.add(opt,null);
+        try
+        {
+            select.add(opt,null); // standards compliant
+        }
+        catch(ex)
+        {
+            select.add(opt); // IE only
+        }
     },
 
     removeFeature: function() {
@@ -481,7 +459,14 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         {
             var opt = document.createElement('option');
             opt.text = this.widget.activeLayer.features[i].id;
-            select.add(opt,null);
+            try
+            {
+                select.add(opt,null); // standards compliant
+            }
+            catch(ex)
+            {
+                select.add(opt); // IE only
+            }
         }
     },
 
