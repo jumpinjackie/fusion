@@ -107,8 +107,48 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = G_NORMAL_MAP;
                 break;
             }
-         case 'VirtualEarth':
+            break;
+         case 'VirtualEarth':         
+             switch (this.mapTag.layerOptions.type) {   //VE layer types are enumerated values
+               case 'Aerial':              //defined in VEMapStyle from the VE api
+                 this.mapTag.layerOptions.type = VEMapStyle.Aerial;
+                 break;
+               case 'Shaded':
+                 this.mapTag.layerOptions.type = VEMapStyle.Shaded;
+                 break;
+               case 'Hybrid':
+                 this.mapTag.layerOptions.type = VEMapStyle.Hybrid;
+                 break;
+               default:
+                 this.mapTag.layerOptions.type = VEMapStyle.Road;
+                 break;
+             }
+             break;
          case 'Yahoo':
+            switch (this.mapTag.layerOptions.type) {   //Yahoo is similar to google
+              case 'YAHOO_MAP_SAT':              //defined by YMap, not a string
+                this.mapTag.layerOptions.type = YAHOO_MAP_SAT;
+                break;
+              case 'YAHOO_MAP_HYB':
+                this.mapTag.layerOptions.type = YAHOO_MAP_HYB;
+                break;
+              case 'YAHOO_MAP_REG':
+              default:
+                this.mapTag.layerOptions.type = YAHOO_MAP_REG;
+                break;
+            }
+            break;
+          default:
+            this.oLayerOL = new OpenLayers.Layer[this.layerType](
+                                  this.getMapName(), 
+                                  this.sMapResourceId, 
+                                  this.mapTag.layerParams, 
+                                  this.mapTag.layerOptions );
+
+            break;
+        }
+
+        if (!this.oLayerOL) {
             if (!this.mapTag.layerOptions.maxExtent) {
                 this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
             }
@@ -121,16 +161,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
             this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
-           break;
-          default:
-            this.oLayerOL = new OpenLayers.Layer[this.layerType](
-                                  this.getMapName(), 
-                                  this.sMapResourceId, 
-                                  this.mapTag.layerParams, 
-                                  this.mapTag.layerOptions );
-            
-            break;
         }
+
         this.oLayerOL.events.register("loadstart", this, this.loadStart);
         this.oLayerOL.events.register("loadend", this, this.loadEnd);
         this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
@@ -197,4 +229,3 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     }
 
 });
-
