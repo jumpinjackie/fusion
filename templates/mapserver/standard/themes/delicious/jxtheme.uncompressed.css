@@ -13,7 +13,7 @@ caption,th {text-align:left;}
 h1,h2,h3,h4,h5,h6{font-size:100%;}
 q:before,q:after{content:'';}/**
  * @project         Jx
- * @revision        $Id: button.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: button.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -37,15 +37,11 @@ div.jxButtonContainer {
 }
 
 /* normal button */
-a.jxButton {
+.jxButton {
   /* Base setup */
   display: block;
   position: relative;
   float: left;
-  cursor: pointer;
-  user-select: none;
-  -moz-user-select: none;
-  -khtml-user-select: none;
 
   /* Using background images, the A contains the left side of the background */
   margin: 0px; /* margins don't seem to work properly in IE */
@@ -58,7 +54,16 @@ a.jxButton {
   outline: none;
 }
 
-ul.jxToolbar a.jxButton {
+/* normal button */
+a.jxButton {
+  /* Base setup */
+  cursor: pointer;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+}
+
+ul.jxToolbar .jxButton {
   background-position: left top;
 }
 
@@ -84,112 +89,119 @@ ul.jxToolbar span.jxButtonContent {
 }
 
 /* active button */
-ul.jxToolbar a.jxButtonActive,
-a.jxButtonActive {
+ul.jxToolbar .jxButtonActive,
+.jxButtonActive {
   background-position: left -72px;
 }
 
-a.jxButtonActive span.jxButtonContent {
+ul.jxToolbar .jxButtonActive span.jxButtonContent,
+.jxButtonActive span.jxButtonContent {
   background-position: right -72px;
 }
 
 /* focus button */
-ul.jxToolbar a.jxButton:focus,
-a.jxButton:focus {
+ul.jxToolbar .jxButton:focus,
+.jxButton:focus {
   background-position: left -96px;
 }
 
-a.jxButton:focus span.jxButtonContent {
+ul.jxToolbar .jxButton:focus span.jxButtonContent,
+.jxButton:focus span.jxButtonContent {
   background-position: right -96px;
 }
 
 /* focus active button */
-ul.jxToolbar a.jxButtonActive:focus,
-a.jxButtonActive:focus {
+ul.jxToolbar .jxButtonActive:focus,
+.jxButtonActive:focus {
   background-position: left -144px;
 }
 
-a.jxButtonActive:focus span.jxButtonContent {
+ul.jxToolbar .jxButtonActive:focus span.jxButtonContent,
+.jxButtonActive:focus span.jxButtonContent {
   background-position: right -144px;
 }
 
 /* hover normal and active button */
-ul.jxToolbar a.jxButton:hover,
-ul.jxToolbar a.jxButtonActive:hover,
-a.jxButton:hover,
-a.jxButtonActive:hover {
+ul.jxToolbar .jxButton:hover,
+ul.jxToolbar .jxButtonActive:hover,
+.jxButton:hover,
+.jxButtonActive:hover {
   background-position: left -48px;
 }
 
-a.jxButton:hover span.jxButtonContent,
-a.jxButtonActive:hover span.jxButtonContent {
+ul.jxToolbar .jxButton:hover span.jxButtonContent,
+ul.jxToolbar .jxButtonActive:hover span.jxButtonContent,
+.jxButton:hover span.jxButtonContent,
+.jxButtonActive:hover span.jxButtonContent {
   background-position: right -48px;
 }
 
 /* clicking normal and focused button */
-ul.jxToolbar a.jxButtonPressed,
-ul.jxToolbar a.jxButtonPressed:focus,
-a.jxButtonPressed,
-a.jxButtonPressed:focus {
+ul.jxToolbar .jxButtonPressed,
+ul.jxToolbar .jxButtonPressed:focus,
+.jxButtonPressed,
+.jxButtonPressed:focus {
   background-position: left -120px;
 }
 
-a.jxButtonPressed span.jxButtonContent,
-a.jxButtonPressed:focus span.jxButtonContent {
+ul.jxToolbar .jxButtonPressed span.jxButtonContent,
+ul.jxToolbar .jxButtonPressed:focus span.jxButtonContent,
+.jxButtonPressed span.jxButtonContent,
+.jxButtonPressed:focus span.jxButtonContent {
   background-position: right -120px;
 }
 
 /* disabled buttons */
-.jxDisabled a.jxButton,
+.jxDisabled .jxButton,
 .jxDisabled span.jxButtonContent span {
  cursor: default; 
 }
 
 /* hover, focus and pressing disabled button */
-ul.jxToolbar .jxDisabled a.jxButton:focus,
-ul.jxToolbar .jxDisabled a.jxButton:active,
-ul.jxToolbar .jxDisabled a.jxButton:hover,
-ul.jxToolbar .jxDisabled a.jxButtonPressed {
+ul.jxToolbar .jxDisabled .jxButton:focus,
+ul.jxToolbar .jxDisabled .jxButton:active,
+ul.jxToolbar .jxDisabled .jxButton:hover,
+ul.jxToolbar .jxDisabled .jxButtonPressed {
   background-position: left top;
 }
 
-.jxDisabled a.jxButton:focus,
-.jxDisabled a.jxButton:active,
-.jxDisabled a.jxButton:hover,
-.jxDisabled a.jxButtonPressed {
+.jxDisabled .jxButton:focus,
+.jxDisabled .jxButton:active,
+.jxDisabled .jxButton:hover,
+.jxDisabled .jxButtonPressed {
   background-position: left -24px;
 }
 
-ul.jxToolbar .jxDisabled a.jxButton:focus span.jxButtonContent,
-ul.jxToolbar .jxDisabled a.jxButton:active span.jxButtonContent,
-ul.jxToolbar .jxDisabled a.jxButton:hover span.jxButtonContent,
-ul.jxToolbar .jxDisabled a.jxButtonPressed span.jxButtonContent {
+ul.jxToolbar .jxDisabled .jxButton:focus span.jxButtonContent,
+ul.jxToolbar .jxDisabled .jxButton:active span.jxButtonContent,
+ul.jxToolbar .jxDisabled .jxButton:hover span.jxButtonContent,
+ul.jxToolbar .jxDisabled .jxButtonPressed span.jxButtonContent {
   background-position: right top;
 }
   
-.jxDisabled a.jxButton:focus span.jxButtonContent,
-.jxDisabled a.jxButton:active span.jxButtonContent,
-.jxDisabled a.jxButton:hover span.jxButtonContent,
-.jxDisabled a.jxButtonPressed span.jxButtonContent {
+.jxDisabled .jxButton:focus span.jxButtonContent,
+.jxDisabled .jxButton:active span.jxButtonContent,
+.jxDisabled .jxButton:hover span.jxButtonContent,
+.jxDisabled .jxButtonPressed span.jxButtonContent {
   background-position: right -24px;
 }
 
 /* hover and focus disabled active button */
-ul.jxToolbar .jxDisabled a.jxButtonActive:focus,
-ul.jxToolbar .jxDisabled a.jxButtonActive:active,
-ul.jxToolbar .jxDisabled a.jxButtonActive:hover,
-.jxDisabled a.jxButtonActive:focus,
-.jxDisabled a.jxButtonActive:active,
-.jxDisabled a.jxButtonActive:hover {
+ul.jxToolbar .jxDisabled .jxButtonActive:focus,
+ul.jxToolbar .jxDisabled .jxButtonActive:active,
+ul.jxToolbar .jxDisabled .jxButtonActive:hover,
+.jxDisabled .jxButtonActive:focus,
+.jxDisabled .jxButtonActive:active,
+.jxDisabled .jxButtonActive:hover {
   background-position: left -72px;
 }
 
-ul.jxToolbar .jxDisabled a.jxButtonActive:focus span.jxButtonContent,
-ul.jxToolbar .jxDisabled a.jxButtonActive:active span.jxButtonContent,
-ul.jxToolbar .jxDisabled a.jxButtonActive:hover span.jxButtonContent,
-.jxDisabled a.jxButtonActive:focus span.jxButtonContent,
-.jxDisabled a.jxButtonActive:active span.jxButtonContent,
-.jxDisabled a.jxButtonActive:hover span.jxButtonContent {
+ul.jxToolbar .jxDisabled .jxButtonActive:focus span.jxButtonContent,
+ul.jxToolbar .jxDisabled .jxButtonActive:active span.jxButtonContent,
+ul.jxToolbar .jxDisabled .jxButtonActive:hover span.jxButtonContent,
+.jxDisabled .jxButtonActive:focus span.jxButtonContent,
+.jxDisabled .jxButtonActive:active span.jxButtonContent,
+.jxDisabled .jxButtonActive:hover span.jxButtonContent {
   background-position: right -72px;
 }
 
@@ -229,19 +241,19 @@ span.jxButtonContent span.jxButtonLabel {
 /* JX BUTTON EXTENSION STYLES */
 /* ========================== */
 
-a.jxButtonMenu span.jxButtonContent,
-a.jxButtonMulti span.jxButtonContent,
-a.jxButtonFlyout span.jxButtonContent,
-a.jxButtonCombo span.jxButtonContent,
-a.jxButtonEditCombo span.jxButtonContent {
+.jxButtonMenu span.jxButtonContent,
+.jxButtonMulti span.jxButtonContent,
+.jxButtonFlyout span.jxButtonContent,
+.jxButtonCombo span.jxButtonContent,
+.jxButtonEditCombo span.jxButtonContent {
   padding-right: 0px;
 }
 
-a.jxButtonMenu span.jxButtonContent span,
-a.jxButtonFlyout span.jxButtonContent span,
-a.jxButtonMulti span.jxButtonContent span,
-a.jxButtonCombo span.jxButtonContent span,
-a.jxButtonEditCombo span.jxButtonContent span {
+.jxButtonMenu span.jxButtonContent span,
+.jxButtonFlyout span.jxButtonContent span,
+.jxButtonMulti span.jxButtonContent span,
+.jxButtonCombo span.jxButtonContent span,
+.jxButtonEditCombo span.jxButtonContent span {
   padding-right: 16px;
   background-image: url(images/emblems.png);
   background-position: right -16px;
@@ -299,12 +311,12 @@ a.jxButtonDisclosePressed {
 }
 
 /* note, jxButtonHover is set by Multi button JS */
-ul.jxToolbar a.jxButtonHover {
-  background-position: left -24px;
+ul.jxToolbar .jxButtonHover {
+  background-position: left -24px !important;
 }
 
-ul.jxToolbar a.jxButtonHover span.jxButtonContent {
-  background-position: right -24px;
+ul.jxToolbar .jxButtonHover span.jxButtonContent {
+  background-position: right -24px !important;
 }
 
 
@@ -336,37 +348,37 @@ ul.jxToolbar a.jxButtonHover span.jxButtonContent {
 
 /* Jx Combo and Multi Button Styles */
 
-a.jxButtonMulti,
-a.jxButtonMulti span.jxButtonContent {
+.jxButtonMulti,
+.jxButtonMulti span.jxButtonContent {
   background-image: url(images/button_multi.png);
 }
 
-a.jxButtonEditCombo,
-a.jxButtonEditCombo span.jxButtonContent {
+.jxButtonEditCombo,
+.jxButtonEditCombo span.jxButtonContent {
   background-image: url(images/button_combo.png);
 }
 
-a.jxButtonEditCombo {
+/*a.jxButtonEditCombo {
   user-select: text;
   -moz-user-select: text;
   -khtml-user-select: text;
-}
+}*/
 
-a.jxButtonMulti span.jxButtonContent span {
+.jxButtonMulti span.jxButtonContent span {
   padding-right: 21px;
 }
 
-a.jxButtonEditCombo span.jxButtonContent span {
+.jxButtonEditCombo span.jxButtonContent span {
   font-size: 0px;
 }
 
-a.jxButtonComboDefault span.jxButtonContent span,
-a.jxButtonComboDefault input {
+.jxButtonComboDefault span.jxButtonContent span,
+.jxButtonComboDefault input {
   font-style: italic;
   color: #999;
 }
 
-a.jxButtonEditCombo input {
+.jxButtonEditCombo input {
   float: left;
   line-height: 16px;
   height: 16px;
@@ -378,7 +390,7 @@ a.jxButtonEditCombo input {
   background-color: transparent;
 }/**
  * @project         Jx
- * @revision        $Id: chrome.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: chrome.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -481,7 +493,7 @@ a.jxButtonEditCombo input {
 
 /**
  * @project         Jx
- * @revision        $Id: color.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: color.css 424 2009-05-12 12:51:44Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -511,10 +523,19 @@ table.jxColorGrid {
     border-collapse: collapse;
     empty-cells: show;
     clear:both;
+    padding: 0px;
+    margin: 0px;
+}
+
+.jxColorGrid tr {
+    padding: 0px;
+    margin: 0px;
 }
 
 .jxColorGrid td {
     border: 1px solid #000;
+    padding: 0px;
+    margin: 0px;
 }
 
 .jxColorGrid td.emptyCell {
@@ -575,7 +596,7 @@ div.jxColorPreview {
     overflow: hidden;
 }
 
-a.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch {
+.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch {
     display: block;
     float: left;
     width: 14px;
@@ -587,7 +608,7 @@ a.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch {
     padding-right: 0px !important;
 }
 
-a.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch span {
+.jxButtonFlyout span.jxButtonContent span.jxButtonSwatch span {
     display: block;
     width: 14px;
     height: 14px;
@@ -643,7 +664,7 @@ a.jxColorClose img {
     height: 16px;
 }/**
  * @project         Jx
- * @revision        $Id: common.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: common.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -653,10 +674,11 @@ a.jxColorClose img {
 /* ============= */
 
 .jxClearer{display:block;position:relative;float:none;clear:both;font-size:0;line-height:0;width:0;height:0;margin:0;padding:0;}
-.jxDisabled{opacity:0.4;-ms-filter:"Alpha(opacity=40)";}
-iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-ms-filter:"Alpha(opacity:0)";opacity:0;z-index:-1;}/**
+.jxDisabled{opacity:0.4;-ms-filter: "Alpha(opacity=40)";}
+.jxDisabled * {-ms-filter: "Alpha(opacity=40)";}
+iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;opacity:0;-ms-filter: "Alpha(opacity=0)";z-index:-1;}/**
  * @project         Jx
- * @revision        $Id: dialog.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: dialog.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -673,6 +695,7 @@ iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-m
   /* Base setup */
   display: block;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .jxDialogContentContainer {
@@ -837,23 +860,23 @@ iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-m
 
 .jxDialogControls .jxButtonContainer,
 .jxDialogControls span.jxButtonContent,
-.jxDialogControls a.jxButton:hover span.jxButtonContent,
-.jxDialogControls a.jxButton:active span.jxButtonContent,
-.jxDialogControls a.jxButtonActive span.jxButtonContent,
-.jxDialogControls a.jxButtonActive:hover span.jxButtonContent,
-.jxDialogControls a.jxButtonActive:active span.jxButtonContent,
-.jxDialogControls .jxDisabled a.jxButton span.jxButtonContent,
-.jxDialogControls .jxDisabled a.jxButton:hover span.jxButtonContent,
-.jxDialogControls .jxDisabled a.jxButton:active span.jxButtonContent,
-.jxDialogControls a.jxButton,
-.jxDialogControls a.jxButton:hover,
-.jxDialogControls a.jxButton:active ,
-.jxDialogControls a.jxButtonActive,
-.jxDialogControls a.jxButtonActive:hover,
-.jxDialogControls a.jxButtonActive:active,
-.jxDialogControls .jxDisabled a.jxButton,
-.jxDialogControls .jxDisabled a.jxButton:hover,
-.jxDialogControls .jxDisabled a.jxButton:active {
+.jxDialogControls .jxButton:hover span.jxButtonContent,
+.jxDialogControls .jxButton:active span.jxButtonContent,
+.jxDialogControls .jxButtonActive span.jxButtonContent,
+.jxDialogControls .jxButtonActive:hover span.jxButtonContent,
+.jxDialogControls .jxButtonActive:active span.jxButtonContent,
+.jxDialogControls .jxDisabled .jxButton span.jxButtonContent,
+.jxDialogControls .jxDisabled .jxButton:hover span.jxButtonContent,
+.jxDialogControls .jxDisabled .jxButton:active span.jxButtonContent,
+.jxDialogControls .jxButton,
+.jxDialogControls .jxButton:hover,
+.jxDialogControls .jxButton:active ,
+.jxDialogControls .jxButtonActive,
+.jxDialogControls .jxButtonActive:hover,
+.jxDialogControls .jxButtonActive:active,
+.jxDialogControls .jxDisabled .jxButton,
+.jxDialogControls .jxDisabled .jxButton:hover,
+.jxDialogControls .jxDisabled .jxButton:active {
   padding: 0px;
   margin: 0px;
   border: none;
@@ -862,13 +885,13 @@ iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-m
 }
 
 
-.jxDialogControls a.jxButtonMenu span.jxButtonContent,
-.jxDialogControls a.jxButtonFlyout span.jxButtonContent {
+.jxDialogControls .jxButtonMenu span.jxButtonContent,
+.jxDialogControls .jxButtonFlyout span.jxButtonContent {
   background-image: none;
 }
 
-.jxDialogControls a.jxButtonMenu span.jxButtonContent span,
-.jxDialogControls a.jxButtonFlyout span.jxButtonContent span {
+.jxDialogControls .jxButtonMenu span.jxButtonContent span,
+.jxDialogControls .jxButtonFlyout span.jxButtonContent span {
   padding-right: 0px;
 }
 
@@ -908,7 +931,7 @@ iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-m
   border: none;
 }/**
  * @project         Jx
- * @revision        $Id: form.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: form.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -1007,7 +1030,7 @@ iframe.jxIframeShim{position:absolute;top:0px;left:0px;width:100%;height:100%;-m
 }
 /**
  * @project         Jx
- * @revision        $Id: grid.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: grid.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -1171,7 +1194,7 @@ td.jxGridCellPrelight {
 
 /**
  * @project         Jx
- * @revision        $Id: menu.css 245 2008-12-10 18:58:16Z fred.warnock $
+ * @revision        $Id: menu.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -1189,7 +1212,7 @@ td.jxGridCellPrelight {
   padding: 5px 5px 7px 6px;
 }
 
-a.jxButtonMenu span.jxMenuItemSpan {
+.jxButtonMenu span.jxMenuItemSpan {
   padding-right: 16px;
 }
 
@@ -1201,7 +1224,7 @@ a.jxButtonMenu span.jxMenuItemSpan {
 .jxMenuContainer {
   position: absolute;
   display: block;
-  z-index: 200;
+  z-index: 2000;
   padding: 0px;
 }
 
@@ -1212,7 +1235,7 @@ ul.jxSubMenu {
   position: relative;
 
   list-style-type: none;
-
+  padding: 1px;
   margin: 6px 6px 8px 7px;
   background-color: #fff;
   border: 1px solid #999;
@@ -1223,9 +1246,11 @@ li.jxMenuItemContainer {
   /* Base setup */
   display: block;
   position: relative;
+  font-size: 0px;
+  line-height: 0px;
 
   margin: 0px;
-  padding: 2px;
+  padding: 0px;
   user-select: none;
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -1241,8 +1266,8 @@ a.jxMenuItem {
   outline: none;
 
   border: 1px solid #fff;
-  background-image: url(images/menu_hover.png);
-  background-repeat: repeat-x;
+  background-image: url(images/menuitem.png);
+  background-repeat: no-repeat;
   background-position: left top;
 
   font-family: Arial, Helvetica, sans-serif;
@@ -1253,25 +1278,57 @@ a.jxMenuItem {
   color: #000;
 }
 
+a.jxMenuItemActive {
+  background-position: left -98px;
+}
+
 a.jxMenuItem:focus {
-  border: 1px dotted #75ADFF;
+  background-position: left -74px;
+}
+
+a.jxMenuItem:focus span.jxMenuItemContent {
+  border-right: 1px dotted #75ADFF;
+}
+
+a.jxMenuItemActive:focus {
+  background-position: left -170px;
 }
 
 a.jxMenuItem:hover {
-  border: 1px solid #C5E0FF;
   background-color: #CDE5FF;
-  background-position: left -24px;
+  background-position: left -26px;
 }
 
 a.jxMenuItem:hover span.jxMenuItemContent {
-  border: 1px solid #F4F9FF;  /* forces IE to render properly */
-  border-bottom: 1px solid #E4F0FF;
+  border-right: 1px solid #C5E0FF;
+}
+
+a.jxMenuItemActive:hover {
+  background-position: left -122px;
 }
 
 a.jxMenuItemPressed,
 a.jxMenuItemPressed:hover {
   background-color: #CDE5FF;
-  background-position: left -48px;
+  background-position: left -50px;
+}
+
+.jxDisabled a.jxMenuItem,
+.jxDisabled span.jxMenuItemContent span {
+  cursor: default;
+}
+
+.jxDisabled a.jxMenuItem:focus,
+.jxDisabled a.jxMenuItemPressed,
+.jxDisabled a.jxMenuItemPressed:hover,
+.jxDisabled a.jxMenuItem:hover {
+  background-color: #fff;
+  background-position: left top;
+  border-right: 1px solid #fff;
+}
+
+.jxDisabled a.jxMenuItem:hover span.jxMenuItemContent {
+  border-right: 1px solid #fff;
 }
 
 span.jxMenuItemContent {
@@ -1287,23 +1344,22 @@ span.jxMenuItemContent {
   white-space: nowrap;
   padding: 0px 20px 0px 0px; /* space for the arrow */
   margin: 0px;
-  border: 1px solid #fff; /* forces IE to render properly */
+  border-right: 1px solid #fff; /* forces IE to render properly */
   /*overflow: hidden;*/
 }
 
-a.jxButtonSubMenu span.jxMenuItemContent,
-a.jxButtonSubMenu:hover span.jxMenuItemContent {
+.jxButtonSubMenu span.jxMenuItemContent,
+.jxButtonSubMenu:hover span.jxMenuItemContent {
   background-image: url(images/emblems.png);
-  background-position: right -32px;
+  background-position: right -30px;
   background-repeat: no-repeat;
 }
 
 img.jxMenuItemIcon {
   /* Base setup */
   position: absolute;
-  top: 0px;
-  left: 0px;
-  display: inline;
+  top: 2px;
+  left: 2px;
 
   width: 16px;
   height: 16px;
@@ -1317,9 +1373,11 @@ span.jxMenuItemContent span {
   position: relative;
   cursor: pointer;
   margin: 0px; /* margins don't seem to work properly in IE */
-  padding: 0px 0px 0px 20px; /* space for the icon */
-  font-size: 16px; /* keeps empty labels open */
+  padding: 2px 0px 2px 22px; /* space for the icon */
+  font-size: 16px;
   line-height: 16px;
+  /*height: 20px;*/
+  color: #000;
 }
 
 span.jxMenuItemContent span.jxMenuItemLabel {
@@ -1343,37 +1401,6 @@ span.jxMenuItemContent span.jxMenuItemLabel {
   background-position: 2px -64px;
 }
 
-a.jxMenuItemActive img.jxMenuItemIcon {
-  top: -2px;
-  left: -2px;
-  padding: 1px;
-  border: 1px solid #C5E0FF;
-}
-
-a.jxMenuItemActive span.jxMenuItemContent {
-  background-image: url(images/menu_icon_active.png);
-  background-position: 0px 0px;
-  background-repeat: no-repeat;
-}
-
-.jxDisabled a.jxMenuItem,
-.jxDisabled span.jxMenuItemContent span {
-  cursor: default;
-}
-
-.jxDisabled a.jxMenuItem:focus,
-.jxDisabled a.jxMenuItemPressed,
-.jxDisabled a.jxMenuItemPressed:hover,
-.jxDisabled a.jxMenuItem:hover {
-  background-color: #fff;
-  background-position: left top;
-  border: 1px solid #fff;
-}
-
-.jxDisabled a.jxMenuItem:hover span.jxMenuItemContent {
-  border: 1px solid #fff;
-}
-
 ul.jxMenu span.jxMenuSeparator,
 ul.jxSubMenu span.jxMenuSeparator {
   /* Base setup */
@@ -1387,7 +1414,7 @@ ul.jxSubMenu span.jxMenuSeparator {
 }
 /**
  * @project         Jx
- * @revision        $Id: panel.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: panel.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -1453,7 +1480,7 @@ ul.jxSubMenu span.jxMenuSeparator {
   cursor: row-resize;
   /*background-image: url(images/a_pixel.png);*/
   background-color: #f0f0f0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .jxPanelIcon {
@@ -1550,23 +1577,23 @@ ul.jxSubMenu span.jxMenuSeparator {
 
 .jxPanelControls .jxButtonContainer,
 .jxPanelControls span.jxButtonContent,
-.jxPanelControls a.jxButton:hover span.jxButtonContent,
-.jxPanelControls a.jxButton:active span.jxButtonContent,
-.jxPanelControls a.jxButtonActive span.jxButtonContent,
-.jxPanelControls a.jxButtonActive:hover span.jxButtonContent,
-.jxPanelControls a.jxButtonActive:active span.jxButtonContent,
-.jxPanelControls .jxDisabled a.jxButton span.jxButtonContent,
-.jxPanelControls .jxDisabled a.jxButton:hover span.jxButtonContent,
-.jxPanelControls .jxDisabled a.jxButton:active span.jxButtonContent,
-.jxPanelControls a.jxButton,
-.jxPanelControls a.jxButton:hover,
-.jxPanelControls a.jxButton:active ,
-.jxPanelControls a.jxButtonActive,
-.jxPanelControls a.jxButtonActive:hover,
-.jxPanelControls a.jxButtonActive:active,
-.jxPanelControls .jxDisabled a.jxButton,
-.jxPanelControls .jxDisabled a.jxButton:hover,
-.jxPanelControls .jxDisabled a.jxButton:active {
+.jxPanelControls .jxButton:hover span.jxButtonContent,
+.jxPanelControls .jxButton:active span.jxButtonContent,
+.jxPanelControls .jxButtonActive span.jxButtonContent,
+.jxPanelControls .jxButtonActive:hover span.jxButtonContent,
+.jxPanelControls .jxButtonActive:active span.jxButtonContent,
+.jxPanelControls .jxDisabled .jxButton span.jxButtonContent,
+.jxPanelControls .jxDisabled .jxButton:hover span.jxButtonContent,
+.jxPanelControls .jxDisabled .jxButton:active span.jxButtonContent,
+.jxPanelControls .jxButton,
+.jxPanelControls .jxButton:hover,
+.jxPanelControls .jxButton:active ,
+.jxPanelControls .jxButtonActive,
+.jxPanelControls .jxButtonActive:hover,
+.jxPanelControls .jxButtonActive:active,
+.jxPanelControls .jxDisabled .jxButton,
+.jxPanelControls .jxDisabled .jxButton:hover,
+.jxPanelControls .jxDisabled .jxButton:active {
   padding: 0px;
   margin: 0px;
   border: none;
@@ -1574,13 +1601,13 @@ ul.jxSubMenu span.jxMenuSeparator {
   background-image: none;
 }
 
-.jxPanelControls a.jxButtonMenu span.jxButtonContent,
-.jxPanelControls a.jxButtonFlyout span.jxButtonContent {
+.jxPanelControls .jxButtonMenu span.jxButtonContent,
+.jxPanelControls .jxButtonFlyout span.jxButtonContent {
   background-image: none;
 }
 
-.jxPanelControls a.jxButtonMenu span.jxButtonContent span,
-.jxPanelControls a.jxButtonFlyout span.jxButtonContent span {
+.jxPanelControls .jxButtonMenu span.jxButtonContent span,
+.jxPanelControls .jxButtonFlyout span.jxButtonContent span {
   padding-right: 0px;
 }
 
@@ -1620,7 +1647,7 @@ ul.jxSubMenu span.jxMenuSeparator {
   border: none;
 }/**
  * @project         Jx
- * @revision        $Id: splitter.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: splitter.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -1628,6 +1655,16 @@ ul.jxSubMenu span.jxMenuSeparator {
 /* =============== */
 /* SPLITTER STYLES */
 /* =============== */
+.jxSplitterMask{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background-image: url(images/a_pixel.png);
+    z-index:1;
+}
 
 .jxSplitBarHorizontal {
   display: block;
@@ -1642,7 +1679,7 @@ ul.jxSubMenu span.jxMenuSeparator {
   cursor: col-resize;
   /*background-image: url(images/a_pixel.png);*/
   background-color: #f0f0f0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .jxSplitBarVertical {
@@ -1658,7 +1695,7 @@ ul.jxSubMenu span.jxMenuSeparator {
   cursor: row-resize;
   /*background-image: url(images/a_pixel.png);*/
   background-color: #f0f0f0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .jxSplitContainer {
@@ -1702,7 +1739,7 @@ ul.jxSubMenu span.jxMenuSeparator {
   background-color: #aaa;
 }/**
  * @project         Jx
- * @revision        $Id: tab.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: tab.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -2179,7 +2216,7 @@ a.jxTabClose img {
 
 /**
  * @project         Jx
- * @revision        $Id: toolbar.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: toolbar.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -2337,7 +2374,7 @@ li.jxToolItem {
 /* Seperator height should match that of button images
    and the margins+padding+border should add up to the same total too. */
 
-li.jxToolItem  .separator {
+li.jxToolItem  span.jxBarSeparator {
   /* Base setup */
   display: block;
   position: relative;
@@ -2383,7 +2420,7 @@ li.jxToolItem  .separator {
 
 /**
  * @project         Jx
- * @revision        $Id: tree.css 241 2008-12-10 15:11:05Z pagameba $
+ * @revision        $Id: tree.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -2503,11 +2540,11 @@ li.jxToolItem  .separator {
 .jxTree .jxDisabled a:focus,
 .jxTree .jxDisabled a.jxTreeItemPressed,
 .jxTree .jxDisabled a.jxTreeItemPressed:hover,
-.jxTree .jxDisabled a.:hover,
+.jxTree .jxDisabled a:hover,
 .jxTreeRoot .jxDisabled a:focus,
 .jxTreeRoot .jxDisabled a.jxTreeItemPressed,
 .jxTreeRoot .jxDisabled a.jxTreeItemPressed:hover,
-.jxTreeRoot .jxDisabled a.:hover {
+.jxTreeRoot .jxDisabled a:hover {
   background-position: left top;
   border: none;
   margin: 0px 1px 0px 15px;
