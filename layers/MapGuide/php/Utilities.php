@@ -820,7 +820,6 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                     if ($bNeedsTransform && $srsTarget == null && $srsXform == null) {
                         $wkt = getUtmWkt($centroid->GetX(),
                                          $centroid->GetY());
-                        $wkt = 'PROJCS["WORLD-MERCATOR",GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Mercator_2SP"],PARAMETER["false_easting",0.000],PARAMETER["false_northing",0.000],PARAMETER["standard_parallel_1",0.00000000000000],PARAMETER["central_meridian",0.00000000000000],UNIT["Meter",1.00000000000000]]';
                         $srsTarget = $srsFactory->Create($wkt);
                         $verMajor = subStr(GetSiteVersion(), 0,1);
                         if ($verMajor == '1') {
