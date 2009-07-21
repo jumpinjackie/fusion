@@ -303,8 +303,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var size = marker.getSize();
         var t = at.y - size.height/2 ;
         var l = at.x - size.width/2;
-        marker.domObj.style.top = t + 'px';
-        marker.domObj.style.left = l + 'px';
+        if (!isNaN(t) && !isNaN(l)) {
+            marker.domObj.style.top = t + 'px';
+            marker.domObj.style.left = l + 'px';
+            marker.domObj.style.display = 'block';
+        } else {
+            marker.domObj.style.display = 'none';
+        }
     },
     
     onKeyPress: function(e) {
@@ -449,7 +454,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.clearDisplay(outputWin);
         var units = Fusion.unitAbbr(this.units);
         var value;
-        
+        var distPrecision = this.distPrecision;
         var createEntry = function(idx, distance) {
             if (distance < 1) {
                 return;
@@ -459,11 +464,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             td.innerHTML = OpenLayers.i18n('segment',{'seg':idx});
             tr.appendChild(td);
             td = outputDoc.createElement('td');
-            if (this.distPrecision == 0) {
+            if (distPrecision == 0) {
               value = Math.floor(distance);
             }
             else {
-              value = distance.toPrecision(this.distPrecision);
+              value = distance.toPrecision(distPrecision);
             }
             td.innerHTML = value + ' ' + units;
             tr.appendChild(td);
@@ -504,9 +509,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
     },
     
-  /*
-      * updates the summary display if it is loaded in a window somewhere
-      */
+    /*
+     * updates the summary display if it is loaded in a window somewhere
+     */
     updateTotalDistance: function() {
       if (this.distanceMarkers.length > 1) {
         var totalDistance = 0;
