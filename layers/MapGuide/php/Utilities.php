@@ -818,8 +818,10 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                   //conver the geometry to UTM auto so that local measurements
                   //are accruate in meters
                     if ($bNeedsTransform && $srsTarget == null && $srsXform == null) {
-                        $srsTarget = $srsFactory->Create(getUtmWkt($centroid->GetX(),
-                                                                   $centroid->GetY()));
+                        $wkt = getUtmWkt($centroid->GetX(),
+                                         $centroid->GetY());
+                        $wkt = 'PROJCS["WORLD-MERCATOR",GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Mercator_2SP"],PARAMETER["false_easting",0.000],PARAMETER["false_northing",0.000],PARAMETER["standard_parallel_1",0.00000000000000],PARAMETER["central_meridian",0.00000000000000],UNIT["Meter",1.00000000000000]]';
+                        $srsTarget = $srsFactory->Create($wkt);
                         $verMajor = subStr(GetSiteVersion(), 0,1);
                         if ($verMajor == '1') {
                           $srsXform = new MgCoordinateSystemTransform($srsLayer, $srsTarget);
@@ -875,7 +877,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
 function getUtmWkt($lon, $lat) {
     $siteVersion = explode(".",GetSiteVersion());
     if ((integer)$siteVersion[0] > 2 || (integer)$siteVersion[0] == 2 && (integer)$siteVersion[1] > 0) {  //v2.1.x or greater
-      $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
+      $epsg42003 = 'PROJCS["WORLD-MERCATOR",GEOGCS["LL84",DATUM["WGS84",SPHEROID["WGS84",6378137.000,298.25722293]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Mercator_2SP"],PARAMETER["false_easting",0.000],PARAMETER["false_northing",0.000],PARAMETER["standard_parallel_1",0.00000000000000],PARAMETER["central_meridian",0.00000000000000],UNIT["Meter",1.00000000000000]]';
     } else {
       $epsg42003 = "PROJCS[\"WGS 84 / Auto Orthographic\",GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Decimal_Degree\",0.0174532925199433]],PROJECTION[\"Orthographic\"],PARAMETER[\"central_meridian\",%.3e],PARAMETER[\"latitude_of_origin\",%.3e],UNIT[\"Meter\",1]]";
     }
