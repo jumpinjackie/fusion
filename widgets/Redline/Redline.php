@@ -33,7 +33,6 @@ $fileUpload = false;
 
 $action = $_POST['action'];
 $file = $_GET['file'];
-
 if (isset($file)) { // it's a uploaded file request
     returnFile($file);
 }
@@ -52,9 +51,8 @@ else {
             $fileUpload = false;
         }
     }
-    else if (isset($action)){ echo "--> ".$_FILES['uploadedfile']['error']; exit(1);}
+    else if (isset($action)){ $noFile = 1;}
 }
-
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -78,6 +76,8 @@ else {
             div.innerHTML = "<div id=\"uploadedFileName\" value=\"<?= $uploadedFilename ?>\"/>";
             document.body.appendChild(div);
             <? } ?>
+            <? if (isset($noFile)) {  echo "alert('Please select a file.');"; } ?>
+            
         }
       </script>
 
