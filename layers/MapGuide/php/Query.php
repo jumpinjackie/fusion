@@ -257,6 +257,7 @@ try {
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties,
                                                   $bComputedProperties,
                                                   $srsLayer, $bNeedsTransform, $layerObj);
+                $featureReader->Close();
             }
         } catch (MgObjectNotFoundException $onfe) {
             //skip layers not in the map?
@@ -264,11 +265,17 @@ try {
             echo "ERROR: " . $onfe->GetMessage() . "\n";
             echo $onfe->GetDetails() . "\n";
             echo $onfe->GetStackTrace() . "\n";
+            if ($featureReader) {
+              $featureReader->Close();
+            }
         } catch (MgException $e) {
             //what should we do with general exceptions?
             echo "/*general exception:";
             echo "ERROR: " . $e->GetMessage();
             echo $e->GetDetails() . "*/";
+            if ($featureReader) {
+              $featureReader->Close();
+            }
         }
     }
 
