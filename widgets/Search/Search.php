@@ -237,6 +237,7 @@
         {
             throw new SearchError(GetLocalizedString("SEARCHNOMATCHES", $locale), GetLocalizedString("SEARCHREPORT", $locale));
         }
+        $features->Close();
     }
     catch(MgException $ae)
     {
