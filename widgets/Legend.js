@@ -271,8 +271,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         //if root folder is to be hidden, just shift the tree so that it is not
         //visible so that there is always a top level folder for expand/collapse
         if (!this.showRootFolder) {
-            this.oRoot.domObj.parentNode.style.top = "-16px";
-            this.oRoot.domObj.parentNode.style.left = "-12px";
+            // this.oRoot.domObj.parentNode.style.top = "-16px";
+            // this.oRoot.domObj.parentNode.style.left = "-12px";
         }
         this.extentsChangedWatcher = this.update.bind(this);
     },
@@ -714,11 +714,18 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     
     renderFolder: function() {
-        var domLabel = document.createElement('div');
-        domLabel.className = this.options['class'];
+        var domA = new Element('a',{
+            'class':this.options['class'],
+            href:'javascript:void(0)',
+            events: {
+                click: this.selected.bindWithEvent(this),
+                dblclick: this.selected.bindWithEvent(this),
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
+            }
+        });
+        
         this.checkBox = document.createElement('input');
         this.checkBox.type = 'checkbox';
-        domLabel.appendChild(this.checkBox);
         
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
@@ -728,26 +735,33 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
 
-        var domA = new Element('a',{
-            href:'javascript:void(0)',
-            html: this.options.label,
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
+        var domLabel = new Element('span',{
+            'class': 'fusionLegendLabel',
+            html: this.options.label
         });
+        
+        domA.appendChild(this.checkBox);
         domA.appendChild(this.domImg);
+        domA.appendChild(domLabel);
+
         this.itemLabelobj = domA;
-        domLabel.appendChild(domA);
-        return domLabel;
+
+        return domA;
         
     },
     
     renderItem: function() {
 
-        var domLabel = document.createElement('div');
-        domLabel.className = 'fusionLegendItem';
+        var domA = new Element('a', {
+            'class': 'fusionLegendItem',
+            href: 'javascript:void(0)',
+            events: {
+                click: this.selected.bindWithEvent(this),
+                dblclick: this.selected.bindWithEvent(this),
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
+            }
+        });
+        
         
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
@@ -757,27 +771,28 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
         
-        var domA = new Element('a',{
-            'class': 'fusionLegendItem',
-            href:'javascript:void(0)',
-            html: this.options.label,
+        var domLabel = new Element('span',{
+            'class': 'fusionLegendLabel',
+            html: this.options.label
+        });
+        
+        domA.appendChild(this.domImg);
+        domA.appendChild(domLabel);
+        this.itemLabelobj = domA;
+        
+        return domA;
+    },
+    
+    renderItemCheckBox: function() {
+        var domA = new Element('a', {
+            'class': 'fusionLegendItemCheckbox',
+            'href':'javascript:void(0);',
             events: {
                 click: this.selected.bindWithEvent(this),
                 dblclick: this.selected.bindWithEvent(this),
                 contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
-        
-        domA.appendChild(this.domImg);
-        domLabel.appendChild(domA);
-        this.itemLabelobj = domA;
-        
-        return domLabel;
-    },
-    
-    renderItemCheckBox: function() {
-        var domLabel = document.createElement('div');
-        domLabel.className = 'fusionLegendItemCheckbox';
         
         this.checkBox = document.createElement('input');
         this.checkBox.type = 'checkbox';
@@ -797,24 +812,18 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
         
-        var domA = new Element('a',{
-            'class': 'fusionLegendItem',
-            href:'javascript:void(0)',
-            html: this.options.label,
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
+        var domLabel = new Element('span',{
+            'class': 'fusionLegendLabel',
+            html: this.options.label
         });
         
-        domA.appendChild(this.domImg);
         
-        domLabel.appendChild(this.checkBox);
-        domLabel.appendChild(domA);
+        domA.appendChild(this.checkBox);
+        domA.appendChild(this.domImg);
+        domA.appendChild(domLabel);
         this.itemLabelobj = domA;
 
-        return domLabel;
+        return domA;
     }
 
 });
