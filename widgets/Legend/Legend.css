@@ -1,35 +1,23 @@
-.fusionLegendFolder {
-  margin-left:14px;
+.fusionLegendItemCheckbox span,
+.fusionLegendFolder span,
+.fusionLegendItemCheckbox input,
+.fusionLegendFolder input,
+.fusionLegendItemCheckbox .jxTreeIcon,
+.fusionLegendFolder .jxTreeIcon {
+  position: relative;
+  vertical-align: middle;
 }
 
-.fusionLegendFolder input {
-  position: absolute;
-  top: 3px;
-  left: 14px;
-  height: 14px;
-  width: 16px;
+.jxTree a.fusionLegendFolder,
+.jxTreeRoot a.fusionLegendFolder,
+.jxTree a.fusionLegendItemCheckbox,
+.jxTreeRoot a.fusionLegendItemCheckbox,
+.jxTree a.fusionLegendFolder:hover, 
+.jxTreeRoot a.fusionLegendFolder:hover,
+.jxTree a.fusionLegendItemCheckbox:hover, 
+.jxTreeRoot a.fusionLegendItemCheckbox:hover {
+    padding: 0px;
 }
-
-.jxTree .fusionLegendFolder a,
-.jxTreeRoot .fusionLegendFolder a {
-}
-
-.fusionLegendItemCheckbox {
-  margin-left: 14px;
-}
-
-.fusionLegendItemCheckbox input {
-  position: absolute;
-  top: 3px;
-  left: 14px;
-  height: 14px;
-  width: 16px;
-}
-
-.jxTree .fusionLegendItemCheckbox a,
-.jxTreeRoot .fusionLegendItemCheckbox a {
-}
-
 
 .jxTreeBranchOpen .fusionLegendItemCheckbox .jxTreeIcon, 
 .jxTreeBranchLastOpen .fusionLegendItemCheckbox .jxTreeIcon {
@@ -41,6 +29,16 @@
   background-position: left top;
 }
 
-.fusionLegendItem {
-  /*margin-left: 14px;*/
+span.fusionLegendLabel {
+  padding-left: 4px;
+}
+
+.jxTree li,
+.jxTreeRoot li {
+    zoom: 1;
+}
+
+.jxTreeIcon {
+    top: auto !important;
+    left: auto !important;
 }
