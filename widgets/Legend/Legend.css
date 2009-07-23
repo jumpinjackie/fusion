@@ -1,13 +1,17 @@
 .fusionLegendItemCheckbox span,
 .fusionLegendFolder span,
+.fusionLegendItem span,
 .fusionLegendItemCheckbox input,
 .fusionLegendFolder input,
 .fusionLegendItemCheckbox .jxTreeIcon,
-.fusionLegendFolder .jxTreeIcon {
+.fusionLegendFolder .jxTreeIcon,
+.fusionLegendItem .jxTreeIcon {
   position: relative;
   vertical-align: middle;
 }
 
+.jxTree a.fusionLegendItem,
+.jxTreeRoot a.fusionLegendItem,
 .jxTree a.fusionLegendFolder,
 .jxTreeRoot a.fusionLegendFolder,
 .jxTree a.fusionLegendItemCheckbox,
