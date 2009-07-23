@@ -247,33 +247,32 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         //do show the map folder by default
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
         
-        var opt = {
-            label: OpenLayers.i18n('defaultMapTitle'),
-            open: true,
-            draw: this.renderFolder,
-            contextMenu: this.getContextMenu(),
-            'class':'fusionLegendFolder'
-        };
-        this.oRoot = new Jx.TreeFolder(opt);
-        this.oRoot.options.contextMenu.add(
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('collapse'),
-                onClick: OpenLayers.Function.bind(this.collapseBranch, this, this.oRoot)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('expand'),
-                onClick: OpenLayers.Function.bind(this.expandBranch, this, this.oRoot)
-            })
-        );
-        
-        this.oTree.append(this.oRoot);
-        
-        //if root folder is to be hidden, just shift the tree so that it is not
-        //visible so that there is always a top level folder for expand/collapse
         if (!this.showRootFolder) {
-            // this.oRoot.domObj.parentNode.style.top = "-16px";
-            // this.oRoot.domObj.parentNode.style.left = "-12px";
+            console.log('supressing root folder');
+            this.oRoot = this.oTree;
+        } else {
+            console.log('showing root folder');
+            var opt = {
+                label: OpenLayers.i18n('defaultMapTitle'),
+                open: true,
+                draw: this.renderFolder,
+                contextMenu: this.getContextMenu(),
+                'class':'fusionLegendFolder'
+            };
+            this.oRoot = new Jx.TreeFolder(opt);
+            this.oTree.append(this.oRoot);
+            this.oRoot.options.contextMenu.add(
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('collapse'),
+                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, this.oRoot)
+                }),
+                new Jx.Menu.Item({
+                    label: OpenLayers.i18n('expand'),
+                    onClick: OpenLayers.Function.bind(this.expandBranch, this, this.oRoot)
+                })
+            );
         }
+        
         this.extentsChangedWatcher = this.update.bind(this);
     },
     
