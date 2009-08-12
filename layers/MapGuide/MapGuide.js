@@ -586,6 +586,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (behavior == 5) {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
+          layerOptions.isBaseLayer = false;
         }
 
       } else {
@@ -899,7 +900,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", false, true, 5);
+                  this.queryLayer = this.createOLLayer("query layer", true, 5);
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING,
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
