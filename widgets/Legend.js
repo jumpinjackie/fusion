@@ -248,10 +248,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
         
         if (!this.showRootFolder) {
-            console.log('supressing root folder');
+            //console.log('supressing root folder');
             this.oRoot = this.oTree;
         } else {
-            console.log('showing root folder');
+           // console.log('showing root folder');
             var opt = {
                 label: OpenLayers.i18n('defaultMapTitle'),
                 open: true,
