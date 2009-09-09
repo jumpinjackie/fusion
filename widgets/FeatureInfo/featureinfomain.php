@@ -38,13 +38,10 @@
     {
         $errorMsg = $mge->GetMessage();
         $errorDetail = $mge->GetDetails();
-        echo $errorMsg;
-        echo $errorDetail;
     }
     catch (Exception $e)
     {
         $errorMsg = $e->GetMessage();
-        echo $errorMsg;
     }
 ?>
 <html>
@@ -281,6 +278,13 @@
     <tr><td class="SubTitle">Total:</td></tr>
     <tr><td id="totalFeatures">no features selected.</td></tr>
     <tr><td id="totalArea"></td></tr>
+</table>
+
+<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?>
+
+<table class="RegText" border="0" cellspacing="0" width="100%%">
+    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td><?= $errorMsg ?></td></tr>
 </table>
 
 <?php } else { ?>

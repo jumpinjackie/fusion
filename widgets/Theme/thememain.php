@@ -443,6 +443,13 @@
     <tr><td colspan="2" align="right"><input class="Ctrl" type="button" value="Apply" style="width: 60px;" onClick="ApplyTheme()"></td></tr>
 </table>
 
+<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?> 
+
+<table class="RegText" border="0" cellspacing="0" width="100%%">
+    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td><?= $errorMsg ?></td></tr>
+</table>
+
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
