@@ -68,6 +68,19 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
 }
 
+//extension of query template changed as of v5.2.2
+$msVersion = ms_GetVersion();
+//MapServer version 5.0.2 OUTPUT=GIF OUTPUT=PNG OUTPUT=JPEG OUTPUT=WBMP OUTPUT=PDF OUTPUT=SWF OUTPUT=SVG SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE
+$versArray = explode(" ",$msVersion);
+$versNumber = $versArray[2];
+$versParts = explode(".", $versNumber);
+$queryTemplate = "query.qry";
+//convert to an integer value to make the comparison easier
+$versValue = $versParts[0]*100 + $versParts[1]*10 + $versParts[2];
+if ($versValue >= 522) {
+  $queryTemplate = "query.qy";
+}
+
 /* add the spatial filter if provided.  It is expected to come as a
    WKT string, so we need to convert it to a shape */
 if ($spatialFilter !== false ) {
