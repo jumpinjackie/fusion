@@ -97,10 +97,14 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
  
         this.styleMap = new OpenLayers.StyleMap(defaultFeatureStyle);
         
-        // create only one default layer
-        this.vectorLayers = new Array();
-        this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
-        this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
+        // create one default layer, unless other redline widgets have created it
+        this.vectorLayers = this.mapWidget.oMapOL.getLayersByName('Digitizing Layer 0');
+    
+        if (!this.vectorLayers.length) {
+            this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
+            this.vectorLayers[0].redLineLayer = true;
+            this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
+        }
 
         this.createDrawControls();
 
@@ -247,6 +251,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     newLayer: function(layerName) {
         var i = this.vectorLayers.length;
         this.vectorLayers[i] = new OpenLayers.Layer.Vector(layerName, {styleMap: this.styleMap});
+        this.vectorLayers[i].redLineLayer = true;
         this.mapWidget.oMapOL.addLayer(this.vectorLayers[i]);
     },
     
@@ -260,6 +265,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
             }),
             styleMap: this.styleMap
         });
+        this.vectorLayers[i].redLineLayer = true;
         this.mapWidget.oMapOL.addLayer(this.vectorLayers[i]);
     },
 
@@ -271,6 +277,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         if (this.vectorLayers.length == 0) {
             this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
             this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
+            this.vectorLayers[0].redLineLayer = true;
         }
         this.activateLayer(0);
     }
@@ -399,6 +406,15 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         var select = this.taskPaneWin.document.getElementById('RedlineWidgetLayerList');
         var selectedIndex = select.selectedIndex;
         select.length = 0;
+        var olMap = this.widget.mapWidget.oMapOL;
+        var numLayers = olMap.getNumLayers();
+        this.widget.vectorLayers = [];
+        for (var i=0; i < numLayers; i++) {
+            if (olMap.layers[i].redLineLayer) {
+                this.widget.vectorLayers.push(olMap.layers[i]);
+            }
+        };
+        
         for ( var i = 0; i < this.widget.vectorLayers.length;i++)
         {
             var opt = document.createElement('option');
