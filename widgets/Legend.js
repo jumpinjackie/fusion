@@ -521,7 +521,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     updateLayer: function(layer, fScale) {
 
-        if (!layer.displayInLegend) {
+        if (!layer.displayInLegend || !layer.legend) {
             return;
         }
         var range = layer.getScaleRange(fScale);
