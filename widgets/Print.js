@@ -78,7 +78,6 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
     openPrintUI: function() {
         if (!this.dialog) {
 
-            var size = Element.getPageDimensions();
             var toolbar = new Jx.Toolbar({position: 'bottom'});
             var o = {
                 label: OpenLayers.i18n('printTitle'),
