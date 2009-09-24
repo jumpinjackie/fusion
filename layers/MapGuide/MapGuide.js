@@ -603,11 +603,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         layerOptions.alpha = true;
       }
 
-      //Fix for IE6 PNG transparency
-      if (params.format && params.format.toLowerCase().indexOf('png') >= 0) {
-        layerOptions.alpha = true;
-      }
-
       var url;
       if ( !bSingleTile && layerOptions.useHttpTile) {
         url = Fusion.getConfigurationItem('mapguide', 'tileCacheUrl');

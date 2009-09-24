@@ -144,7 +144,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             new OpenLayers.Rule({symbolizer: this.sketchSymbolizers})
         ]);
         var styleMap = new OpenLayers.StyleMap({"default": style});
-            
+        
         //add in the OL Polygon handler
         this.map = mapWidget.oMapOL;
         var handlerOptions = {                    
@@ -278,15 +278,17 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
         var quantity, from, to;
         var v = geom.getVertices();
+        var map = this.getMap();
+        var proj = map.oMapOL.baseLayer.projection;
         if (geom.CLASS_NAME.indexOf('LineString') != -1) {
             from = this.getMap().geoToPix(v[0].x,v[0].y);
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
-            quantity = geom.getGeodesicLength();
+            quantity = geom.getGeodesicLength(proj);
         } else {
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
-            quantity = geom.getGeodesicArea();
+            quantity = geom.getGeodesicArea(proj);
         }
         if (quantity > 1) {
             marker.setQuantity(quantity);

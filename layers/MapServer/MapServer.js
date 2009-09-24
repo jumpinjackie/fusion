@@ -184,9 +184,23 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             this._sMapFile = o.mapId;
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
-            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
             this._sImageType = o.imagetype;
             this.metadata = o.metadata;
+            
+            //setup the projection in the map widget
+            if (o.projString.length > 0) {
+              var epsg = o.projString.indexOf("init=");
+              if (epsg >= 0) {
+                this.projCode = o.projString.substring(epsg+5).toUpperCase();
+              } else {
+                this.projCode = o.mapName.toUpperCase();
+                Proj4js.defs[this.projCode] = o.projString;
+              }
+            }
+            if (this.projCode) {
+              this.mapWidget.setProjection(this.projCode);
+            }
+            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
 
             this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
