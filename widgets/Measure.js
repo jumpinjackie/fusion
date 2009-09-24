@@ -285,10 +285,16 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
             quantity = geom.getGeodesicLength(proj);
+            
+            measureUnits = Fusion.METERS;
+            if (measureUnits != this.units) {
+              quantity = Fusion.convert(measureUnits, this.units, quantity);
+            }
         } else {
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
             quantity = geom.getGeodesicArea(proj);
+            //TODO: result is in square meters - convert to other units?
         }
         if (quantity > 1) {
             marker.setQuantity(quantity);
