@@ -27,7 +27,7 @@
 /* recursively convert a variable to its json representation */
 function var2json($var) {
     if (function_exists('json_encode')) {
-        $result json_encode($var);
+        $result = json_encode($var);
     } else {
         $result = "";
         if (is_object($var)) {
