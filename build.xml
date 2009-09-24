@@ -93,6 +93,7 @@ $Id$
   <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssFiles"  value=""/>
+  <property name="PHP" value="/usr/local/php5cgi/bin/php"/>
 
 
 <!-- ==================== Prepare Target ================================== -->
@@ -185,9 +186,9 @@ $Id$
     <xmlproperty file="${build.home}/appDefFileset.xml"/>
 
     <!-- convert the application definition file to JSON -->
-    <exec executable="C:\ms4w\Apache\cgi-bin\php.exe" os="Windows Vista, Windows XP"
+    <exec executable="${PHP}" dir="${build.home}"
               output="${build.home}/appDef.json">
-        <arg line="common\php\Xml2JSON.php --file='${appDef}'"/>
+        <arg line="${build.home}\common\php\Xml2JSON.php --file='${appDef}'"/>
     </exec>
 
   </target>
