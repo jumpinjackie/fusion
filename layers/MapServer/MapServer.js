@@ -247,7 +247,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               layers: this.aVisibleLayers.join(' '),
               session: this.getSessionID(),
               map: this._sMapFile,
-              map_imagetype: this.sImageType
+              map_imagetype: this._sImageType
             };
             OpenLayers.Util.extend(params, this.mapTag.layerParams);
 
