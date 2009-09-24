@@ -185,7 +185,7 @@ $Id$
     <xmlproperty file="${build.home}/appDefFileset.xml"/>
 
     <!-- convert the application definition file to JSON -->
-    <exec executable="php" os="Windows Vista, Windows XP"
+    <exec executable="C:\ms4w\Apache\cgi-bin\php.exe" os="Windows Vista, Windows XP"
               output="${build.home}/appDef.json">
         <arg line="common\php\Xml2JSON.php --file='${appDef}'"/>
     </exec>
@@ -262,6 +262,8 @@ $Id$
     <echo message="compressing..."/>
     <java jar="${YUIcompressor}" fork="true"
           output="${buildOutput}-compressed.js">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${buildOutput}.js"/>
     </java>
     <copy file="${buildOutput}-compressed.js" todir="${basedir}/lib"/>
@@ -281,6 +283,8 @@ $Id$
 
     <java jar="${YUIcompressor}" fork="true"
           output="${cssOutput}-compressed.css">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${cssOutput}.css"/>
     </java>
   </target>
@@ -297,6 +301,8 @@ $Id$
 
     <java jar="${YUIcompressor}" fork="true"
           output="${cssOutput}-compressed.css">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${cssOutput}.css"/>
     </java>
   </target>
