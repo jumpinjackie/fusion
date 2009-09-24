@@ -235,7 +235,16 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
 
                 if (hyperlink) {
                     var mapTipContent = document.createElement('DIV');
-                    mapTipContent.innerHTML =  hyperlink.replace(/\n/g, "<br>");
+                    hyperlink =  hyperlink.replace(/\n/g, "<br>");
+                    if ( hyperlink.indexOf("href=")>0 ) {
+                      mapTipContent.innerHTML = hyperlink
+                    } else {
+                      var anchor = document.createElement('A');
+                      anchor.href = hyperlink;
+                      anchor.target = "_blank";
+                      anchor.innerHTML = hyperlink;
+                      mapTipContent.appendChild(anchor);
+                    }
                     contentDiv.appendChild(mapTipContent);
                     empty = false;
                 }

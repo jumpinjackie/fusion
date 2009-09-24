@@ -52,17 +52,19 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         
         var mapGroups = Fusion.applicationDefinition.mapGroups;
         this.mapGroupData = {};
-        for (var i=0; i<mapGroups.length; i++) {
-            var mapGroup = mapGroups[i];
-            if (json.Folder) {
-                this.mapGroupData[mapGroup.maps[0].resourceId] = mapGroup; 
-            } else {
-                var data = mapGroup;
-                var menuItem = new Jx.Menu.Item({
-                    label: mapGroup.mapId,
-                    onClick: OpenLayers.Function.bind(this.switchMap, this, data)
-                });
-                this.uiObj.add(menuItem);
+        for (var key in mapGroups) {
+            if (mapGroups[key].mapId) {
+                var mapGroup = mapGroups[key];
+                if (json.Folder) {
+                    this.mapGroupData[mapGroup.maps[0].resourceId] = mapGroup; 
+                } else {
+                    var data = mapGroup;
+                    var menuItem = new Jx.Menu.Item({
+                        label: mapGroup.mapId,
+                        onClick: OpenLayers.Function.bind(this.switchMap, this, data)
+                    });
+                    this.uiObj.add(menuItem);
+                }
             }
         }
 

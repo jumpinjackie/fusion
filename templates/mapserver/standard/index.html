@@ -7,6 +7,7 @@
     <script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjpkAC9ePGem0lIq5XcMiuhR_wWLPFku8Ix9i2SXYRVK3e45q1BQUd_beF8dtzKET_EteAjPdGDwqpQ'></script>
  -->    
 <script type="text/javascript" src="../../../lib/fusion.js" charset="utf-8"></script>
+<script type="text/javascript" src="EPSG42304.js"></script>
 <link rel="stylesheet" href="themes/delicious/jxtheme.uncompressed.css" type="text/css" media="screen" charset="utf-8">
 <link rel="stylesheet" href="icons.css" type="text/css" media="screen" charset="utf-8">
 <style type="text/css">
@@ -97,8 +98,10 @@ function fusionError(eventId, error) {
     <div id="SelectionPanel"></div>
     <div id="OverviewMap"></div>
 </div>
-<div id="Map"><div id="Navigator"></div>
-<div id="Maptip"></div></div>
+<div id="Map">
+  <div id="Navigator"></div>
+  <div id="Maptip"></div>
+</div>
 <div id="Statusbar"></div>
 <div id="TaskPane"></div>
 <div id="PoweredBy" class="statusBarItem">
@@ -108,7 +111,6 @@ function fusionError(eventId, error) {
 </div>
 
 </div>
-<div id="Maptip"></div>
 <div id="BusyIndicator" style="visibility: hidden;">
 </div>
 

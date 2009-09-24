@@ -95,7 +95,7 @@
                 $properties->extents->miny = $oMin->GetY();
                 $properties->extents->maxx = $oMax->GetX();
                 $properties->extents->maxy = $oMax->GetY();
-              }
+              } else { echo "/* no extents */"; }
               
               //get properties for individual features
               $result->layers = array();
@@ -108,7 +108,7 @@
                 $resourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
                 $featureReader = $featureSrvc->SelectFeatures($resourceId, $layerClassName, $options);
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties, false, NULL, false, $layer);
-                
+                $featureReader->Close();
                 array_push($result->layers, $layerName);
                 array_push($properties->layers, $layerName);
                 $count = $resultSel->GetSelectedFeaturesCount($layer, $layerClassName);
@@ -117,11 +117,11 @@
 
               /*save selection in the session*/
               $_SESSION['selection_array'] = $properties; 
-            }
-          }
-        }
-      }
-    }
+            } else { echo "/* layers false or 0 */"; }
+          } else { echo "/* no resultsel */"; }
+        } else { echo "/* no fi */"; }
+      } else { echo "/*no multi geom*/"; }
+    } else { echo "/* no layers */"; }
     
     header('Content-type: application/json');
     header('X-JSON: true');

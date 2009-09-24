@@ -166,6 +166,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         this.slider = new Slider(sliderDiv, sliderHandle, {
             mode: 'vertical',
             steps: 81,
+            snap: true,
             onComplete: OpenLayers.Function.bind(this.scaleChanged, this)
         });
         // precompute this for efficiency
@@ -195,7 +196,10 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
                 olMap.zoomTo(olMap.getZoomForResolution(resolution));
                 this.bInternalChange = false;
             } else {
-                var res = olMap.baseLayer.resolutions;
+                var zoom = olMap.baseLayer.resolutions.length - value;
+                this.bInternalChange = true;
+                olMap.zoomTo(zoom);
+                this.bInternalChange = false;
             }
         }
 
@@ -231,6 +235,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         var map = this.getMap().oMapOL;
         baseLayer = map.baseLayer
         if (baseLayer.singleTile) {
+            this.slider.steps = 81;
             var resolution = map.getResolution() - baseLayer.minResolution;
             var scale = OpenLayers.Util.getScaleFromResolution(resolution, baseLayer.units);
             var position = 9*Math.log(scale)/this.LN9;
@@ -238,16 +243,11 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
             this.slider.set(position);
             this.bInternalChange = false;
         } else {
-            var res = map.baseLayer.resolutions;
-            var n = res.length;
-            var max = res[0];
-            var min = res[n-1];
-            //this.slider.values = [];
-            //this.slider.range = $R(1,91);
-            for (var i=0; i<n; i++) {
-                var r = res[i];
-                //this.slider.values.push(parseInt((r/max)*91));
-            }
+            this.slider.steps = map.baseLayer.resolutions.length;
+            var position = map.baseLayer.resolutions.length - map.getZoom();
+            this.bInternalChange = true;
+            this.slider.set(position);
+            this.bInternalChange = false;
         }
     },
 

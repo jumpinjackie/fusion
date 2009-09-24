@@ -76,6 +76,16 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.mapInfo = mapTag.mapInfo;
         this.layerType = mapTag.type;
 
+        //projection info from the extension
+        if (mapTag.extension.ProjectionCode) {
+          this.projCode = mapTag.extension.ProjectionCode[0];
+        }
+        if (mapTag.extension.ProjectionDef) {
+          var projDef = mapTag.extension.ProjectionDef[0];
+          this.projCode = "APP-DEF-PROJ";
+          Proj4js.defs[this.projCode] = projDef;
+        }
+        
     },
 
     /**
@@ -286,7 +296,9 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
         return null;
-    }
+    },
+    
+    getMapTip: function(mapTipWidget) {}
 });
 
 /***************************************************************************

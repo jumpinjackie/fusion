@@ -203,13 +203,6 @@ try {
                 echo $e->GetStackTrace() . "\n";
             }
 
-            //debug block
-            //$testSelection = new MgSelection($map);
-            //$testSelection->AddFeatures($layerObj, $featureReader, $maxFeatures);
-            //$featureReader->Close();
-            //echo "/* features selected:".$testSelection->ToXML()."*/";
-            //$featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
-
             $layerName = $layerObj->GetName();
             array_push($properties->layers, $layerName);
 
@@ -217,6 +210,7 @@ try {
                 /* possibly toggle features in the map */
                 $newSelection = new MgSelection($map);
                 $newSelection->AddFeatures($layerObj, $featureReader, $maxFeatures);
+                $featureReader->Close();
                 $aLayers = selectionToArray($newSelection, $aLayers);
             } else {
                 try {
@@ -257,27 +251,31 @@ try {
 
                 /* add the features to the map */
                 $selection->AddFeatures($layerObj, $featureReader, $maxFeatures);
+                $featureReader->Close();
 
                 $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties,
                                                   $bComputedProperties,
                                                   $srsLayer, $bNeedsTransform, $layerObj);
+                $featureReader->Close();
             }
-
-             /* close the feature reader - not doing this could cause problems */
-            $featureReader->Close();
-
         } catch (MgObjectNotFoundException $onfe) {
             //skip layers not in the map?
             echo "Object not found";
             echo "ERROR: " . $onfe->GetMessage() . "\n";
             echo $onfe->GetDetails() . "\n";
             echo $onfe->GetStackTrace() . "\n";
+            if ($featureReader) {
+              $featureReader->Close();
+            }
         } catch (MgException $e) {
             //what should we do with general exceptions?
             echo "/*general exception:";
             echo "ERROR: " . $e->GetMessage();
             echo $e->GetDetails() . "*/";
+            if ($featureReader) {
+              $featureReader->Close();
+            }
         }
     }
 
