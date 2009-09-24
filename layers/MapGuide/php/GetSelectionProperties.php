@@ -61,7 +61,7 @@ include('Utilities.php');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
         $nLayers = $layers->GetCount();
-        echo "/* nLayers:".$nLayers."*/";
+        // echo "/* nLayers:".$nLayers."*/";
         for ($i=0; $i<$nLayers; $i++) {
             $oLayer = $layers->GetItem($i);
             $featureResId = new MgResourceIdentifier($oLayer->GetFeatureSourceId());

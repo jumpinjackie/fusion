@@ -32,9 +32,26 @@
   } else {
     $locale = GetDefaultLocale();
   }
+  
+  $type = $_REQUEST['type'];
+  switch ($type) {
+      case 1:
+          $title = GetLocalizedString('MEASUREDISTANCETITLE', $locale );
+          $totalLength = GetLocalizedString('TOTALLENGTH', $locale );
+          $totalArea = '';
+          break;
+      case 2:
+          $title = GetLocalizedString('MEASUREAREATITLE', $locale );
+          $totalLength = '';
+          $totalArea = GetLocalizedString('TOTALAREA', $locale );
+          break;
+      case 3:
+          $title = GetLocalizedString('MEASUREBOTHTITLE', $locale );
+          $totalLength = GetLocalizedString('TOTALLENGTH', $locale );
+          $totalArea = GetLocalizedString('TOTALAREA', $locale );
+          break;
+  }
 
-  $title = GetLocalizedString( "MEASURETITLE", $locale );
-  $total = GetLocalizedString( "TOTAL", $locale );
   $segment = GetLocalizedString( "SEGMENT", $locale );
   $length = GetLocalizedString( "LENGTH", $locale );
 ?>
@@ -52,6 +69,7 @@
 <body id="MeasurementWidgetResults">
     <h1><?php echo $title ?></h1>
     <table id="MeasurementWidgetResultsTable" border="0" cellspacing="5" cellpadding="5">
+<?php if ($type & 1): ?>
         <thead>
             <tr>
                 <th><?php echo $segment ?></th>
@@ -59,11 +77,20 @@
             </tr>
         </thead>
         <tbody id="segmentTBody"></tbody>
+<?php endif; ?>
         <tfoot>
+<?php if ($type & 1): ?>
             <tr>
-                <th><?php echo $total ?></th>
+                <th><?php echo $totalLength ?></th>
                 <td id="totalDistance"></td>
             </tr>
+<?php endif; ?>
+<?php if ($type & 2): ?>
+            <tr>
+                <th><?php echo $totalArea ?></th>
+                <td id="totalArea"></td>
+            </tr>
+<?php endif; ?>
         </tfoot>
     </table>
 </body>

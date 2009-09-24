@@ -38,6 +38,7 @@
 Fusion.Widget.BufferPanel = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    isExclusive: true,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;

@@ -1,6 +1,6 @@
 /**
  * @project         Jx
- * @revision        $Id: ie7.css 243 2008-12-10 15:21:19Z fred.warnock $
+ * @revision        $Id: ie7.css 324 2009-04-08 19:11:06Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -9,12 +9,18 @@
 /* IE 7 STYLES */
 /* =========== */
 
+/* force menus to have a size so they don't collapse */
+.jxMenuItemContainer {
+    filter:Alpha(opacity=100);
+}
+
 /* Opacity needs to be set in IE6 and below using the following filters.
  * Please note that IE8 changed how filters are written. 
  */
 .jxChromeDrag {filter: Alpha(opacity=50);}
 .jxDialogModal {filter: Alpha(opacity=20);}
 .jxDisabled {filter:Alpha(opacity=40);}
+.jxDisabled * {filter:Alpha(opacity=40);}
 iframe.jxIframeShim {filter:Alpha(opacity:0);}
 
 /* tree item focus style */
@@ -31,33 +37,33 @@ iframe.jxIframeShim {filter:Alpha(opacity:0);}
  * use the active pseudo-class.  Other browsers use the active-pseudo-class
  * while something is being pressed so IE specific definitions are needed. */
 /* focus button */
-ul.jxToolbar a.jxButton:active,
-a.jxButton:active {
+ul.jxToolbar .jxButton:active,
+.jxButton:active {
   background-position: left -96px;
   outline: expression(hideFocus='true');
 }
 
-a.jxButton:active span.jxButtonContent {
+.jxButton:active span.jxButtonContent {
   background-position: right -96px;
 }
 
 /* focus active button */
-ul.jxToolbar a.jxButtonActive:active,
-a.jxButtonActive:active {
+ul.jxToolbar .jxButtonActive:active,
+.jxButtonActive:active {
   background-position: left -144px;
 }
 
-a.jxButtonActive:active span.jxButtonContent {
+.jxButtonActive:active span.jxButtonContent {
   background-position: right -144px;
 }
 
 /* clicking focused button */
-ul.jxToolbar a.jxButtonPressed:active,
-a.jxButtonPressed:active {
+ul.jxToolbar .jxButtonPressed:active,
+.jxButtonPressed:active {
   background-position: left -120px;
 }
 
-a.jxButtonPressed:active span.jxButtonContent {
+.jxButtonPressed:active span.jxButtonContent {
   background-position: right -120px;
 }
 
@@ -138,10 +144,20 @@ a.jxButtonDisclose:active {
   background-position: -120px bottom; 
 }
 
+/* Menu Item iicon position.
+   IE 7 seems to want to line up the image by the top of the text of it's 
+   sibling.  This override just nudges it back up. */
+
+img.jxMenuItemIcon {
+  top: 1px;
+}
+
 /* Menu Item focus style */
 a.jxMenuItem:active {
-  border: 1px dotted #75ADFF;
+  background-position: 1px -74px;
   outline: expression(hideFocus='true');
 }
 
-
+a.jxMenuItemActive:active {
+  background-position: 1px -170px;
+}

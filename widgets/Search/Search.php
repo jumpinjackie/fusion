@@ -77,7 +77,7 @@
 
         if($layer == null)
         {
-            trigger_error(FormatMessage("SEARCHLAYERNOTFOUND", $locale, $locale, array($layerName)));
+            trigger_error(FormatMessage("SEARCHLAYERNOTFOUND", $locale, array($layerName)));
         }
 
         //unescape strings
@@ -127,16 +127,11 @@
 
             $classDef = $features->GetClassDefinition();
             $idProps = $classDef->GetIdentityProperties();
-            $multiIds = $idProps->GetCount() > 1;
             $idPropNames = array();
-            $idPropTypes = array();
-            for($j = 0, $count = count($idProps); $j < $count; $j++)
+            for($j = 0; $j < $idProps->GetCount(); $j++)
             {
                 $idProp = $idProps->GetItem($j);
-                if($multiIds)
-                    array_push($idPropNames, $idProp->GetName());
-                else
-                    $idPropName = $idProp->GetName();
+                array_push($idPropNames, $idProp->GetName());
             }
 
             //table headings
@@ -166,52 +161,69 @@
                     $propName = $resProps[$i];
                     $propType = $features->GetPropertyType($resProps[$i]);
                     $val = "";
-                    switch($propType)
+                    if (!$features->IsNull($propName))
                     {
-                        case MgPropertyType::Boolean:
-                            $val = $features->GetBoolean($propName)? "true": "false";
-                            break;
-                        case MgPropertyType::Single:
-                            $val = $features->GetSingle($propName);
-                            break;
-                        case MgPropertyType::Double:
-                            $val = $features->GetDouble($propName);
-                            break;
-                        case MgPropertyType::Int16:
-                            $val = $features->GetInt16($propName);
-                            break;
-                        case MgPropertyType::Int32:
-                            $val = $features->GetInt32($propName);
-                            break;
-                        case MgPropertyType::Int64:
-                            $val = $features->GetInt64($propName);
-                            break;
-                        case MgPropertyType::String:
-                            $val = $features->GetString($propName);
-                            break;
+                        switch($propType)
+                        {
+                            case MgPropertyType::Boolean:
+                                $val = $features->GetBoolean($propName)? "true": "false";
+                                break;
+                            case MgPropertyType::Single:
+                                $val = $features->GetSingle($propName);
+                                break;
+                            case MgPropertyType::Double:
+                                $val = $features->GetDouble($propName);
+                                break;
+                            case MgPropertyType::Int16:
+                                $val = $features->GetInt16($propName);
+                                break;
+                            case MgPropertyType::Int32:
+                                $val = $features->GetInt32($propName);
+                                break;
+                            case MgPropertyType::Int64:
+                                $val = $features->GetInt64($propName);
+                                break;
+                            case MgPropertyType::String:
+                                $val = $features->GetString($propName);
+                                break;
+                            case MgPropertyType::DateTime:
+                                $val = $features->GetDateTime($propName)->ToString();
+                                break;
+                        }
                     }
 
                     // Generate XML to selection this feature
                     //
                     $sel = new MgSelection($map);
-                    if($multiIds)
-                        throw new SearchError(GetLocalizedString("SEARCHNOMULTIPROP", $locale), $searchError);
-                    else
+                    $idProps = new MgPropertyCollection();
+                    foreach ($idPropNames as $id)
                     {
-                        if($i == 0)
-                            $idPropType = $features->GetPropertyType($idPropName);
+                        $idPropType = $features->GetPropertyType($id);
                         switch($idPropType)
                         {
                             case MgPropertyType::Int32:
-                                $sel->AddFeatureIdInt32($layer, $featureClassName, $features->GetInt32($idPropName));
+                                $idProps->Add(new MgInt32Property($id, $features->GetInt32($id)));
                                 break;
                             case MgPropertyType::String:
-                                $sel->AddFeatureIdString($layer, $featureClassName, $features->GetString($idPropName));
+                                $idProps->Add(new MgStringProperty($id, $features->GetString($id)));
+                                break;
+                            case MgPropertyType::Int64:
+                                $idProps->Add(new MgInt64Property($id, $features->GetInt64($id)));
+                                break;
+                            case MgPropertyType::Double:
+                                $idProps->Add(new MgDoubleProperty($id, $features->GetDouble($id)));
+                                break;
+                            case MgPropertyType::Single:
+                                $idProps->Add(new MgSingleProperty($id, $features->GetSingle($id)));
+                                break;
+                            case MgPropertyType::DateTime:
+                                $idProps->Add(new MgDateTimeProperty($id, $features->GetDateTime($id)));
                                 break;
                             default:
                                 throw new SearchError(FormatMessage("SEARCHTYYPENOTSUP", $locale, array($idPropType)), $searchError);
                         }
                     }
+                    $sel->AddFeatureIds($layer, $featureClassName, $idProps);
                     $selText = EscapeForHtml($sel->ToXml(), true);
 
                     echo sprintf("<td class=\"%s\" id=\"%d:%d\" onmousemove=\"SelectRow(%d)\" onclick=\"CellClicked('%s')\">&nbsp;%s</td>\n", !($row%2)? "Search" : "Search2", $row, $i, $row, $selText, $val);
@@ -225,6 +237,7 @@
         {
             throw new SearchError(GetLocalizedString("SEARCHNOMATCHES", $locale), GetLocalizedString("SEARCHREPORT", $locale));
         }
+        $features->Close();
     }
     catch(MgException $ae)
     {
@@ -244,7 +257,6 @@
         }
         OnError($e->title, $e->getMessage());
     }
-
 
     //terminate the html document
     echo "</table></body></html>";
