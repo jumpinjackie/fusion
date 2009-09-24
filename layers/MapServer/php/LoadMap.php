@@ -152,6 +152,7 @@ if ($oMap) {
         }
     }
 
+    $mapObj->projString = $oMap->getProjection();
     $mapObj->metersPerUnit = GetMetersPerUnit($oMap->units);
 
     $mapObj->dpi = $oMap->resolution;

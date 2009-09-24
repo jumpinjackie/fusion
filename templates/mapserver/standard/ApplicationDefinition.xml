@@ -14,7 +14,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap_groups.map</MapFile>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmap_groups.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -23,7 +23,18 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmap75.map</MapFile>
+            <!--ProjectionCode>EPSG:42304</ProjectionCode-->
+            <ProjectionDef>+title=LCC +proj=lcc +lat_1=49 +lat_2=77 +lat_0=49 +lon_0=-95 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs</ProjectionDef>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="gmapLL" xsi:type="MapType">
+      <Map xsi:type="MapLayerType">
+        <Type>MapServer</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmapLonLat2.map</MapFile>
         </Extension>
       </Map>
     </MapGroup>
@@ -49,7 +60,7 @@
         <Type>MapServer</Type>
         <SingleTile>true</SingleTile>
         <Extension>
-            <MapFile>/home/pdeschamps/fgs/apps/gmap-orig/htdocs/gmap75.map</MapFile>
+            <MapFile>/ms4w/apps/gmap/htdocs/gmapLonLat.map</MapFile>
             <Options>
               <isBaseLayer>false</isBaseLayer>
               <singleTile>true</singleTile>
@@ -665,12 +676,12 @@
       <Type>Measure</Type>
       <StatusText>Measure distances on the map.</StatusText>
       <Extension xsi:type="CustomContentType">
-        <Type>both</Type>
+        <Type>distance</Type>
         <MeasureTooltipContainer>MeasureResult</MeasureTooltipContainer>
         <MeasureTooltipType>dynamic</MeasureTooltipType>
         <DistancePrecision>0</DistancePrecision>
         <AreaPrecision>0</AreaPrecision>
-        <Units>meters</Units>
+        <Units>km</Units>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>measure</ImageClass>
@@ -1125,17 +1136,14 @@
     </MapWidget>
 
 <!-- OVERVIEW MAP    
+ -->
 
 
     <Widget xsi:type="WidgetType">
       <Name>OverviewMap</Name>
       <Type>OverviewMap</Type>
       <Description/>
-      <Extension xsi:type="CustomContentType">
-        <MapId>mapserverKeymap</MapId>
-      </Extension>
     </Widget>
- -->
 <!-- PRINT -->
 
     <Widget xsi:type="UiWidgetType">
@@ -1171,18 +1179,13 @@
     </Widget>
 
 <!-- MAPTIPS -->
+
     <Widget xsi:type="UiWidgetType">
       <Name>Maptip</Name>
       <Type>Maptip</Type>
       <Extension xsi:type="CustomContentType">
         <Delay>250</Delay>
         <Tolerance>5</Tolerance>
-        <Maptip>
-            <Layer>popplace </Layer>
-            <Label>Populated Places</Label>
-            <TextField>NAME</TextField>
-            <CustomURL>http://localhost/populationInfo.php?cityname=[NAME]</CustomURL>
-        </Maptip>
         <Maptip>
             <Layer>park</Layer>
             <TextField>NAME_E</TextField>   
@@ -1206,7 +1209,59 @@
         </Maptip>
       </Extension>
     </Widget>
-
+ <!--
+    <Widget xsi:type="UiWidgetType">
+      <Name>NewPoint</Name>
+      <Type>Digitizer</Type>
+      <Location>ext/LWE</Location>
+      <Extension>
+        <Mode>redline</Mode>
+        <Type>polygon</Type>
+          <Symbolizer>
+            <SymbolInput>PointStyleShape</SymbolInput>
+            <SizeInput>PointStyleSize</SizeInput>
+            <OutlineColorInput>PointStyleBorderColor</OutlineColorInput>
+            <ColorInput>PointStyleFillColor</ColorInput>
+          </Symbolizer>
+      </Extension>
+      <ImageUrl>images/icons/edit-create-point.png</ImageUrl>
+      <Label>new point</Label>
+      <Tooltip>Click create a new point</Tooltip>
+      <StatusText/>
+      <Disabled>false</Disabled>
+    </Widget>
+    <Widget>
+      <Name>PointStyleFillColorButton</Name>
+      <Type>ColorPicker</Type>
+      <Description/>
+      <Extension>
+        <ColorInputId>PointStyleFillColor</ColorInputId>
+      </Extension>
+      <Label>Fill</Label>
+      <Tooltip>Click to change the fill color of the point symbol</Tooltip>
+    </Widget>
+    -->
+    <!--Widget xsi:type="UiWidgetType">
+      <Name>ModifyPoint</Name>
+      <Type>Edit</Type>
+      <Location>ext/LWE</Location>
+      <Extension>
+        <Mode>redline</Mode>
+        <Type>point</Type>
+        <Symbolizer>
+          <SymbolInput>PointStyleShape</SymbolInput>
+          <SizeInput>PointStyleSize</SizeInput>
+          <OutlineColorInput>PointStyleBorderColor</OutlineColorInput>
+          <ColorInput>PointStyleFillColor</ColorInput>
+        </Symbolizer>
+      </Extension>
+      <ImageUrl>images/icons/edit-modify-point.png</ImageUrl>
+      <Label/>
+      <Tooltip>Click to modify existing points</Tooltip>
+      <StatusText/>
+      <Disabled>false</Disabled>
+    </Widget-->
+    
     </WidgetSet>
 
   <Extension/>
