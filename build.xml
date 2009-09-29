@@ -188,7 +188,7 @@ $Id$
     <!-- convert the application definition file to JSON -->
     <exec executable="${PHP}" dir="${build.home}"
               output="${build.home}/appDef.json">
-        <arg line="${build.home}\common\php\Xml2JSON.php --file='${appDef}'"/>
+        <arg line="${build.home}/common/php/Xml2JSON.php --file='${appDef}'"/>
     </exec>
 
   </target>
