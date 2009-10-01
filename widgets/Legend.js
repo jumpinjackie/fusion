@@ -521,6 +521,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     updateLayer: function(layer, fScale) {
 
+        var checkbox = layer.oMap.bSingleTile ? this.bIncludeVisToggle : false;
         if (!layer.displayInLegend || !layer.legend) {
             return;
         }
@@ -555,15 +556,22 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             } else {
                
                 var style = range.styles[0];
+                if (!style.legendLabel) {
+                  style.legendLabel = layer.legendLabel;
+                }
                 if (!layer.legend.treeItem) {
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
-                    OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, checkbox);
+                    if (checkbox) {
+                      OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    }
                     
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
                     this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, this.bIncludeVisToggle);
-                    OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, checkbox);
+                    if (checkbox) {
+                      OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    }
                     
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {
@@ -575,11 +583,13 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     }
                 }
             }
-            layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
-            if (layer.layerTypes[0] == 4 || range.styles.length > 0) {
-              layer.legend.treeItem.checkBox.disabled = false;
-            } else {
-              layer.legend.treeItem.checkBox.disabled = true;
+            if (checkbox) {
+              layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
+              if (layer.layerTypes[0] == 4 || range.styles.length > 0) {
+                layer.legend.treeItem.checkBox.disabled = false;
+              } else {
+                layer.legend.treeItem.checkBox.disabled = true;
+              }
             }
         } else {
             if (this.hideInvisibleLayers) {
@@ -588,10 +598,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.legend.treeItem = null;
                 }
             } else {
-                var newTreeItem = this.createTreeItem(layer, null, null, this.bIncludeVisToggle);
-                OpenLayers.Event.observe(newTreeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, checkbox);
+                if (checkbox) {
+                  OpenLayers.Event.observe(newTreeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                }
                 if (layer.legend.treeItem) {
-                    layer.legend.treeItem.checkBox.disabled = true;
+                    if (checkbox) layer.legend.treeItem.checkBox.disabled = true;
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
                     layer.legend.treeItem.finalize();
                 } else {
