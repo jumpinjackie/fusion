@@ -49,6 +49,7 @@ Fusion.Strings.en = {
 'printCancel': 'Cancel',
 'printGenerate': 'Generate',
 'zoomRect': 'Zoom Rectangle',
+'maptipLinkText': 'Click for more information',
 
 'end': ''
 };
