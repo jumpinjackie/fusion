@@ -243,9 +243,11 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
                       mapTipContent.innerHTML = hyperlink
                     } else {
                       var anchor = document.createElement('A');
-                      anchor.href = hyperlink;
+                      var openLink = OpenLayers.Function.bind(this.openLink, this, hyperlink);
+                      anchor.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
                       anchor.target = "_blank";
-                      anchor.innerHTML = hyperlink;
+                      anchor.href = 'javascript:void(0)';
+                      anchor.innerHTML = OpenLayers.i18n('maptipLinkText');
                       mapTipContent.appendChild(anchor);
                     }
                     contentDiv.appendChild(mapTipContent);
