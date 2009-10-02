@@ -55,7 +55,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     delay: null,
     aLayers: null,
     bOverTip: false,
-    sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
+    sWinFeatures: 'menubar=no,location=no,resizable=no,status=no,scrollbars=yes',
     offset: new OpenLayers.Pixel(2,20),
     szTip: '',
     szHref:'',
