@@ -49,7 +49,7 @@
 
 
 Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
-    oCurrentPosition: null,
+    oCurrentPosition: new OpenLayers.Pixel(0,0),
     oMapTipPosition: null,
     nTimer: null,
     delay: null,
@@ -154,6 +154,9 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             this.mapOffset = map._oDomObj.offsets;
 
             var p = map.getEventPosition(e);
+            if (p.x == this.oCurrentPosition.x && p.y == this.oCurrentPosition.y ) {
+              return;
+            }
             this.oCurrentPosition = p;
             this.oMapTipPosition = p;
 
