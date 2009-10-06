@@ -817,6 +817,20 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             var geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + minx + ' ' + maxy + ', ' + maxx + ' ' + maxy + ', ' + maxx + ' ' + miny + ', ' + minx + ' ' + miny + '))';
             var selectionType = "INTERSECTS";
 
+           var aVisLayers = [];
+           
+           for(var i = 0; i<this.aLayers.length;i++ ){
+                var iLayerMinScale = this.aLayers[i].scaleRanges[0].minScale;
+                var iLayerMaxScale = this.aLayers[i].scaleRanges[0].maxScale;
+                var iCurrentScale = this.mapWidget.getScale();
+
+                if(iCurrentScale < iLayerMaxScale && iCurrentScale > iLayerMinScale){
+                    if(this.aLayers[i].isVisible() === true){
+                        aVisLayers.push(this.aLayers[i].layerName);
+                    }
+                }
+           }
+
             var loadmapScript = '/layers/'+ this.arch + '/php/Maptip.php';
             var params = {
                 'mapname': this._sMapname,
@@ -827,7 +841,9 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
                 'layer': oMapTips.aLayers || '',
                 'textfield': oMapTips.aTextFields || '',
                 'label': oMapTips.aLabels || '',
-                'customURL': oMapTips.aCustomURL || ''
+                'customURL': oMapTips.aCustomURL || '',
+                'visLayers' : aVisLayers
+                
             }
             var parseMapTip = this.parseMapTip.bind(this);
             this.bMapTipFired = true;
