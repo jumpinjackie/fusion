@@ -146,7 +146,7 @@ Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
      */
     renderLegend: function() {},
     
-    /**
+    /**defaultDisabledLayerIcon
      * Method: mapLoading
      * Abstract method that handle the event: Fusion.Event.MAP_LOADING. This method
      * is optional.
@@ -668,21 +668,26 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
             opt.draw = this.renderItem;
         }
-        if (layer.layerTypes[0] == 4) {
-            if (style && style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
-                opt.image = this.imgLayerDWFIcon;
-            } else {
-                opt.image = this.imgLayerRasterIcon;
-            }
-        } else if (!style) {
+        if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-            opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
+           var defaultIcon = this.imgDisabledLayerIcon;
+           if (layer.layerTypes[0] == 4) {
+               if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
+                 defaultIcon = this.imgLayerDWFIcon;
+              } else {
+                defaultIcon = this.imgLayerRasterIcon;
+              }
+            }
+            opt.image = layer.oMap.getLegendImageURL(scale, layer, style, defaultIcon);
         }
-        opt.contextMenu = this.getContextMenu(); 
+        opt.contextMenu = this.getContextMenu();
 
         var item = new Jx.TreeItem(opt);
+
+
+        
         if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
