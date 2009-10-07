@@ -71,18 +71,26 @@ try
     @$oMax = $extents->GetUpperRightCoordinate();
 
     @$srs = $map->GetMapSRS();
+    $epsgCode = "";
     if($srs != "")
     {
       @$csFactory = new MgCoordinateSystemFactory();
       @$cs = $csFactory->Create($srs);
       @$metersPerUnit = $cs->ConvertCoordinateSystemUnitsToMeters(1.0);
+      try {
+        $epsgCode = $csFactory->ConvertWktToEpsgCode($srs);
+      } catch (MgException $e) {
+        //just catch the exception and set epsgCode to empty string
+      }
+      
+
       //  $unitsType = $cs->GetUnits();
     }
     else
     {
       $metersPerUnit = 1.0;
       //$unitsType = "Meters";
-    }   
+    }
 
 
     header('Content-type: application/json');
@@ -91,6 +99,8 @@ try
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapid;
     $mapObj->metersPerUnit = $metersPerUnit;
+    $mapObj->wkt = $srs;
+    $mapObj->epsg = $epsgCode;
     $mapObj->siteVersion = GetSiteVersion();
 
     $mapObj->mapTitle=addslashes($mapTitle);

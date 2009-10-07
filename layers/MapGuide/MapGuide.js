@@ -296,6 +296,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
             this.units = Fusion.getClosestUnits(o.metersPerUnit);
+            if (this.projCode) {
+              this.mapWidget.setProjection(this.projCode);
+            }
 
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
