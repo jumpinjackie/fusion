@@ -797,7 +797,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    getLegendImageURL: function(fScale, layer, style) {
+    getLegendImageURL: function(fScale, layer, style,defaultIcon) {
         var sl = Fusion.getScriptLanguage();
         var url = Fusion.getFusionURL() + '/layers/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
         var sessionid = this.getSessionID();

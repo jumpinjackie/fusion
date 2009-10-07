@@ -1156,18 +1156,25 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
     },
     
-    getLegendImageURL: function(fScale, layer, style) {
-      var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-      url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
-      url += "&VERSION=1.0.0&SCALE=" + fScale;
-      url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
-      url += "&THEMECATEGORY=" + style.categoryIndex;
-      url += "&TYPE=" + style.geometryType;
-      url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
-      if (layer.noCache) {
-        url += "&TS=" + (new Date()).getTime();
-      }
-      return url;
+    getLegendImageURL: function(fScale, layer, style,defaultIcon) {
+        if(this.layerTypes[0] == 4){
+            return defaultIcon;
+        }
+        else
+        {
+            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
+            url += "&VERSION=1.0.0&SCALE=" + fScale;
+            url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
+            url += "&THEMECATEGORY=" + style.categoryIndex;
+            url += "&TYPE=" + style.geometryType;
+            url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
+            if (layer.noCache) {
+                url += "&TS=" + (new Date()).getTime();
+            }
+            return url;
+        }
+
     },
 
 

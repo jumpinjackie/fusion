@@ -223,9 +223,9 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         this.drawMap();
     },
     
-    getLegendImageURL: function(fScale, layer, style) {
-      var url = null; //TODO: provide a generic icon url 
-      return url;
+    getLegendImageURL: function(fScale, layer, style,defaultIcon) {
+      //var url = null; //TODO: provide a generic icon url 
+      return defaultIcon;
     }
 
 });
