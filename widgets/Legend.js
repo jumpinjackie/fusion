@@ -556,7 +556,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             } else {
                
                 var style = range.styles[0];
-                if (!style.legendLabel) {
+                if (style && !style.legendLabel) {
                   style.legendLabel = layer.legendLabel;
                 }
                 if (!layer.legend.treeItem) {
