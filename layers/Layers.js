@@ -548,7 +548,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
 Fusion.Layers.ScaleRange = OpenLayers.Class({
     styles: null,
-    initialize: function(o, layerType) {
+    initialize: function(o, layerType, iconOpt) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity' || this.maxScale == 'auto') {
@@ -556,13 +556,13 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
         }
         this.styles = [];
         if (!o.styles) {
-          var styleItem = new Fusion.Layers.StyleItem({legendLabel:'DWF'}, layerType);
+          var styleItem = new Fusion.Layers.StyleItem({legendLabel:'DWF'}, layerType, iconOpt);
           this.styles.push(styleItem);
           return;
         }
         var staticIcon = o.styles.length>1 ? false : layerType;
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new Fusion.Layers.StyleItem(o.styles[i], staticIcon);
+            var styleItem = new Fusion.Layers.StyleItem(o.styles[i], staticIcon, iconOpt);
             this.styles.push(styleItem);
         }
     },
@@ -580,7 +580,10 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
 
 Fusion.Layers.StyleItem = OpenLayers.Class({
     clientAgent: 'Fusion Viewer',
-    initialize: function(o, staticIcon) {
+    initialize: function(o, staticIcon, iconOpt) {
+        this.iconOpt = iconOpt;
+        this.iconX = o.icon_x || 0;
+        this.iconY = o.icon_y || 0;
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
         this.geometryType = o.geometryType;

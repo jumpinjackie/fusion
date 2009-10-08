@@ -680,13 +680,27 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 defaultIcon = this.imgLayerRasterIcon;
               }
             }
-            opt.image = layer.oMap.getLegendImageURL(scale, layer, style, defaultIcon);
+            if (style.iconOpt && style.iconOpt.url) {
+                opt.image = style.iconOpt.url;
+            } else {
+                opt.image = layer.oMap.getLegendImageURL(scale, layer, style, defaultIcon);
+            }
         }
         opt.contextMenu = this.getContextMenu();
 
         var item = new Jx.TreeItem(opt);
-
-
+        if (style && style.iconX >= 0 && style.iconY >= 0) {
+            item.domImg;
+            item.domImg.style.backgroundImage = 'url('+opt.image+')';
+            item.domImg.src = Jx.aPixel.src;
+            item.domImg.style.backgroundPosition = (-1*style.iconX) + 'px ' + (-1*style.iconY) + 'px';
+            if (style.iconOpt.width) {
+                item.domImg.style.width = style.iconOpt.width + 'px';
+            }
+            if (style.iconOpt.height) {
+                item.domImg.style.height = style.iconOpt.height + 'px';
+            }
+        }
         
         if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);

@@ -326,24 +326,24 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
-    scaleRangesLoaded: function(userFunc, r) 
-    {
-        if (r.status == 200) 
-        {
+    scaleRangesLoaded: function(userFunc, r) {
+        if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
-            if (o.layers && o.layers.length > 0)
-            {
-                for (var i=0; i<o.layers.length; i++)
-                {
+            
+            if (o.layers && o.layers.length > 0) {
+                var iconOpt = {
+                    url: o.icons_url || null,
+                    width: o.icons_width || 16,
+                    height: o.icons_height || 16,
+                };
+                for (var i=0; i<o.layers.length; i++) {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
-                    if (oLayer)
-                    {
+                    if (oLayer) {
                         oLayer.scaleRanges = [];
-                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) 
-                        {
+                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) {
                             var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j], 
-                                                                                 oLayer.layerType);
+                                                                                 oLayer.layerType, iconOpt);
                             oLayer.scaleRanges.push(scaleRange);
                         }
                     }
