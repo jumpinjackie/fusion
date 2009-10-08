@@ -392,6 +392,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             eval('o='+r.responseText);
             if (o.layers && o.layers.length > 0)
             {
+                var iconOpt = {
+                    url: o.icons_url || null,
+                    width: o.icons_width || 16,
+                    height: o.icons_height || 16,
+                };
                 for (var i=0; i<o.layers.length; i++)
                 {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
@@ -401,7 +406,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                         for (var j=0; j<o.layers[i].scaleRanges.length; j++)
                         {
                             var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j],
-                                                                                 oLayer.layerType);
+                                                                                 oLayer.layerType, iconOpt);
                             oLayer.scaleRanges.push(scaleRange);
                         }
                     }
