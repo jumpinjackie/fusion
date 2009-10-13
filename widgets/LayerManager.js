@@ -144,14 +144,14 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         this.createItemHtml(blockItem, processArray[i]);
         blockItem.layer = processArray[i];
       }
-      
-      /*
-      var options = [];
-      options.onUpdate = OpenLayers.Function.bind(this.updateLayer, this, map);
-      options.scroll = this.domObj.id;    //docs for this at: http://wiki.script.aculo.us/scriptaculous/show/Sortable.create
-      Position.includeScrollOffsets = true;
-      Sortable.create(mapBlockList.id, options);
-      */
+
+      var sortableOptions = {
+                constrain: true,
+                clone: false,
+                revert: true,
+                onComplete: OpenLayers.Function.bind(this.updateLayer, $(mapBlockList.id), map)
+            };
+    var mySortables = new Sortables(mapBlockList.id, sortableOptions);
     },
    
   createItemHtml: function(parent, layer) {
@@ -191,15 +191,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   setGrabCursor: function(ev) {
-   // this.setCursor(this.cursorNormal, Event.element(ev) );
+    this.setCursor(this.cursorDrag, ev.currentTarget.parentNode);
   },
   
   setDragCursor: function(ev) {
-   // this.setCursor(this.cursorDrag, Event.element(ev) );
+   this.setCursor(this.cursorDrag, ev.currentTarget.parentNode);
   },
   
   setNormalCursor: function(ev) {
-    //this.setCursor('auto', Event.element(ev) );
+    this.setCursor('auto', ev.currentTarget.parentNode);
   },
   
   setCursor : function(cursor, domObj) {
@@ -222,20 +222,20 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     //reorder the layers in the client as well as the session
     var aLayerIndex = [];
     var aIds = [];
-    var nLayers = ul.childNodes.length;
+    var nLayers = this.childNodes.length;
     for (var i=0; i<nLayers; ++i) {
-      aIds[i] = ul.childNodes[i].id.split('_');
+      aIds[i] = this.childNodes[i].id.split('_');
       var index = parseInt(aIds[i].pop());
       if (map.bLayersReversed) {
         index = nLayers - (index+1);
       }
       aLayerIndex.push(index);
-      ul.childNodes[i].id = '';
+      this.childNodes[i].id = '';
     }
     
     //reset the ID's on the LI elements to be in order
-    for (var i=0; i<ul.childNodes.length; ++i) {
-      var node = ul.childNodes[i];
+    for (var i=0; i<this.childNodes.length; ++i) {
+      var node = this.childNodes[i];
       aIds[i].push(i);
       node.id = aIds[i].join('_');
       node.childNodes[1].checked = node.layer.isVisible()
