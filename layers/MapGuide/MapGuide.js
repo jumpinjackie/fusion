@@ -1165,7 +1165,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
     
     getLegendImageURL: function(fScale, layer, style,defaultIcon) {
-        if(this.layerTypes[0] == 4){
+        if(layer.layerTypes[0] == 4){
             return defaultIcon;
         }
         else
@@ -1177,7 +1177,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             url += "&THEMECATEGORY=" + style.categoryIndex;
             url += "&TYPE=" + style.geometryType;
             url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
-            if (layer.noCache) {
+            if (this.noCache) {
                 url += "&TS=" + (new Date()).getTime();
             }
             return url;
