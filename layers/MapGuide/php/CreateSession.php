@@ -42,6 +42,7 @@ try {
     $result = null;
     $result->sessionId = $sessionId;
     $result->userName = $username;
+    $result->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     echo var2json($result);
     
     /* start a php session in the web tier as well, using same session id */
