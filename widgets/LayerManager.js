@@ -77,7 +77,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     clear: function(node) {
         while (node.childNodes.length > 0) {
           this.clear(node.childNodes[0]);
-            node.remove(node.childNodes[0]);
+            node.destroy(node.childNodes[0]);
         }
     },
   
@@ -88,8 +88,8 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
      */
     draw: function(r) {
       if (this.mapList) {
-        //this.clear(this.mapList);
-        //this.mapList.remove();
+        this.clear(this.mapList);
+        this.mapList.destroy();
         this.mapList = null;
       }
        
