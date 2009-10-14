@@ -41,5 +41,6 @@ header('X-JSON: true');
 $result = null;
 $result->sessionId = $sessionId;
 $result->userName = '';
+$result->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 echo var2json($result);
 ?>
