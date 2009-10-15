@@ -48,7 +48,7 @@ Fusion.Strings.fr = {
 'zoomIn': 'Cliquer pour agrandir',
 'printCancel': 'Cancel',
 'printGenerate': 'Generate',
-'maptipLinkText': 'Cliquer pour plus d'information',
+'maptipLinkText': 'Cliquer pour plus d information',
 
 'end': ''
 };
