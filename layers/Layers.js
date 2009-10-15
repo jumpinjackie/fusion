@@ -484,7 +484,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.scaleRanges.push(scaleRange);
           }
         }
-        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
+
+        //this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
     },
 
     supportsType: function(type) {
@@ -535,7 +536,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     set: function(property, value) {
         this[property] = value;
-        this.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
+        this.oMap.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
     }
 
 });
