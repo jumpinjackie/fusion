@@ -53,6 +53,8 @@
 Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
+    map: null,
+    bLayerChanged:false,
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
@@ -60,17 +62,27 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
-        
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.map = this.getMap();
+        this.map.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.map.registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapReLoaded, this));
+        // update changes to the legend in this widget
+        this.map.aMaps[0].registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerChanged,this));
     },
     
-   
     mapLoaded: function() {
         this.draw();
+        this.bLayerChanged = true;
     },
     
-   
+    layerChanged: function() {
+        this.bLayerChanged = true;
+        this.draw();
+        this.updateSessionMapFile();
+    },
+   mapReLoaded: function(){
+        this.bLayerChanged = false;
+        this.draw();
+   },
    /**
      * remove the dom objects representing the legend layers and groups
      */
@@ -100,11 +112,13 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         
       //this processes the OL layers
       var map = this.getMap();
+
+      
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
         mapBlock.className = 'jxLmanMap';
         mapBlock.id = 'mapBlock_'+i;
-        
+
         //add a handle so the map blocks can be re-arranged
         var handle = document.createElement('a');
         handle.innerHTML = map.aMaps[i]._sMapTitle;
@@ -130,12 +144,14 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
       blockDom.appendChild(mapBlockList);
       map.layerPrefix = 'layer_';   //TODO make this unique for each block
-      
+      mapBlockList.bLayerChanged = this.bLayerChanged;
       //this process all layers within an OL layer
       var processArray = map.aLayers;
-      if (map.bLayersReversed) {
+
+      if (map.bLayersReversed && this.bLayerChanged === false ) {
         processArray.reverse();
       }
+      
       for (var i=0; i<processArray.length; ++i) {
         var blockItem = document.createElement('li');
         blockItem.className = 'jxLmanLayer';
@@ -226,7 +242,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     for (var i=0; i<nLayers; ++i) {
       aIds[i] = this.childNodes[i].id.split('_');
       var index = parseInt(aIds[i].pop());
-      if (map.bLayersReversed) {
+      if (map.bLayersReversed && ul.bLayerChanged === false) {
         index = nLayers - (index+1);
       }
       aLayerIndex.push(index);
@@ -240,7 +256,8 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       node.id = aIds[i].join('_');
       node.childNodes[1].checked = node.layer.isVisible()
     }
-    if (map.bLayersReversed) {
+
+    if (map.bLayersReversed && ul.bLayerChanged === false) {
       aLayerIndex.reverse();
     }
     map.reorderLayers(aLayerIndex);
@@ -265,6 +282,33 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     } else {
       layer.hide();
     }
+  },
+  updateSessionMapFile: function(){
+    // get map
+    var map = this.getMap();
+    var aMaps = map.getAllMaps();
+    var currentMap = aMaps[0];
+    var sessionId = aMaps[0].getSessionID();
+
+    // get all layers
+    var oLayers = currentMap.aLayers;
+    var aLayerNames = [];
+    var visibleLayers = [];
+    for(var i=0;i<oLayers.length;i++){
+        aLayerNames.push(oLayers[i].layerName);
+        if(oLayers[i].visible == true){
+            visibleLayers.push(oLayers[i].layerName);
+        }
+    }
+
+    // prepare ajax req
+    var params =  '&session='+sessionId+'&mapname='+ this.getMap().getMapName()+'&visLayers='+visibleLayers+'&layers='+aLayerNames;
+    var options = {parameters: params};
+
+    // fire the request no need to return
+    var m = this.getMap().aMaps[0];
+    var url = 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/updateSessionMapFile." + Fusion.getScriptLanguage()
+    Fusion.ajaxRequest(  url, options);
   }
 
 });
