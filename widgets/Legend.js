@@ -460,7 +460,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         layer.legend = {};
         layer.legend.parentItem = folder;
         layer.legend.currentRange = null;
-        layer.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerPropertyChanged, this));
+        layer.oMap.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerPropertyChanged, this));
     },
    
     layerPropertyChanged: function(eventID, layer) {
