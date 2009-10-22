@@ -344,7 +344,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
                 var iconOpt = {
                     url: o.icons_url || null,
                     width: o.icons_width || 16,
-                    height: o.icons_height || 16,
+                    height: o.icons_height || 16
                 };
                 for (var i=0; i<o.layers.length; i++) {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
