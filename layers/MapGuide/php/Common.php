@@ -38,6 +38,10 @@
 
 $defaultExtensionDir = dirname(__FILE__)."/../../../../";
 $defaultInstallDir = realpath($defaultExtensionDir)."/../../";
+$initializationErrorOccurred = false;
+$initializationErrorMessage = null;
+$initializationErrorStackTrace = null;
+$initializationErrorDetail = null;
 
 /**
  * Developer's notes:
@@ -64,8 +68,10 @@ if (!isset($extensionDir)){
 include dirname(__FILE__)."/Constants.php";
 // Initialize
 
-MgInitializeWebTier($extensionDir. "/webconfig.ini");
-try {
+try
+{
+    MgInitializeWebTier($extensionDir. "/webconfig.ini");
+
     /* If no session has been established yet, then we use the credentials passed
      * to this script to connect to the site server.  By default, we use the
      * Anonymous user.
@@ -115,48 +121,63 @@ try {
         }
         //echo "<current user: >".$_SESSION['username']. '</current>';
     }
-} catch (MgAuthenticationFailedException $afe) {
-    header('Content-type: text/xml');
-    echo "<Exception>";
-    echo "<Type>Authentication Failed</Type>";
-    echo "<Message>" . $afe->GetMessage() . "</Message>";
-    echo "<Details>" . $afe->GetDetails() . "</Details>";
-    echo "</Exception>";
-    exit;
-} catch (MgUserNotFoundException $unfe) {
-    header('Content-type: text/xml');
-    echo "<Exception>";
-    echo "<Type>User Not Found</Type>";
-    echo "<Message>" . $unfe->GetMessage() . "</Message>";
-    echo "<Details>" . $unfe->GetDetails() . "</Details>";
-    echo "</Exception>";
-    exit;
-} catch (MgSessionExpiredException $see) {
-    header('Content-type: text/xml');
-    echo "<Exception>";
-    echo "<Type>Session Expired</Type>";
-    echo "<Message>" . $see->GetMessage() . "</Message>";
-    echo "<Details>" . $see->GetDetails() . "</Details>";
-    echo "</Exception>";
-    exit;
-} catch (MgException $e) {
-    header('Content-type: text/xml');
-    echo "<Exception>";
-    echo "<Type>Exception</Type>";
-    echo "<Message>" . $e->GetMessage() . "</Message>";
-    echo "<Details>" . $e->GetDetails() . "</Details>";
-    echo "</Exception>";
-    exit;
+
+    //common resource service to be used by all scripts
+    $resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
+
+    if (isset($_REQUEST['mapname'])) {
+        $mapName = $_REQUEST['mapname'];
+        $mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
+        $mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
+    }
+
+}
+catch (MgException $e)
+{
+    $initializationErrorMessage = $e->GetMessage();
+    $initializationErrorDetail = $e->GetDetails();
+    $initializationErrorStackTrace = $e->GetStackTrace();
+    $initializationErrorOccurred = true;
 }
 
+function InitializationErrorOccurred()
+{
+    global $initializationErrorOccurred;
+    return $initializationErrorOccurred;
+}
 
-//common resource service to be used by all scripts
-$resourceService = $siteConnection->CreateService(MgServiceType::ResourceService);
+function DisplayInitializationErrorHTML()
+{
+    global $initializationErrorMessage, $initializationErrorDetail;
+    echo "<table class=\"RegText\" border=\"0\" cellspacing=\"0\" width=\"100%%\">";
+    echo "<tr><td class=\"Title\">Error<hr></td></tr>";
+    if($initializationErrorMessage != null)
+    {
+        $message = $initializationErrorMessage;
+        while(strpos($message, '\n'))
+        {
+            $message = str_replace('\n', '<br/>', $message);
+        }
+        echo "<tr><td>" . $message . "</td></tr>";
+    }
+    if ($initializationErrorDetail != null && (strlen($initializationErrorDetail) - strlen($initializationErrorMessage) > 4))
+    {
+        $detail = $initializationErrorDetail;
+        while(strpos($detail, '\n'))
+        {
+            $detail = str_replace('\n', '<br/>', $detail);
+        }
+        echo "<tr><td>" . $detail . "</td></tr>";
+    }
+    echo "</table>";
+}
 
-if (isset($_REQUEST['mapname'])) {
-    $mapName = $_REQUEST['mapname'];
-    $mapResourceID = new MgResourceIdentifier( 'Session:'.$sessionID.'//'.$mapName.'.MapDefinition');
-    $mapStateID = new MgResourceIdentifier('Session:'.$sessionID.'//'.$mapName.'.'.MgResourceType::Map);
+function DisplayInitializationErrorText()
+{
+    global $initializationErrorMessage, $initializationErrorDetail, $initializationErrorStackTrace;
+    echo "ERROR: " . $initializationErrorMessage . "\n";
+    echo $initializationErrorDetail . "\n";
+    echo $initializationErrorStackTrace . "\n";
 }
 
 function GetDefaultLocale()

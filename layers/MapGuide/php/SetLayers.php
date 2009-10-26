@@ -37,62 +37,67 @@ echo "{";
 try {
     /* set up the session */
     include ("Common.php");
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorText();
+        exit;
+    }
     include('../../../common/php/Utilities.php');
     include('Utilities.php');
 
-	/* the name of the layer in the map to query */
-	if ($_REQUEST['layerindex'] != '') {
-		$layers = explode(',',$_REQUEST['layerindex']);
-	} else {
-		$layers = array();
-	}
+    /* the name of the layer in the map to query */
+    if ($_REQUEST['layerindex'] != '') {
+        $layers = explode(',',$_REQUEST['layerindex']);
+    } else {
+        $layers = array();
+    }
 
     /* open the map from the session using the provided map name.  The map was
        previously created by calling LoadMap. */
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
-	$mapLayers = $map->GetLayers();
-	
-	
-	$nIndex = count($layers);
-	$nLayers = $mapLayers->GetCount();
+    $mapLayers = $map->GetLayers();
+
+
+    $nIndex = count($layers);
+    $nLayers = $mapLayers->GetCount();
     for ($i=0; $i<$nLayers; $i++) {
-		if ($layers[$i] == $i) {
-			continue;
-		}
-		$found = -1;
-		for ($j=$i+1; $j<$nIndex; ++$j) {
-			if ($layers[$j] == $i) {
-				$found = $j;
-				break;
-			}
-		}
-		if ($found >= 0) {
-			$layerToMove = $mapLayers->GetItem($i);
-			//$layerDef = $layerToMove->GetLayerDefinition();
-			//$mapLayers->Insert($found, new MgLayerBase($layerDef,$resourceService));
-			$mapLayers->RemoveAt($i);
-			$mapLayers->Insert($found, $layerToMove);
-		} else {
-			$mapLayers->RemoveAt($i);
-		}
-		break;
-	}
-	/*
-	$nLayers = count($layers);
-	$layerDefs = array();
+        if ($layers[$i] == $i) {
+            continue;
+        }
+        $found = -1;
+        for ($j=$i+1; $j<$nIndex; ++$j) {
+            if ($layers[$j] == $i) {
+                $found = $j;
+                break;
+            }
+        }
+        if ($found >= 0) {
+            $layerToMove = $mapLayers->GetItem($i);
+            //$layerDef = $layerToMove->GetLayerDefinition();
+            //$mapLayers->Insert($found, new MgLayerBase($layerDef,$resourceService));
+            $mapLayers->RemoveAt($i);
+            $mapLayers->Insert($found, $layerToMove);
+        } else {
+            $mapLayers->RemoveAt($i);
+        }
+        break;
+    }
+    /*
+    $nLayers = count($layers);
+    $layerDefs = array();
     for ($i=0; $i<$nLayers; $i++) {
-		$layer = $mapLayers->GetItem($layers[$i]);
-		array_push($layerDefs, $layer->GetLayerDefinition() );
-	}
-	$mapLayers->Clear();
-	
-	$nLayers = count($layerDefs);
+        $layer = $mapLayers->GetItem($layers[$i]);
+        array_push($layerDefs, $layer->GetLayerDefinition() );
+    }
+    $mapLayers->Clear();
+
+    $nLayers = count($layerDefs);
     for ($i=0; $i<$nLayers; $i++) {
-		$layer = new MgLayer(new MgResourceIdentifier($layerDefs[$i]), $resourceService);
-		$mapLayers->Add($layer);
-	}
-	*/
+        $layer = new MgLayer(new MgResourceIdentifier($layerDefs[$i]), $resourceService);
+        $mapLayers->Add($layer);
+    }
+    */
 
     $map->Save($resourceService);
     echo "success: true";

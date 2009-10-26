@@ -26,6 +26,11 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     include $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
 
     $locale = GetDefaultLocale();
     $popup = 0;

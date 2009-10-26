@@ -18,6 +18,11 @@
 //
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/theme.php';
@@ -443,7 +448,7 @@
     <tr><td colspan="2" align="right"><input class="Ctrl" type="button" value="Apply" style="width: 60px;" onClick="ApplyTheme()"></td></tr>
 </table>
 
-<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?> 
+<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
     <tr><td class="Title">Error<hr></td></tr>

@@ -28,6 +28,11 @@
  * Purpose: get map initial information
  *****************************************************************************/
 include('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 $format     = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'PNG';
 $layout     = isset($_REQUEST['layout']) ? $_REQUEST['layout'] : null;
 $scale      = isset($_REQUEST['scale']) ? $_REQUEST['scale'] : null;
@@ -42,10 +47,10 @@ try
     $renderingService = $siteConnection->CreateService(MgServiceType::RenderingService);
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
-    
+
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
-    
+
     //get current center as a coordinate
     $center = $map->GetViewCenter()->GetCoordinate();
 
@@ -65,9 +70,9 @@ try
                                             $aMargins[2],
                                             $aMargins[3]
                                             );
-        
+
         $dwfVersion = new MgDwfVersion('6.01','1.2');
-        
+
         $oImg = $mappingService->GeneratePlot($map,
                                           $center,
                                           $scale,

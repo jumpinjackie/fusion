@@ -19,6 +19,11 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . '/JSON.php';
     require_once 'classes/featureinfo.php';
@@ -68,7 +73,7 @@
 
         var properties = null;
         var results;
-        
+
         var reqHandler;
 
         function OnLayerChange() {
@@ -89,7 +94,7 @@
             var map = GetFusionMapWidget();
             map.clearSelection();
         }
-        
+
         function OnDigitizePoint() {
             DigitizePoint(OnPointDigitized);
         }
@@ -99,7 +104,7 @@
             var min = {x:point.X-tolerance,y:point.Y-tolerance};
             var max = {x:point.X+tolerance,y:point.Y+tolerance};
             var geom = 'POLYGON(('+ min.x + ' ' +  min.y + ', ' +  max.x + ' ' +  min.y + ', ' + max.x + ' ' +  max.y + ', ' + min.x + ' ' +  max.y + ', ' + min.x + ' ' +  min.y + '))';
-          
+
             SetSpatialFilter(geom);
         }
         function OnDigitizeRectangle() {
@@ -110,7 +115,7 @@
           var min = rectangle.Point1;
           var max = rectangle.Point2;
           var geom = 'POLYGON(('+ min.X + ' ' +  min.Y + ', ' +  max.X + ' ' +  min.Y + ', ' + max.X + ' ' +  max.Y + ', ' + min.X + ' ' +  max.Y + ', ' + min.X + ' ' +  min.Y + '))';
-        
+
           SetSpatialFilter(geom);
         }
 
@@ -138,13 +143,13 @@
 
             GetFusionMapWidget().query(options);
         }
-        
+
         function SelectionOn() {
             var layerSelect = document.getElementById("layerSelect");
             var reqParams = "SESSION=" + encodeURIComponent(session);
             reqParams += "&MAPNAME=" + encodeURIComponent(mapName);
             reqParams += "&LAYERNAME=" + encodeURIComponent(layerSelect.value);
-            
+
             if (msie)
                 reqHandler = new ActiveXObject("Microsoft.XMLHTTP");
             else
@@ -153,7 +158,7 @@
             reqHandler.onreadystatechange = OnReadyStateChange;
             reqHandler.open("POST", "featureinfocontroller.php", true);
             reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            
+
             document.getElementById('totalFeatures').innerHTML = 'fetching feature info ...';
             document.getElementById('totalArea').innerHTML = ''
             document.getElementById("layerSelect").disabled = true;
@@ -161,10 +166,10 @@
             document.getElementById("rectButton").disabled = true;
             document.getElementById("polyButtton").disabled = true;
             document.getElementById("busyImg").src = BUSY_IMAGE;
-            
+
             reqHandler.send(reqParams);
         }
-        
+
         function OnReadyStateChange()
         {
             var ready = reqHandler.readyState;
@@ -174,7 +179,7 @@
                 var results = reqHandler.responseText.parseJSON();
                 if (results) {
                     var layerSelect = document.getElementById('layerSelect');
-                
+
                     var layerInfo = results[layerSelect.value];
                     if (layerInfo) {
                         var areaIdx;
@@ -198,12 +203,12 @@
                         }
                     } else {
                         document.getElementById('totalArea').innerHTML = 'no layer info';
-                    }                  
+                    }
                 } else {
                   document.getElementById('totalFeatures').innerHTML = 'no features in selected layer.';
                 }
-                
-                
+
+
                 document.getElementById("layerSelect").disabled = false;
                 document.getElementById("pointButton").disabled = false;
                 document.getElementById("rectButton").disabled = false;
@@ -228,7 +233,7 @@
             }
             OnLayerChange();
         }
-        
+
         function OnUnload() {
           var map = GetFusionMapWidget();
           map.deregisterForEvent(Fusion.Event.MAP_SELECTION_ON, SelectionOn);

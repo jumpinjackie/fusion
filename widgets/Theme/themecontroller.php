@@ -18,6 +18,11 @@
 //
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/theme.php';
@@ -55,7 +60,7 @@
         header('Content-Type: ' . $responseType);
         echo $response;
         exit;
-      }     
+      }
       catch (MgException $mge)
       {
           $errorMsg = $mge->GetMessage();
