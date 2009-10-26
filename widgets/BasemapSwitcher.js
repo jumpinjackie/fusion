@@ -38,10 +38,20 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
 
     defaultBasemap: null,
 
-    menuItems: null,
+    menuItems: {},
 
     initializeWidget: function(widgetTag) {
-        var maps = this.getMap().aMaps;
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
+    },
+
+	generateOptions: function(){
+		// Clear previous settings 
+		this.options = {};
+		this.baseMaps = {};
+		this.defaultBasemap = null;
+		this.menuItems = {};
+		
+		var maps = this.getMap().aMaps;
         for (var i = 0, len = maps.length; i < len; i++) {
             var map = maps[i];
             switch (map.layerType) {
@@ -189,32 +199,11 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                 default:
                     break;
             }
-
         }
-
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
-        
-        this.menuItems = {};
-    },
-
+	},
+	
     setUiObject: function(uiObj) {
         Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
-        var buttonSet = new Jx.ButtonSet();
-        //set up the root menu
-        for (var key in this.options) {
-            if (this.options[key]) {
-                var menuItem = new Jx.Menu.Item({
-                    label: OpenLayers.i18n(this.options[key]),
-                    toggle: true,
-                    onDown: OpenLayers.Function.bind(this.setBasemap, this, key)
-                });
-                buttonSet.add(menuItem);
-                this.uiObj.add(menuItem);
-
-                this.menuItems[key] = menuItem;
-            }
-        }
-
     },
 
     setBasemap: function(baseMap) {
@@ -232,7 +221,27 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     },
 
     setDefaultBasemap: function() {
+		this.generateOptions();
+		//re-generate the menu
+		this.uiObj.initialize();
+		
+		//set up the root menu
+		var buttonSet = new Jx.ButtonSet();
+        for (var key in this.options) {
+            if (this.options[key]) {
+                var menuItem = new Jx.Menu.Item({
+                    label: OpenLayers.i18n(this.options[key]),
+                    toggle: true,
+                    onDown: OpenLayers.Function.bind(this.setBasemap, this, key)
+                });
+				buttonSet.add(menuItem);
+                this.uiObj.add(menuItem);
+                this.menuItems[key] = menuItem;
+            }
+        }
         this.menuItems[this.defaultBasemap].setActive(true);
         this.setBasemap(this.defaultBasemap);
+		
+		
     }
 });
