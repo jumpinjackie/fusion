@@ -41,8 +41,8 @@ else {
         $fileUpload = true;
 
         $target_path = tempnam(sys_get_temp_dir(), preg_replace("/\.[^\.]+$/", "", basename( $_FILES['uploadedfile']['name'])).'_');
-        
-        if (file_exists($target_path)) { 
+
+        if (file_exists($target_path)) {
             unlink($target_path);
         }
         $target_path = $target_path.'.gml';
@@ -77,13 +77,13 @@ else {
             document.body.appendChild(div);
             <? } ?>
             <? if (isset($noFile)) {  echo "alert('Please select a file.');"; } ?>
-            
+
         }
       </script>
 
       <h1>Digitizing Options</h1>
       <table id="RedlineWidgetOptions" borders="1">
-      
+
       <tr>
       <th>Select Layer: </th>
       <td>
@@ -102,11 +102,11 @@ else {
         <th>Draw:</th>
         <td>
           <input id="RedlineWidgetPointRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetPointeRadio">Point</label>
+          <label for="RedlineWidgetPointeRadio">Point</label><br/>
           <input id="RedlineWidgetLineRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetLineRadio">Line</label>
+          <label for="RedlineWidgetLineRadio">Line</label><br/>
           <input id="RedlineWidgetRectangleRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetRectangleRadio">Rectangle</label>
+          <label for="RedlineWidgetRectangleRadio">Rectangle</label><br/>
           <input id="RedlineWidgetPolygonRadio" type="radio" name="RedlineWidgetDrawRadio"/>
           <label for="RedlineWidgetPolygonRadio">Polygon</label>
         </td>
@@ -149,13 +149,13 @@ else {
         </td>
       </tr>
       </table>
-     
+
     </body>
   </html>
 
 
 <?php
-                                                     
+
 function returnFile($filename) {
 
 header("Content-type: text/xml");
