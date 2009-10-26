@@ -26,6 +26,11 @@
 
   $fusionMGpath = '../../layers/MapGuide/php/';
   include $fusionMGpath . 'Common.php';
+  if(InitializationErrorOccurred())
+  {
+      DisplayInitializationErrorText();
+      exit;
+  }
   include $fusionMGpath . 'Utilities.php';
   include('../../common/php/Utilities.php');
 
@@ -43,7 +48,7 @@
     //load the map runtime state
     $map = new MgMap();
     $map->Open($resourceService, $mapName);
-    
+
     //object to hold response
     $result = NULL;
     $result->hasSelection = false;
@@ -59,7 +64,7 @@
       for ($i = 0; $i < count($layers); $i++) {
         $layerNames->Add($layers[$i]);
       }
-      
+
       // create a multi-polygon or a multi-geometry containing the input selected features
       $inputGeom = MultiGeometryFromSelection($featureSrvc, $resourceService, $map, $mapName);
       if ($inputGeom) {
@@ -69,15 +74,15 @@
           $resultSel = $fi->GetSelection();
           if( $resultSel) {
             $resultSel->Save($resourceService, $mapName);
-            
+
             //this needs to be re-opened for some reason
             $resultSel = new MgSelection($map);
             $resultSel->Open($resourceService, $mapName);
-	  
+
             $layers = $resultSel->GetLayers();
             if ($layers && $layers->GetCount() >= 0) {
               $result->hasSelection = true;
-              
+
               //set the extents for the selection object
               $oExtents = $resultSel->GetExtents($featureSrvc);
               if ($oExtents) {
@@ -96,7 +101,7 @@
                 $properties->extents->maxx = $oMax->GetX();
                 $properties->extents->maxy = $oMax->GetY();
               } else { echo "/* no extents */"; }
-              
+
               //get properties for individual features
               $result->layers = array();
               for ($i=0; $i<$layers->GetCount(); $i++) {
@@ -116,13 +121,13 @@
               }
 
               /*save selection in the session*/
-              $_SESSION['selection_array'] = $properties; 
+              $_SESSION['selection_array'] = $properties;
             } else { echo "/* layers false or 0 */"; }
           } else { echo "/* no resultsel */"; }
         } else { echo "/* no fi */"; }
       } else { echo "/*no multi geom*/"; }
     } else { echo "/* no layers */"; }
-    
+
     header('Content-type: application/json');
     header('X-JSON: true');
     echo var2json($result);

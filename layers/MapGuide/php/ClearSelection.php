@@ -29,19 +29,24 @@
  *****************************************************************************/
 
 include "Common.php";
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 
 try
 {
     $resourceSrvc = $siteConnection->CreateService(MgServiceType::ResourceService);
-         
+
     $map = new MgMap();
     $map->Open($resourceSrvc, $mapName);
-        
+
     $sel = new MgSelection($map);
 
     $sel->Save($resourceSrvc, $mapName);
-} 
-catch(MgException $e) 
+}
+catch(MgException $e)
 {
     echo "ERROR: " . $e->GetMessage() . "\n";
     echo $e->GetDetails() . "\n";

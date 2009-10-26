@@ -30,6 +30,11 @@
 
 include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include('Utilities.php');
 
 
@@ -82,7 +87,7 @@ try
       } catch (MgException $e) {
         //just catch the exception and set epsgCode to empty string
       }
-      
+
 
       //  $unitsType = $cs->GetUnits();
     }
@@ -111,15 +116,15 @@ try
     $mapObj->extent = array($oMin->GetX(), $oMin->GetY(), $oMax->GetX(), $oMax->GetY());
 
     $layers=$map->GetLayers();
-    
+
     //layers
     $mapObj->layers = array();
 
 
     $mapObj->layers = array();
-    for($i=0;$i<$layers->GetCount();$i++) 
-    { 
-        //only output layers that are part of the 'Normal Group' and 
+    for($i=0;$i<$layers->GetCount();$i++)
+    {
+        //only output layers that are part of the 'Normal Group' and
         //not the base map group used for tile maps.  (Where is the test for that Y.A.???)
 
         $layer=$layers->GetItem($i);
@@ -137,7 +142,7 @@ try
 
         $layerObj->resourceId = $layerDefinition->ToString();
         $layerObj->parentGroup = $layer->GetGroup() ? $layer->GetGroup()->GetObjectId() : '';
-        
+
         $layerObj->selectable = $layer->GetSelectable();
         $layerObj->visible = $layer->GetVisible();
         $layerObj->actuallyVisible = $layer->isVisible();
@@ -161,25 +166,25 @@ try
             $layerObj->maxScale = max($layerObj->maxScale, $oScaleRanges[$j]->maxScale);
         }
 
-        
+
         array_push($mapObj->layers, $layerObj);
-        
-    } 
+
+    }
 
     //Get layer groups as xml
     $groups = $map->GetLayerGroups();
     $mapObj->groups = array();
-    for($i=0;$i<$groups->GetCount();$i++) 
-    { 
+    for($i=0;$i<$groups->GetCount();$i++)
+    {
         $group=$groups->GetItem($i);
         array_push($mapObj->groups, OutputGroupInfo($group));
-    } 
+    }
 
     $mapObj->FiniteDisplayScales = array();
-    //FiniteDisplayScales for tiled maps    
+    //FiniteDisplayScales for tiled maps
     for ($i=0; $i<$map->GetFiniteDisplayScaleCount(); $i++)
     {
-    
+
         array_push($mapObj->FiniteDisplayScales, $map->GetFiniteDisplayScaleAt($i));
     }
     echo var2json($mapObj);
@@ -203,20 +208,20 @@ exit;
 /************************************************************************/
 function GetLayerTypesFromResourceContent($layer)
 {
-    $aLayerTypes = array();						
+    $aLayerTypes = array();
     global $resourceService;
 
     try
     {
         $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         if($dataSourceId->GetResourceType() == MgResourceType::DrawingSource)
-          array_push($aLayerTypes, '5');// DWF 
+          array_push($aLayerTypes, '5');// DWF
         else
         {
             $resID = $layer->GetLayerDefinition();
             $layerContent = $resourceService->GetResourceContent($resID);
             $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
-    
+
             $gridlayers = $xmldoc->getElementsByTagName('GridLayerDefinition');
             if ($gridlayers->length > 0)
               array_push($aLayerTypes, '4');// raster
@@ -260,7 +265,7 @@ function getMapBackgroundColor($map) {
     }
 }
 
-function buildScaleRanges($layer) 
+function buildScaleRanges($layer)
 {
     $aScaleRanges = array();
     global $resourceService;
@@ -297,31 +302,31 @@ function buildScaleRanges($layer)
             $minScale = $minElt->item(0)->nodeValue;
         if($maxElt->length > 0)
             $maxScale = $maxElt->item(0)->nodeValue;
-           
+
         $scaleRangeObj->minScale = $minScale;
         $scaleRangeObj->maxScale = $maxScale;
 
-        
+
         if($type != 0) {
             array_push($aScaleRanges, $scaleRangeObj);
             break;
         }
-            
-        
+
+
         $styleIndex = 0;
         for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
         {
             $typeStyle = $scaleRange->getElementsByTagName($typeStyles[$ts]);
             $catIndex = 0;
             for($st = 0; $st < $typeStyle->length; $st++) {
-                
+
                 $styleObj = NULL;
                 // We will check if this typestyle is going to be shown in the legend
                 $showInLegend = $typeStyle->item($st)->getElementsByTagName("ShowInLegend");
                 if($showInLegend->length > 0)
                     if($showInLegend->item(0)->nodeValue == "false")
                         continue;   // This typestyle does not need to be shown in the legend
-                        
+
                 $rules = $typeStyle->item(0)->getElementsByTagName($ruleNames[$ts]);
                 for($r = 0; $r < $rules->length; $r++) {
                     $rule = $rules->item($r);
@@ -340,7 +345,7 @@ function buildScaleRanges($layer)
             }
         }
         array_push($aScaleRanges, $scaleRangeObj);
-        
+
     }
     return $aScaleRanges;
 }
@@ -370,7 +375,7 @@ function OutputGroupInfo($group)
     $groupObj->parentUniqueId = $parent != null ? $parent->GetObjectId() : '';
     $groupObj->visible = $group->GetVisible();
     $groupObj->actuallyVisible = $group->isVisible();
-    
+
     return $groupObj;
 }
 
