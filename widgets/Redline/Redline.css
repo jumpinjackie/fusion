@@ -13,7 +13,7 @@ body#RedlineWidget  {
   padding: 10px;
 }
 
-#RedlineWidget td, 
+#RedlineWidget td,
 #RedlineWidget th {
   text-align: left;
   vertical-align: text-top;
@@ -30,4 +30,5 @@ body#RedlineWidget  {
 
 #RedlineWidgetFeatureList {
   min-width: 250px;
+  width: 250px;
 }
