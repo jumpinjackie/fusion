@@ -37,6 +37,7 @@
 
 
 Fusion.Widget.Query = OpenLayers.Class(Fusion.Widget, {
+    isExclusive: true,
     uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
 
