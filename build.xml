@@ -215,7 +215,6 @@ $Id$
                           fusion.js
                           OpenLayers/OpenLayers.js
                           jxlib.uncompressed.js
-                          proj4js-compressed.js
                           Error.js
                           EventMgr.js
                           ApplicationDefinition.js
