@@ -376,7 +376,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      *
      * @param r Object the reponse xhr object
      */
-    renderLegend: function(r) {
+    /*renderLegend: function(r) {
         this.bIsDrawn = false;
         this.clear();
 
@@ -400,6 +400,42 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         this.bIsDrawn = true;
         this.update();
+    },*/
+    renderLegend: function(r) {
+        this.bIsDrawn = false;
+        this.clear();
+
+        if (this.showRootFolder) {
+            this.oRoot.itemLabelobj.innerHTML = this.getMap().getMapTitle();
+        }
+
+        if (this.showMapFolder) {
+		this.renderGroup(this.layerRoot);
+        } else {
+		if (this.layerRoot.groups.length > 0) {
+			for (var i = 0; i < this.layerRoot.groups.length; i++)
+				this.renderGroup(this.layerRoot.groups[i]);
+		} else {
+			for (var i = 0; i < group.layers.length; i++)
+				this.processMapLayer(group.layers[i], this.oRoot);
+		}
+        }
+
+        this.bIsDrawn = true;
+        this.update();
+    },
+    
+    renderGroup: function(group) {
+        if (!group.legend) {
+            group.legend = {};
+            group.legend.treeItem = this.oRoot;
+        }
+        for (var i = 0; i < group.groups.length; i++) {
+            this.processMapGroup(group.groups[i], this.oRoot);
+        }
+        for (var i = 0; i < group.layers.length; i++) {
+            this.processMapLayer(group.layers[i], this.oRoot);
+        }
     },
    
     processMapGroup: function(group, folder) {
@@ -576,7 +612,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {
                     if (range.styles.length > 0) {
-                        layer.legend.treeItem.domImg.style.backgroundImage = 'url('+layer.oMap.getLegendImageURL(fScale, layer, range.styles[0])+')' ;
+                        layer.legend.treeItem.domImg.style.backgroundImage = 'url('+layer.oMap.getLegendImageURL(fScale, layer, range.styles[0])+')';
+                        layer.legend.treeItem.domImg.style.backgroundPosition = '0px 0px';
                         $(layer.legend.treeItem.domObj).removeClass('jxDisabled');
                     } else {
                         $(layer.legend.treeItem.domObj).addClass('jxDisabled');
