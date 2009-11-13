@@ -231,7 +231,7 @@ class Theme
 
         $vectorScaleRangecElement = $nodeList->item($this->args['SCALERANGEINDEX']);
         $areaTypeStyle = $vectorScaleRangecElement->getElementsByTagName('AreaTypeStyle')->item(0);
-
+        
         // Remove any existing <AreaRule> elements.
 
         $areaRuleList = $areaTypeStyle->getElementsByTagName('AreaRule');
@@ -241,6 +241,11 @@ class Theme
             $areaTypeStyle->removeChild($areaRuleList->item(0));
         }
 
+        $hasChild = $areaTypeStyle->hasChildNodes();
+        if($hasChild)
+        {
+          $element = $areaTypeStyle->childNodes->item(0);
+        }
 
         // Now create the new <AreaRule> elements.
 
@@ -255,7 +260,7 @@ class Theme
             $aggregateOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
             $aggregateOptions->SelectDistinct(true);
 
-            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
+            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);            
             while ($dataReader->ReadNext())
             {
                 $value = $this->GetFeaturePropertyValue($dataReader, $this->args['PROPERTYNAME']);
@@ -274,7 +279,14 @@ class Theme
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                $areaTypeStyle->appendChild($areaNode);
+                if($hasChild)
+                {
+                  $areaTypeStyle->insertBefore($areaNode, $element);
+                }
+                else
+                {
+                  $areaTypeStyle->appendChild($areaNode);
+                }
 
                 $portion += $increment;
             }
@@ -311,7 +323,14 @@ class Theme
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                $areaTypeStyle->appendChild($areaNode);
+                if($hasChild)
+                {
+                   $areaTypeStyle->insertBefore($areaNode, $element);
+                }
+                else
+                {
+                   $areaTypeStyle->appendChild($areaNode);
+                }
 
                 $portion += $increment;
             }
