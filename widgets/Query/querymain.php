@@ -140,6 +140,9 @@
             {
                 ToggleSpatialFilter(document.getElementById("spatialFilter").checked);
             }
+            
+            if(document.getElementById("spatialFilter").checked == false)
+                ClearDigitization();
         }
 
         function OnDigitizeRectangle()
