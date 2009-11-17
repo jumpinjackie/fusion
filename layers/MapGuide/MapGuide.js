@@ -920,6 +920,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 }
               }
 
+              //Fix Ticket #1145.
+              //When the user invokes the setSelection() function to update the selection,
+              //clear the selection count for all layers before proceeding
+              for (var j=0; j<this.aLayers.length; ++j) {
+                this.aLayers[j].selectedFeatureCount = 0;
+              }
+
               // set the feature count on each layer making up this map
               for (var i=0; i<oNode.layers.length; ++i) {
                 var layerName = oNode.layers[i];
