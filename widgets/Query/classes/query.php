@@ -209,8 +209,9 @@ class Query
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         $featureClass = $layer->GetFeatureClassName();
+        $filter = $layer->GetFilter();
         $featureGeometry = $layer->GetFeatureGeometryName();
-
+        
         // Initialize the coordinate system transform
 
         $schemaAndClass = explode(":", $featureClass);
@@ -240,6 +241,7 @@ class Query
         $queryMax = (int) $this->args['QUERYMAX'];
         $queryOptions = new MgFeatureQueryOptions();
 
+        $propertyFilter = '';
         if ($this->args['USEPROPERTYFILTER'] == 'true')
         {
             $propertyFilter = $this->args['PROPERTYNAME'];
@@ -247,10 +249,18 @@ class Query
                 $propertyFilter .= sprintf($this->strExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
             else
                 $propertyFilter .= sprintf($this->numExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
-
-            $queryOptions->SetFilter($propertyFilter);
+                
+            if($filter != '')
+                $propertyFilter = $propertyFilter . ' AND (' . $filter . ')';
         }
-
+        else
+        {
+            if($filter != '')
+                $propertyFilter = $filter;
+        }
+        if($propertyFilter != '')
+            $queryOptions->SetFilter($propertyFilter);
+        
         if ($this->args['USESPATIALFILTER'] == 'true')
         {
             $polygon = $this->CreatePolygonFromGeomText($this->args['GEOMTEXT']);
