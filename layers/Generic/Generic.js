@@ -88,6 +88,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
             this.oLayerOL.events.unregister("loadcancel", this, this.loadEnd);
             this.oLayerOL.destroy();
+            this.oLayerOL = null;
         }
 
         switch (this.layerType) {
@@ -103,32 +104,32 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = G_SATELLITE_MAP;
                 break;
               case 'G_NORMAL_MAP':
-				this.mapTag.layerOptions.type = G_NORMAL_MAP;
+                this.mapTag.layerOptions.type = G_NORMAL_MAP;
               default:
-				// For the re-loaded Google layers
-				if(this.mapTag.layerOptions.type == G_PHYSICAL_MAP)
-					this.mapTag.layerOptions.type = G_PHYSICAL_MAP;
-				else if(this.mapTag.layerOptions.type == G_HYBRID_MAP)
-					this.mapTag.layerOptions.type = G_HYBRID_MAP;
-				else if(this.mapTag.layerOptions.type == G_SATELLITE_MAP)
-				    this.mapTag.layerOptions.type = G_SATELLITE_MAP;
-				else 
-					this.mapTag.layerOptions.type = G_NORMAL_MAP;
+                // For the re-loaded Google layers
+                if(this.mapTag.layerOptions.type == G_PHYSICAL_MAP)
+                  this.mapTag.layerOptions.type = G_PHYSICAL_MAP;
+                else if(this.mapTag.layerOptions.type == G_HYBRID_MAP)
+                  this.mapTag.layerOptions.type = G_HYBRID_MAP;
+                else if(this.mapTag.layerOptions.type == G_SATELLITE_MAP)
+                  this.mapTag.layerOptions.type = G_SATELLITE_MAP;
+                else 
+                  this.mapTag.layerOptions.type = G_NORMAL_MAP;
                 break;
             }
             break;
          case 'VirtualEarth':         
              switch (this.mapTag.layerOptions.type) {   //VE layer types are enumerated values
                case 'Aerial':              //defined in VEMapStyle from the VE api
-			   case 'a':
+               case 'a':
                  this.mapTag.layerOptions.type = VEMapStyle.Aerial;
                  break;
                case 'Shaded':
-			   case 's':
+               case 's':
                  this.mapTag.layerOptions.type = VEMapStyle.Shaded;
                  break;
                case 'Hybrid':
-			   case 'h':
+               case 'h':
                  this.mapTag.layerOptions.type = VEMapStyle.Hybrid;
                  break;
                default:
@@ -139,15 +140,15 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
          case 'Yahoo':
             switch (this.mapTag.layerOptions.type) {   //Yahoo is similar to google
               case 'YAHOO_MAP_SAT':              //defined by YMap, not a string
-			  case 'YAHOO_SAT':
+              case 'YAHOO_SAT':
                 this.mapTag.layerOptions.type = YAHOO_MAP_SAT;
                 break;
               case 'YAHOO_MAP_HYB':
-			  case 'YAHOO_HYB':
+              case 'YAHOO_HYB':
                 this.mapTag.layerOptions.type = YAHOO_MAP_HYB;
                 break;
               case 'YAHOO_MAP_REG':
-			  case "YAHOO_REG":
+              case "YAHOO_REG":
               default:
                 this.mapTag.layerOptions.type = YAHOO_MAP_REG;
                 break;
