@@ -548,6 +548,13 @@ class Query
             $coords->Add($coord);
         }
 
+        //Some provider such as SQL Server Spatial, ODBC requires the polygon's start point must be the same as end point.
+        if(($count>2) && (($coords->GetItem(0)->GetX() != $coords->GetItem($count-1)->GetX()) || ($coords->GetItem(0)->GetY() != $coords->GetItem($count-1)->GetY())))
+        {
+            $coord = $geometryFactory->CreateCoordinateXY($coords->GetItem(0)->GetX(), $coords->GetItem(0)->GetY());
+            $coords->Add($coord);
+        }
+        
         $linearRing = $geometryFactory->CreateLinearRing($coords);
         $polygon = $geometryFactory->CreatePolygon($linearRing, null);
 
