@@ -257,22 +257,33 @@ class Theme
 
         if ($this->args['DISTRO'] == 'INDIV_DIST')
         {
+            $values = array();
+            
             $aggregateOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
             $aggregateOptions->SelectDistinct(true);
-
             $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);            
             while ($dataReader->ReadNext())
             {
                 $value = $this->GetFeaturePropertyValue($dataReader, $this->args['PROPERTYNAME']);
+                array_push($values, $value);
+            }
+            $dataReader->Close();
+            
+            if ($this->args['DATATYPE'] == MgPropertyType::String)
+                sort($values, SORT_STRING);
+            else
+                sort($values, SORT_NUMERIC);
 
+            for ($i = 0; $i < count($values); $i++)
+            {
                 $filterText = '&quot;' . $this->args['PROPERTYNAME'] . '&quot; = ';
                 if ($this->args['DATATYPE'] == MgPropertyType::String)
-                    $filterText .= "'" . $value . "'";
+                    $filterText .= "'" . $values[$i] . "'";
                 else
-                    $filterText .= $value;
-
+                    $filterText .= $values[$i];
+                    
                 $areaRuleXML = sprintf($areaRuleTemplate,
-                    $this->args['PROPERTYNAME'] . ': ' . $value,
+                    $this->args['PROPERTYNAME'] . ': ' . $values[$i],
                     $filterText,
                     $this->InterpolateColor($portion, $this->args['FILLFROM'], $this->args['FILLTO'], $this->args['FILLTRANS']),
                     $this->InterpolateColor($portion, $this->args['LINEFROM'], $this->args['LINETO'], 0));
@@ -290,7 +301,6 @@ class Theme
 
                 $portion += $increment;
             }
-            $dataReader->Close();
         }
         else
         {
