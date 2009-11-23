@@ -320,7 +320,7 @@ class Theme
             for ($i = 0; $i < count($values) - 1; $i++)
             {
                 $filterText = '&quot;' . $this->args['PROPERTYNAME'] . '&quot; &gt;= ' . $values[$i] . ' AND &quot;' . $this->args['PROPERTYNAME'];
-                if ($i == count($values) - 1)
+                if ($i == count($values) - 2)
                     $filterText .= '&quot; &lt;= ' . $values[$i + 1];
                 else
                     $filterText .= '&quot; &lt; ' . $values[$i + 1];
