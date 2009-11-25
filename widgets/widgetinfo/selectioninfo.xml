@@ -15,7 +15,7 @@
     <Description>The format of the output string.</Description>
     <Type>String</Type>
     <Label>Template</Label>
-    <DefaultValue>{0} features selected on {1} layers</DefaultValue>
+    <DefaultValue>{0} feature(s) selected on {1} layer(s)</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
   <Parameter>

@@ -16,7 +16,7 @@ Fusion.Strings.en = {
 'setLayersError': "setLayers failure: ${error}",
 'printTitle': 'Printable Page ',
 'noSelection': 'No Selection',
-'selectionInfo': '${features} features selected on ${layers} layers',
+'selectionInfo': '${features} feature(s) selected on ${layers} layer(s)',
 'attribute': 'Attribute',
 'value': 'Value',
 'taskHome': 'return to the task pane home',
