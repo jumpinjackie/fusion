@@ -280,6 +280,23 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
             this.vectorLayers[0].redLineLayer = true;
         }
         this.activateLayer(0);
+    },
+
+    getUniqueLayerName: function() {
+        var offset = this.vectorLayers.length;
+        var exist = true;
+        while (exist) {
+            exist = false;
+            var i = 0;
+            while (!exist && i < this.vectorLayers.length) {
+                if (("Digitizing layer " + offset) == this.vectorLayers[i].name)
+                    exist = true;
+                i++;
+            }
+            if (exist)
+                offset++;
+        }
+        return "Digitizing layer " + offset;
     }
 });
 
@@ -364,7 +381,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     },
 
     newLayer: function() {
-        var name = prompt("Layer name:", "Digitizing layer "+this.widget.vectorLayers.length);
+        var name = prompt("Layer name:", this.widget.getUniqueLayerName());
         if (name!=null && name!="") {
             this.widget.newLayer(name);
             this.updateLayerList();
