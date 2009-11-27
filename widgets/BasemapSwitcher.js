@@ -22,34 +22,40 @@
 
 Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Menu,
-    options: {
-        'G_NORMAL_MAP': null,
-        'G_SATELLITE_MAP': null,
-        'G_HYBRID_MAP': null,
-        'YAHOO_MAP_REG': null,
-        'YAHOO_MAP_SAT': null,
-        'YAHOO_MAP_HYB': null,
-        'Road': null,
-        'Aerial': null,
-        'Hybrid': null,
-        'None': null
-    },
+	
+    options: {},
+	
     baseMaps: {},
-
+	
     defaultBasemap: null,
 
     menuItems: {},
 
     initializeWidget: function(widgetTag) {
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_MAPGROUPLOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
     },
-
-	generateOptions: function(){
-		// Clear previous settings 
-		this.options = {};
+    
+	refreshSettings: function(){
 		this.baseMaps = {};
 		this.defaultBasemap = null;
 		this.menuItems = {};
+		this.options = {
+			'G_NORMAL_MAP': null,
+			'G_SATELLITE_MAP': null,
+			'G_HYBRID_MAP': null,
+			'YAHOO_MAP_REG': null,
+			'YAHOO_MAP_SAT': null,
+			'YAHOO_MAP_HYB': null,
+			'Road': null,
+			'Aerial': null,
+			'Hybrid': null,
+			'None': null
+		};
+	},
+	
+	generateOptions: function(){
+		// Clear previous settings 
+		this.refreshSettings();
 		
 		var maps = this.getMap().aMaps;
         for (var i = 0, len = maps.length; i < len; i++) {
@@ -94,8 +100,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 this.baseMaps['G_HYBRID_MAP'] = map;
                                 break;
                             default:
-                                //this.options['G_NORMAL_MAP'] = map.mapTag.extension.Options[0].name[0];
-                                //this.baseMaps['G_NORMAL_MAP'] = map;
                                 break;
                         }
 
@@ -141,8 +145,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 this.baseMaps['YAHOO_MAP_HYB'] = map;
                                 break;
                             default:
-                                //this.options['YAHOO_MAP_REG'] = map.mapTag.extension.Options[0].name[0];
-                                //this.baseMaps['YAHOO_MAP_REG'] = map;
                                 break;
                         }
                         // The first non-MapGuide basemap will be the default basemap
@@ -186,8 +188,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 this.baseMaps['Hybrid'] = map;
                                 break;
                             default:
-                                //this.options['Road'] = map.mapTag.extension.Options[0].name[0];
-                                //this.baseMaps['Road'] = map;
                                 break;
                         }
                         // The first non-MapGuide basemap will be the default basemap
@@ -199,6 +199,9 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                 default:
                     break;
             }
+        }
+		if (!this.defaultBasemap) {
+			this.defaultBasemap = "NONE";
         }
 	},
 	
