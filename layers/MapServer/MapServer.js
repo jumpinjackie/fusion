@@ -42,6 +42,8 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     layerMetadataKeys: null,
     oMaptip:null,
     bMapTipFired: false,
+    bRestoreMapState: false,
+    oRestoredState: {},
 
     //the map file
     sMapFile: null,
@@ -62,6 +64,16 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
           //clear the query param after it has been used once
           Fusion.queryParams['theme'] = null;
         }
+
+        var restoreMapState = Fusion.getQueryParam('restoreState');
+        if (restoreMapState != '') {
+          //clear the query param after it has been used once
+          this.oRestoredState.id = restoreMapState;
+          Fusion.queryParams['restoreState'] = null;
+          // set flag to true so we can restore the map from a saved session.
+          this.bRestoreMapState = true;
+        }
+        
 
         this.mapMetadataKeys = mapTag.extension.MapMetadata ? mapTag.extension.MapMetadata[0] : null;
         this.layerMetadataKeys = mapTag.extension.LayerMetadata ? mapTag.extension.LayerMetadata[0] : null;
@@ -118,12 +130,55 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               Fusion.initializeLocale(locale[0]);
               break;
             }
-            this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+
+            /* Session is created, Check to see if we are going to restore a saved
+                map state and restore it if set to true.
+            */
+            if(this.bRestoreMapState == true){
+                var that = this;
+                var sl = Fusion.getScriptLanguage();
+                var scriptURL = 'layers/' + this.arch + '/' + sl + '/RestoreState.' + sl;
+
+                var params = {
+                    parameters: OpenLayers.Util.getParameterString({
+                        session: this.session[0] ,
+                        id: this.oRestoredState.id
+                    }),
+                    onComplete: function(xhr) {
+                        var o;
+                        eval('o='+xhr.responseText);
+                        that.restoreStateCB(o);
+                    }
+                };
+                Fusion.ajaxRequest(scriptURL,params);
+            }
+            else
+            {
+                // done with session create, fire the event.
+                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+            }
+            
         }
     },
 
+    restoreStateCB: function(oResponse){
+        if(oResponse.error){
+            Fusion.reportError(new Fusion.Error(Fusion.Error.WARNING, "Error Restoring Map State - "+oResponse.error));
+        }
+        else
+        {
+        this.oRestoredState = oResponse;
+        }
+        // done with session create, fire the event.
+        this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+    },
+
     mapSessionCreated: function() {
-        if (this.sMapFile != '') {
+        // restore the mapfile from a saved state.
+        if(this.bRestoreMapState === true && this.oRestoredState.loadmap ){
+            this.loadMap(this.oRestoredState.loadmap);
+        }
+        else if (this.sMapFile != '') {
             this.loadMap(this.sMapFile);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), 
@@ -278,7 +333,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               this.mapWidget.addMap(this);
               this.mapWidget.oMapOL.units = this.oLayerOL.units;
             }
-
             this.bMapLoaded = true;
         }
         else
@@ -402,31 +456,35 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     mapLayersReset: function(aLayerIndex,r) {
-      if (r.status == 200) {
         var o;
         eval('o='+r.responseText);
-  			if (o.success) {
-  				var layerCopy = $A(this.aLayers);
-          var nLayers = layerCopy.length -1;
-          
-          //Mapserver has list of layers reversed from MapGuide
-          aLayerIndex.reverse();
-    
-  				this.aLayers = [];
-  				this.aVisibleLayers = [];
+        if (o.success) {
+            var layerCopy = $A(this.aLayers);
+            console.dir(layerCopy);
+            var nLayers = layerCopy.length -1;
+            console.log("nLayers:"+nLayers);
 
-          for (var i=0; i<aLayerIndex.length; ++i) {
-            this.aLayers.push( layerCopy[ nLayers - aLayerIndex[i] ] );
-            if (this.aLayers[i].visible) {
-                this.aVisibleLayers.push(this.aLayers[i].layerName);
+            //Mapserver has list of layers reversed from MapGuide
+            //aLayerIndex.reverse();
+
+            this.aLayers = [];
+            this.aVisibleLayers = [];
+
+            for (var i=0; i<aLayerIndex.length; ++i) {
+                this.aLayers.push( layerCopy[aLayerIndex[i] ] );
+                console.log("INDEX:"+(aLayerIndex[i]));
+                console.log(layerCopy[aLayerIndex[i]].layerName);
+                if (this.aLayers[i].visible) {
+                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+                }
             }
-  				}
-  				//this.layerRoot.clear();
+            console.dir(this.aLayers);
+            //this.layerRoot.clear();
 
-  				this.drawMap();
-  				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+            this.drawMap();
+            this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
         }
-      }
+
     },
 
     parseMapLayersAndGroups: function(o) {

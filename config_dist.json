@@ -41,6 +41,10 @@
 	        web-accessible temporary legend images. */
 	    "legendIconCacheDir":"/ms4w/tmp/ms_tmp",
             /* The file  system path to where the maps are stored. */
-            "mapFileRoot":"/ms4w/apps/"
+        "mapFileRoot":"/ms4w/apps/",
+        /*The file  system path where the saved map sessions are stored.*/
+         "mapRestoreState":"/opt/fgs/apps/savedSession/",
+        /*The file  system path where the php sessions are stored.*/
+         "mapRestoreStateSession":"/opt/fgs/tmp/"
     }
 }
