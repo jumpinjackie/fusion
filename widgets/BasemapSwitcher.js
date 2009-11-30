@@ -201,7 +201,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             }
         }
 		if (!this.defaultBasemap) {
-			this.defaultBasemap = "NONE";
+			this.defaultBasemap = "None";
         }
 	},
 	
