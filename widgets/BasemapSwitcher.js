@@ -32,7 +32,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     menuItems: {},
 
     initializeWidget: function(widgetTag) {
-        this.getMap().registerForEvent(Fusion.Event.MAP_MAPGROUPLOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_MAP_GROUP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
     },
     
 	refreshSettings: function(){
