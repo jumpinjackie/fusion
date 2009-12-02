@@ -67,14 +67,16 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     /* Style for the polygon line used for area draw */    
     areaStyle: null,
-    
+    segmentLabels: true,
     initializeWidget: function(widgetTag) {
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
         this.distPrecision = json.DistancePrecision ? parseInt(json.DistancePrecision[0]) : 4;
         this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;  
-        
+        if(json.SegmentLabels){
+            this.segmentLabels = (json.SegmentLabels[0].toLowerCase == "true" && json.SegmentLabels[0]) ? true : false;
+        }
         this.sTarget = json.Target ? json.Target[0] : "";
         this.sBaseUrl = Fusion.getFusionURL() + 'widgets/Measure/Measure.php';
         
@@ -314,9 +316,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         if (!isNaN(t) && !isNaN(l)) {
             marker.domObj.style.top = t + 'px';
             marker.domObj.style.left = l + 'px';
-            marker.domObj.style.display = 'block';
+            if(this.segmentLabels === true){
+                marker.domObj.style.display = 'block';
+            }
         } else {
-            marker.domObj.style.display = 'none';
+            if(this.segmentLabels === true){
+                marker.domObj.style.display = 'none';
+            }
         }
     },
     
@@ -376,7 +382,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 this.totalDistanceMarker.domObj.parentNode != oDomElem) {
                 oDomElem.appendChild(this.totalDistanceMarker.domObj);
             }
-            this.totalDistanceMarker.domObj.addClass = 'divMeasureTotal';
+            this.totalDistanceMarker.domObj.addClass('divMeasureTotal');
             this.totalDistanceMarker.domObj.style.display = 'none';
             this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));  
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
@@ -593,8 +599,9 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
         this.precision = precision;
         this.label = label ? label:'';
         this.isArea = isArea || false;
-        this.domObj = document.createElement('div');
-        this.domObj.className = 'divMeasureMarker';
+        this.domObj = new Element('DIV', {});
+        
+       this.domObj.className = 'divMeasureMarker';
         this.calculatingImg = document.createElement('img');
         this.calculatingImg.src = Fusion.getFusionURL() + 'widgets/Measure/MeasurePending.gif';
         this.calculatingImg.width = 19;
