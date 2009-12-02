@@ -54,8 +54,8 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
     map: null,
-    bLayerChanged:false,
     initializeWidget: function(widgetTag) {
+        //console.log("initializeWidget");
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
     
@@ -71,22 +71,18 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     
     mapLoaded: function() {
         this.draw();
-        this.bLayerChanged = true;
     },
-    
     layerChanged: function() {
-        this.bLayerChanged = true;
-        this.draw();
         this.updateSessionMapFile();
     },
-   mapReLoaded: function(){
-        this.bLayerChanged = false;
+    mapReLoaded: function(){
         this.draw();
    },
    /**
      * remove the dom objects representing the legend layers and groups
      */
     clear: function(node) {
+        //console.log("clear");
         while (node.childNodes.length > 0) {
           this.clear(node.childNodes[0]);
             node.destroy(node.childNodes[0]);
@@ -99,6 +95,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
      * @param r Object the reponse xhr object
      */
     draw: function(r) {
+        //console.log("draw");
       if (this.mapList) {
         this.clear(this.mapList);
         this.mapList.destroy();
@@ -113,7 +110,6 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       //this processes the OL layers
       var map = this.getMap();
 
-      
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
         mapBlock.className = 'jxLmanMap';
@@ -139,19 +135,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     },
 
     processMapBlock: function(blockDom, map) {
+      //console.log("processMapBlock");
       var mapBlockList = document.createElement('ul');
       mapBlockList.className = 'jxLmanSet';
       mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
       blockDom.appendChild(mapBlockList);
       map.layerPrefix = 'layer_';   //TODO make this unique for each block
-      mapBlockList.bLayerChanged = this.bLayerChanged;
       //this process all layers within an OL layer
       var processArray = map.aLayers;
-
-      if (map.bLayersReversed && this.bLayerChanged === false ) {
-        processArray.reverse();
-      }
-      
+    
       for (var i=0; i<processArray.length; ++i) {
         var blockItem = document.createElement('li');
         blockItem.className = 'jxLmanLayer';
@@ -235,6 +227,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   updateLayer: function(map, ul) {
+   //console.log("updateLayer");
     //reorder the layers in the client as well as the session
     var aLayerIndex = [];
     var aIds = [];
@@ -242,9 +235,6 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     for (var i=0; i<nLayers; ++i) {
       aIds[i] = this.childNodes[i].id.split('_');
       var index = parseInt(aIds[i].pop());
-      if (map.bLayersReversed && ul.bLayerChanged === false) {
-        index = nLayers - (index+1);
-      }
       aLayerIndex.push(index);
       this.childNodes[i].id = '';
     }
@@ -257,9 +247,6 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       node.childNodes[1].checked = node.layer.isVisible()
     }
 
-    if (map.bLayersReversed && ul.bLayerChanged === false) {
-      aLayerIndex.reverse();
-    }
     map.reorderLayers(aLayerIndex);
   },
    
@@ -268,6 +255,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   deleteLayer: function(layer, ev) {
+   // console.log("deleteLayer");
     var targetLI = (new Event(ev)).target.parentNode;
     var ul = targetLI.parentNode;
     $(targetLI).dispose();
@@ -284,6 +272,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     }
   },
   updateSessionMapFile: function(){
+   // console.log("updateSessionMapFile");
     // get map
     var map = this.getMap();
     var aMaps = map.getAllMaps();
