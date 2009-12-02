@@ -65,7 +65,7 @@ if (count($currentLayers) != count($layers) ) {
 	}
 		echo "*/";
 } else {
-  echo "/* reordering layers */";
+
 	$res = $oMap->setlayersdrawingorder($layers);
 }
 
@@ -73,7 +73,7 @@ if ($res) {
     $oMap->save($_SESSION['maps'][$mapName]);
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
     $newLayers = $oMap->getlayersdrawingorder();
-    echo "{success: true, layerindex: [".implode(",",$newLayers)."]}";
+    echo "{success: true, layerindex: [".implode(",",$layers)."]}";
 } else {
     echo "{success: false, layerindex: [".$_REQUEST['layerindex']."]}";
 }
