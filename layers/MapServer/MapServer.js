@@ -3,7 +3,7 @@
  *
  * $Id$
  *
- * Copyright (c) 2007, DM Solutions Group Inc.
+ * Copyright (c) 2007, DM Solutions Group Inc.nLayers
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation
@@ -460,9 +460,9 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         eval('o='+r.responseText);
         if (o.success) {
             var layerCopy = $A(this.aLayers);
-            console.dir(layerCopy);
+            //console.dir(layerCopy);
             var nLayers = layerCopy.length -1;
-            console.log("nLayers:"+nLayers);
+            //console.log("nLayers:"+nLayers);
 
             //Mapserver has list of layers reversed from MapGuide
             //aLayerIndex.reverse();
@@ -472,13 +472,13 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
             for (var i=0; i<aLayerIndex.length; ++i) {
                 this.aLayers.push( layerCopy[aLayerIndex[i] ] );
-                console.log("INDEX:"+(aLayerIndex[i]));
-                console.log(layerCopy[aLayerIndex[i]].layerName);
+                //console.log("INDEX:"+(aLayerIndex[i]));
+                //console.log(layerCopy[aLayerIndex[i]].layerName);
                 if (this.aLayers[i].visible) {
                     this.aVisibleLayers.push(this.aLayers[i].layerName);
                 }
             }
-            console.dir(this.aLayers);
+            //console.dir(this.aLayers);
             //this.layerRoot.clear();
 
             this.drawMap();
