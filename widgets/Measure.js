@@ -296,7 +296,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
             quantity = geom.getGeodesicArea(proj);
-            //TODO: result is in square meters - convert to other units?
+           
+           measureUnits = Fusion.METERS;
+            if (measureUnits != this.units) {
+                var rate = Fusion.convert(measureUnits, this.units, 1);
+                quantity = quantity * rate * rate;
+            }
+
         }
         if (quantity > 1) {
             marker.setQuantity(quantity);
