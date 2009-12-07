@@ -218,9 +218,23 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     },
    
     featureAdded: function(evt) {
-        this.triggerEvent(Fusion.Event.REDLINE_FEATURE_ADDED, evt.feature);
+        this.triggerEvent(Fusion.Event.REDLINE_FEATURE_ADDED, evt.feature);	
+		this.moveLayerToTop(evt.feature.layer);
     },
-
+    
+	// move the redline layer to the top and redraw it
+	moveLayerToTop: function(layer) {
+		var map = layer.map;
+		var baseIndex = map.getLayerIndex(layer);
+		
+		if(baseIndex != layer.map.layers.length-2)
+		{
+			// except for the current temp drawing layer, the redline layer is not on the top of the map.
+			map.setLayerIndex(layer,layer.map.layers.length-2)
+		}
+		layer.redraw();
+	},
+	
     // change active layer
     activateLayer: function(layerIndex) {
         this.activeLayer = this.vectorLayers[layerIndex];
