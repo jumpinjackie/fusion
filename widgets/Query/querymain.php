@@ -425,7 +425,7 @@
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" onChange="OnToggleSpatialFilter()" id="spatialFilter">&nbsp;Spatial Filter</td></tr>
+    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" onclick="OnToggleSpatialFilter()" id="spatialFilter">&nbsp;Spatial Filter</td></tr>
     <tr><td>Digitize:</td></tr>
     <tr>
         <td align="center">
