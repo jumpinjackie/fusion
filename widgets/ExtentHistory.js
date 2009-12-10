@@ -156,10 +156,10 @@ Fusion.Widget.ExtentHistory = OpenLayers.Class(Fusion.Widget, {
         b2.right += offset;
       }
       //calculate difference as percentage so all ranges of coordinates can be accommodated
-      equal = (Math.abs(b1.top - b2.top)/b2.top < this.EPS &&
-               Math.abs(b1.bottom - b2.bottom)/b2.bottom < this.EPS &&
-               Math.abs(b1.left - b2.left)/b2.left < this.EPS &&
-               Math.abs(b1.right - b2.right)/b2.right < this.EPS);
+      equal = (Math.abs((b1.top - b2.top) / b2.top) < this.EPS &&
+               Math.abs((b1.bottom - b2.bottom) / b2.bottom) < this.EPS &&
+               Math.abs((b1.left - b2.left) / b2.left) < this.EPS &&
+               Math.abs((b1.right - b2.right) / b2.right) < this.EPS);
       return equal;
     }
 });
