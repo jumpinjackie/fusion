@@ -135,6 +135,84 @@ MEASUREPARTIAL          = Partial
 MEASURETOTAL            = total
 MEASURELAYER            = Measure
 
+# Feature Info UI
+FEATUREINFOTITLE        = Feature Information
+FEATUREINFOSUBTITLE     = Select a Layer
+FEATUREINFOLAYER        = Layer:
+FEATUREINFOSELECTFEATURE= Select Features:
+FEATUREINFODIGITIZE     = Digitize:
+FEATUREINFOPOINT        = Point
+FEATUREINFORECTANGLE    = Rectangle
+FEATUREINFOPOLYGON      = Polygon
+FEATUREINFOTOTAL        = Total:
+FEATUREINFONOSELECTED   = no features selected.
+FEATUREINFOERROR        = Error
+FEATUREINFOFETCHINFO    = fetching feature info ...
+FEATUREINFOFEATURESEL   = features selected
+FEATUREINFOAREA         = Area: 
+FEATUREINFOAREAUNDEFINE = areaIdx undefined
+FEATUREINFONOINFO       = no layer info
+FEATUREINFONOFEATUREIN  = no features in selected layer.
+
+# Query UI
+QUERYTITLE              = Query Features
+QUERYSELECTLAYER        = Select a Layer
+QUERYLAYER              = Layer:
+QUERYPROPERTYFILTER     = Property Filter
+QUERYPROPERTY           = Property:
+QUERYOPERATOR           = Operator:
+QUERYVALUE              = Value:
+QUERYSPATIALFILTER      = Spatial Filter
+QUERYDIGITIZE           = Digitize:
+QUERYRECTANGLE          = Rectangle
+QUERYPOLYGON            = Polygon
+QUERYCLEAR              = Clear
+QUERYOUTPUT             = Output
+QUERYOUTPUTPROPERTY     = Output property:
+QUERYEXECUTE            = Execute
+QUERYMAXRESULT          = Max results:
+QUERYRESULTS            = Results
+QUERYSCALE              = Scale:
+QUERYZOOM               = Zoom
+QUERYSELECT             = Select
+QUERYERROR              = Error
+
+# Theme UI
+THEMETITLE              = Theme Layer
+THEMESELECTLAYER        = Select a Layer
+THEMELAYER              = Layer:
+THEMENAME               = Theme Name:
+THEMECONDITIONS         = Define Conditions
+THEMEPROPERTY           = Property:
+THEMEMIN                = Min:
+THEMEMAX                = Max:
+THEMEDISTRIBUTION       = Distribution:
+THEMERULE               = # of Rules:
+THEMESCALERANGE         = Scale Range
+THEMESTYLERAMP          = Style Ramp
+THEMEFILLTRANS          = Fill Transparency:
+THEMEFILLCOLOR          = Fill Color:
+THEMEFROM               = From:
+THEMETO                 = To:
+THEMEBORDERCOLOR        = Border Color:
+THEMEAPPLY              = Apply
+THEMEERROR              = Error
+
+# Redline UI
+REDLINEOPTIONS          = Digitizing Options
+REDLINESELECTLAYER      = Select Layer: 
+REDLINENEW              = New
+REDLINERENAME           = Rename
+REDLINEREMOVE           = Remove
+REDLINEDRAW             = Draw:
+REDLINEPOINT            = Point
+REDLINELINE             = Line
+REDLINERECTANGLE        = Rectangle
+REDLINEPOLYGON          = Polygon
+REDLINESAVE             = Save
+REDLINEUPLOAD           = Upload
+REDLINEFEATURES         = Features
+
 # HtmlViewerAbout
 HTMLABOUTTITLE          = About %s
 HTMLABOUTTITLEBAR       = MapGuide Viewer
