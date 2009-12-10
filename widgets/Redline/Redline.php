@@ -29,6 +29,30 @@
  *  The max file size should be setted in the php5.ini.
  *****************************************************************************/
 
+$fusionMGpath = '../../layers/MapGuide/php/';
+include $fusionMGpath . 'Common.php';
+  
+SetLocalizedFilesPath(GetLocalizationPath());
+if(isset($_REQUEST['locale'])) {
+    $locale = $_REQUEST['locale'];
+} else {
+    $locale = GetDefaultLocale();
+}
+
+$optionLocal = GetLocalizedString('REDLINEOPTIONS', $locale );
+$selectLayerLocal = GetLocalizedString('REDLINESELECTLAYER', $locale );
+$newLocal = GetLocalizedString('REDLINENEW', $locale );
+$renameLocal = GetLocalizedString('REDLINERENAME', $locale );
+$removeLocal = GetLocalizedString('REDLINEREMOVE', $locale );
+$drawLocal = GetLocalizedString('REDLINEDRAW', $locale );
+$pointLocal = GetLocalizedString('REDLINEPOINT', $locale );
+$lineLocal = GetLocalizedString('REDLINELINE', $locale );
+$rectangleLocal = GetLocalizedString('REDLINERECTANGLE', $locale );
+$polygonLocal = GetLocalizedString('REDLINEPOLYGON', $locale );
+$saveLocal = GetLocalizedString('REDLINESAVE', $locale );
+$uploadLocal = GetLocalizedString('REDLINEUPLOAD', $locale );
+$featuresLocal = GetLocalizedString('REDLINEFEATURES', $locale );
+
 $fileUpload = false;
 
 $action = $_POST['action'];
@@ -81,11 +105,11 @@ else {
         }
       </script>
 
-      <h1>Digitizing Options</h1>
+      <h1><?php echo $optionLocal ?></h1>
       <table id="RedlineWidgetOptions" borders="1">
 
       <tr>
-      <th>Select Layer: </th>
+      <th><?php echo $selectLayerLocal ?></th>
       <td>
       <select id="RedlineWidgetLayerList"></select>
       </td>
@@ -93,28 +117,28 @@ else {
       <tr>
       <td><!-- dummy col --></td>
       <td>
-        <button id="RedlineWidgetNewLayerButton">New</button>
-        <button id="RedlineWidgetRenameLayerButton">Rename</button>
-        <button id="RedlineWidgetRemoveLayerButton">Remove</button>
+        <button id="RedlineWidgetNewLayerButton"><?php echo $newLocal ?></button>
+        <button id="RedlineWidgetRenameLayerButton"><?php echo $renameLocal ?></button>
+        <button id="RedlineWidgetRemoveLayerButton"><?php echo $removeLocal ?></button>
       </td>
       </tr>
       <tr>
-        <th>Draw:</th>
+        <th><?php echo $drawLocal ?></th>
         <td>
           <input id="RedlineWidgetPointRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetPointeRadio">Point</label><br/>
+          <label for="RedlineWidgetPointeRadio"><?php echo $pointLocal ?></label><br/>
           <input id="RedlineWidgetLineRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetLineRadio">Line</label><br/>
+          <label for="RedlineWidgetLineRadio"><?php echo $lineLocal ?></label><br/>
           <input id="RedlineWidgetRectangleRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetRectangleRadio">Rectangle</label><br/>
+          <label for="RedlineWidgetRectangleRadio"><?php echo $rectangleLocal ?></label><br/>
           <input id="RedlineWidgetPolygonRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetPolygonRadio">Polygon</label>
+          <label for="RedlineWidgetPolygonRadio"><?php echo $polygonLocal ?></label>
         </td>
       </tr>
       <tr>
         <td colspan="2">
           <hr/>
-          <button id="RedlineWidgetSaveButton">Save</button>
+          <button id="RedlineWidgetSaveButton"><?php echo $saveLocal ?></button>
         </td>
       </tr>
       <tr>
@@ -123,14 +147,14 @@ else {
              <input type="file" name="uploadedfile"/>
              <input type="hidden" name="action" value="upload"/>
              <br/>
-             <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="Upload" />
+             <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="<?php echo $uploadLocal ?>" />
           </form>
     </td>
       </tr>
       <tr><td><!-- dummy col --></td></tr>
       <tr>
         <th colspan="2">
-          Features
+          <?php echo $featuresLocal ?>
           <hr/>
         </th>
       </tr>
@@ -142,10 +166,10 @@ else {
       </tr>
       <tr>
         <td>
-          <button id="RedlineWidgetRenameFeatureButton">Rename</button>
+          <button id="RedlineWidgetRenameFeatureButton"><?php echo $renameLocal ?></button>
         </td>
         <td>
-          <button id="RedlineWidgetRemoveFeatureButton">Remove</button>
+          <button id="RedlineWidgetRemoveFeatureButton"><?php echo $removeLocal ?></button>
         </td>
       </tr>
       </table>

@@ -23,15 +23,44 @@
     {
         DisplayInitializationErrorHTML();
         exit;
-    }
+    }    
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . '/JSON.php';
     require_once 'classes/query.php';
+    
+    SetLocalizedFilesPath(GetLocalizationPath());
+    if(isset($_REQUEST['locale'])) {
+        $locale = $_REQUEST['locale'];
+    } else {
+        $locale = GetDefaultLocale();
+    }
 
     $args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
 
     $errorMsg = null;
     $errorDetail = null;
+    
+    $titleLocal = GetLocalizedString('QUERYTITLE', $locale );
+    $selectLayerLocal = GetLocalizedString('QUERYSELECTLAYER', $locale );
+    $layerLocal = GetLocalizedString('QUERYLAYER', $locale );
+    $propertyFilterLocal = GetLocalizedString('QUERYPROPERTYFILTER', $locale );
+    $propertyLocal = GetLocalizedString('QUERYPROPERTY', $locale );
+    $operatorLocal = GetLocalizedString('QUERYOPERATOR', $locale );
+    $valueLocal = GetLocalizedString('QUERYVALUE', $locale );
+    $spatialFilterLocal = GetLocalizedString('QUERYSPATIALFILTER', $locale );
+    $digitizeLocal = GetLocalizedString('QUERYDIGITIZE', $locale );
+    $rectangleLocal = GetLocalizedString('QUERYRECTANGLE', $locale );
+    $polygonLocal = GetLocalizedString('QUERYPOLYGON', $locale );
+    $clearLocal = GetLocalizedString('QUERYCLEAR', $locale );
+    $outputLocal = GetLocalizedString('QUERYOUTPUT', $locale );
+    $outputPropertyLocal = GetLocalizedString('QUERYOUTPUTPROPERTY', $locale );
+    $executeLocal = GetLocalizedString('QUERYEXECUTE', $locale );
+    $maxResultLocal = GetLocalizedString('QUERYMAXRESULT', $locale );
+    $resultsLocal = GetLocalizedString('QUERYRESULTS', $locale );
+    $scaleLocal = GetLocalizedString('QUERYSCALE', $locale );
+    $zoomLocal = GetLocalizedString('QUERYZOOM', $locale );
+    $selectLocal = GetLocalizedString('QUERYSELECT', $locale );
+    $errorLocal = GetLocalizedString('QUERYERROR', $locale );
 
     try
     {
@@ -53,7 +82,7 @@
 ?>
 <html>
 <head>
-    <title>Query Features</title>
+    <title><?php echo $titleLocal ?></title>
     <link rel="stylesheet" href="../../common/mgsamples.css" type="text/css">
     <script language="javascript" src="../../common/browserdetect.js"></script>
     <script language="javascript" src="../../common/json.js"></script>
@@ -384,9 +413,9 @@
 <?php if ($errorMsg == null) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%">
-    <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;Query Features<hr></td></tr>
-    <tr><td class="SubTitle">Select a Layer</td></tr>
-    <tr><td>Layer:</td></tr>
+    <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;<?php echo $titleLocal ?><hr></td></tr>
+    <tr><td class="SubTitle"><?php echo $selectLayerLocal ?></td></tr>
+    <tr><td><?php echo $layerLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="layerSelect" onChange="OnLayerChange()" style="width: 100%">
@@ -403,40 +432,40 @@
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" id="propertyFilter" checked>&nbsp;Property Filter</td></tr>
-    <tr><td>Property:</td></tr>
+    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" id="propertyFilter" checked>&nbsp;<?php echo $propertyFilterLocal ?></td></tr>
+    <tr><td><?php echo $propertyLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="propertySelect" onChange="OnPropertyChange()" style="width: 100%">
             </select>
         </td>
     </tr>
-    <tr><td>Operator:</td></tr>
+    <tr><td><?php echo $operatorLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="operatorSelect" style="width: 100%">
             </select>
         </td>
     </tr>
-    <tr><td>Value:</td></tr>
+    <tr><td><?php echo $valueLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <input maxlength="100" class="Ctrl" id="valueInput" style="width: 100%">
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" onclick="OnToggleSpatialFilter()" id="spatialFilter">&nbsp;Spatial Filter</td></tr>
-    <tr><td>Digitize:</td></tr>
+    <tr><td class="SubTitle"><input class="Ctrl" type="checkbox" onclick ="OnToggleSpatialFilter()" id="spatialFilter">&nbsp;<?php echo $spatialFilterLocal ?></td></tr>
+    <tr><td><?php echo $digitizeLocal ?></td></tr>
     <tr>
         <td align="center">
-            <input type="button" name="" value="Rectangle" class="Ctrl" id="rectButton" onClick="OnDigitizeRectangle()" style="width: 30%">
-            <input type="button" name="" value="Polygon" class="Ctrl" id="polyButtton" onClick="OnDigitizePolygon()" style="width: 30%">
-            <input type="button" name="" value="Clear" class="Ctrl" id="clearButton" onClick="OnClearSpatialFilter()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $rectangleLocal ?>" class="Ctrl" id="rectButton" onClick="OnDigitizeRectangle()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $polygonLocal ?>" class="Ctrl" id="polyButtton" onClick="OnDigitizePolygon()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $clearLocal ?>" class="Ctrl" id="clearButton" onClick="OnClearSpatialFilter()" style="width: 30%">
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle">Output</td></tr>
-    <tr><td>Output property:</td></tr>
+    <tr><td class="SubTitle"><?php echo $outputLocal ?></td></tr>
+    <tr><td><?php echo $outputPropertyLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="outputSelect" style="width: 100%">
@@ -447,13 +476,13 @@
     <tr><td><hr></td></tr>
     <tr>
         <td>
-            <input id="executeBtn" class="Ctrl" name="" type="button" onClick="ExecuteQuery()" value="Execute" style="width:60px">
-            &nbsp;&nbsp;Max results:&nbsp;
+            <input id="executeBtn" class="Ctrl" name="" type="button" onClick="ExecuteQuery()" value="<?php echo $executeLocal ?>" style="width:60px">
+            &nbsp;&nbsp;<?php echo $maxResultLocal ?>&nbsp;
             <input name="" id="queryMax" class="Ctrl" type="text" value="100" size="5">
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle">Results</td></tr>
+    <tr><td class="SubTitle"><?php echo $resultsLocal ?></td></tr>
     <tr>
         <td>
             <select class="Ctrl" id="resultSelect" size="15" onChange="OnResultChange()" style="width: 100%"></select>
@@ -461,9 +490,9 @@
     </tr>
     <tr>
         <td>
-            Scale:&nbsp;<input class="Ctrl" id="scaleInput" type="text" size="6" value="10000">
-            <input class="Ctrl" id="zoomBtn" type="button" onClick="ZoomToFeature()" value="Zoom" style="width:60px">
-            <input class="Ctrl" id="selectBtn" type="button" onClick="SelectFeature()" value="Select" style="width:60px">
+            <?php echo $scaleLocal ?>&nbsp;<input class="Ctrl" id="scaleInput" type="text" size="6" value="10000">
+            <input class="Ctrl" id="zoomBtn" type="button" onClick="ZoomToFeature()" value="<?php echo $zoomLocal ?>" style="width:60px">
+            <input class="Ctrl" id="selectBtn" type="button" onClick="SelectFeature()" value="<?php echo $selectLocal ?>" style="width:60px">
         </td>
     </tr>
 
@@ -472,14 +501,14 @@
 <?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
 </table>
 
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
     <tr><td><?= $errorDetail ?></td></tr>
 </table>

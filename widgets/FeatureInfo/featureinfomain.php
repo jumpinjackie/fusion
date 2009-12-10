@@ -24,6 +24,12 @@
         DisplayInitializationErrorHTML();
         exit;
     }
+    SetLocalizedFilesPath(GetLocalizationPath());
+    if(isset($_REQUEST['locale'])) {
+        $locale = $_REQUEST['locale'];
+    } else {
+        $locale = GetDefaultLocale();
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . '/JSON.php';
     require_once 'classes/featureinfo.php';
@@ -32,6 +38,24 @@
 
     $errorMsg = null;
     $errorDetail = null;
+    
+    $titleLocal = GetLocalizedString('FEATUREINFOTITLE', $locale );
+    $subtitleLocal = GetLocalizedString('FEATUREINFOSUBTITLE', $locale );
+    $layerLocal = GetLocalizedString('FEATUREINFOLAYER', $locale );
+    $selectFeatureLocal = GetLocalizedString('FEATUREINFOSELECTFEATURE', $locale );
+    $digitizeLocal = GetLocalizedString('FEATUREINFODIGITIZE', $locale );
+    $pointLocal = GetLocalizedString('FEATUREINFOPOINT', $locale );
+    $rectangleLocal = GetLocalizedString('FEATUREINFORECTANGLE', $locale );
+    $polygonLocal = GetLocalizedString('FEATUREINFOPOLYGON', $locale );
+    $totalLocal = GetLocalizedString('FEATUREINFOTOTAL', $locale );
+    $noSelectedLocal = GetLocalizedString('FEATUREINFONOSELECTED', $locale );
+    $errorLocal = GetLocalizedString('FEATUREINFOERROR', $locale );
+    $fetchInfoLocal = GetLocalizedString('FEATUREINFOFETCHINFO', $locale );
+    $featureSelLocal = GetLocalizedString('FEATUREINFOFEATURESEL', $locale );
+    $areaLocal = GetLocalizedString('FEATUREINFOAREA', $locale );
+    $areaUndefinedLocal = GetLocalizedString('FEATUREINFOAREAUNDEFINE', $locale );
+    $noLayerInfoLocal = GetLocalizedString('FEATUREINFONOINFO', $locale );
+    $noFeatureInLocal = GetLocalizedString('FEATUREINFONOFEATUREIN', $locale );
 
     try
     {
@@ -51,7 +75,7 @@
 ?>
 <html>
 <head>
-    <title>Feature Information</title>
+    <title><?php echo $titleLocal ?></title>
     <link rel="stylesheet" href="../../common/mgsamples.css" type="text/css">
     <script language="javascript" src="../../common/browserdetect.js"></script>
     <script language="javascript" src="../../common/json.js"></script>
@@ -159,7 +183,7 @@
             reqHandler.open("POST", "featureinfocontroller.php", true);
             reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-            document.getElementById('totalFeatures').innerHTML = 'fetching feature info ...';
+            document.getElementById('totalFeatures').innerHTML = '<?php echo $fetchInfoLocal ?>';
             document.getElementById('totalArea').innerHTML = ''
             document.getElementById("layerSelect").disabled = true;
             document.getElementById("pointButton").disabled = true;
@@ -196,16 +220,16 @@
                                 var metadata = layerInfo.metadata[i];
                                 totalArea += metadata[areaIdx];
                             }
-                            document.getElementById('totalFeatures').innerHTML = n + ' features selected';
-                            document.getElementById('totalArea').innerHTML = 'Area: ' + totalArea + ' m<sup>2</sup>';
+                            document.getElementById('totalFeatures').innerHTML = n + '<?php echo $featureSelLocal ?>';
+                            document.getElementById('totalArea').innerHTML = '<?php echo $areaLocal ?>' + totalArea + ' m<sup>2</sup>';
                         } else {
-                            document.getElementById('totalArea').innerHTML = 'areaIdx undefined';
+                            document.getElementById('totalArea').innerHTML = '<?php echo $areaUndefinedLocal ?>';
                         }
                     } else {
-                        document.getElementById('totalArea').innerHTML = 'no layer info';
+                        document.getElementById('totalArea').innerHTML = '<?php echo $noLayerInfoLocal ?>';
                     }
                 } else {
-                  document.getElementById('totalFeatures').innerHTML = 'no features in selected layer.';
+                  document.getElementById('totalFeatures').innerHTML = '<?php echo $noFeatureInLocal ?>';
                 }
 
 
@@ -218,7 +242,7 @@
             }
         }
         function SelectionOff() {
-            document.getElementById('totalFeatures').innerHTML = 'no features selected.';
+            document.getElementById('totalFeatures').innerHTML = '<?php echo $noSelectedLocal ?>';
             document.getElementById('totalArea').innerHTML = '';
         }
 
@@ -250,9 +274,9 @@
 <?php if ($errorMsg == null) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%">
-    <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;Feature Information<hr></td></tr>
-    <tr><td class="SubTitle">Select a Layer</td></tr>
-    <tr><td>Layer:</td></tr>
+    <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;<?php echo $titleLocal ?><hr></td></tr>
+    <tr><td class="SubTitle"><?php echo $subtitleLocal ?></td></tr>
+    <tr><td><?php echo $layerLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="layerSelect" onChange="OnLayerChange()" style="width: 100%">
@@ -270,32 +294,32 @@
     </tr>
     <tr><td class="Spacer"></td></tr>
 
-    <tr><td class="SubTitle">Select Features:</td></tr>
-    <tr><td>Digitize:</td></tr>
+    <tr><td class="SubTitle"><?php echo $selectFeatureLocal ?></td></tr>
+    <tr><td><?php echo $digitizeLocal ?></td></tr>
     <tr>
         <td align="center">
-            <input type="button" name="" value="Point" class="Ctrl" id="pointButton" onClick="OnDigitizePoint()" style="width: 30%">
-            <input type="button" name="" value="Rectangle" class="Ctrl" id="rectButton" onClick="OnDigitizeRectangle()" style="width: 30%">
-            <input type="button" name="" value="Polygon" class="Ctrl" id="polyButtton" onClick="OnDigitizePolygon()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $pointLocal ?>" class="Ctrl" id="pointButton" onClick="OnDigitizePoint()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $rectangleLocal ?>" class="Ctrl" id="rectButton" onClick="OnDigitizeRectangle()" style="width: 30%">
+            <input type="button" name="" value="<?php echo $polygonLocal ?>" class="Ctrl" id="polyButtton" onClick="OnDigitizePolygon()" style="width: 30%">
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
-    <tr><td class="SubTitle">Total:</td></tr>
-    <tr><td id="totalFeatures">no features selected.</td></tr>
+    <tr><td class="SubTitle"><?php echo $totalLocal ?></td></tr>
+    <tr><td id="totalFeatures"><?php echo $noSelectedLocal ?></td></tr>
     <tr><td id="totalArea"></td></tr>
 </table>
 
 <?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
 </table>
 
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
     <tr><td><?= $errorDetail ?></td></tr>
 </table>
