@@ -104,18 +104,23 @@ else {
 
         }
       </script>
-
-      <h1><?php echo $optionLocal ?></h1>
-      <table id="RedlineWidgetOptions" borders="1">
-
+      
+      <table id="RedlineWidgetOptions" borders="1" width="100%">
       <tr>
-      <th><?php echo $selectLayerLocal ?></th>
+      <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 13pt">
+      <?php echo $optionLocal ?>
+      <hr>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;"><?php echo $selectLayerLocal ?></td>
+      </tr>
+      <tr>
       <td>
       <select id="RedlineWidgetLayerList"></select>
       </td>
       </tr>
       <tr>
-      <td><!-- dummy col --></td>
       <td>
         <button id="RedlineWidgetNewLayerButton"><?php echo $newLocal ?></button>
         <button id="RedlineWidgetRenameLayerButton"><?php echo $renameLocal ?></button>
@@ -123,7 +128,9 @@ else {
       </td>
       </tr>
       <tr>
-        <th><?php echo $drawLocal ?></th>
+        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;"><?php echo $drawLocal ?></td>
+       </tr> 
+       <tr> 
         <td>
           <input id="RedlineWidgetPointRadio" type="radio" name="RedlineWidgetDrawRadio"/>
           <label for="RedlineWidgetPointeRadio"><?php echo $pointLocal ?></label><br/>
@@ -136,13 +143,13 @@ else {
         </td>
       </tr>
       <tr>
-        <td colspan="2">
+        <td>
           <hr/>
           <button id="RedlineWidgetSaveButton"><?php echo $saveLocal ?></button>
         </td>
       </tr>
       <tr>
-        <td id="RedlineWidgetUploadTd" colspan="2">
+        <td id="RedlineWidgetUploadTd">
           <form id="RedlineWidgetUploadForm" enctype="multipart/form-data" action="Redline.php" method="post">
              <input type="file" name="uploadedfile"/>
              <input type="hidden" name="action" value="upload"/>
@@ -151,15 +158,16 @@ else {
           </form>
     </td>
       </tr>
-      <tr><td><!-- dummy col --></td></tr>
       <tr>
-        <th colspan="2">
-          <?php echo $featuresLocal ?>
-          <hr/>
-        </th>
+        <td><hr/></td>
       </tr>
       <tr>
-        <td colspan="2">
+        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;">
+          <?php echo $featuresLocal ?>
+        </td>
+        </tr>
+      <tr>
+        <td>
           <select id="RedlineWidgetFeatureList" size="10">
           </select>
         </td>
@@ -167,8 +175,6 @@ else {
       <tr>
         <td>
           <button id="RedlineWidgetRenameFeatureButton"><?php echo $renameLocal ?></button>
-        </td>
-        <td>
           <button id="RedlineWidgetRemoveFeatureButton"><?php echo $removeLocal ?></button>
         </td>
       </tr>
