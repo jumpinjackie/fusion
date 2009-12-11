@@ -22,11 +22,11 @@
 
 Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Menu,
-	
+
     options: {},
-	
+
     baseMaps: {},
-	
+
     defaultBasemap: null,
 
     menuItems: {},
@@ -34,30 +34,30 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         this.getMap().registerForEvent(Fusion.Event.MAP_MAP_GROUP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
     },
-    
-	refreshSettings: function(){
-		this.baseMaps = {};
-		this.defaultBasemap = null;
-		this.menuItems = {};
-		this.options = {
-			'G_NORMAL_MAP': null,
-			'G_SATELLITE_MAP': null,
-			'G_HYBRID_MAP': null,
-			'YAHOO_MAP_REG': null,
-			'YAHOO_MAP_SAT': null,
-			'YAHOO_MAP_HYB': null,
-			'Road': null,
-			'Aerial': null,
-			'Hybrid': null,
-			'None': null
-		};
-	},
-	
-	generateOptions: function(){
-		// Clear previous settings 
-		this.refreshSettings();
-		
-		var maps = this.getMap().aMaps;
+
+    refreshSettings: function() {
+        this.baseMaps = {};
+        this.defaultBasemap = null;
+        this.menuItems = {};
+        this.options = {
+            'G_NORMAL_MAP': null,
+            'G_SATELLITE_MAP': null,
+            'G_HYBRID_MAP': null,
+            'YAHOO_MAP_REG': null,
+            'YAHOO_MAP_SAT': null,
+            'YAHOO_MAP_HYB': null,
+            'Road': null,
+            'Aerial': null,
+            'Hybrid': null,
+            'None': null
+        };
+    },
+
+    generateOptions: function() {
+        // Clear previous settings 
+        this.refreshSettings();
+
+        var maps = this.getMap().aMaps;
         for (var i = 0, len = maps.length; i < len; i++) {
             var map = maps[i];
             switch (map.layerType) {
@@ -200,13 +200,14 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                     break;
             }
         }
-		if (!this.defaultBasemap) {
-			this.defaultBasemap = "None";
+        if (!this.defaultBasemap) {
+            this.defaultBasemap = "None";
         }
-	},
-	
+    },
+
     setUiObject: function(uiObj) {
         Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
+        this.setDefaultBasemap();
     },
 
     setBasemap: function(baseMap) {
@@ -224,12 +225,12 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     },
 
     setDefaultBasemap: function() {
-		this.generateOptions();
-		//re-generate the menu
-		this.uiObj.initialize();
-		
-		//set up the root menu
-		var buttonSet = new Jx.ButtonSet();
+        this.generateOptions();
+        //re-generate the menu
+        this.uiObj.initialize();
+
+        //set up the root menu
+        var buttonSet = new Jx.ButtonSet();
         for (var key in this.options) {
             if (this.options[key]) {
                 var menuItem = new Jx.Menu.Item({
@@ -237,14 +238,12 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                     toggle: true,
                     onDown: OpenLayers.Function.bind(this.setBasemap, this, key)
                 });
-				buttonSet.add(menuItem);
+                buttonSet.add(menuItem);
                 this.uiObj.add(menuItem);
                 this.menuItems[key] = menuItem;
             }
         }
         this.menuItems[this.defaultBasemap].setActive(true);
         this.setBasemap(this.defaultBasemap);
-		
-		
     }
 });
