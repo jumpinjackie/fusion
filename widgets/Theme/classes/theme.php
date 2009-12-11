@@ -147,6 +147,8 @@ class Theme
 
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+        
+        $filter = $layer->GetFilter();
 
 // Note: Should be able to do this:
 //
@@ -177,6 +179,8 @@ class Theme
 
         $queryOptions = new MgFeatureQueryOptions();
         $queryOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
+        if($filter != '')
+            $queryOptions->SetFilter($filter);
 
         $featureReader = $featureService->SelectFeatures($resId, $layer->GetFeatureClassName(), $queryOptions);
 
