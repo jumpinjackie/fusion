@@ -6,6 +6,8 @@ Fusion.Strings.en = {
                   'and have configured the settings for your system',
 'ajaxError': 'Exception occurred in AJAX callback.\nMessage: ${exception}\nLocation: ${filename} (${line})\nResponse: ${response}',
 'importFailed': 'failed to import stylesheet: ${url}',
+'serverNotAvailable': '<h2>Server not available. Try to reload the application. If this problem persists, please contact the administrator</h2>',
+'invalidXMLDocument': 'xml2json: invalid XML document: ${msg} : ${url}',
 'registerEventError': 'Error registering eventID, invalid (empty) eventID.',
 'appDefLoadFailed': 'failed to load: ${script}',
 'appDefParseError': 'failed to parse ApplicationDefinition',
