@@ -118,7 +118,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 break;
             }
             break;
-         case 'VirtualEarth':         
+         case 'VirtualEarth':
+             this.mapTag.layerOptions.animationEnabled = false;
              switch (this.mapTag.layerOptions.type) {   //VE layer types are enumerated values
                case 'Aerial':              //defined in VEMapStyle from the VE api
                case 'a':
@@ -242,6 +243,10 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     getLegendImageURL: function(fScale, layer, style,defaultIcon) {
       //var url = null; //TODO: provide a generic icon url 
       return defaultIcon;
+    },
+    
+    getSessionID: function() {
+        return '';
     }
 
 });
