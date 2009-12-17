@@ -57,7 +57,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
 
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
-        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
 
         this.mapInfo = mapTag.mapInfo;
         this.imageFormat = mapTag.extension.ImageFormat ? mapTag.extension.ImageFormat[0] : this.defaultFormat;
@@ -562,7 +561,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         ratio: this.ratio
       };
       if ((behavior & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
-        layerOptions.transitionEffect = 'resize';
+        //layerOptions.transitionEffect = 'resize';
       }
 
       //add in scales array if supplied

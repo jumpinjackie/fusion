@@ -58,7 +58,8 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.registerEventID(Fusion.Event.LAYER_LOADED);
         this.registerEventID(Fusion.Event.LAYER_LOADING);
         this.registerEventID(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-
+        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
+        
         this.mapWidget = map;
         this.oSelection = null;
         if (isMapWidgetLayer != null) {
