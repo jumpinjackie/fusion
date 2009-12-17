@@ -52,7 +52,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         //console.log('Fusion.Layers.MapServer.initialize');
         Fusion.Layers.prototype.initialize.apply(this, arguments);
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
-        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
         //this.selectionType = extension.SelectionType ? extension.SelectionType[0] : 'INTERSECTS';
 
         this.sMapFile = mapTag.extension.MapFile ? mapTag.extension.MapFile[0] : '';
