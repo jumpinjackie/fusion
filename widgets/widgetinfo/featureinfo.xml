@@ -6,7 +6,7 @@
     <Label>Feature Info</Label>
     <Tooltip>Click to display selected feature info</Tooltip>
     <ImageUrl>images/icons.png</ImageUrl>
-    <ImageClass>invoke-url</ImageClass>
+    <ImageClass>featureinfo</ImageClass>
     <StandardUi>true</StandardUi>
     <ContainableBy>Any</ContainableBy>
     <Parameter>

@@ -6,7 +6,7 @@
     <Label>Theme</Label>
     <Tooltip>Click to create a themed layer</Tooltip>
     <ImageUrl>images/icons.png</ImageUrl>
-    <ImageClass>invoke-url</ImageClass>
+    <ImageClass>theme</ImageClass>
     <StandardUi>true</StandardUi>
     <ContainableBy>Any</ContainableBy>
     <Parameter>
