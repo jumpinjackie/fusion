@@ -225,6 +225,8 @@ class Theme
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         $layerDefResId = $layer->GetLayerDefinition();
         $byteReader = $resourceService->GetResourceContent($layerDefResId);
+        
+        $filter = $layer->GetFilter();
 
         // Load the Layer Definition and Navigate to the specified <VectorScaleRange>
 
@@ -265,6 +267,8 @@ class Theme
             
             $aggregateOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
             $aggregateOptions->SelectDistinct(true);
+            if($filter != '')
+                $aggregateOptions->SetFilter($filter);
             $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);            
             while ($dataReader->ReadNext())
             {
@@ -312,6 +316,8 @@ class Theme
 
             $aggregateOptions->AddComputedProperty('THEME_VALUE',
                 $this->args['DISTRO'] . '("' . $this->args['PROPERTYNAME'] . '",' . $this->args['NUMRULES'] . ',' . $this->args['MINVALUE'] . ',' . $this->args['MAXVALUE'] . ')');
+            if($filter != '')
+                $aggregateOptions->SetFilter($filter);
 
             $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
             while ($dataReader->ReadNext())
