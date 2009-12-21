@@ -285,6 +285,9 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         for (var i=0; i<mapWidget.handlers.length; ++i) {
           var handler = mapWidget.handlers[i];
           if (handler.active) {
+            if(handler.CLASS_NAME == "OpenLayers.Handler.Box" && handler.zoomBox != undefined){
+              handler.removeBox();
+            }
             handler.deactivate();
             this.activeControls.push(handler);
           }
