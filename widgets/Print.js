@@ -82,14 +82,26 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
             var o = {
                 label: OpenLayers.i18n('printTitle'),
                 id: 'printablePage',
-                contentURL : this.dialogContentURL,
-                onContentLoaded: OpenLayers.Function.bind(this.contentLoaded, this),
+                content : '<div class="PrintDialogForm">' +
+                              '<fieldset class="PrintDialogOptions">' +
+                                  '<legend>' + OpenLayers.i18n("PRINTOPTIONS") +'</legend>' +
+                                    '<label class="block" for="dialogPrintShowtitle"><input name="dialogPrintShowtitle" id="dialogPrintShowtitle" type="checkbox" value="showtitle" checked>' +
+                                         OpenLayers.i18n("PRINTSHOWTITLE") +'</label>' +
+                                    '<label class="block" for="dialogPrintTitle">' + OpenLayers.i18n("PRINTTITLE") + '</label>' +
+                                    '<input name="dialogPrintTitle" id="dialogPrintTitle" type="text" class="inputText" />' +
+                                    '<label class="block" for="dialogPrintShowlegend"><input name="dialogPrintShowlegend" id="dialogPrintShowlegend" type="checkbox" value="showlegend" checked>' +
+                                         OpenLayers.i18n("PRINTSHOWLEGEND") + '</label>' +
+                                    '<label class="block" for="dialogPrintShowNorthArrow"><input name="dialogPrintShowNorthArrow" id="dialogPrintShowNorthArrow" type="checkbox" value="shownortharrow" checked>' +
+                                         OpenLayers.i18n("PRINTSHOWNORTHARROW") + '</label>' +
+                              '</fieldset>' +
+                            '</div>',
                 width: 350,
                 height: 250,
                 resize: true,
                 toolbars: [toolbar]
             };
             var d = new Jx.Dialog(o);
+			d.addEvent("contentLoaded", this.contentLoaded.bind(this));
             toolbar.add(
                 new Jx.Button({
                     label: OpenLayers.i18n('printGenerate'),

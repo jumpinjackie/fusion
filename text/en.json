@@ -53,5 +53,12 @@ Fusion.Strings.en = {
 'zoomRect': 'Zoom Rectangle',
 'maptipLinkText': 'Click for more information',
 
+#Print UI
+'PRINTSHOWTITLE':'Show Title?'
+'PRINTOPTIONS'	:'Options'
+'PRINTTITLE':'Title'
+'PRINTSHOWLEGEND':'Show Legend?'
+'PRINTSHOWNORTHARROW':'Show North Arrow?'
+
 'end': ''
 };
