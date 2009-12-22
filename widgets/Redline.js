@@ -48,6 +48,9 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     // array of OL vector layer
     vectorLayers: null,
 
+    // the default layer name
+    defaultLayerName: null,
+
     // the drawing controls
     drawControls: null,
 
@@ -75,6 +78,8 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
 
+        this.defaultLayerName = OpenLayers.i18n('redlineLayerName');
+
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);
 
@@ -98,10 +103,10 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.styleMap = new OpenLayers.StyleMap(defaultFeatureStyle);
         
         // create one default layer, unless other redline widgets have created it
-        this.vectorLayers = this.mapWidget.oMapOL.getLayersByName('Digitizing Layer 0');
+        this.vectorLayers = this.mapWidget.oMapOL.getLayersByName(this.defaultLayerName + '0');
     
         if (!this.vectorLayers.length) {
-            this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
+            this.vectorLayers[0] = new OpenLayers.Layer.Vector(this.defaultLayerName + '0', { styleMap: this.styleMap });
             this.vectorLayers[0].redLineLayer = true;
             this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
         }
@@ -271,7 +276,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     
     newLayerFromFile: function(fileName) {
         var i = this.vectorLayers.length;
-        this.vectorLayers[i] = new OpenLayers.Layer.Vector("Digitizing layer "+this.vectorLayers.length, {
+        this.vectorLayers[i] = new OpenLayers.Layer.Vector(this.defaultLayerName + this.vectorLayers.length, {
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
                 url: Fusion.getFusionURL() +"widgets/Redline/Redline.php?"+"file="+fileName,
@@ -289,7 +294,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.vectorLayers.splice(layerIndex,1);
         // we always keep at least one vector layer
         if (this.vectorLayers.length == 0) {
-            this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
+            this.vectorLayers[0] = new OpenLayers.Layer.Vector(this.defaultLayerName + '0', { styleMap: this.styleMap });
             this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
             this.vectorLayers[0].redLineLayer = true;
         }
@@ -303,14 +308,14 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
             exist = false;
             var i = 0;
             while (!exist && i < this.vectorLayers.length) {
-                if (("Digitizing layer " + offset) == this.vectorLayers[i].name)
+                if ((this.defaultLayerName + offset) == this.vectorLayers[i].name)
                     exist = true;
                 i++;
             }
             if (exist)
                 offset++;
         }
-        return "Digitizing layer " + offset;
+        return this.defaultLayerName + offset;
     }
 });
 

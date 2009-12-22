@@ -52,6 +52,7 @@ Fusion.Strings.en = {
 'printGenerate': 'Generate',
 'zoomRect': 'Zoom Rectangle',
 'maptipLinkText': 'Click for more information',
+'redlineLayerName': 'Digitizing Layer ',
 
 #Print UI
 'PRINTSHOWTITLE':'Show Title?'

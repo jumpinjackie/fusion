@@ -58,6 +58,11 @@
     $borderColorLocal = GetLocalizedString('THEMEBORDERCOLOR', $locale );
     $applyLocal = GetLocalizedString('THEMEAPPLY', $locale );
     $errorLocal = GetLocalizedString('THEMEERROR', $locale );
+    $individualLocal = GetLocalizedString('THEMEINDIVIDUAL', $locale );
+    $equalLocal = GetLocalizedString('THEMEEQUAL', $locale );
+    $standardDeviationLocal = GetLocalizedString('THEMESTANDARD', $locale );
+    $quantileLocal = GetLocalizedString('THEMEQUANTILE', $locale );
+    $jenksLocal = GetLocalizedString('THEMEJENKS', $locale );
 
     try
     {
@@ -107,7 +112,7 @@
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
 
-        var distNameArray = '<?php $json = new Services_JSON(); echo $json->encode($theme->distNameArray) ?>'.parseJSON();
+        var distNameArray = ['<?= $individualLocal ?>', '<?= $equalLocal ?>', '<?= $standardDeviationLocal ?>', '<?= $quantileLocal  ?>', '<?= $jenksLocal ?>']; 
         var distValueArray = '<?php $json = new Services_JSON(); echo $json->encode($theme->distValueArray) ?>'.parseJSON();
 
         var themeReqHandler = null;
