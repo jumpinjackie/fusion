@@ -176,6 +176,14 @@ QUERYSCALE              = Scale:
 QUERYZOOM               = Zoom
 QUERYSELECT             = Select
 QUERYERROR              = Error
+QUERYEQUALTO            = Equal to
+QUERYNOTEQUALTO         = Not equal to
+QUERYGREATTHAN          = Greater than
+QUERYGREATTHANEQUAL     = Greater than or equal to
+QUERYLESSTHAN           = Less than
+QUERYLESSTHANEQUAL      = Less than or equal to
+QUERYBEGIN              = Begins with
+QUERYCONTAINS           = Contains
 
 # Theme UI
 THEMETITLE              = Theme Layer
@@ -197,6 +205,11 @@ THEMETO                 = To:
 THEMEBORDERCOLOR        = Border Color:
 THEMEAPPLY              = Apply
 THEMEERROR              = Error
+THEMEINDIVIDUAL         = Individual
+THEMEEQUAL              = Equal
+THEMESTANDARD           = Standard Deviation
+THEMEQUANTILE           = Quantile
+THEMEJENKS              = Jenks (Natural Breaks)
 
 # Redline UI
 REDLINEOPTIONS          = Digitizing Options
