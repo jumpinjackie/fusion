@@ -84,15 +84,15 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
                 id: 'printablePage',
                 content : '<div class="PrintDialogForm">' +
                               '<fieldset class="PrintDialogOptions">' +
-                                  '<legend>' + OpenLayers.i18n("PRINTOPTIONS") +'</legend>' +
+                                  '<legend>' + OpenLayers.i18n("printOptions") +'</legend>' +
                                     '<label class="block" for="dialogPrintShowtitle"><input name="dialogPrintShowtitle" id="dialogPrintShowtitle" type="checkbox" value="showtitle" checked>' +
-                                         OpenLayers.i18n("PRINTSHOWTITLE") +'</label>' +
-                                    '<label class="block" for="dialogPrintTitle">' + OpenLayers.i18n("PRINTTITLE") + '</label>' +
+                                         OpenLayers.i18n("printShowTitle") +'</label>' +
+                                    '<label class="block" for="dialogPrintTitle">' + OpenLayers.i18n("printTitleText") + '</label>' +
                                     '<input name="dialogPrintTitle" id="dialogPrintTitle" type="text" class="inputText" />' +
                                     '<label class="block" for="dialogPrintShowlegend"><input name="dialogPrintShowlegend" id="dialogPrintShowlegend" type="checkbox" value="showlegend" checked>' +
-                                         OpenLayers.i18n("PRINTSHOWLEGEND") + '</label>' +
+                                         OpenLayers.i18n("printShowLegend") + '</label>' +
                                     '<label class="block" for="dialogPrintShowNorthArrow"><input name="dialogPrintShowNorthArrow" id="dialogPrintShowNorthArrow" type="checkbox" value="shownortharrow" checked>' +
-                                         OpenLayers.i18n("PRINTSHOWNORTHARROW") + '</label>' +
+                                         OpenLayers.i18n("printShowNorthArrow") + '</label>' +
                               '</fieldset>' +
                             '</div>',
                 width: 350,
