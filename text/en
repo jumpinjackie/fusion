@@ -135,7 +135,7 @@ MEASUREPARTIAL          = Partial
 MEASURETOTAL            = total
 MEASURELAYER            = Measure
 
-# Feature Info UI
+# FeatureInfoUI
 FEATUREINFOTITLE        = Feature Information
 FEATUREINFOSUBTITLE     = Select a Layer
 FEATUREINFOLAYER        = Layer:
@@ -154,7 +154,7 @@ FEATUREINFOAREAUNDEFINE = areaIdx undefined
 FEATUREINFONOINFO       = no layer info
 FEATUREINFONOFEATUREIN  = no features in selected layer.
 
-# Query UI
+# QueryUI
 QUERYTITLE              = Query Features
 QUERYSELECTLAYER        = Select a Layer
 QUERYLAYER              = Layer:
