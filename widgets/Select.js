@@ -106,10 +106,11 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
        * This function should be defined for all functions that register
        * as a widget in the map
        */
-    activate : function() {
+    activate: function() {
         this.handler.activate();
         //this.shiftHandler.activate();
         this.getMap().setCursor(this.asCursor);
+        this.getMap().supressContextMenu(true);
     },
 
     /**
@@ -117,10 +118,11 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
        * This function should be defined for all functions that register
        * as a widget in the map
        **/
-    deactivate : function() {
+    deactivate: function() {
         this.handler.deactivate();
         //this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
+        this.getMap().supressContextMenu(false);
     },
 
     /**

@@ -357,6 +357,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.resetMeasure();
         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.loadDisplayPanel();
+        this.getMap().supressContextMenu(true);
     },
     
     loadDisplayPanel: function() {
@@ -405,6 +406,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);           
         this.control.deactivate();
         this.control.cancel();
+        this.getMap().supressContextMenu(false);
     },
     
     resetMeasure: function() {

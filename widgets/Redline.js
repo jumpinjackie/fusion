@@ -214,12 +214,14 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         }
         this.activateLayer(0);
         this.activateControl(this.defaultControl,0);
+        this.getMap().supressContextMenu(true);
     },
 
     // desactivate the redline widget
     deactivate: function() {
         this.activeControl.deactivate();
         this.activeControl = null;
+        this.getMap().supressContextMenu(false);
     },
    
     featureAdded: function(evt) {
