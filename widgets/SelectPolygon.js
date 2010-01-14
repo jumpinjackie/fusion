@@ -65,6 +65,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
     activate: function() {
         this.handler.activate();
         this.getMap().setCursor(this.asCursor);
+        this.getMap().supressContextMenu(true);
     },
 
     /**
@@ -76,6 +77,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
     {
         this.handler.deactivate();
         this.getMap().setCursor('auto');
+        this.getMap().supressContextMenu(false);
     },
     
     /**
