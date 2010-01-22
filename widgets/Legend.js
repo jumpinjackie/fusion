@@ -255,7 +255,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             var opt = {
                 label: OpenLayers.i18n('defaultMapTitle'),
                 open: true,
-                draw: this.renderFolder,
+                draw: this.renderFolderCheckbox,
                 contextMenu: this.getContextMenu(),
                 'class':'fusionLegendFolder'
             };
@@ -410,15 +410,15 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         if (this.showMapFolder) {
-		this.renderGroup(this.layerRoot);
+        this.renderGroup(this.layerRoot);
         } else {
-		if (this.layerRoot.groups.length > 0) {
-			for (var i = 0; i < this.layerRoot.groups.length; i++)
-				this.renderGroup(this.layerRoot.groups[i]);
-		} else {
-			for (var i = 0; i < group.layers.length; i++)
-				this.processMapLayer(group.layers[i], this.oRoot);
-		}
+        if (this.layerRoot.groups.length > 0) {
+            for (var i = 0; i < this.layerRoot.groups.length; i++)
+                this.renderGroup(this.layerRoot.groups[i]);
+        } else {
+            for (var i = 0; i < group.layers.length; i++)
+                this.processMapLayer(group.layers[i], this.oRoot);
+        }
         }
 
         this.bIsDrawn = true;
@@ -445,7 +445,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             var opt = {
                 label: group.legendLabel,
                 open: group.expandInLegend,
-                draw: this.renderFolder,
+                draw: this.renderFolderCheckbox,
                 contextMenu: this.getContextMenu(),
                 'class':'fusionLegendFolder'
             };
@@ -463,8 +463,11 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             );
 
             folder.append(group.legend.treeItem);
-            group.legend.treeItem.checkBox.checked = group.visible?true:false;
-            OpenLayers.Event.observe(group.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, group));
+            if(group.legend.treeItem.checkBox)
+            {
+                group.legend.treeItem.checkBox.checked = group.visible?true:false;
+                OpenLayers.Event.observe(group.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, group));
+            }
 
             var groupInfo = group.oMap.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
@@ -500,7 +503,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
    
     layerPropertyChanged: function(eventID, layer) {
-        layer.legend.treeItem.checkBox.checked = layer.isVisible();
+        if(layer.legend.treeItem.checkBox)
+        {
+            layer.legend.treeItem.checkBox.checked = layer.isVisible();
+        }
     },
 
     update: function() {
@@ -557,7 +563,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     updateLayer: function(layer, fScale) {
 
-        var checkbox = layer.oMap.bSingleTile ? this.bIncludeVisToggle : false;
+        var checkbox = layer.isBaseMapLayer ? false : this.bIncludeVisToggle;
         if (!layer.displayInLegend || !layer.legend) {
             return;
         }
@@ -571,13 +577,19 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
                 if (!layer.legend.treeItem) {
-                    layer.legend.treeItem = this.createFolderItem(layer);
-                    OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    layer.legend.treeItem = this.createFolderItem(layer, checkbox);
+                    if(layer.legend.treeItem.checkBox)
+                    {
+                        OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    }
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
                     this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createFolderItem(layer);
-                    OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    layer.legend.treeItem = this.createFolderItem(layer, checkbox);
+                    if(layer.legend.treeItem.checkBox)
+                    {
+                        OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
+                    }
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else {
                     while(layer.legend.treeItem.nodes.length > 0) {
@@ -654,11 +666,11 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
     },
     
-    createFolderItem: function(layer) {
+    createFolderItem: function(layer, hasCheckbox) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
             isOpen: layer.expandInLegend,
-            draw: this.renderFolder,
+            draw: hasCheckbox ? this.renderFolderCheckbox : this.renderFolder,
             'class':'fusionLegendItemCheckbox',
             contextMenu: this.getContextMenu(),
             // image overrides
@@ -791,8 +803,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         });
         
-        this.checkBox = document.createElement('input');
-        this.checkBox.type = 'checkbox';
         
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
@@ -807,7 +817,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             html: this.options.label
         });
         
-        domA.appendChild(this.checkBox);
         domA.appendChild(this.domImg);
         domA.appendChild(domLabel);
 
@@ -815,6 +824,43 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
 
         return domA;
         
+    },
+    
+    renderFolderCheckbox: function() {
+        var domA = new Element('a',{
+            'class':this.options['class'],
+            href:'javascript:void(0)',
+            events: {
+                click: this.selected.bindWithEvent(this),
+                dblclick: this.selected.bindWithEvent(this),
+                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
+            }
+        });
+
+        this.checkBox = document.createElement('input');
+        this.checkBox.type = 'checkbox';
+
+        this.domImg = document.createElement('img');
+        this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
+        this.domImg.src = Jx.aPixel.src;
+
+        if (this.options.image) {
+            this.domImg.style.backgroundImage = 'url('+this.options.image+')';
+        }
+
+        var domLabel = new Element('span',{
+            'class': 'fusionLegendLabel',
+            html: this.options.label
+        });
+
+        domA.appendChild(this.checkBox);
+        domA.appendChild(this.domImg);
+        domA.appendChild(domLabel);
+
+        this.itemLabelobj = domA;
+
+        return domA;
+
     },
     
     renderItem: function() {

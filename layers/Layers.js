@@ -329,6 +329,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
+        this.isBaseMapGroup = o.isBaseMapGroup;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
     },
 
@@ -459,6 +460,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
         this.selectable = o.selectable;
+        this.isBaseMapLayer = o.isBaseMapLayer;
 
 
         //determine the layer type so that the correct icon can be displayed in the legend

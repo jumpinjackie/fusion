@@ -322,15 +322,29 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2);
+            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2,false);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
 
+            
+            //remove the dynamic overlay layer if it was already created
+            if (this.oLayerOL2) {
+                this.oLayerOL2.destroy();
+            }
+
             //this is to distinguish between a regular map and an overview map
             this.bMapLoaded = true;
             if (this.bIsMapWidgetLayer) {
-              this.mapWidget.addMap(this);
+                this.mapWidget.addMap(this);
+                
+                //if we have a tiled map that also contains dynamic layers, we need to create
+                //an additional overlay layer to render them on top of the tiles
+                if(!this.bSingleTile && o.hasDynamicLayers) {
+                    this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true);
+                    this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
+                    this.oLayerOL2.setVisibility(true);
+                }
             }
         }
         this.mapWidget._removeWorker();
@@ -530,7 +544,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        this.oLayerOL.mergeNewParams(params);
+        if(this.oLayerOL2) {
+            this.oLayerOL2.mergeNewParams(params);
+        } else {
+            this.oLayerOL.mergeNewParams(params);
+        }
+        
     },
 
     drawSelection: function() {
@@ -546,7 +565,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bSingleTile, behavior) {
+    createOLLayer: function(layerName, bSingleTile, behavior, forceAsOverlay) {
       /* prevent the useOverlay flag based on MapGuide config element */
       this.useAsyncOverlay = Fusion.getConfigurationItem('mapguide', 'useAsyncOverlay');
       if (!this.useAsyncOverlay) {          //v2.0.1 or earlier
@@ -601,7 +620,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (behavior == 5) {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
-          layerOptions.isBaseLayer = false;
+        }
+        
+        if(forceAsOverlay)
+        {
+            layerOptions.isBaseLayer = false;
         }
 
       } else {
@@ -624,8 +647,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       } else {
         url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       }
-      var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
-      return oLayerOL;
+      var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
+      return oNewLayerOL;
     },
 
     /**
@@ -910,7 +933,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", true, 5);
+                  this.queryLayer = this.createOLLayer("query layer", true, 5, true);
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING,
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
@@ -999,6 +1022,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.processGroupEvents(group, true);
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(true);
+            this.oLayerOL2.setVisibility(true);
+        } else if (group.isBaseMapGroup) {
+            this.oLayerOL.setVisibility(true);
         } else {
             this.aShowGroups.push(group.uniqueId);
             if (!noDraw) {
@@ -1009,6 +1035,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     hideGroup: function( group, noDraw ) {
         this.processGroupEvents(group, false);
         if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(false);
+            this.oLayerOL2.setVisibility(false);
+        } else if (group.isBaseMapGroup) {
             this.oLayerOL.setVisibility(false);
         } else {
             this.aHideGroups.push(group.uniqueId);
