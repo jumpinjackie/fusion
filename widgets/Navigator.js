@@ -196,7 +196,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
                 olMap.zoomTo(olMap.getZoomForResolution(resolution));
                 this.bInternalChange = false;
             } else {
-                var zoom = olMap.baseLayer.resolutions.length - value;
+                var zoom = olMap.baseLayer.resolutions.length - value - 1;
                 this.bInternalChange = true;
                 olMap.zoomTo(zoom);
                 this.bInternalChange = false;
@@ -243,8 +243,8 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
             this.slider.set(position);
             this.bInternalChange = false;
         } else {
-            this.slider.steps = map.baseLayer.resolutions.length;
-            var position = map.baseLayer.resolutions.length - map.getZoom();
+            this.slider.steps = map.baseLayer.resolutions.length - 1;
+            var position = map.baseLayer.resolutions.length -1 - map.getZoom();
             this.bInternalChange = true;
             this.slider.set(position);
             this.bInternalChange = false;

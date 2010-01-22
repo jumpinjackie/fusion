@@ -148,6 +148,16 @@ try
         $layerObj->actuallyVisible = $layer->isVisible();
         $layerObj->editable = IsLayerEditable($resourceService, $layer);
 
+        $isBaseMapLayer = ($layer->GetLayerType() == MgLayerType::BaseMap);
+        $layerObj->isBaseMapLayer = $isBaseMapLayer;
+        if($isBaseMapLayer)
+        {
+        	$mapObj->hasBaseMapLayers = true;
+        }
+        else
+        {
+        	$mapObj->hasDynamicLayers = true;
+        }
 
         $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
         $layerObj->displayInLegend = $layer->GetDisplayInLegend();
@@ -375,6 +385,8 @@ function OutputGroupInfo($group)
     $groupObj->parentUniqueId = $parent != null ? $parent->GetObjectId() : '';
     $groupObj->visible = $group->GetVisible();
     $groupObj->actuallyVisible = $group->isVisible();
+    $isBaseMapGroup = ($group->GetLayerGroupType() == MgLayerGroupType::BaseMap);
+    $groupObj->isBaseMapGroup =  $isBaseMapGroup;
 
     return $groupObj;
 }
