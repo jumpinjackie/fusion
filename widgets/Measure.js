@@ -282,11 +282,16 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var v = geom.getVertices();
         var map = this.getMap();
         var proj = map.oMapOL.baseLayer.projection;
+        var at = null;
+        var pixQuantity = 0;
         if (geom.CLASS_NAME.indexOf('LineString') != -1) {
             from = this.getMap().geoToPix(v[0].x,v[0].y);
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
             quantity = geom.getGeodesicLength(proj);
+            
+            //calculate the length in pixels
+            pixQuantity = Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y));
             
             measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
@@ -297,14 +302,19 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             at = this.getMap().geoToPix(cg.x, cg.y);
             quantity = geom.getGeodesicArea(proj);
            
-           measureUnits = Fusion.METERS;
+            measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
                 var rate = Fusion.convert(measureUnits, this.units, 1);
                 quantity = quantity * rate * rate;
             }
+            
+            //calculate the area in square pixels
+            var resolution = this.getMap().getResolution();
+            pixQuantity = quantity / resolution / resolution;
 
         }
-        if (quantity > 1) {
+
+        if (pixQuantity > 1) {
             marker.setQuantity(quantity);
             this.positionMarker(marker, at);
         }
@@ -473,12 +483,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
      */
      updateDisplay: function(outputWin) {
         var outputDoc = outputWin.document;
+        var resolution = this.getMap().getResolution();
         this.clearDisplay(outputWin);
         var units = Fusion.unitAbbr(this.units);
         var value;
         var distPrecision = this.distPrecision;
-        var createEntry = function(idx, distance) {
-            if (distance < 1) {
+        var createEntry = function(idx, distance, resolution) {
+            if (distance / resolution < 1) {
                 return;
             }
             var tr = outputDoc.createElement('tr');
@@ -503,11 +514,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 for (var i=0; i<this.distanceMarkers.length; i++) {
                     var distance = this.distanceMarkers[i].getQuantity();
                     totalDistance += distance;
-                    createEntry(i+1, distance);
+                    createEntry(i+1, distance, resolution);
                 }
                 if (this.lastMarker) {
                     totalDistance += this.lastMarker.getQuantity();
-                    createEntry(i+1, this.lastMarker.getQuantity());
+                    createEntry(i+1, this.lastMarker.getQuantity(), resolution);
                 }
                 var tDist = outputDoc.getElementById('totalDistance');
                 if (this.distPrecision == 0) {
