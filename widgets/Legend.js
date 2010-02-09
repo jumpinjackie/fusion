@@ -717,23 +717,25 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
             opt.draw = this.renderItem;
         }
+        
         if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-           var defaultIcon = this.imgDisabledLayerIcon;
-           if (layer.layerTypes[0] == 4) {
-               if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
-                 defaultIcon = this.imgLayerDWFIcon;
-              } else {
-                defaultIcon = this.imgLayerRasterIcon;
-              }
-            }
-            if (style.iconOpt && style.iconOpt.url) {
+            if(style.iconOpt && style.iconOpt.url){
                 opt.image = style.iconOpt.url;
-            } else {
-                opt.image = layer.oMap.getLegendImageURL(scale, layer, style, defaultIcon);
+            }else{
+                opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
             }
+        }
+        // MapGuide DWF and Raster layer
+        if (layer.layerTypes[0] == 4) {
+            if (style && style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
+                opt.image = this.imgLayerDWFIcon;
+            } else {
+                opt.image = this.imgLayerRasterIcon;
+            }
+            opt.enabled = true;
         }
         opt.contextMenu = this.getContextMenu();
 
