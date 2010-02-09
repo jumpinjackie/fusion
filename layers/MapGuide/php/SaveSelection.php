@@ -93,7 +93,7 @@ include('Utilities.php');
 
 
     } catch(MgException $e) {
-        echo "/* SetSelection Exception: " . $e->GetDetails()."*/";
+        echo "ERROR: " . $e->GetDetails() . "\n";
     }
 
 function GetParameters($params)
