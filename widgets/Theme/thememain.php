@@ -124,6 +124,11 @@
         function OnLayerChange()
         {
             var layerSelect = document.getElementById("layerSelect");
+
+            if(layerSelect.value == ""){
+                return;
+            }
+
             var propertySelect = document.getElementById("propertySelect");
             var scaleSelect = document.getElementById("scaleSelect");
 
