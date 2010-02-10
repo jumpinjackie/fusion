@@ -59,7 +59,7 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
         } else {
           this.mapObject = new Fusion.Layers.Generic(this, mapTag, false);
         }
-        this.mapObject.registerForEvent(Fusion.Event.LAYER_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
+        //this.mapObject.registerForEvent(Fusion.Event.LAYER_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
 
         //first set the size to the size of the DOM element if available
         if (this.domObj) {
@@ -73,27 +73,22 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
         
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
-        //this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
     },
     
     mapWidgetLoaded: function() 
     {
         var mapWidget = this.getMap();
-        if (this.sMapGroupId && (mapWidget.projection == this.mapObject.projection) ) {
-          this.loadOverview([this.mapObject.oLayerOL]);
+        if (this.sMapGroupId) {// && (mapWidget.projection == this.mapObject.projection) ) {
+          this.loadOverview(this.mapObject.oLayerOL);
         } else {
           //just use the base map layer
-          var extent = this.oMap._oCurrentExtents;
-          this.loadOverview([this.getMap().oMapOL.baseLayer.clone()]);
+          //setTimeout(OpenLayers.Function.bind(this.loadOverview, this), 5000);
+          this.loadOverview();
         }
     },
 
-    keymapLoaded: function() 
-    {
-        this.mapObject.oLayerOL.isBaseLayer = true;  
-    },
-
-    loadOverview: function() 
+    loadOverview: function(layer) 
     {
         if (this.control) {
           this.control.destroy();
@@ -102,22 +97,25 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
         var size = $(this.domObj).getContentBoxSize();
         this.oSize = new OpenLayers.Size(size.width, size.height);
         
-        this.mapObject.oLayerOL.isBaseLayer = true;  
-        if (this.mapObject.oLayerOL.singleTile) {
+        if (!layer) {
+            layer = this.getMap().oMapOL.baseLayer.clone();
+        }
+        layer.isBaseLayer = true; 
+        layer.ratio = 1.0;
+        if (layer.singleTile) {
           this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
         }
 
-        this.mapObject.oLayerOL.ratio = 1.0;
-        var mapOpts = {
+        var options = {
           div: this.domObj,
           size: this.oSize,
           minRatio: this.nMinRatio,
           maxRatio: this.nMaxRatio,
           mapOptions: this.oMapOptions,
-          layers: [this.mapObject.oLayerOL]
+          layers: [layer]
         };
 
-        this.control = new OpenLayers.Control.OverviewMap(mapOpts);
+        this.control = new OpenLayers.Control.OverviewMap(options);
         if (size.width == 0 || size.height == 0) {
           return;   //don't try to load if the container is not visible
         } else {

@@ -157,6 +157,8 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     //change the map, preserving current extents
     switchMap: function(data) {
         var ce = this.getMap().getCurrentExtents();
+        var dest = new OpenLayers.Projection(data.maps[0].projCode);
+        ce = ce.transform(this.oMap.oMapOL.baseLayer.projection, dest);
         data.initialView = {minX:ce.left,
                             minY:ce.bottom,
                             maxX:ce.right,
