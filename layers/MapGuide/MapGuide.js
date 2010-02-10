@@ -85,6 +85,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.nTolerance = 2; //pixels, default pixel tolernace for a point click; TBD make this configurable
           }
         }
+        
+        //copy over projection info from maptag
+        this.projCode = mapTag.projCode;
 
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
@@ -304,7 +307,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //to allow for scaling that doesn't match any of the pre-canned units
             this.units = Fusion.getClosestUnits(o.metersPerUnit);
             if (this.projCode) {
-              this.mapWidget.setProjection(this.projCode);
+              this.mapWidget.setProjection(this.projCode, this.units);
             }
 
             //add in scales array if supplied
@@ -574,6 +577,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       
       var layerOptions = {
         units: this.units,
+        projection: this.projCode,
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
         useAsyncOverlay: this.useAsyncOverlay,

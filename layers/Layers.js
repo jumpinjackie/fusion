@@ -48,6 +48,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     noCache: false,
     _sMapTitle: null,
     _sMapname: null,
+    projCode: null,
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Fusion.Layers.initialize');
@@ -76,17 +77,6 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         this.mapInfo = mapTag.mapInfo;
         this.layerType = mapTag.type;
-
-        //projection info from the extension
-        if (mapTag.extension.ProjectionCode) {
-          this.projCode = mapTag.extension.ProjectionCode[0];
-        }
-        if (mapTag.extension.ProjectionDef) {
-          var projDef = mapTag.extension.ProjectionDef[0];
-          this.projCode = "APP-DEF-PROJ";
-          Proj4js.defs[this.projCode] = projDef;
-        }
-        
     },
 
     /**
