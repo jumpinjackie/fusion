@@ -584,21 +584,20 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     }
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
-                    this.clearTreeItem(layer);
+                    var insertAt = this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createFolderItem(layer, checkbox);
                     if(layer.legend.treeItem.checkBox)
                     {
                         OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                     }
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
+                    layer.parentGroup.legend.treeItem.insert(layer.legend.treeItem, insertAt);
                 } else {
                     while(layer.legend.treeItem.nodes.length > 0) {
                         layer.legend.treeItem.remove(layer.legend.treeItem.nodes[0]);
                     }
                 }
                 for (var i=0; i<range.styles.length; i++) {
-                    var item = this.createTreeItem(layer,
-                                               range.styles[i], fScale, false);
+                    var item = this.createTreeItem(layer, range.styles[i], fScale, false);
                     layer.legend.treeItem.append(item);
                 }
             } else {
@@ -615,13 +614,13 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
-                    this.clearTreeItem(layer);
+                    var insertAt = this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, checkbox);
                     if (checkbox) {
                       OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                     }
                     
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
+                    layer.parentGroup.legend.treeItem.insert(layer.legend.treeItem, insertAt);
                 } else {
                     if (range.styles.length > 0) {
                         layer.legend.treeItem.domImg.style.backgroundImage = 'url('+layer.oMap.getLegendImageURL(fScale, layer, range.styles[0])+')';
@@ -740,7 +739,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         opt.contextMenu = this.getContextMenu();
 
         var item = new Jx.TreeItem(opt);
-        if (style && style.iconX >= 0 && style.iconY >= 0) {
+        if (style && style.iconOpt && style.iconX >= 0 && style.iconY >= 0) {
             item.domImg;
             item.domImg.style.backgroundImage = 'url('+opt.image+')';
             item.domImg.src = Jx.aPixel.src;
@@ -776,12 +775,15 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         return item;
     },
     clearTreeItem: function(layer) {
+        var prevSibling = null;
         if (layer.legend.treeItem && layer.legend.treeItem.owner) {
+            prevSibling = layer.legend.treeItem.domObj.previousSibling;
             layer.legend.treeItem.domObj.store('data', null);
             layer.legend.treeItem.owner.remove(layer.legend.treeItem);
             layer.legend.treeItem.finalize();
             layer.legend.treeItem = null;
         }
+        return prevSibling;
     },
     stateChanged: function(obj, event) {
         if (obj.legend && obj.legend.treeItem.checkBox) {
