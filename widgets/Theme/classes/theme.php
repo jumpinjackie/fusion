@@ -233,9 +233,17 @@ class Theme
         $doc = DOMDocument::loadXML($byteReader->ToString());
         $version = $doc->documentElement->getAttribute('version');
         $template = 'templates/arearuletemplate-'.$version.'.xml';
-        $nodeList = $doc->getElementsByTagName('VectorScaleRange');
+        $layerDefList = $doc->getElementsByTagName('VectorLayerDefinition');
+        $layerDef = $layerDefList->item(0);
+        $nodeList = $layerDef->getElementsByTagName('VectorScaleRange');
 
         $vectorScaleRangecElement = $nodeList->item($this->args['SCALERANGEINDEX']);
+        $listLength = $nodeList->length;
+        for($index = 0; $index < $listLength; $index++)
+        {
+            $layerDef->removeChild($nodeList->item(0));
+        }
+        $layerDef->appendChild($vectorScaleRangecElement);
         $areaTypeStyle = $vectorScaleRangecElement->getElementsByTagName('AreaTypeStyle')->item(0);
         
         // Remove any existing <AreaRule> elements.
