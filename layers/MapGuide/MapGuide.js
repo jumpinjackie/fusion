@@ -303,6 +303,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
 
             //set projection units and code if supplied
+            if (o.epsg != 0) {
+              this.projCode = "EPSG:" + o.epsg;
+            }
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
             this.units = Fusion.getClosestUnits(o.metersPerUnit);
