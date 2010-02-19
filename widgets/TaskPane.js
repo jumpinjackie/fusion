@@ -28,7 +28,8 @@
  *
  * A utility widget that holds output from other widgets.
  ****************************************************************************/
-
+ 
+Fusion.Event.TASK_PANE_LOADED = Fusion.Event.lastEventId++;
 
 Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
@@ -125,6 +126,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         //is added to the DOM
         this.oTaskPane.domObj.resize();
         
+        Fusion.registerEventID(Fusion.Event.TASK_PANE_LOADED);
         Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, OpenLayers.Function.bind(this.setTaskMenu, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setInitialContent, this, initialTask));
     },
@@ -160,6 +162,8 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     },
 
     setContent: function(url) {
+        Fusion.triggerEvent(Fusion.Event.TASK_PANE_LOADED);
+        
         if (this.nCurrentTask < this.aExecutedTasks.length-1) {
             //this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
         }
