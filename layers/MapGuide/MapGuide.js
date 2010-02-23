@@ -587,7 +587,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         ratio: this.ratio
       };
       if ((behavior & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
-        //layerOptions.transitionEffect = 'resize';
+        layerOptions.transitionEffect = 'resize';
       }
 
       //add in scales array if supplied
