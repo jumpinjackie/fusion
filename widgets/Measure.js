@@ -345,7 +345,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     onKeyPress: function(e) {
         var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
         if (charCode == OpenLayers.Event.KEY_ESC) {
-            this.control.cancel();
+            this.deactivate();
+            this.activate();
         }
     },
     
@@ -571,6 +572,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
           }
           var tDist = outputDoc.getElementById('totalDistance');
           tDist.innerHTML = '';
+          var tArea = outputDoc.getElementById('totalArea');
+          if(tArea){
+              tArea.innerHTML = '';
+          }
         }
     },
     
