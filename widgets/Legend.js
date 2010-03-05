@@ -668,7 +668,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     createFolderItem: function(layer, hasCheckbox) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
-            isOpen: layer.expandInLegend,
+            open: layer.expandInLegend,
             draw: hasCheckbox ? this.renderFolderCheckbox : this.renderFolder,
             'class':'fusionLegendItemCheckbox',
             contextMenu: this.getContextMenu(),
