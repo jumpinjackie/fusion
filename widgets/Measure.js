@@ -298,6 +298,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
               quantity = Fusion.convert(measureUnits, this.units, quantity);
             }
         } else {
+            if(geom.getArea() == 0)
+                return;
+
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
             quantity = geom.getGeodesicArea(proj);
