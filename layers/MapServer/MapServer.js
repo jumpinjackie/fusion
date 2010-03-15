@@ -254,16 +254,12 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             if (o.projString.length > 0) {
               var epsg = o.projString.indexOf("init=");
               if (epsg >= 0) {
-                this.projCode = o.projString.substring(epsg+5).toUpperCase();
+                this.mapTag.layerOptions.projection = o.projString.substring(epsg+5).toUpperCase();
               } else {
-                this.projCode = o.mapName.toUpperCase();
-                Proj4js.defs[this.projCode] = o.projString;
+                this.mapTag.layerOptions.projection = o.mapName.toUpperCase();
+                Proj4js.defs[this.mapTag.layerOptions.projection] = o.projString;
               }
             }
-            if (this.projCode) {
-              this.mapWidget.setProjection(this.projCode);
-            }
-            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
 
             this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
@@ -293,12 +289,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             }
 
             //to allow for scaling that doesn't match any of the pre-canned units
-            this.units = Fusion.getClosestUnits(o.metersPerUnit);
+            this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
             
             var layerOptions = {
       				singleTile: true,
       				ratio: this.ratio,
-              units: this.units,
               maxResolution: 'auto',
       				minScale: maxScale,	//OL interpretation of min/max scale is reversed from Fusion
       				maxScale: minScale
@@ -330,7 +325,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
-              this.mapWidget.oMapOL.units = this.oLayerOL.units;
             }
             this.bMapLoaded = true;
         }

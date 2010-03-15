@@ -48,7 +48,6 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     noCache: false,
     _sMapTitle: null,
     _sMapname: null,
-    projCode: null,
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Fusion.Layers.initialize');
