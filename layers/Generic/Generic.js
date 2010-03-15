@@ -174,7 +174,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                   this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
               }
               this.mapTag.layerOptions.units = "m";
-              this.mapTag.layerOptions.projection = "EPSG:900913";
+              this.mapTag.layerOptions.projection = "EPSG:3785";
             } else {
               if (!this.mapTag.layerOptions.maxExtent) {
                   this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-180,-90,180,90);

@@ -86,9 +86,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           }
         }
         
-        //copy over projection info from maptag
-        this.projCode = mapTag.projCode;
-
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
           expandInLegend: this.bExpandInLegend,
@@ -304,14 +301,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
             //set projection units and code if supplied
             if (o.epsg != 0) {
-              this.projCode = "EPSG:" + o.epsg;
+              this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
             }
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
-            this.units = Fusion.getClosestUnits(o.metersPerUnit);
-            if (this.projCode) {
-              this.mapWidget.setProjection(this.projCode, this.units);
-            }
+            this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
 
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
@@ -579,8 +573,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       
       var layerOptions = {
-        units: this.units,
-        projection: this.projCode,
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
         useAsyncOverlay: this.useAsyncOverlay,
