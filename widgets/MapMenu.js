@@ -159,8 +159,8 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         var ce = this.getMap().getCurrentExtents();
         var dest = null;
         for (var i=0; i<data.maps.length; ++i) {
+          dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
           if (data.maps[i].layerOptions.isBaseLayer) {
-            dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
             break;
           }
         }
