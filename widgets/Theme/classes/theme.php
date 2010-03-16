@@ -53,7 +53,10 @@ class Theme
             if((substr($layer->GetName(), 0, 1) != "_") && (substr(strtoupper($layer->GetFeatureSourceId()), 0, 7) != "SESSION"))
             {
                 $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-                $schemaClass = explode(':', $layer->GetFeatureClassName());
+                $layerFeatureClassName = $layer->GetFeatureClassName();
+                if($layerFeatureClassName == "") 
+                    continue;
+                $schemaClass = explode(':', $layerFeatureClassName);
 
                 $classDef = $featureService->GetClassDefinition($resId, $schemaClass[0], $schemaClass[1]);
                 $propDef = $classDef->GetProperties()->GetItem($layer->GetFeatureGeometryName());
