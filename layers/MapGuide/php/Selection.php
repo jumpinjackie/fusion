@@ -25,11 +25,16 @@
  */
 
 /*****************************************************************************
- * Purpose: Get all attribute informations for elements in the 
+ * Purpose: Get all attribute informations for elements in the
  * current selection
  *****************************************************************************/
 
 include('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
@@ -45,7 +50,7 @@ if (isset($_SESSION['selection_array']))
       $aLayers = split(",", $_REQUEST['layers']);
       $bAllLayers = 0;
     }
-    
+
     $aStartCount = array();
     if (isset($_REQUEST['startcount']) && $_REQUEST['startcount'] !='')
     {
@@ -58,7 +63,7 @@ if (isset($_SESSION['selection_array']))
         echo "error : number of layers and number of startcount should be the same";
         exit;
     }
-    
+
     $properties = $_SESSION['selection_array'];
 
     $aSelectedLayers = $properties->layers;
@@ -73,7 +78,7 @@ if (isset($_SESSION['selection_array']))
         for ($i=0; $i<count($aSelectedLayers); $i++)
         {
             $layerName =  $aSelectedLayers[$i];
-            if (($bAllLayers || in_array($layerName, $aLayers)) && 
+            if (($bAllLayers || in_array($layerName, $aLayers)) &&
                 isset($properties->$layerName) &&
                 $properties->$layerName->numelements > 0)
             {
@@ -82,10 +87,10 @@ if (isset($_SESSION['selection_array']))
                 $result->$layerName->propertyvalues = $properties->$layerName->propertyvalues;
                 $result->$layerName->propertytypes = $properties->$layerName->propertytypes;
                 $result->$layerName->metadatanames = $properties->$layerName->metadatanames;
-                
+
                 /*if start and count are given, validate them. If valid return the valid elements.
                   if not return all elements. */
-                 
+
                 $start = -1;
                 $count = -1;
                 if (count($aStartCount) > 0)
@@ -105,7 +110,7 @@ if (isset($_SESSION['selection_array']))
                     }
 
                     /*invalid entries*/
-                    if ($start < 0 || $count <=0 || 
+                    if ($start < 0 || $count <=0 ||
                         $start >= $properties->$layerName->numelements ||
                         $count > $properties->$layerName->numelements ||
                         ($start + $count) > $properties->$layerName->numelements)
@@ -123,7 +128,7 @@ if (isset($_SESSION['selection_array']))
                 }
                 //print_r($properties->$layerName);
                 $result->$layerName->numelements = $count;
-        
+
                 $result->$layerName->values = array();
                 $result->$layerName->metadata = array();
                 $iIndice = 0;

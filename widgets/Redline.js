@@ -48,6 +48,9 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     // array of OL vector layer
     vectorLayers: null,
 
+    // the default layer name
+    defaultLayerName: null,
+
     // the drawing controls
     drawControls: null,
 
@@ -75,6 +78,8 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
 
+        this.defaultLayerName = OpenLayers.i18n('redlineLayerName');
+
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);
 
@@ -98,10 +103,10 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.styleMap = new OpenLayers.StyleMap(defaultFeatureStyle);
         
         // create one default layer, unless other redline widgets have created it
-        this.vectorLayers = this.mapWidget.oMapOL.getLayersByName('Digitizing Layer 0');
+        this.vectorLayers = this.mapWidget.oMapOL.getLayersByName(this.defaultLayerName + '0');
     
         if (!this.vectorLayers.length) {
-            this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
+            this.vectorLayers[0] = new OpenLayers.Layer.Vector(this.defaultLayerName + '0', { styleMap: this.styleMap });
             this.vectorLayers[0].redLineLayer = true;
             this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
         }
@@ -209,18 +214,34 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         }
         this.activateLayer(0);
         this.activateControl(this.defaultControl,0);
+        this.getMap().supressContextMenu(true);
     },
 
     // desactivate the redline widget
     deactivate: function() {
         this.activeControl.deactivate();
         this.activeControl = null;
+        this.getMap().supressContextMenu(false);
     },
    
     featureAdded: function(evt) {
-        this.triggerEvent(Fusion.Event.REDLINE_FEATURE_ADDED, evt.feature);
+        this.triggerEvent(Fusion.Event.REDLINE_FEATURE_ADDED, evt.feature);	
+		this.moveLayerToTop(evt.feature.layer);
     },
-
+    
+	// move the redline layer to the top and redraw it
+	moveLayerToTop: function(layer) {
+		var map = layer.map;
+		var baseIndex = map.getLayerIndex(layer);
+		
+		if(baseIndex != layer.map.layers.length-2)
+		{
+			// except for the current temp drawing layer, the redline layer is not on the top of the map.
+			map.setLayerIndex(layer,layer.map.layers.length-2)
+		}
+		layer.redraw();
+	},
+	
     // change active layer
     activateLayer: function(layerIndex) {
         this.activeLayer = this.vectorLayers[layerIndex];
@@ -257,7 +278,7 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     
     newLayerFromFile: function(fileName) {
         var i = this.vectorLayers.length;
-        this.vectorLayers[i] = new OpenLayers.Layer.Vector("Digitizing layer "+this.vectorLayers.length, {
+        this.vectorLayers[i] = new OpenLayers.Layer.Vector(this.defaultLayerName + this.vectorLayers.length, {
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
                 url: Fusion.getFusionURL() +"widgets/Redline/Redline.php?"+"file="+fileName,
@@ -275,11 +296,28 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         this.vectorLayers.splice(layerIndex,1);
         // we always keep at least one vector layer
         if (this.vectorLayers.length == 0) {
-            this.vectorLayers[0] = new OpenLayers.Layer.Vector("Digitizing Layer 0", {styleMap: this.styleMap});
+            this.vectorLayers[0] = new OpenLayers.Layer.Vector(this.defaultLayerName + '0', { styleMap: this.styleMap });
             this.mapWidget.oMapOL.addLayers([this.vectorLayers[0]]);
             this.vectorLayers[0].redLineLayer = true;
         }
         this.activateLayer(0);
+    },
+
+    getUniqueLayerName: function() {
+        var offset = this.vectorLayers.length;
+        var exist = true;
+        while (exist) {
+            exist = false;
+            var i = 0;
+            while (!exist && i < this.vectorLayers.length) {
+                if ((this.defaultLayerName + offset) == this.vectorLayers[i].name)
+                    exist = true;
+                i++;
+            }
+            if (exist)
+                offset++;
+        }
+        return this.defaultLayerName + offset;
     }
 });
 
@@ -364,7 +402,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
     },
 
     newLayer: function() {
-        var name = prompt("Layer name:", "Digitizing layer "+this.widget.vectorLayers.length);
+        var name = prompt("Layer name:", this.widget.getUniqueLayerName());
         if (name!=null && name!="") {
             this.widget.newLayer(name);
             this.updateLayerList();

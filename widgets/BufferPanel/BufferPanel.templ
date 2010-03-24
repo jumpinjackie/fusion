@@ -57,6 +57,7 @@ var thousandSeparator = "__#THOUSANDSEPARATOR#__";
 var decimalSeparator = "__#DECIMALSEPARATOR#__";    
 var agent = navigator.userAgent.toLowerCase();
 var msie = agent.indexOf("msie") != -1;
+var mapName;
 
 function InitDocument()
 {
@@ -70,7 +71,7 @@ function FillLayerList()
 {
     var list = document.getElementById("layers");
     var listNames = document.getElementById("layerNames");
-    var mapName = document.getElementById('Frm').mapname.value;
+    mapName = document.getElementById('Frm').mapname.value;
     list.options.length = 0;
     var map = GetParent().Fusion.getMapByName(mapName);
     var layers = map.aMaps[0].getSelectedLayers();  
@@ -219,6 +220,9 @@ function RefreshLayers()
 
 function OnCancel()
 {
+    if(mapName == "undefined")
+        return;
+    
     var map = GetParent().Fusion.getMapByName(mapName);
     map.clearSelection();
     //mf.GotoHomePage();

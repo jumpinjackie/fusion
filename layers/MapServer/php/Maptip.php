@@ -63,6 +63,7 @@ $variant = 'intersects';
 /* a spatial filter in the form on a WKT geometry */
 $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
 
+
 header('Content-type: application/json');
 header('X-JSON: true');
 
@@ -82,50 +83,61 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $aURL = array();
     $aTipLabel = array();
     foreach($aLayer as $key=>$layer){
-        $oLayer = @$oMap->GetLayerByName($layer);
+        if(isLayerVisible($layer) === TRUE){
+            $oLayer = @$oMap->GetLayerByName($layer);
 
-        // make sure the layer exists in the map.
-        if(is_object($oLayer)){
-            $oLayer->set('tolerance', 0);
+            // make sure the layer exists in the map.
+            if(is_object($oLayer)){
+                $oLayer->set('tolerance', 0);
 
-            if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
-                    $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
-                    die("{'error':'maptips are only valid for vector layers'}");
+                if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
+                        $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
+                        die("{'error':'maptips are only valid for vector layers'}");
+                    }
+
+
+                if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+
+                    $oRes = $oLayer->getResult(0);
+                    $oLayer->open();
+
+                    $oShape = $oLayer->getShape($oRes->tileindex,$oRes->shapeindex);
+
+                    $szMapTipText .= $oLayer->name." : ".$oShape->values[$aMapTipTextField[$key]].$szBreak;
+
+                    $szLabels = $aLabel[$key];
+
+                    $szMapTip  = $oShape->values[$aMapTipTextField[$key]];
+                    $szURL = buildCustonUrl($oShape->values,$aMapTipURL[$key]);
+
+                    $szMapTip = $szMapTip != "undefined" ? $szMapTip : "";
+                    $szURL = $szURL != "undefined" ? $szURL : "";
+                    $szLabels = $szLabels != "undefined" ? $szLabels : "";
+
+                    array_push($aMapTips, $szMapTip);
+                    array_push($aURL, $szURL);
+                    array_push($aTipLabel,$szLabels);
+
+                    $oLayer->close();
                 }
-
-
-            if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
-
-                $oRes = $oLayer->getResult(0);
-                $oLayer->open();
-
-                $oShape = $oLayer->getShape($oRes->tileindex,$oRes->shapeindex);
-
-                $szMapTipText .= $oLayer->name." : ".$oShape->values[$aMapTipTextField[$key]].$szBreak;
-
-                $szLabels = $aLabel[$key];
-
-                $szMapTip  = $oShape->values[$aMapTipTextField[$key]];
-                $szURL = buildCustonUrl($oShape->values,$aMapTipURL[$key]);
-
-                $szMapTip = $szMapTip != "undefined" ? $szMapTip : "";
-                $szURL = $szURL != "undefined" ? $szURL : "";
-                $szLabels = $szLabels != "undefined" ? $szLabels : "";
-
-
-                array_push($aMapTips, $szMapTip);
-                array_push($aURL, $szURL);
-                array_push($aTipLabel,$szLabels);
-
-                $oLayer->close();
             }
         }
     }
-    echo "{'maptips':".var2json($aMapTips).",'url':".var2json($aURL).",'label':".var2json($aTipLabel)."}";
+    echo "{'maptips':".var2json($aMapTips).",'url':".var2json($aURL).",'label':".var2json($aTipLabel).",'test':'casper'}";
 }
 else
 {
 echo "{'maptips':'','url':'','label':''}";
+}
+
+function isLayerVisible($szLayerName){
+    $aVisLayers = split(",",$_POST["visLayers"]);
+    foreach($aVisLayers as $item){
+        if(trim($szLayerName) == trim($item)){
+            return true;
+        }
+    }
+    return false;
 }
 
 function buildCustonUrl($aValues,$url){

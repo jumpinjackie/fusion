@@ -53,7 +53,10 @@ class Theme
             if((substr($layer->GetName(), 0, 1) != "_") && (substr(strtoupper($layer->GetFeatureSourceId()), 0, 7) != "SESSION"))
             {
                 $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-                $schemaClass = explode(':', $layer->GetFeatureClassName());
+                $layerFeatureClassName = $layer->GetFeatureClassName();
+                if($layerFeatureClassName == "") 
+                    continue;
+                $schemaClass = explode(':', $layerFeatureClassName);
 
                 $classDef = $featureService->GetClassDefinition($resId, $schemaClass[0], $schemaClass[1]);
                 $propDef = $classDef->GetProperties()->GetItem($layer->GetFeatureGeometryName());
@@ -147,6 +150,8 @@ class Theme
 
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+        
+        $filter = $layer->GetFilter();
 
 // Note: Should be able to do this:
 //
@@ -177,6 +182,8 @@ class Theme
 
         $queryOptions = new MgFeatureQueryOptions();
         $queryOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
+        if($filter != '')
+            $queryOptions->SetFilter($filter);
 
         $featureReader = $featureService->SelectFeatures($resId, $layer->GetFeatureClassName(), $queryOptions);
 
@@ -221,17 +228,27 @@ class Theme
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         $layerDefResId = $layer->GetLayerDefinition();
         $byteReader = $resourceService->GetResourceContent($layerDefResId);
+        
+        $filter = $layer->GetFilter();
 
         // Load the Layer Definition and Navigate to the specified <VectorScaleRange>
 
         $doc = DOMDocument::loadXML($byteReader->ToString());
         $version = $doc->documentElement->getAttribute('version');
         $template = 'templates/arearuletemplate-'.$version.'.xml';
-        $nodeList = $doc->getElementsByTagName('VectorScaleRange');
+        $layerDefList = $doc->getElementsByTagName('VectorLayerDefinition');
+        $layerDef = $layerDefList->item(0);
+        $nodeList = $layerDef->getElementsByTagName('VectorScaleRange');
 
         $vectorScaleRangecElement = $nodeList->item($this->args['SCALERANGEINDEX']);
+        $listLength = $nodeList->length;
+        for($index = 0; $index < $listLength; $index++)
+        {
+            $layerDef->removeChild($nodeList->item(0));
+        }
+        $layerDef->appendChild($vectorScaleRangecElement);
         $areaTypeStyle = $vectorScaleRangecElement->getElementsByTagName('AreaTypeStyle')->item(0);
-
+        
         // Remove any existing <AreaRule> elements.
 
         $areaRuleList = $areaTypeStyle->getElementsByTagName('AreaRule');
@@ -241,6 +258,11 @@ class Theme
             $areaTypeStyle->removeChild($areaRuleList->item(0));
         }
 
+        $hasChild = $areaTypeStyle->hasChildNodes();
+        if($hasChild)
+        {
+          $element = $areaTypeStyle->childNodes->item(0);
+        }
 
         // Now create the new <AreaRule> elements.
 
@@ -252,33 +274,52 @@ class Theme
 
         if ($this->args['DISTRO'] == 'INDIV_DIST')
         {
+            $values = array();
+            
             $aggregateOptions->AddFeatureProperty($this->args['PROPERTYNAME']);
             $aggregateOptions->SelectDistinct(true);
-
-            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
+            if($filter != '')
+                $aggregateOptions->SetFilter($filter);
+            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);            
             while ($dataReader->ReadNext())
             {
                 $value = $this->GetFeaturePropertyValue($dataReader, $this->args['PROPERTYNAME']);
+                array_push($values, $value);
+            }
+            $dataReader->Close();
+            
+            if ($this->args['DATATYPE'] == MgPropertyType::String)
+                sort($values, SORT_STRING);
+            else
+                sort($values, SORT_NUMERIC);
 
+            for ($i = 0; $i < count($values); $i++)
+            {
                 $filterText = '&quot;' . $this->args['PROPERTYNAME'] . '&quot; = ';
                 if ($this->args['DATATYPE'] == MgPropertyType::String)
-                    $filterText .= "'" . $value . "'";
+                    $filterText .= "'" . $values[$i] . "'";
                 else
-                    $filterText .= $value;
-
+                    $filterText .= $values[$i];
+                    
                 $areaRuleXML = sprintf($areaRuleTemplate,
-                    $this->args['PROPERTYNAME'] . ': ' . $value,
+                    $this->args['PROPERTYNAME'] . ': ' . $values[$i],
                     $filterText,
                     $this->InterpolateColor($portion, $this->args['FILLFROM'], $this->args['FILLTO'], $this->args['FILLTRANS']),
                     $this->InterpolateColor($portion, $this->args['LINEFROM'], $this->args['LINETO'], 0));
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                $areaTypeStyle->appendChild($areaNode);
+                if($hasChild)
+                {
+                  $areaTypeStyle->insertBefore($areaNode, $element);
+                }
+                else
+                {
+                  $areaTypeStyle->appendChild($areaNode);
+                }
 
                 $portion += $increment;
             }
-            $dataReader->Close();
         }
         else
         {
@@ -286,6 +327,8 @@ class Theme
 
             $aggregateOptions->AddComputedProperty('THEME_VALUE',
                 $this->args['DISTRO'] . '("' . $this->args['PROPERTYNAME'] . '",' . $this->args['NUMRULES'] . ',' . $this->args['MINVALUE'] . ',' . $this->args['MAXVALUE'] . ')');
+            if($filter != '')
+                $aggregateOptions->SetFilter($filter);
 
             $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
             while ($dataReader->ReadNext())
@@ -298,7 +341,7 @@ class Theme
             for ($i = 0; $i < count($values) - 1; $i++)
             {
                 $filterText = '&quot;' . $this->args['PROPERTYNAME'] . '&quot; &gt;= ' . $values[$i] . ' AND &quot;' . $this->args['PROPERTYNAME'];
-                if ($i == count($values) - 1)
+                if ($i == count($values) - 2)
                     $filterText .= '&quot; &lt;= ' . $values[$i + 1];
                 else
                     $filterText .= '&quot; &lt; ' . $values[$i + 1];
@@ -311,7 +354,14 @@ class Theme
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                $areaTypeStyle->appendChild($areaNode);
+                if($hasChild)
+                {
+                   $areaTypeStyle->insertBefore($areaNode, $element);
+                }
+                else
+                {
+                   $areaTypeStyle->appendChild($areaNode);
+                }
 
                 $portion += $increment;
             }

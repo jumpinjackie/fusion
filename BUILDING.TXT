@@ -16,10 +16,8 @@ the root directory of the project) and execute one of the ant targets, e.g.:
 For some tasks, external executable files are used and must be available for 
 execution on the PATH environment variable.
 
-This script requires an HTDOCS environment variable be set to point to the
-document root directory of your web server.
+Targets available include:
 
-targets available include:
 prepare - creates a "build" subdirectory with all files required to be put on 
           the web server
 deploy  - places a copy of the build directory in the web server HTDOCS directory
@@ -42,10 +40,13 @@ concatWithAppDef and concatNoAppDef are internal targets not intended for end us
 
 
 Properties that can be set (and their defaults) include:
-<property name="sfName"  value="${build.home}/lib/fusionSF"/>
-<property name="cssOutput"  value="${sfName}"/>
-<property name="cssFiles"  value=""/>
-<property name="appDef"  value=""/>
+  <property name="YUIcompressor"  value="${basedir}/utils/yuicompressor-2.3.6.jar"/>
+  <property name="sfName"  value="fusionSF"/>
+  <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
+  <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
+  <property name="cssFiles"  value=""/>
+  <property name="PHP" value="/usr/local/php5cgi/bin/php"/>
+
 
 These properties can be assigned a value when ant is invoked by using the
 -D command line option, e.g.:

@@ -19,6 +19,11 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/query.php';
@@ -26,7 +31,7 @@
     $args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
 
     // MgInitializeWebTier($configFilePath);
-    
+
     try {
 
       $query = new Query($args);

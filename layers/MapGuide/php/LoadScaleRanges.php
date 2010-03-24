@@ -27,11 +27,16 @@
  * Utility function to load scale ranges for the layers. Initially
  * scale ranges were returned as part of in LoadMap.php. This allows
  * to reduce the size of information that is returned by LoadMap, by putting
- * elements that are unnessary to the map draw her.  
+ * elements that are unnessary to the map draw her.
  *****************************************************************************/
 
 
 include ("Common.php");
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
@@ -43,10 +48,10 @@ $layers=$map->GetLayers();
 $scaleObj = NULL;
 $scaleObj->layers = array();
 
-for($i=0;$i<$layers->GetCount();$i++) 
-{    
+for($i=0;$i<$layers->GetCount();$i++)
+{
     $layer=$layers->GetItem($i);
-    if (isset($_SESSION['scale_ranges']) && 
+    if (isset($_SESSION['scale_ranges']) &&
         isset($_SESSION['scale_ranges'][$layer->GetObjectId()]))
     {
         $scaleranges = $_SESSION['scale_ranges'][$layer->GetObjectId()];

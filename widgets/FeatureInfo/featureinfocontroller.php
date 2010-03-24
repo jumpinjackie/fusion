@@ -19,19 +19,24 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorText();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/featureinfo.php';
 
     $args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
-    
+
     try {
         $responseType = 'text/plain';
         $response = '';
-        
+
         $site = new MgSiteConnection();
         $site->Open(new MgUserInformation($args['SESSION']));
-        
+
         $resourceService = $site->CreateService(MgServiceType::ResourceService);
         $featureService =
             $site->CreateService(MgServiceType::FeatureService);
@@ -46,9 +51,9 @@
 
         $selection = new MgSelection($map);
         $selection->Open($resourceService, $mapName);
-        
+
         $properties = NULL;
-        
+
         if ($selection->Contains($layer, $className)) {
             $featureReader = $selection->GetSelectedFeatures($layer, $className, new MgStringCollection());
 
@@ -91,15 +96,15 @@
               $properties = BuildSelectionArray($featureReader, $layerName, $properties, true, $srsLayer, $bNeedsTransform, $layer);
 
         }
-  
-        $response = json_encode($properties);          
+
+        $response = json_encode($properties);
 
     } catch (MgException $e) {
         echo "ERROR: " . $e->GetMessage() . "\n";
         echo $e->GetDetails() . "\n";
         echo $e->GetStackTrace() . "\n";
     }
-    
+
     header('Content-Type: ' . $responseType);
     echo trim($response);
 ?>

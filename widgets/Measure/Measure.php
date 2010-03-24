@@ -23,16 +23,21 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
- 
+
   $fusionMGpath = '../../layers/MapGuide/php/';
   include $fusionMGpath . 'Common.php';
+  if(InitializationErrorOccurred())
+  {
+      DisplayInitializationErrorHTML();
+      exit;
+  }
   SetLocalizedFilesPath(GetLocalizationPath());
   if(isset($_REQUEST['locale'])) {
     $locale = $_REQUEST['locale'];
   } else {
     $locale = GetDefaultLocale();
   }
-  
+
   $type = $_REQUEST['type'];
   switch ($type) {
       case 1:

@@ -74,7 +74,7 @@ $Id$
   <property environment="env"/>
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
-  <property name="app.version" value="1.1.x"/>
+  <property name="app.version" value="2.0.x"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${basedir}/../${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
@@ -93,6 +93,7 @@ $Id$
   <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssFiles"  value=""/>
+  <property name="PHP" value="/usr/local/php5cgi/bin/php"/>
 
 
 <!-- ==================== Prepare Target ================================== -->
@@ -154,8 +155,7 @@ $Id$
         <arg value="-i ./"/>
         <arg value="-o html ./docs"/>
         <arg value="-p ./docs/NaturalDocs"/>
-        <arg value="-xi ./scriptaculous"/>
-        <arg value="-xi ./lib"/>
+         <arg value="-xi ./lib"/>
         <arg value="-r"/>
         -->
         <arg line="/c perl C:\Progra~1\NaturalDocs\NaturalDocs -i ./lib -i ./widgets -o html ./docs/NaturalDocs -p ./docs/NaturalDocs -r"/>
@@ -185,9 +185,9 @@ $Id$
     <xmlproperty file="${build.home}/appDefFileset.xml"/>
 
     <!-- convert the application definition file to JSON -->
-    <exec executable="php" os="Windows Vista, Windows XP"
+    <exec executable="${PHP}" dir="${build.home}"
               output="${build.home}/appDef.json">
-        <arg line="common\php\Xml2JSON.php --file='${appDef}'"/>
+        <arg line="${build.home}/common/php/Xml2JSON.php --file='${appDef}'"/>
     </exec>
 
   </target>
@@ -262,6 +262,8 @@ $Id$
     <echo message="compressing..."/>
     <java jar="${YUIcompressor}" fork="true"
           output="${buildOutput}-compressed.js">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${buildOutput}.js"/>
     </java>
     <copy file="${buildOutput}-compressed.js" todir="${basedir}/lib"/>
@@ -281,6 +283,8 @@ $Id$
 
     <java jar="${YUIcompressor}" fork="true"
           output="${cssOutput}-compressed.css">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${cssOutput}.css"/>
     </java>
   </target>
@@ -297,6 +301,8 @@ $Id$
 
     <java jar="${YUIcompressor}" fork="true"
           output="${cssOutput}-compressed.css">
+        <arg value="--charset"/>
+        <arg value="utf-8"/>
         <arg value="${cssOutput}.css"/>
     </java>
   </target>

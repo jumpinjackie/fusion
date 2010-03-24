@@ -6,7 +6,7 @@
     <Label>Query</Label>
     <Tooltip>Click to execute a custom query</Tooltip>
     <ImageUrl>images/icons.png</ImageUrl>
-    <ImageClass>invoke-url</ImageClass>
+    <ImageClass>query</ImageClass>
     <StandardUi>true</StandardUi>
     <ContainableBy>Any</ContainableBy>
     <Parameter>

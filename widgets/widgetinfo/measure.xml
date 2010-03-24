@@ -4,7 +4,7 @@
   <Description>A widget that allows measurements to be made on the map</Description>
   <Location></Location>
   <Label>Measure</Label>
-  <Tooltip>Measure distances on the map</Tooltip>
+  <Tooltip>Measure distances and areas on the map</Tooltip>
   <StatusText></StatusText>
   <ImageUrl>images/icons.png</ImageUrl>
   <ImageClass>measure</ImageClass>

@@ -58,7 +58,8 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.registerEventID(Fusion.Event.LAYER_LOADED);
         this.registerEventID(Fusion.Event.LAYER_LOADING);
         this.registerEventID(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
-
+        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
+        
         this.mapWidget = map;
         this.oSelection = null;
         if (isMapWidgetLayer != null) {
@@ -75,17 +76,6 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         this.mapInfo = mapTag.mapInfo;
         this.layerType = mapTag.type;
-
-        //projection info from the extension
-        if (mapTag.extension.ProjectionCode) {
-          this.projCode = mapTag.extension.ProjectionCode[0];
-        }
-        if (mapTag.extension.ProjectionDef) {
-          var projDef = mapTag.extension.ProjectionDef[0];
-          this.projCode = "APP-DEF-PROJ";
-          Proj4js.defs[this.projCode] = projDef;
-        }
-        
     },
 
     /**
@@ -328,6 +318,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
         this.actuallyVisible = o.actuallyVisible;
+        this.isBaseMapGroup = o.isBaseMapGroup;
         this.registerEventID(Fusion.Event.GROUP_PROPERTY_CHANGED);
     },
 
@@ -458,6 +449,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
         this.selectable = o.selectable;
+        this.isBaseMapLayer = o.isBaseMapLayer;
 
 
         //determine the layer type so that the correct icon can be displayed in the legend
@@ -484,7 +476,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
             this.scaleRanges.push(scaleRange);
           }
         }
-        this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
+
+        //this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
     },
 
     supportsType: function(type) {
@@ -535,7 +528,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     set: function(property, value) {
         this[property] = value;
-        this.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
+        this.oMap.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
     }
 
 });
@@ -548,7 +541,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
 Fusion.Layers.ScaleRange = OpenLayers.Class({
     styles: null,
-    initialize: function(o, layerType) {
+    initialize: function(o, layerType, iconOpt) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
         if (this.maxScale == 'infinity' || this.maxScale == 'auto') {
@@ -556,13 +549,13 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
         }
         this.styles = [];
         if (!o.styles) {
-          var styleItem = new Fusion.Layers.StyleItem({legendLabel:'DWF'}, layerType);
+          var styleItem = new Fusion.Layers.StyleItem({legendLabel:'DWF'}, layerType, iconOpt);
           this.styles.push(styleItem);
           return;
         }
         var staticIcon = o.styles.length>1 ? false : layerType;
         for (var i=0; i<o.styles.length; i++) {
-            var styleItem = new Fusion.Layers.StyleItem(o.styles[i], staticIcon);
+            var styleItem = new Fusion.Layers.StyleItem(o.styles[i], staticIcon, iconOpt);
             this.styles.push(styleItem);
         }
     },
@@ -580,7 +573,10 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
 
 Fusion.Layers.StyleItem = OpenLayers.Class({
     clientAgent: 'Fusion Viewer',
-    initialize: function(o, staticIcon) {
+    initialize: function(o, staticIcon, iconOpt) {
+        this.iconOpt = iconOpt;
+        this.iconX = o.icon_x || 0;
+        this.iconY = o.icon_y || 0;
         this.legendLabel = o.legendLabel;
         this.filter = o.filter;
         this.geometryType = o.geometryType;

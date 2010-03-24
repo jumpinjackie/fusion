@@ -42,6 +42,8 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     layerMetadataKeys: null,
     oMaptip:null,
     bMapTipFired: false,
+    bRestoreMapState: false,
+    oRestoredState: {},
 
     //the map file
     sMapFile: null,
@@ -61,6 +63,16 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
           //clear the query param after it has been used once
           Fusion.queryParams['theme'] = null;
         }
+
+        var restoreMapState = Fusion.getQueryParam('restoreState');
+        if (restoreMapState != '') {
+          //clear the query param after it has been used once
+          this.oRestoredState.id = restoreMapState;
+          Fusion.queryParams['restoreState'] = null;
+          // set flag to true so we can restore the map from a saved session.
+          this.bRestoreMapState = true;
+        }
+        
 
         this.mapMetadataKeys = mapTag.extension.MapMetadata ? mapTag.extension.MapMetadata[0] : null;
         this.layerMetadataKeys = mapTag.extension.LayerMetadata ? mapTag.extension.LayerMetadata[0] : null;
@@ -109,12 +121,63 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             var o;
             eval('o='+r.responseText);
             this.session[0] = o.sessionId;
-            this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+            var acceptLang = o.acceptLanguage.split(',');
+            //IE - en-ca,en-us;q=0.8,fr;q=0.5,fr-ca;q=0.3
+            //FF - en-us,en;q=0.5
+            for (var i=0; i<acceptLang.length; ++i) {
+              var locale = acceptLang[i].split(";");
+              Fusion.initializeLocale(locale[0]);
+              break;
+            }
+
+            /* Session is created, Check to see if we are going to restore a saved
+                map state and restore it if set to true.
+            */
+            if(this.bRestoreMapState == true){
+                var that = this;
+                var sl = Fusion.getScriptLanguage();
+                var scriptURL = 'layers/' + this.arch + '/' + sl + '/RestoreState.' + sl;
+
+                var params = {
+                    parameters: OpenLayers.Util.getParameterString({
+                        session: this.session[0] ,
+                        id: this.oRestoredState.id
+                    }),
+                    onComplete: function(xhr) {
+                        var o;
+                        eval('o='+xhr.responseText);
+                        that.restoreStateCB(o);
+                    }
+                };
+                Fusion.ajaxRequest(scriptURL,params);
+            }
+            else
+            {
+                // done with session create, fire the event.
+                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+            }
+            
         }
     },
 
+    restoreStateCB: function(oResponse){
+        if(oResponse.error){
+            Fusion.reportError(new Fusion.Error(Fusion.Error.WARNING, "Error Restoring Map State - "+oResponse.error));
+        }
+        else
+        {
+        this.oRestoredState = oResponse;
+        }
+        // done with session create, fire the event.
+        this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
+    },
+
     mapSessionCreated: function() {
-        if (this.sMapFile != '') {
+        // restore the mapfile from a saved state.
+        if(this.bRestoreMapState === true && this.oRestoredState.loadmap ){
+            this.loadMap(this.oRestoredState.loadmap);
+        }
+        else if (this.sMapFile != '') {
             this.loadMap(this.sMapFile);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), 
@@ -191,16 +254,12 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             if (o.projString.length > 0) {
               var epsg = o.projString.indexOf("init=");
               if (epsg >= 0) {
-                this.projCode = o.projString.substring(epsg+5).toUpperCase();
+                this.mapTag.layerOptions.projection = o.projString.substring(epsg+5).toUpperCase();
               } else {
-                this.projCode = o.mapName.toUpperCase();
-                Proj4js.defs[this.projCode] = o.projString;
+                this.mapTag.layerOptions.projection = o.mapName.toUpperCase();
+                Proj4js.defs[this.mapTag.layerOptions.projection] = o.projString;
               }
             }
-            if (this.projCode) {
-              this.mapWidget.setProjection(this.projCode);
-            }
-            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
 
             this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
@@ -230,12 +289,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             }
 
             //to allow for scaling that doesn't match any of the pre-canned units
-            this.units = Fusion.getClosestUnits(o.metersPerUnit);
+            this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
             
             var layerOptions = {
       				singleTile: true,
       				ratio: this.ratio,
-              units: this.units,
               maxResolution: 'auto',
       				minScale: maxScale,	//OL interpretation of min/max scale is reversed from Fusion
       				maxScale: minScale
@@ -247,7 +305,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               layers: this.aVisibleLayers.join(' '),
               session: this.getSessionID(),
               map: this._sMapFile,
-              map_imagetype: this.sImageType
+              map_imagetype: this._sImageType
             };
             OpenLayers.Util.extend(params, this.mapTag.layerParams);
 
@@ -267,9 +325,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
             if (this.bIsMapWidgetLayer) {
               this.mapWidget.addMap(this);
-              this.mapWidget.oMapOL.units = this.oLayerOL.units;
             }
-
             this.bMapLoaded = true;
         }
         else
@@ -326,24 +382,24 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
-    scaleRangesLoaded: function(userFunc, r) 
-    {
-        if (r.status == 200) 
-        {
+    scaleRangesLoaded: function(userFunc, r) {
+        if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
-            if (o.layers && o.layers.length > 0)
-            {
-                for (var i=0; i<o.layers.length; i++)
-                {
+            
+            if (o.layers && o.layers.length > 0) {
+                var iconOpt = {
+                    url: o.icons_url || null,
+                    width: o.icons_width || 16,
+                    height: o.icons_height || 16
+                };
+                for (var i=0; i<o.layers.length; i++) {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
-                    if (oLayer)
-                    {
+                    if (oLayer) {
                         oLayer.scaleRanges = [];
-                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) 
-                        {
+                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) {
                             var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j], 
-                                                                                 oLayer.layerType);
+                                                                                 oLayer.layerType, iconOpt);
                             oLayer.scaleRanges.push(scaleRange);
                         }
                     }
@@ -393,31 +449,29 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     mapLayersReset: function(aLayerIndex,r) {
-      if (r.status == 200) {
+        //console.log("mapLayersReset");
         var o;
         eval('o='+r.responseText);
-  			if (o.success) {
-  				var layerCopy = $A(this.aLayers);
-          var nLayers = layerCopy.length -1;
-          
-          //Mapserver has list of layers reversed from MapGuide
-          aLayerIndex.reverse();
-    
-  				this.aLayers = [];
-  				this.aVisibleLayers = [];
+        if (o.success) {
+            var layerCopy = $A(this.aLayers);
+            var nLayers = layerCopy.length -1;
+            //Mapserver has list of layers reversed from MapGuide
+            aLayerIndex.reverse();
 
-          for (var i=0; i<aLayerIndex.length; ++i) {
-            this.aLayers.push( layerCopy[ nLayers - aLayerIndex[i] ] );
-            if (this.aLayers[i].visible) {
-                this.aVisibleLayers.push(this.aLayers[i].layerName);
+            this.aLayers = [];
+            this.aVisibleLayers = [];
+
+            for (var i=0; i<aLayerIndex.length; ++i) {
+                this.aLayers.push( layerCopy[aLayerIndex[i] ] );
+                if (this.aLayers[i].visible) {
+                    this.aVisibleLayers.push(this.aLayers[i].layerName);
+                }
             }
-  				}
-  				//this.layerRoot.clear();
-
-  				this.drawMap();
-  				this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
+            //this.layerRoot.clear();
+            this.drawMap();
+            this.triggerEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
         }
-      }
+
     },
 
     parseMapLayersAndGroups: function(o) {
@@ -797,7 +851,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    getLegendImageURL: function(fScale, layer, style) {
+    getLegendImageURL: function(fScale, layer, style,defaultIcon) {
         var sl = Fusion.getScriptLanguage();
         var url = Fusion.getFusionURL() + '/layers/' + this.arch + '/' + sl  + '/LegendIcon.' + sl;
         var sessionid = this.getSessionID();
@@ -817,6 +871,20 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             var geometry = 'POLYGON(('+ minx + ' ' + miny + ', ' + minx + ' ' + maxy + ', ' + maxx + ' ' + maxy + ', ' + maxx + ' ' + miny + ', ' + minx + ' ' + miny + '))';
             var selectionType = "INTERSECTS";
 
+           var aVisLayers = [];
+           
+           for(var i = 0; i<this.aLayers.length;i++ ){
+                var iLayerMinScale = this.aLayers[i].scaleRanges[0].minScale;
+                var iLayerMaxScale = this.aLayers[i].scaleRanges[0].maxScale;
+                var iCurrentScale = this.mapWidget.getScale();
+
+                if(iCurrentScale < iLayerMaxScale && iCurrentScale > iLayerMinScale){
+                    if(this.aLayers[i].isVisible() === true){
+                        aVisLayers.push(this.aLayers[i].layerName);
+                    }
+                }
+           }
+
             var loadmapScript = '/layers/'+ this.arch + '/php/Maptip.php';
             var params = {
                 'mapname': this._sMapname,
@@ -827,7 +895,9 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
                 'layer': oMapTips.aLayers || '',
                 'textfield': oMapTips.aTextFields || '',
                 'label': oMapTips.aLabels || '',
-                'customURL': oMapTips.aCustomURL || ''
+                'customURL': oMapTips.aCustomURL || '',
+                'visLayers' : aVisLayers
+                
             }
             var parseMapTip = this.parseMapTip.bind(this);
             this.bMapTipFired = true;

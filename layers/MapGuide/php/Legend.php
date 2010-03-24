@@ -29,6 +29,11 @@
  *****************************************************************************/
 
 include ("Common.php");
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 
 // Converts a boolean to "yes" or "no"
 // --from MG Web Tier API Reference
@@ -56,11 +61,11 @@ $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
 //TODO: make the temp location configurable
 $tempImgPath = "c:/Program Files/Apache Group/Apache2/htdocs/ms_tmp/";
 
-for($i=0;$i<$layers->GetCount();$i++) 
-{ 
+for($i=0;$i<$layers->GetCount();$i++)
+{
     $layer=$layers->GetItem($i);
     $layerDefinition = $layer->GetLayerDefinition();
-    
+
     echo '<layer>';
     echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
     echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
@@ -77,14 +82,14 @@ for($i=0;$i<$layers->GetCount();$i++)
     echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
     buildScaleRanges($layer);
     echo '</layer>';
-} 
-echo "</layercollection>"; 
+}
+echo "</layercollection>";
 
 //Get layer groups as xml
 $groups = $map->GetLayerGroups();
-echo "<groupcollection>"; 
-for($i=0;$i<$groups->GetCount();$i++) 
-{ 
+echo "<groupcollection>";
+for($i=0;$i<$groups->GetCount();$i++)
+{
     $group=$groups->GetItem($i);
     $layerDefinition = $layer->GetLayerDefinition();
     echo '<group>';
@@ -102,8 +107,8 @@ for($i=0;$i<$groups->GetCount();$i++)
     echo '<visible>'.BooleanToString($group->GetVisible()).'</visible>';
     echo '<actuallyvisible>'.BooleanToString($group->isVisible()).'</actuallyvisible>';
     echo '</group>';
-} 
-echo"</groupcollection>"; 
+}
+echo"</groupcollection>";
 
 echo "</legend>";
 
@@ -141,13 +146,13 @@ function buildScaleRanges($layer) {
             $minScale = $minElt->item(0)->nodeValue;
         if($maxElt->length > 0)
             $maxScale = $maxElt->item(0)->nodeValue;
-        
+
         if($type != 0)
             break;
         $output .= '<scalerange>';
         $output .= '<minscale>'.$minScale.'</minscale>';
         $output .= '<maxscale>'.$maxScale.'</maxscale>';
-    
+
         $styleIndex = 0;
         for($ts=0, $count = count($typeStyles); $ts < $count; $ts++)
         {

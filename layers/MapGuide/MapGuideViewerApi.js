@@ -195,8 +195,10 @@ function mgApiCallHandler(evt) {
 }
 
 function mgApiDeactivate() {
-  mgApiActiveControl.deactivate();
-  mgApiActiveControl = null;
+    if (mgApiActiveControl) {
+        mgApiActiveControl.deactivate();
+        mgApiActiveControl = null;
+    }
   if (mgApiActiveWidget) {
     var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);

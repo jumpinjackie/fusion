@@ -480,7 +480,7 @@
     <Widget xsi:type="UiWidgetType">
       <Name>Measure</Name>
       <Type>Measure</Type>
-      <Description>Measure distances on the map.</Description>
+      <Description>Measure distances and areas on the map.</Description>
       <Extension xsi:type="CustomContentType">
         <Type>both</Type>
         <RulerTooltipContainer>RulerResult</RulerTooltipContainer>
@@ -497,7 +497,7 @@
     <Widget xsi:type="UiWidgetType">
       <Name>menuMeasure</Name>
       <Type>Measure</Type>
-      <Description>Measure distances on the map.</Description>
+      <Description>Measure distances and areas on the map.</Description>
       <Extension xsi:type="CustomContentType">
         <Type>both</Type>
         <RulerTooltipContainer>RulerResult</RulerTooltipContainer>
