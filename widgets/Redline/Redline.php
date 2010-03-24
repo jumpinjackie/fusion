@@ -29,6 +29,30 @@
  *  The max file size should be setted in the php5.ini.
  *****************************************************************************/
 
+$fusionMGpath = '../../layers/MapGuide/php/';
+include $fusionMGpath . 'Common.php';
+  
+SetLocalizedFilesPath(GetLocalizationPath());
+if(isset($_REQUEST['locale'])) {
+    $locale = $_REQUEST['locale'];
+} else {
+    $locale = GetDefaultLocale();
+}
+
+$optionLocal = GetLocalizedString('REDLINEOPTIONS', $locale );
+$selectLayerLocal = GetLocalizedString('REDLINESELECTLAYER', $locale );
+$newLocal = GetLocalizedString('REDLINENEW', $locale );
+$renameLocal = GetLocalizedString('REDLINERENAME', $locale );
+$removeLocal = GetLocalizedString('REDLINEREMOVE', $locale );
+$drawLocal = GetLocalizedString('REDLINEDRAW', $locale );
+$pointLocal = GetLocalizedString('REDLINEPOINT', $locale );
+$lineLocal = GetLocalizedString('REDLINELINE', $locale );
+$rectangleLocal = GetLocalizedString('REDLINERECTANGLE', $locale );
+$polygonLocal = GetLocalizedString('REDLINEPOLYGON', $locale );
+$saveLocal = GetLocalizedString('REDLINESAVE', $locale );
+$uploadLocal = GetLocalizedString('REDLINEUPLOAD', $locale );
+$featuresLocal = GetLocalizedString('REDLINEFEATURES', $locale );
+
 $fileUpload = false;
 
 $action = $_POST['action'];
@@ -41,8 +65,8 @@ else {
         $fileUpload = true;
 
         $target_path = tempnam(sys_get_temp_dir(), preg_replace("/\.[^\.]+$/", "", basename( $_FILES['uploadedfile']['name'])).'_');
-        
-        if (file_exists($target_path)) { 
+
+        if (file_exists($target_path)) {
             unlink($target_path);
         }
         $target_path = $target_path.'.gml';
@@ -77,85 +101,91 @@ else {
             document.body.appendChild(div);
             <? } ?>
             <? if (isset($noFile)) {  echo "alert('Please select a file.');"; } ?>
-            
+
         }
       </script>
-
-      <h1>Digitizing Options</h1>
-      <table id="RedlineWidgetOptions" borders="1">
       
+      <table id="RedlineWidgetOptions" borders="1" width="100%">
       <tr>
-      <th>Select Layer: </th>
+      <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 13pt">
+      <?php echo $optionLocal ?>
+      <hr>
+      </td>
+      </tr>
+      <tr>
+      <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;"><?php echo $selectLayerLocal ?></td>
+      </tr>
+      <tr>
       <td>
       <select id="RedlineWidgetLayerList"></select>
       </td>
       </tr>
       <tr>
-      <td><!-- dummy col --></td>
       <td>
-        <button id="RedlineWidgetNewLayerButton">New</button>
-        <button id="RedlineWidgetRenameLayerButton">Rename</button>
-        <button id="RedlineWidgetRemoveLayerButton">Remove</button>
+        <button id="RedlineWidgetNewLayerButton"><?php echo $newLocal ?></button>
+        <button id="RedlineWidgetRenameLayerButton"><?php echo $renameLocal ?></button>
+        <button id="RedlineWidgetRemoveLayerButton"><?php echo $removeLocal ?></button>
       </td>
       </tr>
       <tr>
-        <th>Draw:</th>
+        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;"><?php echo $drawLocal ?></td>
+       </tr> 
+       <tr> 
         <td>
           <input id="RedlineWidgetPointRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetPointeRadio">Point</label>
+          <label for="RedlineWidgetPointeRadio"><?php echo $pointLocal ?></label><br/>
           <input id="RedlineWidgetLineRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetLineRadio">Line</label>
+          <label for="RedlineWidgetLineRadio"><?php echo $lineLocal ?></label><br/>
           <input id="RedlineWidgetRectangleRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetRectangleRadio">Rectangle</label>
+          <label for="RedlineWidgetRectangleRadio"><?php echo $rectangleLocal ?></label><br/>
           <input id="RedlineWidgetPolygonRadio" type="radio" name="RedlineWidgetDrawRadio"/>
-          <label for="RedlineWidgetPolygonRadio">Polygon</label>
+          <label for="RedlineWidgetPolygonRadio"><?php echo $polygonLocal ?></label>
         </td>
       </tr>
       <tr>
-        <td colspan="2">
+        <td>
           <hr/>
-          <button id="RedlineWidgetSaveButton">Save</button>
+          <button id="RedlineWidgetSaveButton"><?php echo $saveLocal ?></button>
         </td>
       </tr>
       <tr>
-        <td id="RedlineWidgetUploadTd" colspan="2">
+        <td id="RedlineWidgetUploadTd">
           <form id="RedlineWidgetUploadForm" enctype="multipart/form-data" action="Redline.php" method="post">
              <input type="file" name="uploadedfile"/>
              <input type="hidden" name="action" value="upload"/>
              <br/>
-             <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="Upload" />
+             <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="<?php echo $uploadLocal ?>" />
           </form>
     </td>
       </tr>
-      <tr><td><!-- dummy col --></td></tr>
       <tr>
-        <th colspan="2">
-          Features
-          <hr/>
-        </th>
+        <td><hr/></td>
       </tr>
       <tr>
-        <td colspan="2">
+        <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;">
+          <?php echo $featuresLocal ?>
+        </td>
+        </tr>
+      <tr>
+        <td>
           <select id="RedlineWidgetFeatureList" size="10">
           </select>
         </td>
       </tr>
       <tr>
         <td>
-          <button id="RedlineWidgetRenameFeatureButton">Rename</button>
-        </td>
-        <td>
-          <button id="RedlineWidgetRemoveFeatureButton">Remove</button>
+          <button id="RedlineWidgetRenameFeatureButton"><?php echo $renameLocal ?></button>
+          <button id="RedlineWidgetRemoveFeatureButton"><?php echo $removeLocal ?></button>
         </td>
       </tr>
       </table>
-     
+
     </body>
   </html>
 
 
 <?php
-                                                     
+
 function returnFile($filename) {
 
 header("Content-type: text/xml");

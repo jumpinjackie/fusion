@@ -29,14 +29,19 @@
  *****************************************************************************/
 
 include ('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include ('Utilities.php');
 
 try {
-    if (!isset($_REQUEST['session']) || 
+    if (!isset($_REQUEST['session']) ||
         !isset($_REQUEST['mapname']) ||
-        !isset($_REQUEST['x1']) || 
-        !isset($_REQUEST['y1']) || 
-        !isset($_REQUEST['x2']) || 
+        !isset($_REQUEST['x1']) ||
+        !isset($_REQUEST['y1']) ||
+        !isset($_REQUEST['x2']) ||
         !isset($_REQUEST['y2'])) {
         echo "<Error>Arguments missing </Error>";
         exit;
@@ -56,7 +61,7 @@ try {
     } else {
         $distance = $srsMap->MeasureEuclideanDistance($x1, $y1, $x2, $y2);
     }
-    $distance = $srsMap->ConvertCoordinateSystemUnitsToMeters($distance);   
+    $distance = $srsMap->ConvertCoordinateSystemUnitsToMeters($distance);
     header('Content-type: application/json');
     header('X-JSON: true');
     echo "{distance:$distance}";

@@ -28,11 +28,12 @@
  *
  * A utility widget that holds output from other widgets.
  ****************************************************************************/
-
+ 
+Fusion.Event.TASK_PANE_LOADED = Fusion.Event.lastEventId++;
 
 Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     aExecutedTasks: null,   //array of URLs for tasks execcuted in the TaskPane
-    nCurrentTask: 0,
+    nCurrentTask: -1,
     nTasks: 0,
     
     initializeWidget: function(widgetTag){
@@ -125,8 +126,9 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         //is added to the DOM
         this.oTaskPane.domObj.resize();
         
+        Fusion.registerEventID(Fusion.Event.TASK_PANE_LOADED);
         Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, OpenLayers.Function.bind(this.setTaskMenu, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setContent, this, initialTask));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setInitialContent, this, initialTask));
     },
     
     updateButtons: function() {
@@ -136,30 +138,57 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
     
     gotoPrevTask: function() {
         this.nCurrentTask = this.nCurrentTask>0 ? --this.nCurrentTask : 0;
-        this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
-        this.updateButtons();
+        var url = this.aExecutedTasks[this.nCurrentTask];
+        this.loadFrame(url);
     },
 
     gotoNextTask: function() {
         this.nCurrentTask = this.nCurrentTask<this.aExecutedTasks.length-1 ? 
                           ++this.nCurrentTask : this.aExecutedTasks.length-1;
-        this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
-        this.updateButtons();
+        var url = this.aExecutedTasks[this.nCurrentTask];
+        this.loadFrame(url);
     },
 
     goHome: function() {
         this.nCurrentTask = 0;
-        this.iframe.src = this.aExecutedTasks[this.nCurrentTask];
-        this.updateButtons();
+        var url = this.aExecutedTasks[this.nCurrentTask];
+        this.loadFrame(url);
+    },
+
+    setInitialContent: function(url) {
+        this.aExecutedTasks = [];
+        this.nCurrentTask = 0;
+        this.setContent(url);
     },
 
     setContent: function(url) {
-        if (this.nCurrentTask < this.aExecutedTasks.length) {
-            this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
+        Fusion.triggerEvent(Fusion.Event.TASK_PANE_LOADED);
+        
+        if (this.nCurrentTask < this.aExecutedTasks.length-1) {
+            //this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
         }
         
-        this.aExecutedTasks.push(url);
+        //add in some common parameters if they aren't supplied already
+        var baseUrl = url.split("?");
+        var params = OpenLayers.Util.getParameters(url);
+        var mapLayers = this.getMap().getAllMaps();
+        if (!params["LOCALE"] && !params["locale"]) {
+          params["locale"] = Fusion.locale;
+        }
+        if (!params["SESSION"] && !params["session"]) {
+          params["session"] = mapLayers[0].getSessionID();
+        }
+        if (!params["MAPNAME"] && !params["mapname"]) {
+          params["mapname"] = mapLayers[0].getMapName();
+        }
+        var newUrl = baseUrl[0] + "?" + OpenLayers.Util.getParameterString(params);
+        
+        this.aExecutedTasks.push(newUrl);
         ++this.nCurrentTask;
+        this.loadFrame(url);
+    },
+    
+    loadFrame: function(url) {
         this.iframe.src = url;
         this.iframe.taskPaneId = this.widgetTag.name;
         this.updateButtons();
@@ -170,7 +199,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
      * have been created.
      *
      */
-    setTaskMenu : function() {
+    setTaskMenu: function() {
         if (this.menuName) {
             var container = this.getMap().widgetSet.getContainerByName(this.menuName);
             if (container) {

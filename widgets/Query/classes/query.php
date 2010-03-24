@@ -17,6 +17,9 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
+$fusionMGpath = '../../layers/MapGuide/php/';
+require_once $fusionMGpath . 'Common.php';
+
 require_once('property.php');
 require_once('feature.php');
 // require_once '../Common/JSON.php';
@@ -36,11 +39,27 @@ class Query
         $this->args = $args;
         $this->site = new MgSiteConnection();
         $this->site->Open(new MgUserInformation($args['SESSION']));
+        
+        SetLocalizedFilesPath(GetLocalizationPath());
+        if(isset($_REQUEST['locale'])) {
+            $locale = $_REQUEST['locale'];
+        } else {
+            $locale = GetDefaultLocale();
+        }
+        
+        $equalToLocal = GetLocalizedString('QUERYEQUALTO', $locale );
+        $notEqualToLocal = GetLocalizedString('QUERYNOTEQUALTO', $locale );
+        $greatThanLocal = GetLocalizedString('QUERYGREATTHAN', $locale );
+        $greatThanEqualLocal = GetLocalizedString('QUERYGREATTHANEQUAL', $locale );
+        $lessThanLocal = GetLocalizedString('QUERYLESSTHAN', $locale );
+        $lessThanEqualLocal = GetLocalizedString('QUERYLESSTHANEQUAL', $locale );
+        $beginLocal = GetLocalizedString('QUERYBEGIN', $locale );
+        $containsLocal = GetLocalizedString('QUERYCONTAINS', $locale );
 
-        $this->numOperators = array('Equal to', 'Not equal to', 'Greater than', 'Greater than or equal to', 'Less than', 'Less than or equal to');
+        $this->numOperators = array($equalToLocal, $notEqualToLocal, $greatThanLocal, $greatThanEqualLocal, $lessThanLocal, $lessThanEqualLocal);
         $this->numExpressions = array(' = %s', ' != %s', ' > %s', ' >= %s', ' < %s', ' <= %s');
 
-        $this->strOperators = array('Begins with', 'Contains', 'Equal to');
+        $this->strOperators = array($beginLocal, $containsLocal, $equalToLocal);
         $this->strExpressions = array(" like '%s%%'", " like '%%%s%%'", " = '%s'");
     }
 
@@ -209,8 +228,9 @@ class Query
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         $featureClass = $layer->GetFeatureClassName();
+        $filter = $layer->GetFilter();
         $featureGeometry = $layer->GetFeatureGeometryName();
-
+        
         // Initialize the coordinate system transform
 
         $schemaAndClass = explode(":", $featureClass);
@@ -240,6 +260,7 @@ class Query
         $queryMax = (int) $this->args['QUERYMAX'];
         $queryOptions = new MgFeatureQueryOptions();
 
+        $propertyFilter = '';
         if ($this->args['USEPROPERTYFILTER'] == 'true')
         {
             $propertyFilter = $this->args['PROPERTYNAME'];
@@ -247,10 +268,18 @@ class Query
                 $propertyFilter .= sprintf($this->strExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
             else
                 $propertyFilter .= sprintf($this->numExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
-
-            $queryOptions->SetFilter($propertyFilter);
+                
+            if($filter != '')
+                $propertyFilter = $propertyFilter . ' AND (' . $filter . ')';
         }
-
+        else
+        {
+            if($filter != '')
+                $propertyFilter = $filter;
+        }
+        if($propertyFilter != '')
+            $queryOptions->SetFilter($propertyFilter);
+        
         if ($this->args['USESPATIALFILTER'] == 'true')
         {
             $polygon = $this->CreatePolygonFromGeomText($this->args['GEOMTEXT']);
@@ -538,6 +567,13 @@ class Query
             $coords->Add($coord);
         }
 
+        //Some provider such as SQL Server Spatial, ODBC requires the polygon's start point must be the same as end point.
+        if(($count>2) && (($coords->GetItem(0)->GetX() != $coords->GetItem($count-1)->GetX()) || ($coords->GetItem(0)->GetY() != $coords->GetItem($count-1)->GetY())))
+        {
+            $coord = $geometryFactory->CreateCoordinateXY($coords->GetItem(0)->GetX(), $coords->GetItem(0)->GetY());
+            $coords->Add($coord);
+        }
+        
         $linearRing = $geometryFactory->CreateLinearRing($coords);
         $polygon = $geometryFactory->CreatePolygon($linearRing, null);
 

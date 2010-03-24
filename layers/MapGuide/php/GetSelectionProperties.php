@@ -25,6 +25,11 @@
  */
 
 include('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
@@ -174,7 +179,7 @@ include('Utilities.php');
 
 
     } catch(MgException $e) {
-        echo "/* SetSelection Exception: " . $e->GetDetails()."*/";
+        echo "ERROR: " . $e->GetDetails() . "\n";
     }
 
 function GetParameters($params)

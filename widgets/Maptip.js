@@ -49,13 +49,13 @@
 
 
 Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
-    oCurrentPosition: null,
+    oCurrentPosition: new OpenLayers.Pixel(0,0),
     oMapTipPosition: null,
     nTimer: null,
     delay: null,
     aLayers: null,
     bOverTip: false,
-    sWinFeatures: 'menubar=no,location=no,resizable=no,status=no',
+    sWinFeatures: 'menubar=no,location=no,resizable=no,status=no,scrollbars=yes',
     offset: new OpenLayers.Pixel(2,20),
     szTip: '',
     szHref:'',
@@ -154,6 +154,9 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             this.mapOffset = map._oDomObj.offsets;
 
             var p = map.getEventPosition(e);
+            if (p.x == this.oCurrentPosition.x && p.y == this.oCurrentPosition.y ) {
+              return;
+            }
             this.oCurrentPosition = p;
             this.oMapTipPosition = p;
 
@@ -228,21 +231,23 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             {
                 if (tip) {
                     var mapTipContent = document.createElement('DIV');
-                    mapTipContent.innerHTML = tip.replace(/\n/g, "<br>");
+                    mapTipContent.innerHTML = tip.replace(/\\n/g, "<br>");
                     contentDiv.appendChild(mapTipContent);
                     empty = false;
                 }
 
                 if (hyperlink) {
                     var mapTipContent = document.createElement('DIV');
-                    hyperlink =  hyperlink.replace(/\n/g, "<br>");
+                    hyperlink =  hyperlink.replace(/\\n/g, "<br>");
                     if ( hyperlink.indexOf("href=")>0 ) {
                       mapTipContent.innerHTML = hyperlink
                     } else {
                       var anchor = document.createElement('A');
-                      anchor.href = hyperlink;
+                      var openLink = OpenLayers.Function.bind(this.openLink, this, hyperlink);
+                      anchor.onclick = OpenLayers.Function.bindAsEventListener(openLink, this);
                       anchor.target = "_blank";
-                      anchor.innerHTML = hyperlink;
+                      anchor.href = 'javascript:void(0)';
+                      anchor.innerHTML = OpenLayers.i18n('maptipLinkText');
                       mapTipContent.appendChild(anchor);
                     }
                     contentDiv.appendChild(mapTipContent);

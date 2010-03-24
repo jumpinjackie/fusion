@@ -28,15 +28,20 @@
  * Purpose: Draw a legend icon
  *****************************************************************************/
 
+/* set up the session */
+include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include(dirname(__FILE__).'/Common.php');
+include(dirname(__FILE__).'/Utilities.php');
 
 if (!isset($mapName)) {
     die('mapname not set');
 }
 
+$mapFile = getSessionSavePath().$mapName.".map";
+$str = file_get_contents($mapFile);
 $legendIconCacheFile = "";
 
-if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
+if ($str) {
       $configObj = $_SESSION['fusionConfig'];
       /* if the legendIconCache dir is set */
       if (isset($configObj->mapserver->legendIconCacheDir)) {
@@ -50,7 +55,7 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
         }
 
         $cacheLegendIcons = true;
-        $str = file_get_contents($_SESSION['maps'][$mapName]);
+        //$str = file_get_contents($_SESSION['maps'][$mapName]);
         /* create a unique location for the map icons based on
          * the content of the of map file.  If the content changes
          * then the icons should be rebuilt anyway
@@ -95,7 +100,7 @@ if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
         }
     }
 
-    $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
+    $oMap = ms_newMapObj($mapFile);
     $oLayer = $oMap->getLayerByName($REQUEST_VARS['layername']);
     $oClass = $oLayer->getClass($REQUEST_VARS['classindex']);
     $width = $oMap->legend->keysizex;

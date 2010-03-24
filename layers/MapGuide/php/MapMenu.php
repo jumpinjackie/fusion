@@ -29,6 +29,11 @@
  *****************************************************************************/
 
 include ("Common.php");
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
 include('../../../common/php/Utilities.php');
 
 //Get the folder to search within
@@ -48,7 +53,7 @@ $aMapIds = $mapListXml->getElementsByTagName('ResourceId');
 $result = NULL;
 
 $result->maps = array();
-for ( $i=0; $i < $aMapIds->length; $i++ ) { 
+for ( $i=0; $i < $aMapIds->length; $i++ ) {
     $mapId = new MgResourceIdentifier($aMapIds->item($i)->nodeValue);
     $md = NULL;
     $md->path = $aMapIds->item($i)->nodeValue;

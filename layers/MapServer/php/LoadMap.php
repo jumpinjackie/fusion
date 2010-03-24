@@ -308,7 +308,8 @@ if ($oMap) {
          for ($j=0; $j<$layer->numclasses; $j++) {
              $oClass = $layer->getClass($j);
              $classObj = NULL;
-             $classObj->legendLabel = $oClass->name;
+             // Use formatted legend label as defined by CLASS->TITLE
+             $classObj->legendLabel = $oClass->title != '' ? $oClass->title : $oClass->name;
              $classObj->filter = $oClass->getExpression();
              $classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
              $classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
@@ -323,7 +324,7 @@ if ($oMap) {
              }
          }
          //$layerObj->scaleRanges = $aScaleRanges;
-         $_SESSION['scale_ranges'][$i] = $aScaleRanges;
+         $_SESSION['scale_ranges'][$mapName][$layer->name] = $aScaleRanges;
          /*get the min/max scale for the layer*/
         $nCount = count($aScaleRanges);
         $layerObj->minScale = $aScaleRanges[0]->minScale;

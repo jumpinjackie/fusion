@@ -157,6 +157,17 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     //change the map, preserving current extents
     switchMap: function(data) {
         var ce = this.getMap().getCurrentExtents();
+        var dest = null;
+        for (var i=0; i<data.maps.length; ++i) {
+          dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
+          if (data.maps[i].layerOptions.isBaseLayer) {
+            break;
+          }
+        }
+        if (!dest) {
+          dest = new OpenLayers.Projection("EPSG:4326");
+        }
+        ce = ce.transform(this.oMap.oMapOL.getProjectionObject(), dest);
         data.initialView = {minX:ce.left,
                             minY:ce.bottom,
                             maxX:ce.right,

@@ -29,6 +29,12 @@
  *****************************************************************************/
 
 include ('Common.php');
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorText();
+    exit;
+}
+
 include ('Utilities.php');
 
 try {

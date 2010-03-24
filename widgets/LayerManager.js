@@ -53,31 +53,39 @@
 Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
+    map: null,
     initializeWidget: function(widgetTag) {
+        //console.log("initializeWidget");
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
     
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
         this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
-        
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.map = this.getMap();
+        this.map.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
+        this.map.registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapReLoaded, this));
+        // update changes to the legend in this widget
+        this.map.aMaps[0].registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerChanged,this));
     },
     
-   
     mapLoaded: function() {
         this.draw();
     },
-    
-   
+    layerChanged: function() {
+        this.updateSessionMapFile();
+    },
+    mapReLoaded: function(){
+        this.draw();
+   },
    /**
      * remove the dom objects representing the legend layers and groups
      */
     clear: function(node) {
+        //console.log("clear");
         while (node.childNodes.length > 0) {
           this.clear(node.childNodes[0]);
-            node.remove(node.childNodes[0]);
+            node.destroy(node.childNodes[0]);
         }
     },
   
@@ -87,9 +95,10 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
      * @param r Object the reponse xhr object
      */
     draw: function(r) {
+        //console.log("draw");
       if (this.mapList) {
-        //this.clear(this.mapList);
-        //this.mapList.remove();
+        this.clear(this.mapList);
+        this.mapList.destroy();
         this.mapList = null;
       }
        
@@ -100,11 +109,12 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         
       //this processes the OL layers
       var map = this.getMap();
+
       for (var i=0; i<map.aMaps.length; ++i) {
         var mapBlock = document.createElement('li');
         mapBlock.className = 'jxLmanMap';
         mapBlock.id = 'mapBlock_'+i;
-        
+
         //add a handle so the map blocks can be re-arranged
         var handle = document.createElement('a');
         handle.innerHTML = map.aMaps[i]._sMapTitle;
@@ -125,17 +135,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     },
 
     processMapBlock: function(blockDom, map) {
+      //console.log("processMapBlock");
       var mapBlockList = document.createElement('ul');
       mapBlockList.className = 'jxLmanSet';
       mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
       blockDom.appendChild(mapBlockList);
       map.layerPrefix = 'layer_';   //TODO make this unique for each block
-      
       //this process all layers within an OL layer
       var processArray = map.aLayers;
-      if (map.bLayersReversed) {
-        processArray.reverse();
-      }
+    
       for (var i=0; i<processArray.length; ++i) {
         var blockItem = document.createElement('li');
         blockItem.className = 'jxLmanLayer';
@@ -144,14 +152,14 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         this.createItemHtml(blockItem, processArray[i]);
         blockItem.layer = processArray[i];
       }
-      
-      /*
-      var options = [];
-      options.onUpdate = OpenLayers.Function.bind(this.updateLayer, this, map);
-      options.scroll = this.domObj.id;    //docs for this at: http://wiki.script.aculo.us/scriptaculous/show/Sortable.create
-      Position.includeScrollOffsets = true;
-      Sortable.create(mapBlockList.id, options);
-      */
+
+      var sortableOptions = {
+                constrain: true,
+                clone: false,
+                revert: true,
+                onComplete: OpenLayers.Function.bind(this.updateLayer, $(mapBlockList.id), map)
+            };
+    var mySortables = new Sortables(mapBlockList.id, sortableOptions);
     },
    
   createItemHtml: function(parent, layer) {
@@ -191,15 +199,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   setGrabCursor: function(ev) {
-   // this.setCursor(this.cursorNormal, Event.element(ev) );
+    this.setCursor(this.cursorDrag, ev.currentTarget.parentNode);
   },
   
   setDragCursor: function(ev) {
-   // this.setCursor(this.cursorDrag, Event.element(ev) );
+   this.setCursor(this.cursorDrag, ev.currentTarget.parentNode);
   },
   
   setNormalCursor: function(ev) {
-    //this.setCursor('auto', Event.element(ev) );
+    this.setCursor('auto', ev.currentTarget.parentNode);
   },
   
   setCursor : function(cursor, domObj) {
@@ -219,30 +227,26 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   updateLayer: function(map, ul) {
+   //console.log("updateLayer");
     //reorder the layers in the client as well as the session
     var aLayerIndex = [];
     var aIds = [];
-    var nLayers = ul.childNodes.length;
+    var nLayers = this.childNodes.length;
     for (var i=0; i<nLayers; ++i) {
-      aIds[i] = ul.childNodes[i].id.split('_');
+      aIds[i] = this.childNodes[i].id.split('_');
       var index = parseInt(aIds[i].pop());
-      if (map.bLayersReversed) {
-        index = nLayers - (index+1);
-      }
       aLayerIndex.push(index);
-      ul.childNodes[i].id = '';
+      this.childNodes[i].id = '';
     }
     
     //reset the ID's on the LI elements to be in order
-    for (var i=0; i<ul.childNodes.length; ++i) {
-      var node = ul.childNodes[i];
+    for (var i=0; i<this.childNodes.length; ++i) {
+      var node = this.childNodes[i];
       aIds[i].push(i);
       node.id = aIds[i].join('_');
       node.childNodes[1].checked = node.layer.isVisible()
     }
-    if (map.bLayersReversed) {
-      aLayerIndex.reverse();
-    }
+
     map.reorderLayers(aLayerIndex);
   },
    
@@ -251,6 +255,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   
   deleteLayer: function(layer, ev) {
+   // console.log("deleteLayer");
     var targetLI = (new Event(ev)).target.parentNode;
     var ul = targetLI.parentNode;
     $(targetLI).dispose();
@@ -265,6 +270,34 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     } else {
       layer.hide();
     }
+  },
+  updateSessionMapFile: function(){
+   // console.log("updateSessionMapFile");
+    // get map
+    var map = this.getMap();
+    var aMaps = map.getAllMaps();
+    var currentMap = aMaps[0];
+    var sessionId = aMaps[0].getSessionID();
+
+    // get all layers
+    var oLayers = currentMap.aLayers;
+    var aLayerNames = [];
+    var visibleLayers = [];
+    for(var i=0;i<oLayers.length;i++){
+        aLayerNames.push(oLayers[i].layerName);
+        if(oLayers[i].visible == true){
+            visibleLayers.push(oLayers[i].layerName);
+        }
+    }
+
+    // prepare ajax req
+    var params =  '&session='+sessionId+'&mapname='+ this.getMap().getMapName()+'&visLayers='+visibleLayers+'&layers='+aLayerNames;
+    var options = {parameters: params};
+
+    // fire the request no need to return
+    var m = this.getMap().aMaps[0];
+    var url = 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/updateSessionMapFile." + Fusion.getScriptLanguage()
+    Fusion.ajaxRequest(  url, options);
   }
 
 });

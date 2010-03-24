@@ -29,6 +29,11 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     include $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
 
     //$logHandle = fopen("debug.log","at");
 

@@ -18,14 +18,51 @@
 //
     $fusionMGpath = '../../layers/MapGuide/php/';
     require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/theme.php';
+    
+    SetLocalizedFilesPath(GetLocalizationPath());
+    if(isset($_REQUEST['locale'])) {
+        $locale = $_REQUEST['locale'];
+    } else {
+        $locale = GetDefaultLocale();
+    }
 
     $args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
 
     $errorMsg = null;
     $errorDetail = null;
+    
+    $titleLocal = GetLocalizedString('THEMETITLE', $locale );
+    $selectLayerLocal = GetLocalizedString('THEMESELECTLAYER', $locale );
+    $layerLocal = GetLocalizedString('THEMELAYER', $locale );
+    $nameLocal = GetLocalizedString('THEMENAME', $locale );
+    $conditionLocal = GetLocalizedString('THEMECONDITIONS', $locale );
+    $propertyLocal = GetLocalizedString('THEMEPROPERTY', $locale );
+    $minLocal = GetLocalizedString('THEMEMIN', $locale );
+    $maxLocal = GetLocalizedString('THEMEMAX', $locale );
+    $distributionLocal = GetLocalizedString('THEMEDISTRIBUTION', $locale );
+    $ruleLocal = GetLocalizedString('THEMERULE', $locale );
+    $scaleRangeLocal = GetLocalizedString('THEMESCALERANGE', $locale );
+    $styleRampLocal = GetLocalizedString('THEMESTYLERAMP', $locale );
+    $fillTransparencyLocal = GetLocalizedString('THEMEFILLTRANS', $locale );
+    $fillColorLocal = GetLocalizedString('THEMEFILLCOLOR', $locale );
+    $fromLocal = GetLocalizedString('THEMEFROM', $locale );
+    $toLocal = GetLocalizedString('THEMETO', $locale );
+    $borderColorLocal = GetLocalizedString('THEMEBORDERCOLOR', $locale );
+    $applyLocal = GetLocalizedString('THEMEAPPLY', $locale );
+    $errorLocal = GetLocalizedString('THEMEERROR', $locale );
+    $individualLocal = GetLocalizedString('THEMEINDIVIDUAL', $locale );
+    $equalLocal = GetLocalizedString('THEMEEQUAL', $locale );
+    $standardDeviationLocal = GetLocalizedString('THEMESTANDARD', $locale );
+    $quantileLocal = GetLocalizedString('THEMEQUANTILE', $locale );
+    $jenksLocal = GetLocalizedString('THEMEJENKS', $locale );
 
     try
     {
@@ -47,7 +84,7 @@
 ?>
 <html>
 <head>
-    <title>Theme Layer</title>
+    <title><?php echo $titleLocal ?></title>
     <link rel="stylesheet" href="../../common/mgsamples.css" type="text/css">
     <script language="javascript" src="../../common/browserdetect.js"></script>
     <script language="javascript" src="../../common/json.js"></script>
@@ -75,7 +112,7 @@
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
 
-        var distNameArray = '<?php $json = new Services_JSON(); echo $json->encode($theme->distNameArray) ?>'.parseJSON();
+        var distNameArray = ['<?= $individualLocal ?>', '<?= $equalLocal ?>', '<?= $standardDeviationLocal ?>', '<?= $quantileLocal  ?>', '<?= $jenksLocal ?>']; 
         var distValueArray = '<?php $json = new Services_JSON(); echo $json->encode($theme->distValueArray) ?>'.parseJSON();
 
         var themeReqHandler = null;
@@ -87,6 +124,11 @@
         function OnLayerChange()
         {
             var layerSelect = document.getElementById("layerSelect");
+
+            if(layerSelect.value == ""){
+                return;
+            }
+
             var propertySelect = document.getElementById("propertySelect");
             var scaleSelect = document.getElementById("scaleSelect");
 
@@ -336,9 +378,9 @@
 <?php if ($errorMsg == null) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%">
-    <tr><td colspan="2" class="Title"><img id="busyImg" src="../../common/images/loader_pulse.gif" style="vertical-align:bottom">&nbsp;Theme Layer<hr></td></tr>
-    <tr><td colspan="2" class="SubTitle">Select a Layer</td></tr>
-    <tr><td colspan="2">Layer:</td></tr>
+    <tr><td colspan="2" class="Title"><img id="busyImg" src="../../common/images/loader_pulse.gif" style="vertical-align:bottom">&nbsp;<?php echo $titleLocal ?><hr></td></tr>
+    <tr><td colspan="2" class="SubTitle"><?php echo $selectLayerLocal ?></td></tr>
+    <tr><td colspan="2"><?php echo $layerLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <select size="1" class="Ctrl" id="layerSelect" onChange="OnLayerChange()" style="width: 100%">
@@ -354,48 +396,48 @@
               </select>
         </td>
     </tr>
-    <tr><td colspan="2">Theme Name:</td></tr>
+    <tr><td colspan="2"><?php echo $nameLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <input maxlength="100" class="Ctrl" id="themeName" style="width: 100%">
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
-    <tr><td colspan="2" class="SubTitle">Define Conditions</td></tr>
-    <tr><td colspan="2">Property:</td></tr>
+    <tr><td colspan="2" class="SubTitle"><?php echo $conditionLocal ?></td></tr>
+    <tr><td colspan="2"><?php echo $propertyLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <select size="1" class="Ctrl" id="propertySelect" onChange="OnPropertyChange()" style="width: 100%">
               </select>
         </td>
     </tr>
-    <tr><td colspan="2">Min:</td></tr>
+    <tr><td colspan="2"><?php echo $minLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <input maxlength="100" class="Ctrl" id="minValue" style="width: 100%">
         </td>
     </tr>
-    <tr><td colspan="2">Max:</td></tr>
+    <tr><td colspan="2"><?php echo $maxLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <input maxlength="100" class="Ctrl" id="maxValue" style="width: 100%">
         </td>
     </tr>
-    <tr><td colspan="2">Distribution:</td></tr>
+    <tr><td colspan="2"><?php echo $distributionLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <select size="1" class="Ctrl" id="distroSelect" onChange="OnDistroChange()" style="width: 100%">
               </select>
         </td>
     </tr>
-    <tr><td colspan="2"># of Rules:</td></tr>
+    <tr><td colspan="2"><?php echo $ruleLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <input maxlength="10" class="Ctrl" id="numRules" value="8" style="width: 100%">
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
-    <tr><td colspan="2" class="SubTitle">Scale Range</td></tr>
+    <tr><td colspan="2" class="SubTitle"><?php echo $scaleRangeLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
             <select size="1" class="Ctrl" id="scaleSelect" style="width: 100%">
@@ -403,57 +445,57 @@
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
-    <tr><td colspan="2" class="SubTitle">Style Ramp</td></tr>
-    <tr><td>Fill Transparency:</td></tr>
+    <tr><td colspan="2" class="SubTitle"><?php echo $styleRampLocal ?></td></tr>
+    <tr><td><?php echo $fillTransparencyLocal ?></td></tr>
     <tr>
         <td  colspan="2" class="RegText">
             <input class="Ctrl" id="fillTrans" type="text"  maxlength="3" value="0" style="width:90%">&nbsp;%
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
-    <tr><td>Fill Color:</td></tr>
+    <tr><td><?php echo $fillColorLocal ?></td></tr>
     <tr>
         <td valign="top">
-            &nbsp;&nbsp;&nbsp;From:<br>
+            &nbsp;&nbsp;&nbsp;<?php echo $fromLocal ?><br>
             &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillFromSwatch" style="color: #FF0000; background-color: #FF0000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_FILL_FROM_COLOR,false,false)">
         </td>
         <td valign="top">
-            &nbsp;&nbsp;&nbsp;To:<br>
+            &nbsp;&nbsp;&nbsp;<?php echo $toLocal ?><br>
             &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillToSwatch" style="color: #0000FF; background-color: #0000FF">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_FILL_TO_COLOR,false,false)">
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
-    <tr><td>Border Color:</td></tr>
+    <tr><td><?php echo $borderColorLocal ?></td></tr>
     <tr>
         <td valign="top">
-            &nbsp;&nbsp;&nbsp;From:<br>
+            &nbsp;&nbsp;&nbsp;<?php echo $fromLocal ?><br>
             &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineFromSwatch" style="color: #000000; background-color: #000000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_LINE_FROM_COLOR,false,false)">
         </td>
         <td valign="top">
-            &nbsp;&nbsp;&nbsp;To:<br>
+            &nbsp;&nbsp;&nbsp;<?php echo $toLocal ?><br>
             &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineToSwatch" style="color: #000000; background-color: #000000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_LINE_TO_COLOR,false,false)">
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
     <tr><td colspan="2" ><hr></td></tr>
-    <tr><td colspan="2" align="right"><input class="Ctrl" type="button" value="Apply" style="width: 60px;" onClick="ApplyTheme()"></td></tr>
+    <tr><td colspan="2" align="right"><input class="Ctrl" type="button" value="<?php echo $applyLocal ?>" style="width: 60px;" onClick="ApplyTheme()"></td></tr>
 </table>
 
-<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?> 
+<?php } else if ($errorDetail == null || (strlen($errorDetail) - strlen($errorMsg) < 5)) { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
 </table>
 
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td class="Title"><?php echo $errorLocal ?><hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
     <tr><td><?= $errorDetail ?></td></tr>
 </table>

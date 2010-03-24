@@ -56,7 +56,7 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
             join = '&';
           }
         }
-        this.anchorLabel = json.Label ? json.Label[0] : (this.domObj ? this.domObj.innerHTML : 'Link to View');
+        this.anchorLabel = json.Label ? json.Label[0] : (this.domObj ? (this.domObj.innerHTML ? this.domObj.innerHTML : 'Link to View') : 'Link to View');
 
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LinkToView/LinkToView.css');
         this.anchor = document.createElement('a');
@@ -64,6 +64,11 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         this.anchor.href = this.baseUrl;
         this.anchor.innerHTML = this.anchorLabel;
         this.anchor.title = json.Tooltip ? json.Tooltip[0] : 'Right-click to copy or bookmark link to current view';
+        
+        if(this.domObj){
+            this.domObj.innerHTML = '';
+            this.domObj.appendChild(this.anchor);
+        }
         
         this.getMap().oMapOL.events.register("addlayer", this, this.setListener);
         this.enable();                   

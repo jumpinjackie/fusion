@@ -85,7 +85,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.nTolerance = 2; //pixels, default pixel tolernace for a point click; TBD make this configurable
           }
         }
-
+        
         rootOpts = {
           displayInLegend: this.bDisplayInLegend,
           expandInLegend: this.bExpandInLegend,
@@ -132,6 +132,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var o;
             eval('o='+xhr.responseText);
             this.session[0] = o.sessionId;
+            var acceptLang = o.acceptLanguage.split(',');
+            //IE - en-ca,en-us;q=0.8,fr;q=0.5,fr-ca;q=0.3
+            for (var i=0; i<acceptLang.length; ++i) {
+              var locale = acceptLang[i].split(";");
+              Fusion.initializeLocale(locale[0]);
+              break;
+            }
             this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
         }
     },
@@ -293,9 +300,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
 
             //set projection units and code if supplied
+            if (o.epsg != 0) {
+              this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
+            }
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
-            this.units = Fusion.getClosestUnits(o.metersPerUnit);
+            this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
 
             //add in scales array if supplied
             if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
@@ -312,15 +322,29 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2);
+            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2,false);
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
             this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
 
+            
+            //remove the dynamic overlay layer if it was already created
+            if (this.oLayerOL2) {
+                this.oLayerOL2.destroy();
+            }
+
             //this is to distinguish between a regular map and an overview map
             this.bMapLoaded = true;
             if (this.bIsMapWidgetLayer) {
-              this.mapWidget.addMap(this);
+                this.mapWidget.addMap(this);
+                
+                //if we have a tiled map that also contains dynamic layers, we need to create
+                //an additional overlay layer to render them on top of the tiles
+                if(!this.bSingleTile && o.hasDynamicLayers) {
+                    this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true);
+                    this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
+                    this.oLayerOL2.setVisibility(true);
+                }
             }
         }
         this.mapWidget._removeWorker();
@@ -389,6 +413,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             eval('o='+r.responseText);
             if (o.layers && o.layers.length > 0)
             {
+                var iconOpt = {
+                    url: o.icons_url || null,
+                    width: o.icons_width || 16,
+                    height: o.icons_height || 16
+                };
                 for (var i=0; i<o.layers.length; i++)
                 {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
@@ -398,7 +427,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                         for (var j=0; j<o.layers[i].scaleRanges.length; j++)
                         {
                             var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j],
-                                                                                 oLayer.layerType);
+                                                                                 oLayer.layerType, iconOpt);
                             oLayer.scaleRanges.push(scaleRange);
                         }
                     }
@@ -515,7 +544,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        this.oLayerOL.mergeNewParams(params);
+        if(this.oLayerOL2) {
+            this.oLayerOL2.mergeNewParams(params);
+        } else {
+            this.oLayerOL.mergeNewParams(params);
+        }
+        
     },
 
     drawSelection: function() {
@@ -531,7 +565,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bSingleTile, behavior) {
+    createOLLayer: function(layerName, bSingleTile, behavior, forceAsOverlay) {
       /* prevent the useOverlay flag based on MapGuide config element */
       this.useAsyncOverlay = Fusion.getConfigurationItem('mapguide', 'useAsyncOverlay');
       if (!this.useAsyncOverlay) {          //v2.0.1 or earlier
@@ -539,7 +573,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       
       var layerOptions = {
-        units: this.units,
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
         useAsyncOverlay: this.useAsyncOverlay,
@@ -586,7 +619,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (behavior == 5) {
           params.selectioncolor = this.selectionColor;
           params.format = this.selectionFormat;
-          layerOptions.isBaseLayer = false;
+        }
+        
+        if(forceAsOverlay)
+        {
+            layerOptions.isBaseLayer = false;
         }
 
       } else {
@@ -609,8 +646,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       } else {
         url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       }
-      var oLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
-      return oLayerOL;
+      var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
+      return oNewLayerOL;
     },
 
     /**
@@ -895,13 +932,20 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", true, 5);
+                  this.queryLayer = this.createOLLayer("query layer", true, 5, true);
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING,
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
                 } else {
                   this.queryLayer.setVisibility(true);
                 }
+              }
+
+              //Fix Ticket #1145.
+              //When the user invokes the setSelection() function to update the selection,
+              //clear the selection count for all layers before proceeding
+              for (var j=0; j<this.aLayers.length; ++j) {
+                this.aLayers[j].selectedFeatureCount = 0;
               }
 
               // set the feature count on each layer making up this map
@@ -977,6 +1021,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.processGroupEvents(group, true);
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(true);
+            this.oLayerOL2.setVisibility(true);
+        } else if (group.isBaseMapGroup) {
+            this.oLayerOL.setVisibility(true);
         } else {
             this.aShowGroups.push(group.uniqueId);
             if (!noDraw) {
@@ -987,6 +1034,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     hideGroup: function( group, noDraw ) {
         this.processGroupEvents(group, false);
         if (group.groupName == 'layerRoot') {
+            this.oLayerOL.setVisibility(false);
+            this.oLayerOL2.setVisibility(false);
+        } else if (group.isBaseMapGroup) {
             this.oLayerOL.setVisibility(false);
         } else {
             this.aHideGroups.push(group.uniqueId);
@@ -1156,18 +1206,25 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
     },
     
-    getLegendImageURL: function(fScale, layer, style) {
-      var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
-      url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
-      url += "&VERSION=1.0.0&SCALE=" + fScale;
-      url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
-      url += "&THEMECATEGORY=" + style.categoryIndex;
-      url += "&TYPE=" + style.geometryType;
-      url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
-      if (layer.noCache) {
-        url += "&TS=" + (new Date()).getTime();
-      }
-      return url;
+    getLegendImageURL: function(fScale, layer, style,defaultIcon) {
+        if(layer.layerTypes[0] == 4){
+            return defaultIcon;
+        }
+        else
+        {
+            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
+            url += "&VERSION=1.0.0&SCALE=" + fScale;
+            url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
+            url += "&THEMECATEGORY=" + style.categoryIndex;
+            url += "&TYPE=" + style.geometryType;
+            url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
+            if (this.noCache) {
+                url += "&TS=" + (new Date()).getTime();
+            }
+            return url;
+        }
+
     },
 
 

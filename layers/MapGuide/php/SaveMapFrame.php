@@ -25,7 +25,7 @@
  */
 
 /*****************************************************************************
- * Purpose: 
+ * Purpose:
  *****************************************************************************/
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
@@ -44,7 +44,11 @@
 <H4>Preparing Image for download...</H4>
 <?php
 include('Common.php');
-
+if(InitializationErrorOccurred())
+{
+    DisplayInitializationErrorHTML();
+    exit;
+}
 $szLayout="";
 if (isset($_REQUEST['layout']) &&  $_REQUEST['layout'] != "") {
   $szLayout = "&layout=".$_REQUEST['layout'];
