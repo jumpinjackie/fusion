@@ -633,7 +633,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
             if (checkbox) {
               layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
-              if (layer.layerTypes[0] == 4 || range.styles.length > 0) {
+              if (layer.layerTypes[0] == 4 || layer.layerTypes[0] == 5 || range.styles.length > 0) {
                 layer.legend.treeItem.checkBox.disabled = false;
               } else {
                 layer.legend.treeItem.checkBox.disabled = true;
@@ -728,12 +728,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         }
         // MapGuide DWF and Raster layer
-        if (layer.layerTypes[0] == 4) {
-            if (style && style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
-                opt.image = this.imgLayerDWFIcon;
-            } else {
-                opt.image = this.imgLayerRasterIcon;
-            }
+         // MapGuide Raster and DWF layer 
+        if(layer.layerTypes[0] == 4){
+            opt.image = this.imgLayerRasterIcon;
+            opt.enabled = true;
+        } else if(layer.layerTypes[0] == 5){
+            opt.image = this.imgLayerDWFIcon;
             opt.enabled = true;
         }
         opt.contextMenu = this.getContextMenu();
