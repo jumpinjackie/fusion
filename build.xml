@@ -74,7 +74,7 @@ $Id$
   <property environment="env"/>
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
-  <property name="app.version" value="2.0.x"/>
+  <property name="app.version" value="2.0.0-RC1"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${basedir}/../${app.name}"/>
   <property name="dist.home" value="${basedir}/dist"/>
@@ -212,6 +212,7 @@ $Id$
         <filelist dir="${build.home}/lib"
                   files=" SingleFile.js
                           fusion.js
+                          proj4js-compressed.js
                           OpenLayers/OpenLayers.js
                           jxlib.uncompressed.js
                           Error.js
