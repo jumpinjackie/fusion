@@ -26,9 +26,9 @@
  /* ********************************************************************
  * Class: Fusion.Widget.Measure
  *
- * The Measure widget allows the user to measure distances or areas on the map 
+ * The Measure widget allows the user to measure distances or areas on the map
  * in one or more segments. Area is positive if measured clockwise.
- * 
+ *
  * **********************************************************************/
 
 Fusion.Constant.MEASURE_TYPE_DISTANCE = 1;
@@ -41,12 +41,12 @@ Fusion.Event.MEASURE_COMPLETE = Fusion.Event.lastEventId++;
 Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
-    
+
     //distance of each segment
     distances: null,
     distanceMarkers: null,
     areaMarker: null,
-    
+
     /* the units to display distances in */
     units: Fusion.UNKNOWN,
 
@@ -55,17 +55,17 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     /* Precision of the distance displayed */
     distPrecision: 4,
-    
+
     /* Precision of the area displayed */
     areaPrecision: 4,
-    
-    /* Style for the distance line used for distance draw */   
+
+    /* Style for the distance line used for distance draw */
     distanceNormalStyle: null,
 
-    /* Style for the polygon used for area draw */   
+    /* Style for the polygon used for area draw */
     fillStyle: null,
 
-    /* Style for the polygon line used for area draw */    
+    /* Style for the polygon line used for area draw */
     areaStyle: null,
     segmentLabels: true,
     initializeWidget: function(widgetTag) {
@@ -73,13 +73,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var json = widgetTag.extension;
         this.units = (json.Units && (json.Units[0] != '')) ?  Fusion.unitFromName(json.Units[0]): this.units;
         this.distPrecision = json.DistancePrecision ? parseInt(json.DistancePrecision[0]) : 4;
-        this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;  
+        this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;
         if(json.SegmentLabels){
             this.segmentLabels = (json.SegmentLabels[0].toLowerCase == "true" && json.SegmentLabels[0]) ? true : false;
         }
         this.sTarget = json.Target ? json.Target[0] : "";
         this.sBaseUrl = Fusion.getFusionURL() + 'widgets/Measure/Measure.php';
-        
+
         //init measure type
         this.measureType = 0;
         if (json.Type) {
@@ -98,25 +98,25 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                     break;
             }
         }
-        
+
         //Here are the canvas style definition
         var fillStyle = json.FillStyle ? json.FillStyle[0] : 'rgba(0,0,255, 0.3)';
         var lineStyleWidth = json.LineStyleWidth ? json.LineStyleWidth[0] : 2;
-        var lineStyleColor = json.LineStyleColor ? json.LineStyleColor[0] : 'rgba(0,0,255,0.3)';     
+        var lineStyleColor = json.LineStyleColor ? json.LineStyleColor[0] : 'rgba(0,0,255,0.3)';
         this.distanceMarkers = [];
         this.distances = [];
-        
+
         this.registerEventID(Fusion.Event.MEASURE_SEGMENT_UPDATE);
         this.registerEventID(Fusion.Event.MEASURE_CLEAR);
         this.registerEventID(Fusion.Event.MEASURE_COMPLETE);
-        
+
         var mapWidget = this.getMap();
         this.keyHandler = OpenLayers.Function.bind(this.onKeyPress, this);
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Measure/Measure.css');
 
         mapWidget.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this, this.units));
         this.registerParameter('Units');
-        
+
             // style the sketch fancy
         this.sketchSymbolizers = {
                 "Point": {
@@ -146,10 +146,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             new OpenLayers.Rule({symbolizer: this.sketchSymbolizers})
         ]);
         var styleMap = new OpenLayers.StyleMap({"default": style});
-        
+
         //add in the OL Polygon handler
         this.map = mapWidget.oMapOL;
-        var handlerOptions = {                    
+        var handlerOptions = {
             style: "default", // this forces default render intent
             layerOptions: {styleMap: styleMap}
         };
@@ -157,7 +157,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
             handler = OpenLayers.Handler.Polygon;
         }
-        
+
         var controlOptions = {
             persist: true,
             handlerOptions: handlerOptions,
@@ -168,19 +168,49 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         };
         this.control = new OpenLayers.Control.Measure(handler, controlOptions);
         this.getMap().oMapOL.addControl(this.control);
-        
+
         this.control.events.on({
             measure: this.measure,
             scope: this
         });
+
+        this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.extentsChangedCB, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.extentsChangedCB, this));
+
     },
-    
+
+    extentsChangedCB : function() {
+        var olControl = this.control;
+        if(olControl && olControl.active)
+        {
+            var poly = olControl.handler;
+            var geom = poly.getGeometry();
+            if(geom)
+            {
+                this.updateMarkers(geom);
+            }
+        }
+    },
+
+    updateMarkers : function(geom) {
+        var v = geom.getVertices();
+        for(var i = 0; i < this.distanceMarkers.length; i++)
+        {
+            var seg =  new OpenLayers.Geometry.LineString();
+            seg.addPoint(v[i].clone());
+            seg.addPoint(v[i+1].clone());
+            this.updateMarker(this.distanceMarkers[i], seg);
+        }
+        this.updateDistances(geom);
+        this.updateArea(geom);
+    },
+
     shouldActivateWith: function(widget) {
         return (widget instanceof Fusion.Widget.Measure &&
                 widget.measureType == this.measureType);
     },
-    
-    
+
+
     measure: function(stats) {
         this.hasMeasure = true;
         /* rebuild distance markers */
@@ -218,7 +248,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
         this.triggerEvent(Fusion.Event.MEASURE_COMPLETE);
     },
-    
+
     measurePartial: function(point, sketch) {
         if (this.hasMeasure) {
             this.resetMeasure();
@@ -227,13 +257,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var geom = sketch.geometry;
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
             this.updateDistances(geom);
-        } 
+        }
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
             this.updateArea(geom);
         }
         this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);
     },
-    
+
     updateDistances: function(geom) {
         var v = geom.getVertices();
         var last = v.length - 1;
@@ -261,19 +291,19 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             }
         }
     },
-    
+
     updateArea: function(geom) {
         if (!this.areaMarker) {
             this.areaMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, '', true);
         }
         this.updateMarker(this.areaMarker, geom);
     },
-    
+
     delayUpdate: function(marker, geom) {
         this.delayUpdateTimer = null;
         this.updateMarker(marker, geom);
     },
-   
+
     updateMarker: function(marker, geom) {
         if (!marker) {
             return;
@@ -289,10 +319,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
             quantity = geom.getGeodesicLength(proj);
-            
+
             //calculate the length in pixels
             pixQuantity = Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y));
-            
+
             measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
               quantity = Fusion.convert(measureUnits, this.units, quantity);
@@ -304,13 +334,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
             quantity = geom.getGeodesicArea(proj);
-           
+
             measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
                 var rate = Fusion.convert(measureUnits, this.units, 1);
                 quantity = quantity * rate * rate;
             }
-            
+
             //calculate the area in square pixels
             var resolution = this.getMap().getResolution();
             pixQuantity = quantity / resolution / resolution;
@@ -322,10 +352,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             this.positionMarker(marker, at);
         }
     },
-    
+
     positionMarker: function(marker, at) {
         var oDomElem =  this.getMap().getDomObj();
-        if (!marker.domObj.parentNode || 
+        if (!marker.domObj.parentNode ||
             marker.domObj.parentNode != oDomElem) {
             oDomElem.appendChild(marker.domObj);
         }
@@ -344,7 +374,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             }
         }
     },
-    
+
     onKeyPress: function(e) {
         var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
         if (charCode == OpenLayers.Event.KEY_ESC) {
@@ -352,12 +382,12 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             this.activate();
         }
     },
-    
+
     /**
      * (public) initVars()
      *
      * reset area and/or distance vars
-     */    
+     */
     initVars: function() {
         this.cumulativeDistance = 0;
         this.lastDistance = 0;
@@ -365,7 +395,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.lastArea = 0;
         this.aAreaFirstPoint = null;
     },
-    
+
     activate: function() {
         this.control.activate();
         this.resetMeasure();
@@ -373,7 +403,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.loadDisplayPanel();
         this.getMap().supressContextMenu(true);
     },
-    
+
     loadDisplayPanel: function() {
         if (this.sTarget) {
             var url = this.sBaseUrl;
@@ -384,7 +414,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 url += '&';
             }
             url += queryStr + '&type='+this.measureType;
-            
+
             var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
             var outputWin = window;
             if ( taskPaneTarget ) {
@@ -393,36 +423,36 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             } else {
                 outputWin = window.open(url, this.sTarget, this.sWinFeatures);
             }
-            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearDisplay, this, outputWin));  
+            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearDisplay, this, outputWin));
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
             this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
         } else {
             this.totalDistanceMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, 'Total:');
             var oDomElem =  this.getMap().getDomObj();
-            if (!this.totalDistanceMarker.domObj.parentNode || 
+            if (!this.totalDistanceMarker.domObj.parentNode ||
                 this.totalDistanceMarker.domObj.parentNode != oDomElem) {
                 oDomElem.appendChild(this.totalDistanceMarker.domObj);
             }
             this.totalDistanceMarker.domObj.addClass('divMeasureTotal');
             this.totalDistanceMarker.domObj.style.display = 'none';
-            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));  
+            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
             this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateTotalDistance, this));
         }
     },
-    
+
     /**
      * (public) deactivate()
      *
      * deactivate the ruler tool
      */
     deactivate: function() {
-        OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);           
+        OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);
         this.control.deactivate();
         this.control.cancel();
         this.getMap().supressContextMenu(false);
     },
-    
+
     resetMeasure: function() {
         this.initVars();
         for (var i=0; i<this.distanceMarkers.length; i++)  {
@@ -460,7 +490,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         };
         Fusion.ajaxRequest(s, options);
     },
-    
+
     remoteMeasureCompleted: function(from, to, marker, r) {
         if (r.status == 200) {
             var o;
@@ -474,14 +504,14 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
               if (mapUnits != this.units) {
                 o.distance = Fusion.convert(mapUnits, this.units, o.distance);
               }
-              
+
               marker.setQuantity(o.distance);
               this.positionMarker(marker, from, to);
-              this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);                    
+              this.triggerEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE);
             }
         }
     },
-    
+
     /*
      * updates the summary display if it is loaded in a window somewhere
      */
@@ -509,7 +539,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             }
             td.innerHTML = value + ' ' + units;
             tr.appendChild(td);
-            tbody.appendChild(tr);                
+            tbody.appendChild(tr);
         }
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
             var tbody = outputDoc.getElementById('segmentTBody');
@@ -531,7 +561,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 else {
                   value = totalDistance.toPrecision(this.distPrecision);
                 }
-                tDist.innerHTML = value + ' ' + units;                
+                tDist.innerHTML = value + ' ' + units;
             }
         }
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
@@ -545,7 +575,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             tArea.innerHTML = value + ' ' + units + '<sup>2</sup>';
         }
     },
-    
+
     /*
      * updates the summary display if it is loaded in a window somewhere
      */
@@ -561,7 +591,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.totalDistanceMarker.setQuantity(totalDistance);
       }
     },
-    
+
   /*
       *clears the summary display if it is loaded in a window somewhere
       */
@@ -581,14 +611,14 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
           }
         }
     },
-    
+
   /*
       *clears the summary display if it is loaded in a window somewhere
       */
     clearTotalDistance: function() {
       this.totalDistanceMarker.domObj.style.display = 'none';
     },
-    
+
   /*
      * Callback method for the MAP_LOADED event
      * Set the units to whatever is specified in the AppDef, or the mapUnits if not specified
@@ -627,7 +657,7 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
         this.label = label ? label:'';
         this.isArea = isArea || false;
         this.domObj = new Element('DIV', {});
-        
+
        this.domObj.className = 'divMeasureMarker';
         this.calculatingImg = document.createElement('img');
         this.calculatingImg.src = Fusion.getFusionURL() + 'widgets/Measure/MeasurePending.gif';
@@ -636,23 +666,23 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
         this.setUnits(units);
         this.setCalculating();
     },
-    
+
     destroy: function() {
       if (this.domObj.parentNode) {
           this.domObj.parentNode.removeChild(this.domObj);
-          this.domObj.style.display = 'none'; //Also hide it because Safari leaves the domObj on the page 
+          this.domObj.style.display = 'none'; //Also hide it because Safari leaves the domObj on the page
       }
     },
-    
+
     setUnits: function(units) {
         this.unit = units;
         this.unitAbbr = Fusion.unitAbbr(units);
     },
-    
+
     getQuantity: function() {
         return this.quantity;
     },
-    
+
     getQuantityLabel: function() {
       var value;
       if (this.precision == 0) {
@@ -667,7 +697,7 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
       }
       return this.label + ' ' + value + ' ' + this.unitAbbr + sq;
     },
-    
+
     setQuantity: function(quantity) {
         if (this.calculatingImg.parentNode) {
             this.calculatingImg.parentNode.removeChild(this.calculatingImg);
@@ -675,14 +705,14 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
         this.quantity = quantity;
         this.domObj.innerHTML = this.getQuantityLabel();
     },
-    
+
     setCalculating: function() {
         if (!this.calculatingImg.parentNode) {
             this.domObj.innerHTML = '';
             this.domObj.appendChild(this.calculatingImg);
         }
     },
-    
+
     getSize: function() {
         var size =  $(this.domObj).getBorderBoxSize();
         var imgSize = {width:19, height:4};
