@@ -709,11 +709,17 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         var opt = {};
         opt.statusIsDefault = layer.statusDefault;
 
-        if (bCheckBox ) {
+        //set the label
+        if (style && style.legendLabel) {
+            opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        } else {
             opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        }
+
+        //set the checkbox rendererer
+        if (bCheckBox ) {
             opt.draw = this.renderItemCheckBox;
         } else {
-            opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
             opt.draw = this.renderItem;
         }
         
