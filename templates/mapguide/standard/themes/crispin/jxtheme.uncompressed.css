@@ -2292,7 +2292,7 @@ a.jxTabClose img {
 .jxBarBottom .jxBarScroller {
   position: absolute;
   /* much bigger than its container */
-  width: 10000%;
+  width: 1000%;
   overflow: hidden;
 }
 
@@ -2638,4 +2638,11 @@ li.jxToolItem  span.jxBarSeparator {
 .jxTreeBranchLast input {
     vertical-align: middle;
 }
+
+#pbmg {
+  position: absolute;
+  right: 0px;
+  padding-top: 2px;
+}
+
 
