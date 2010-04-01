@@ -44,6 +44,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     selectionAsOverlay: true,
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
+    oLayerOL2: false,   //a layer object for tiled maps that also contains dynamic layers
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -1021,7 +1022,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.processGroupEvents(group, true);
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(true);
-            this.oLayerOL2.setVisibility(true);
+            if (this.oLayerOL2) this.oLayerOL2.setVisibility(true);
         } else if (group.isBaseMapGroup) {
             this.oLayerOL.setVisibility(true);
         } else {
@@ -1035,7 +1036,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.processGroupEvents(group, false);
         if (group.groupName == 'layerRoot') {
             this.oLayerOL.setVisibility(false);
-            this.oLayerOL2.setVisibility(false);
+            if (this.oLayerOL2) this.oLayerOL2.setVisibility(false);
         } else if (group.isBaseMapGroup) {
             this.oLayerOL.setVisibility(false);
         } else {
