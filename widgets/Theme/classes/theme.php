@@ -63,7 +63,14 @@ class Theme
 
                 if($propDef->GetPropertyType() == MgFeaturePropertyType::GeometricProperty)
                 {
-                    if ($propDef->GetGeometryTypes() == MgFeatureGeometricType::Surface)
+                    if ($propDef->GetGeometryTypes() == MgFeatureGeometricType::Surface || 
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Point | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Curve | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Solid | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Point | MgFeatureGeometricType::Curve | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Point | MgFeatureGeometricType::Solid | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Curve | MgFeatureGeometricType::Solid | MgFeatureGeometricType::Surface) ||
+                        $propDef->GetGeometryTypes() == (MgFeatureGeometricType::Point | MgFeatureGeometricType::Curve | MgFeatureGeometricType::Solid | MgFeatureGeometricType::Surface))
                     {
                         $layerNames[$layer->GetName()] = $layer->GetLegendLabel();
                     }
