@@ -37,13 +37,13 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      * {String} The default image for DWF layer
      */
     defaultLayerDWFIcon: 'images/icons/legend-DWF.png',
-    
+
     /**
      * Constant: defaultLayerRasterIcon
      * {String} The default image for Raster layer
      */
     defaultLayerRasterIcon: 'images/icons/legend-raster.png',
-    
+
     /**
      * Constant: defaultLayerThemeIcon
      * {String} The default image for layers that are currently themed.
@@ -61,24 +61,24 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      * {String} The default image for the root folder
      */
     defaultRootFolderIcon: 'images/icons/legend-map.png',
-    
+
     /**
      * Constant: defaultLayerInfoIcon
      * {String} The default image for layer info
      */
     defaultLayerInfoIcon: 'images/icons/tree_layer_info.png',
-    
+
     /**
      * Constant: defaultGroupInfoIcon
      * {String} The default image for groupd info
      */
     defaultGroupInfoIcon: 'images/icons/tree_group_info.png',
-    
+
     initializeWidget: function(widgetTag) {
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         // duplication if we plan to apply this pattern to others widgets
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Legend/Legend.css');
-        
+
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         //       duplication if we plan to apply this pattern to others widgets
         var json = widgetTag.extension;
@@ -145,7 +145,7 @@ Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
      *
      */
     renderLegend: function() {},
-    
+
     /**defaultDisabledLayerIcon
      * Method: mapLoading
      * Abstract method that handle the event: Fusion.Event.MAP_LOADING. This method
@@ -205,7 +205,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * {Jx.TreeNode} The current selected node.
      */
     currentNode: null,
-    
+
     /**
      * Property: bIsDrawn
      * {Boolean} Determine if the map is drawn.
@@ -223,8 +223,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * {Boolean} Determine if non-visible layer must be draw in the legend.
      */
     bIncludeVisToggle: true,
-   
-    initialize: function(legend, widgetTag) {   
+
+    initialize: function(legend, widgetTag) {
         Fusion.Widget.Legend.LegendRenderer.prototype.initialize.apply(this, [legend]);
 
         var json = widgetTag.extension;
@@ -234,19 +234,19 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.oLegend.defaultLayerInfoIcon;
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.oLegend.defaultGroupInfoIcon;
-       
+
         //not used?
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
-       
+
         this.oTree = new Jx.Tree({parent:this.oLegend.domObj});
-       
+
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         //don't show the root folder by default
         this.showRootFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true:false;
         //do show the map folder by default
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
-        
+
         if (!this.showRootFolder) {
             //console.log('supressing root folder');
             this.oRoot = this.oTree;
@@ -272,10 +272,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 })
             );
         }
-        
+
         this.extentsChangedWatcher = this.update.bind(this);
     },
-    
+
     getContextMenu: function() {
         return new Jx.Menu.Context(this.name).add(
             new Jx.Menu.Item({
@@ -292,11 +292,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             })
         );
     },
-    
+
     expandAll: function(folder) {
         for (var i=0; i<this.oTree.nodes.length; i++) {
             var item = this.oTree.nodes[i];
             if (item instanceof Jx.TreeFolder) {
+              item.expand();
               this.recurseTree('expand', item);
             }
         }
@@ -304,11 +305,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
           this.oRoot.expand();
         }
     },
-    
+
     collapseAll: function(folder) {
         for (var i=0; i<this.oTree.nodes.length; i++) {
             var item = this.oTree.nodes[i];
             if (item instanceof Jx.TreeFolder) {
+              item.collapse();
               this.recurseTree('collapse', item);
             }
         }
@@ -316,15 +318,15 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
           this.oRoot.collapse();
         }
     },
-    
+
     collapseBranch: function(folder) {
         folder.collapse();
     },
-    
+
     expandBranch: function(folder) {
         folder.expand();
     },
-    
+
   /**
      * recursively descend the tree applying the request operation which is either 'collapse' or 'expand'
      *
@@ -340,7 +342,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         }
     },
-   
+
     scaleRangesLoaded: function() {
         this.layerRoot = this.getMap().layerRoot;
         this.renderLegend();
@@ -349,12 +351,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.getMap().deregisterForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
     },
-   
+
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
     },
-    
+
     mapReloaded: function() {
         this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
     },
@@ -368,7 +370,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     invalidate: function() {
         this.draw();
     },
-   
+
     /**
      * Callback for legend XML response. Creates a list of layers and sets up event
      * handling. Create groups if applicable.
@@ -424,7 +426,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.bIsDrawn = true;
         this.update();
     },
-    
+
     renderGroup: function(group) {
         if (!group.legend) {
             group.legend = {};
@@ -437,7 +439,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.processMapLayer(group.layers[i], this.oRoot);
         }
     },
-   
+
     processMapGroup: function(group, folder) {
         if (group.displayInLegend) {
             /* make a 'namespace' on the group object to store legend-related info */
@@ -493,7 +495,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         }
     },
-   
+
     processMapLayer: function(layer, folder) {
         /* make a 'namespace' on the layer object to store legend-related info */
         layer.legend = {};
@@ -501,7 +503,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         layer.legend.currentRange = null;
         layer.oMap.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerPropertyChanged, this));
     },
-   
+
     layerPropertyChanged: function(eventID, layer) {
         if(layer.legend.treeItem.checkBox)
         {
@@ -514,7 +516,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             window.setTimeout(OpenLayers.Function.bind(this._update, this), 1);
         }
     },
-   
+
     /**
      * update the tree when the map scale changes
      */
@@ -528,7 +530,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
     },
-   
+
     /**
      * remove the dom objects representing the legend layers and groups
      */
@@ -537,7 +539,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.oRoot.remove(this.oRoot.nodes[0]);
         }
     },
-    
+
     selectionChanged: function(o) {
         if (this.currentNode) {
           //console.log(this.currentNode);
@@ -545,7 +547,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         this.currentNode = o;
         $(this.currentNode.domObj.childNodes[1]).addClass('jxTreeItemSelected');
-       
+
         var data = o.domObj.retrieve('data');
         if (data instanceof Fusion.Layers.Group) {
             this.getMap().setActiveLayer(null);
@@ -571,7 +573,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         if (range == layer.legend.currentRange && layer.legend.treeItem) {
             return;
         }
-       
+
         layer.legend.currentRange = range;
         if (range != null) {
             if (range.styles.length > 1) {
@@ -601,7 +603,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.legend.treeItem.append(item);
                 }
             } else {
-               
+
                 var style = range.styles[0];
                 if (style && !style.legendLabel) {
                   style.legendLabel = layer.legendLabel;
@@ -611,7 +613,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     if (checkbox) {
                       OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                     }
-                    
+
                     layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
                     var insertAt = this.clearTreeItem(layer);
@@ -619,7 +621,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     if (checkbox) {
                       OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
                     }
-                    
+
                     layer.parentGroup.legend.treeItem.insert(layer.legend.treeItem, insertAt);
                 } else {
                     if (range.styles.length > 0) {
@@ -664,7 +666,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             layer.legend.treeItem.domObj.store('data', layer);
         }
     },
-    
+
     createFolderItem: function(layer, hasCheckbox) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
@@ -686,8 +688,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
             })
         );
-        
-        
+
+
         var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
         if (layerInfo) {
             var a = document.createElement('a');
@@ -702,7 +704,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
         }
         folder.addEvent('click', OpenLayers.Function.bind(this.selectionChanged, this));
-       
+
         return folder;
     },
     createTreeItem: function(layer, style, scale, bCheckBox) {
@@ -722,7 +724,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         } else {
             opt.draw = this.renderItem;
         }
-        
+
         if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
@@ -734,7 +736,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         }
         // MapGuide DWF and Raster layer
-         // MapGuide Raster and DWF layer 
+         // MapGuide Raster and DWF layer
         if(layer.layerTypes[0] == 4){
             opt.image = this.imgLayerRasterIcon;
             opt.enabled = true;
@@ -757,7 +759,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 item.domImg.style.height = style.iconOpt.height + 'px';
             }
         }
-        
+
         if (bCheckBox) {
             //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
             /* only need to add layer info if it has a check box too */
@@ -777,7 +779,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         item.addEvent('click', OpenLayers.Function.bind(this.selectionChanged, this));
-       
+
         return item;
     },
     clearTreeItem: function(layer) {
@@ -801,7 +803,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         OpenLayers.Event.stop(event, true);
     },
-    
+
     renderFolder: function() {
         var domA = new Element('a',{
             'class':this.options['class'],
@@ -812,12 +814,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
-        
-        
+
+
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
         this.domImg.src = Jx.aPixel.src;
-        
+
         if (this.options.image) {
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
@@ -826,16 +828,16 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             'class': 'fusionLegendLabel',
             html: this.options.label
         });
-        
+
         domA.appendChild(this.domImg);
         domA.appendChild(domLabel);
 
         this.itemLabelobj = domA;
 
         return domA;
-        
+
     },
-    
+
     renderFolderCheckbox: function() {
         var domA = new Element('a',{
             'class':this.options['class'],
@@ -872,7 +874,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         return domA;
 
     },
-    
+
     renderItem: function() {
 
         var domA = new Element('a', {
@@ -884,28 +886,28 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
-        
-        
+
+
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
         this.domImg.src = Jx.aPixel.src;
-        
+
         if (this.options.image) {
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
-        
+
         var domLabel = new Element('span',{
             'class': 'fusionLegendLabel',
             html: this.options.label
         });
-        
+
         domA.appendChild(this.domImg);
         domA.appendChild(domLabel);
         this.itemLabelobj = domA;
-        
+
         return domA;
     },
-    
+
     renderItemCheckBox: function() {
         var domA = new Element('a', {
             'class': 'fusionLegendItemCheckbox',
@@ -916,7 +918,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
             }
         });
-        
+
         this.checkBox = document.createElement('input');
         this.checkBox.type = 'checkbox';
 
@@ -926,21 +928,21 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.checkBox.disabled = true;
             this.checkBox.readOnly = true;
         }
-        
+
         this.domImg = document.createElement('img');
         this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
         this.domImg.src = Jx.aPixel.src;
-        
+
         if (this.options.image) {
             this.domImg.style.backgroundImage = 'url('+this.options.image+')';
         }
-        
+
         var domLabel = new Element('span',{
             'class': 'fusionLegendLabel',
             html: this.options.label
         });
-        
-        
+
+
         domA.appendChild(this.checkBox);
         domA.appendChild(this.domImg);
         domA.appendChild(domLabel);
