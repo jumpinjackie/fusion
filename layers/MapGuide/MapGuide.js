@@ -1216,7 +1216,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
             url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
             url += "&VERSION=1.0.0&SCALE=" + fScale;
-            url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId);
+            op = /\(/g; cp = /\)/g; 
+            url += "&LAYERDEFINITION=" + encodeURIComponent(layer.resourceId).replace(op, "%28").replace(cp, "%29");
             url += "&THEMECATEGORY=" + style.categoryIndex;
             url += "&TYPE=" + style.geometryType;
             url += "&CLIENTAGENT=" + encodeURIComponent(this.clientAgent);
