@@ -361,7 +361,7 @@
 
 function OnError($title, $msg)
 {
-    global $target, $popup;
+    global $target, $popup, $mapName;
     $templ = Localize(file_get_contents("./ErrorPage.templ"), $locale, GetClientOS());
     print sprintf($templ, $popup, $mapName, $title, $msg);
 }

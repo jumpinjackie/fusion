@@ -31,8 +31,12 @@ var popup = %s;
 
 function InitDocument()
 {
+    var mapName = '%s';
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.reloadMap();
+    if(map != null)
+    {
+        map.reloadNamedMap(mapName);
+    }
 }
 
 function Back()
@@ -41,7 +45,7 @@ function Back()
         history.back();
     } else {
         var TaskPaneId=this.frameElement.taskPaneId;
-        GetParent().Fusion.getWidgetById(TaskPaneId).goHome();  
+        GetParent().Fusion.getWidgetById(TaskPaneId).goHome();
     }
 }
 
