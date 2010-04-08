@@ -31,8 +31,12 @@ var popup = %s;
 
 function InitDocument()
 {
-    var map = GetParent().Fusion.getMapByName('%s');
-    map.aMaps[0].reloadMap();
+    var mapName = '%s';
+    var map = GetParent().Fusion.getMapByName(mapName);
+    if(map != null)
+    {
+        map.reloadNamedMap(mapName);
+    }
 }
 
 function Back()

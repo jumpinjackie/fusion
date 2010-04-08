@@ -359,7 +359,7 @@
                 themeReqHandler = null;
 
                 var map = parent.Fusion.getMapByName(mapName);
-                map.reloadMap();
+                map.reloadNamedMap(mapName);
 
             }
         }

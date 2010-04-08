@@ -24,13 +24,13 @@
 <script language=javascript>
 
 var popup = %s;
-var errors = false; //this page is only returned for success; 
+var errors = false; //this page is only returned for success;
 var mapName = '%s';
 
 function InitDocument()
 {
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.reloadMap();
+    map.reloadNamedMap(mapName);
     if (!errors) {
       Back();
     }
@@ -42,7 +42,7 @@ function Back()
         history.back();
     } else {
         var TaskPaneId=this.frameElement.taskPaneId;
-        GetParent().Fusion.getWidgetById(TaskPaneId).goHome();  
+        GetParent().Fusion.getWidgetById(TaskPaneId).goHome();
     }
 }
 
