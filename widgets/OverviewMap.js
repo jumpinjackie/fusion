@@ -26,16 +26,16 @@
  /********************************************************************
  * Class: Fusion.Widget.OverviewMap
  *
- * A widget that displays an overview map showing the current view of the 
+ * A widget that displays an overview map showing the current view of the
  * primary map.
  * **********************************************************************/
 
 Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
     oSize: null,
-    nMinRatio: 4,
-    nMaxRatio: 32,
+    nMinRatio: 4, // Default value
+    nMaxRatio: 32, // Default value
     bDisplayed: false,
-  
+
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         if (json.MinRatio) {
@@ -46,22 +46,10 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
         }
 
         var mapTag = null;
-        if (json.MapId) {
-          this.sMapGroupId = json.MapId;
-          var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroupId);
-          mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
-        } else {
-          var mainMap = this.getMap();
-          mapTag = mainMap.mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
-        }
-        if (Fusion.Layers[mapTag.type]) {
-          this.mapObject = new Fusion.Layers[mapTag.type](this.getMap(), mapTag, false);
-        } else {
-          this.mapObject = new Fusion.Layers.Generic(this, mapTag, false);
-        }
-        //this.mapObject.registerForEvent(Fusion.Event.LAYER_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
 
-        //first set the size to the size of the DOM element if available
+        this.sMapGroupId = json.MapId;
+
+        // Set the size to the size of the DOM element if available
         if (this.domObj) {
             this.domObj.style.overflow = 'hidden';
             var jxl = this.domObj.retrieve('jxLayout');
@@ -70,67 +58,89 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
             }
             jxl.addEvent('sizeChange', OpenLayers.Function.bind(this.sizeChanged, this));
         }
-        
+
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
     },
-    
-    mapWidgetLoaded: function() 
+
+    mapWidgetLoaded: function()
     {
-        var mapWidget = this.getMap();
-        if (this.sMapGroupId) {// && (mapWidget.projection == this.mapObject.projection) ) {
-          this.loadOverview(this.mapObject.oLayerOL);
-        } else {
-          //just use the base map layer
-          //setTimeout(OpenLayers.Function.bind(this.loadOverview, this), 5000);
-          this.loadOverview();
+        var mapTag = null;
+        if (this.sMapGroupId)
+        {
+            // Use the specified map in the overview
+            var mapGroup = Fusion.applicationDefinition.getMapGroup(this.sMapGroupId);
+            mapTag = mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
         }
+        else
+        {
+            // Use the same map as displayed in the main map widget in the overview
+            var mainMap = this.getMap();
+            mapTag = mainMap.mapGroup.maps[0];    //TODO: always use the baselayer Map in the group?
+        }
+
+        if (Fusion.Layers[mapTag.type])
+        {
+            // Create a Fusion layer of the specified type
+            this.mapObject = new Fusion.Layers[mapTag.type](this.getMap(), mapTag, false);
+        }
+        else
+        {
+            // Create a generic Fusion layer (as used by Bing, Google, Yahoo etc.)
+            this.mapObject = new Fusion.Layers.Generic(this, mapTag, false);
+        }
+
+        // Set up the binding so the display initializes when the map configuration has loaded
+        this.mapObject.registerForEvent(Fusion.Event.LAYER_LOADED, OpenLayers.Function.bind(this.loadOverview, this));
     },
 
-    loadOverview: function(layer) 
+    loadOverview: function()
     {
         if (this.control) {
           this.control.destroy();
         }
-        
-        var size = $(this.domObj).getContentBoxSize();
-        this.oSize = new OpenLayers.Size(size.width, size.height);
-        
-        if (!layer) {
-            layer = this.getMap().oMapOL.baseLayer.clone();
-        }
-        layer.isBaseLayer = true; 
-        layer.ratio = 1.0;
-        if (layer.singleTile) {
-          this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
-        }
 
-        var options = {
-          div: this.domObj,
-          size: this.oSize,
-          minRatio: this.nMinRatio,
-          maxRatio: this.nMaxRatio,
-          mapOptions: this.oMapOptions,
-          layers: [layer]
-        };
+        var layer = this.mapObject.oLayerOL;
+        if(layer != null)
+        {
+            var size = $(this.domObj).getContentBoxSize();
+            this.oSize = new OpenLayers.Size(size.width, size.height);
+            layer.isBaseLayer = true;
+            layer.ratio = 1.0;
+            if (layer.singleTile) {
+              this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
+            }
 
-        this.control = new OpenLayers.Control.OverviewMap(options);
-        if (size.width == 0 || size.height == 0) {
-          return;   //don't try to load if the container is not visible
-        } else {
-          this.getMap().oMapOL.addControl(this.control);
-          this.bDisplayed = true;
+            var options = {
+              div: this.domObj,
+              size: this.oSize,
+              minRatio: this.nMinRatio,
+              maxRatio: this.nMaxRatio,
+              mapOptions: this.oMapOptions,
+              layers: [layer]
+            };
+
+            this.control = new OpenLayers.Control.OverviewMap(options);
+            if (size.width == 0 || size.height == 0)
+            {
+                return;   //don't try to load if the container is not visible
+            }
+            else
+            {
+                this.getMap().oMapOL.addControl(this.control);
+                this.bDisplayed = true;
+            }
+            //console.log('OverviewMap mapLoaded');
         }
-        //console.log('OverviewMap mapLoaded');
     },
-    
+
     sizeChanged: function() {
         var size = $(this.domObj).getContentBoxSize();
         this.oSize = new OpenLayers.Size(size.width, size.height);
         if (size.width == 0 || size.height == 0) {
           return;   //don't try to load if the container is not visible
-        } 
+        }
         if (!this.bDisplayed && this.control) {
           this.getMap().oMapOL.addControl(this.control);
           this.bDisplayed = true;
@@ -145,4 +155,4 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
     }
 
 });
-      
+
