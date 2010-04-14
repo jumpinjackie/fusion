@@ -84,6 +84,13 @@ try
       @$metersPerUnit = $cs->ConvertCoordinateSystemUnitsToMeters(1.0);
       try {
         $epsgCode = $csFactory->ConvertWktToEpsgCode($srs);
+
+        // Convert EPSG code 3857 to the equivalent code 900913 that is understood by OpenLayers
+        if($epsgCode == 3857)
+        {
+            $epsgCode = 900913;
+        }
+
       } catch (MgException $e) {
         //just catch the exception and set epsgCode to empty string
       }
@@ -152,11 +159,11 @@ try
         $layerObj->isBaseMapLayer = $isBaseMapLayer;
         if($isBaseMapLayer)
         {
-        	$mapObj->hasBaseMapLayers = true;
+            $mapObj->hasBaseMapLayers = true;
         }
         else
         {
-        	$mapObj->hasDynamicLayers = true;
+            $mapObj->hasDynamicLayers = true;
         }
 
         $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
