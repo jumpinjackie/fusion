@@ -68,7 +68,7 @@ try {
     exit;
 } catch (MgException $e) {
     echo "last error";
-    echo "ERROR: " . $e->GetMessage() . "\n";
+    echo "ERROR: " . $e->GetExceptionMessage() . "\n";
     echo $e->GetDetails() . "\n";
     echo $e->GetStackTrace() . "\n";
 }

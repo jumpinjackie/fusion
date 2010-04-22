@@ -49,7 +49,7 @@ try {
     $result->userName = $username;
     $result->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     echo var2json($result);
-    
+
     /* start a php session in the web tier as well, using same session id */
     session_id(str_replace('_', '-', $sessionId));
     session_start();
@@ -57,7 +57,7 @@ try {
     loadFusionConfig();
 
 } catch (MgException $e) {
-     echo "ERROR: " . $e->GetMessage() . "n";
+     echo "ERROR: " . $e->GetExceptionMessage() . "n";
      echo $e->GetDetails() . "n";
      echo $e->GetStackTrace() . "n";
 }

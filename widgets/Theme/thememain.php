@@ -26,7 +26,7 @@
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
     require_once 'classes/theme.php';
-    
+
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['locale'])) {
         $locale = $_REQUEST['locale'];
@@ -38,7 +38,7 @@
 
     $errorMsg = null;
     $errorDetail = null;
-    
+
     $titleLocal = GetLocalizedString('THEMETITLE', $locale );
     $selectLayerLocal = GetLocalizedString('THEMESELECTLAYER', $locale );
     $layerLocal = GetLocalizedString('THEMELAYER', $locale );
@@ -74,7 +74,7 @@
     }
     catch (MgException $mge)
     {
-        $errorMsg = $mge->GetMessage();
+        $errorMsg = $mge->GetExceptionMessage();
         $errorDetail = $mge->GetDetails();
     }
     catch (Exception $e)
@@ -112,7 +112,7 @@
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
 
-        var distNameArray = ['<?= $individualLocal ?>', '<?= $equalLocal ?>', '<?= $standardDeviationLocal ?>', '<?= $quantileLocal  ?>', '<?= $jenksLocal ?>']; 
+        var distNameArray = ['<?= $individualLocal ?>', '<?= $equalLocal ?>', '<?= $standardDeviationLocal ?>', '<?= $quantileLocal  ?>', '<?= $jenksLocal ?>'];
         var distValueArray = '<?php $json = new Services_JSON(); echo $json->encode($theme->distValueArray) ?>'.parseJSON();
 
         var themeReqHandler = null;

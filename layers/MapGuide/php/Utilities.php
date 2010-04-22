@@ -117,7 +117,7 @@ function DuplicateSessionLayer($map, $resourceService, $sourceLayerId, $suffix) 
     }
      catch (MgException $e)
     {
-        echo "ERROR: " . $e->GetMessage() . "n";
+        echo "ERROR: " . $e->GetExceptionMessage() . "n";
         echo $e->GetDetails() . "n";
         echo $e->GetStackTrace() . "n";
     }
@@ -177,7 +177,7 @@ function CopyLayerToSession($map, $resourceService, $libraryLayerId) {
      catch (MgException $e)
     {
         echo "CopyLayerToSession threw exception\n";
-        echo "ERROR: " . $e->GetMessage() . "n";
+        echo "ERROR: " . $e->GetExceptionMessage() . "n";
         echo $e->GetDetails() . "n";
         echo $e->GetStackTrace() . "n";
     }
@@ -370,7 +370,7 @@ function CreateSessionResourceId($originalResourceId, $suffix)
         $newResourceID->Validate();
     }
      catch (MgException $e) {
-        echo "ERROR: " . $e->GetMessage() . "n";
+        echo "ERROR: " . $e->GetExceptionMessage() . "n";
         echo $e->GetDetails() . "n";
         echo $e->GetStackTrace() . "n";
     }
@@ -834,7 +834,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
                             $geom = $ageom;
                         } catch (MgException $ee) {
                           echo "/*transform exception:";
-                          echo "ERROR: " . $ee->GetMessage() . "\n";
+                          echo "ERROR: " . $ee->GetExceptionMessage() . "\n";
                           echo $ee->GetDetails() . "\n*/";
                         }
                     }

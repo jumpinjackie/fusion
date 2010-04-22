@@ -208,7 +208,7 @@ try
 }
 catch (MgException $e)
 {
-  echo "ERROR: " . $e->GetMessage() . "\n";
+  echo "ERROR: " . $e->GetExceptionMessage() . "\n";
   echo $e->GetDetails() . "\n";
   echo $e->GetStackTrace() . "\n";
 }
@@ -259,7 +259,7 @@ function GetLayerTypesFromResourceContent($layer)
     }
     catch (MgException $e)
     {
-        echo "ERROR: " . $e->GetMessage() . "\n";
+        echo "ERROR: " . $e->GetExceptionMessage() . "\n";
         echo $e->GetDetails() . "\n";
         echo $e->GetStackTrace() . "\n";
     }

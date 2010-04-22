@@ -27,7 +27,7 @@
 /*****************************************************************************
  * Purpose: manage user login and preferences
  *****************************************************************************/
- 
+
 /* used to salt passwords */
 define('SALT', "U2FsdGVkX1/TY2/7nsjOUmLc/sOW4O8z+/zmyQQjy3k=");
 
@@ -44,14 +44,14 @@ Class MGUserManager {
     private $site = null;
     private $currentUserId = null;
     private $aszInitialPrefs = array();
-    
+
     function __construct($admin_user, $admin_pass, $db, $default_prefs = array()) {
         global $siteConnection;
         global $user;
-        
+
         $this->admin_user = $admin_user;
         $this->admin_pass = $admin_pass;
-        
+
         $this->site = $siteConnection->GetSite();
         $this->site->Open($user);
 
@@ -77,16 +77,16 @@ Class MGUserManager {
             }
             if ($szPrefsSQL != ''){
                 $this->db->queryExec($szPrefsSQL);
-            }            
+            }
         }
-        
+
     }
 
 
      // = =======================================================================
      // = AddUser will be invoked with new user credentials assuming login failed
      // = in MgCommon
-     // = =======================================================================           
+     // = =======================================================================
     function AddUser ($username, $password, $email) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
@@ -95,14 +95,14 @@ Class MGUserManager {
             $site = $siteConnection->GetSite();
             $username = trim($username);
             $fullname = $username;
-            $site->AddUser($username, $username, $password, $fullname);                
+            $site->AddUser($username, $username, $password, $fullname);
             //set author role
             $usersToGrant = new MgStringCollection();
             $roleToUpdate = new MgStringCollection();
             $roleToUpdate->Add( MgRole::Author );
             $usersToGrant->Add( $username ) ;
-            $site->GrantRoleMembershipsToUsers( $roleToUpdate, $usersToGrant );                
-            
+            $site->GrantRoleMembershipsToUsers( $roleToUpdate, $usersToGrant );
+
             // Create user directory in repository:
             // Create Header
             $headerContent = $this->GetUserFolderHeader($username);
@@ -134,18 +134,18 @@ Class MGUserManager {
                 echo "<Error>Failed to insert user</Error>";
                 return FALSE;
             }
-            
+
         } catch (MgDuplicateUserException $du_e) {
             echo '<Error>Duplicate user!</Error>';
             return FALSE;
         } catch (MgException $e) {
-            echo "<Error>" . $e->GetMessage() . "\n";
+            echo "<Error>" . $e->GetExceptionMessage() . "\n";
             echo $e->GetDetails() . "\n";
             echo $e->GetStackTrace() . "</Error>\n";
             return FALSE;
         }
     }
-    
+
     function EnableUser ($userId) {
         $success = $this->db->queryExec('UPDATE users SET disabled = 1 where userid ='.$userId.';');
         if ($success) {
@@ -155,7 +155,7 @@ Class MGUserManager {
             return FALSE;
         }
     }
-    
+
     function DisableUser ($userId) {
         $success = $this->db->queryExec('UPDATE users SET disabled = 1 where userid ='.$userId.';');
         if ($success) {
@@ -165,7 +165,7 @@ Class MGUserManager {
             return FALSE;
         }
     }
-    
+
     function DeleteUser ($userId, $userName) {
         $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
         $siteConnection = new MgSiteConnection();
@@ -173,7 +173,7 @@ Class MGUserManager {
         $users = new MgStringCollection();
         $users->Add($userName);
         if (!$users->GetCount()) {
-            throw new Exception("User was not removed from MapGuide.");                  
+            throw new Exception("User was not removed from MapGuide.");
         }
         $siteConnection->GetSite()->DeleteUsers($users);
         $success = $this->db->queryExec('DELETE FROM users WHERE userid ='.$userId.';'.
@@ -186,15 +186,15 @@ Class MGUserManager {
             return FALSE;
         }
     }
-    
-    function AddPref ($name, $defaultValue) {        
+
+    function AddPref ($name, $defaultValue) {
         $this->db->query('INSERT INTO prefs (name, default_value) VALUES ("'.$name.'","'.$defaultValue.'");');
         return $this->db->lastInsertRowid();
     }
 
     function SetUserPref($userId, $pref, $value) {
         $prefId = $this->db->SingleQuery('select prefid from prefs where name = "'.$pref.'"');
-        
+
         // use default value from prefs table if value is not supplied.
         if ($value == '') {
             $result = $this->db->SingleQuery('SELECT default_value FROM prefs WHERE prefid='.$prefId.';');
@@ -211,7 +211,7 @@ Class MGUserManager {
         }else{
             $this->db->queryExec('INSERT INTO user_prefs (userid, prefid, value) VALUES ('.
                                  $userId.', '.$prefId.', "'.$value.'");');
-            return $this->db->lastInsertRowid();           
+            return $this->db->lastInsertRowid();
         }
     }
 
@@ -240,7 +240,7 @@ Class MGUserManager {
         }
         return $user;
     }
-    
+
     //
     //TODO secure these functions so only admin can get values
     //
@@ -253,7 +253,7 @@ Class MGUserManager {
         $result = $this->db->query('SELECT * FROM users;');
         return $result->FetchAll(SQLITE_ASSOC);
     }
-    
+
     function GetPrefs() {
         $result = $this->db->query('SELECT prefid, name, default_value FROM prefs;');
         return $result->FetchAll(SQLITE_ASSOC);
@@ -274,15 +274,15 @@ Class MGUserManager {
         </ResourceFolderHeader>',$user);
         return $szContent;
     }
-    
+
     /* remove all managed users */
     function Clean() {
         $aUsers = $this->GetUsers();
         foreach ($aUsers as $user) {
-            $this->DeleteUser($user['userid'], $user['username']); 
+            $this->DeleteUser($user['userid'], $user['username']);
         }
     }
-    
+
     /* enumerate groups - this requires admin privileges */
     function GetGroups($username=NULL) {
         $aGroups = array();
@@ -306,15 +306,15 @@ Class MGUserManager {
                 $description = $descElt->item(0)->nodeValue;
                 array_push($aGroups, array('name'        => $name,
                                            'description' => $description));
-            }            
+            }
         } catch (MgException $e) {
-            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo "ERROR: " . $e->GetExceptionMessage() . "\n";
             echo $e->GetDetails() . "\n";
             echo $e->GetStackTrace() . "\n";
         }
         return $aGroups;
     }
-    
+
     function AddGroup($name, $description) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
@@ -327,7 +327,7 @@ Class MGUserManager {
         }
         return TRUE;
     }
-        
+
     function RemoveGroup($group) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
@@ -338,15 +338,15 @@ Class MGUserManager {
             $groups->Add( $group ) ;
             $site->DeleteGroups($groups);
         } catch (MgException $e) {
-            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo "ERROR: " . $e->GetExceptionMessage() . "\n";
             echo $e->GetDetails() . "\n";
             echo $e->GetStackTrace() . "\n";
             return FALSE;
         }
         return TRUE;
-        
+
     }
-    
+
     function AddUserToGroup($group, $username) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
@@ -359,14 +359,14 @@ Class MGUserManager {
             $groupToUpdate->Add( $group );
             $site->GrantGroupMembershipsToUsers($groupToUpdate, $userToGrant);
         } catch (MgException $e) {
-            echo "ERROR: " . $e->GetMessage() . "\n";
+            echo "ERROR: " . $e->GetExceptionMessage() . "\n";
             echo $e->GetDetails() . "\n";
             echo $e->GetStackTrace() . "\n";
             return FALSE;
         }
         return TRUE;
     }
-    
+
     function RemoveUserFromGroup($group, $username) {
         try {
             $user = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
@@ -383,8 +383,8 @@ Class MGUserManager {
         }
         return TRUE;
     }
-    
-    
+
+
     function GetUser($id) {
         $user = FALSE;
         if (!empty($id)) {
@@ -400,7 +400,7 @@ Class MGUserManager {
               }
               $groups = array();
               $aGroups = $this->GetGroups($a['username']);
-              for ( $i=0; $i < count($aGroups); $i++) { 
+              for ( $i=0; $i < count($aGroups); $i++) {
                   array_push($groups, $aGroups[$i]['name']);
               }
               $user = new FusionUser($a['userid'], $a['username'], $a['email'], $prefs, $groups );
@@ -408,18 +408,18 @@ Class MGUserManager {
         }
         return $user;
     }
-    
+
     function GetUserByName($username) {
         $user = FALSE;
         $result = $this->db->query('SELECT * FROM users where username = "'.$username.'";');
         if ($result) {
             $a = $result->fetch();
             $user = $this->GetUser($a['userid']);
-            
+
         }
         return $user;
     }
-    
+
     function GetUserByEmail($email) {
         $user = FALSE;
         $result = $this->db->query('SELECT * FROM users where email = "'.$email.'";');
@@ -429,7 +429,7 @@ Class MGUserManager {
         }
         return $user;
     }
-    
+
     function GetUserByKey($key) {
         $user = FALSE;
         $result = $this->db->query('SELECT * FROM users where resetkey = "'.$key.'";');
@@ -439,29 +439,29 @@ Class MGUserManager {
         }
         return $user;
     }
-    
+
     function ResetPassword($id) {
         $uuid = uuid();
         $this->db->query('UPDATE users SET resetkey = "'.$uuid.'" where userid = '.$id);
         return $uuid;
     }
-    
+
     function SetPassword($id, $password) {
         $encryptedPassword = crypt($password, SALT);
         $success = $this->db->queryExec('UPDATE users SET password = "'.$encryptedPassword.'", resetkey = "" where userid = '.$id);
-        
+
         $user = $this->GetUser($id);
         if ($success) {
             $adminUser = new MgUserInformation(MG_ADMIN_USER, MG_ADMIN_PASSWD);
             $siteConnection = new MgSiteConnection();
             $siteConnection->Open($adminUser);
             $site = $siteConnection->GetSite();
-        
+
             $site->UpdateUser( $user->userName(), "", $user->userName(), $password, "" );
         } else {
             echo "/* failed to update user password */";
         }
-        
+
         return $success;
     }
 }
@@ -471,7 +471,7 @@ class FusionUser {
     private $id = -1;
     private $email = '';
     private $preferences = array();
-    
+
     function __construct($id, $username, $email, $preferences, $groups) {
         $this->id = $id;
         $this->username = $username;
@@ -479,23 +479,23 @@ class FusionUser {
         $this->preferences = $preferences;
         $this->groups = $groups;
     }
-    
+
     function userName() {
         return $this->username;
     }
-    
+
     function id() {
         return $this->id;
     }
-    
+
     function email() {
         return $this->email;
     }
-    
+
     function preferences() {
         return $this->preferences;
     }
-    
+
     function toXML() {
         $result = '';
         $result .= "<User>\n";
@@ -531,11 +531,11 @@ function Test() {
     $manager->AddUserPref($userId, $prefId, 'MyMap');
     $manager->AddUserPref($userId, $prefId2, 'Red');
     $manager->SetUserPref($userId, $prefId, 'MyMapModified');
-    
+
     echo $manager->Login('bob', 'foo');
 
     $manager->DeleteUser($userId, 'bob');
-    
+
 }
 
 function uuid()

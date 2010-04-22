@@ -23,11 +23,11 @@
     {
         DisplayInitializationErrorHTML();
         exit;
-    }    
+    }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . '/JSON.php';
     require_once 'classes/query.php';
-    
+
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['locale'])) {
         $locale = $_REQUEST['locale'];
@@ -39,7 +39,7 @@
 
     $errorMsg = null;
     $errorDetail = null;
-    
+
     $titleLocal = GetLocalizedString('QUERYTITLE', $locale );
     $selectLayerLocal = GetLocalizedString('QUERYSELECTLAYER', $locale );
     $layerLocal = GetLocalizedString('QUERYLAYER', $locale );
@@ -72,7 +72,7 @@
     }
     catch (MgException $mge)
     {
-        $errorMsg = $mge->GetMessage();
+        $errorMsg = $mge->GetExceptionMessage();
         $errorDetail = $mge->GetDetails();
     }
     catch (Exception $e)
@@ -169,7 +169,7 @@
             {
                 ToggleSpatialFilter(document.getElementById("spatialFilter").checked);
             }
-            
+
             if(document.getElementById("spatialFilter").checked == false)
                 ClearDigitization();
         }
