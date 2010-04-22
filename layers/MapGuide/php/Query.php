@@ -203,7 +203,7 @@ try {
             try {
                  $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
             } catch (MgException $e) {
-                echo "ERROR2: " . $e->GetMessage() . "\n";
+                echo "ERROR2: " . $e->GetExceptionMessage() . "\n";
                 echo $e->GetDetails() . "\n";
                 echo $e->GetStackTrace() . "\n";
             }
@@ -249,7 +249,7 @@ try {
                         $bNeedsTransform = ($srsLayer->GetUnitScale() != 1.0);
                     }
                 } catch (MgException $e) {
-                    echo "ERROR: " . $e->GetMessage() . "\n";
+                    echo "ERROR: " . $e->GetExceptionMessage() . "\n";
                     echo $e->GetDetails() . "\n";
                     echo $e->GetStackTrace() . "\n";
                 }
@@ -267,7 +267,7 @@ try {
         } catch (MgObjectNotFoundException $onfe) {
             //skip layers not in the map?
             echo "Object not found";
-            echo "ERROR: " . $onfe->GetMessage() . "\n";
+            echo "ERROR: " . $onfe->GetExceptionMessage() . "\n";
             echo $onfe->GetDetails() . "\n";
             echo $onfe->GetStackTrace() . "\n";
             if ($featureReader) {
@@ -276,7 +276,7 @@ try {
         } catch (MgException $e) {
             //what should we do with general exceptions?
             echo "/*general exception:";
-            echo "ERROR: " . $e->GetMessage();
+            echo "ERROR: " . $e->GetExceptionMessage();
             echo $e->GetDetails() . "*/";
             if ($featureReader) {
               $featureReader->Close();
@@ -400,7 +400,7 @@ try {
 }
 catch (MgException $e)
 {
-  echo "ERROR: " . $e->GetMessage() . "\n";
+  echo "ERROR: " . $e->GetExceptionMessage() . "\n";
   echo $e->GetDetails() . "\n";
   echo $e->GetStackTrace() . "\n";
 }

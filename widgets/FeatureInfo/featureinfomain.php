@@ -38,7 +38,7 @@
 
     $errorMsg = null;
     $errorDetail = null;
-    
+
     $titleLocal = GetLocalizedString('FEATUREINFOTITLE', $locale );
     $subtitleLocal = GetLocalizedString('FEATUREINFOSUBTITLE', $locale );
     $layerLocal = GetLocalizedString('FEATUREINFOLAYER', $locale );
@@ -65,7 +65,7 @@
     }
     catch (MgException $mge)
     {
-        $errorMsg = $mge->GetMessage();
+        $errorMsg = $mge->GetExceptionMessage();
         $errorDetail = $mge->GetDetails();
     }
     catch (Exception $e)

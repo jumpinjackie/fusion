@@ -92,7 +92,7 @@ try {
     /*****************************************************************************
      get the layer's geometric type(s)
      *****************************************************************************/
- 
+
     /*****************************************************************************
      get the layer's attributes and types
      *****************************************************************************/
@@ -104,12 +104,12 @@ try {
      *****************************************************************************/
     // convert the feature resource for the selected layer to the shadow version
     $shadowResourceId = CreateSessionResourceId($dataSourceId, '-shadow');
-                                            
+
     $hasShadow = 'false';
     if (DataSourceExists($resourceService, $shadowResourceId)) {
          $hasShadow = 'true';
-    } 
- 
+    }
+
     //get class definition from the featureSource
     $classDefinition = GetFeatureClassDefinition($featureService, $layer, $dataSourceId);
 
@@ -140,7 +140,7 @@ try {
     header('content-type: text/xml');
     echo "<LayerInfo>\n";
     for ( $i=0; $i < count($aLayerTypes); $i++ )
-    { 
+    {
         echo "<LayerType>".$aLayerTypes[$i]."</LayerType>\n";
     }
     echo "<!--is editable?-->";
@@ -165,7 +165,7 @@ try {
         echo "<Precision>".$attribute['precision']."</Precision>";
         echo "<Scale>".$attribute['scale']."</Scale>";
         echo "<Nullable>".$attribute['nullable']."</Nullable>";
-    
+
         echo "</Attribute>\n";
     }
     echo "</Attributes>\n";
@@ -173,7 +173,7 @@ try {
     exit;
 
 } catch (MgException $e) {
-    echo "ERROR: " . $e->GetMessage() . "\n";
+    echo "ERROR: " . $e->GetExceptionMessage() . "\n";
     echo $e->GetDetails() . "\n";
     echo $e->GetStackTrace() . "\n";
     exit;

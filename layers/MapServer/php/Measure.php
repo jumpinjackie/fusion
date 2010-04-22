@@ -12,7 +12,7 @@
  *****************************************************************************
  * This code shall not be copied or used without the expressed written consent
  * of DM Solutions Group Inc.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
  *
@@ -32,11 +32,11 @@ include ("Utilities.php");
 include('../../../common/php/Utilities.php');
 
 try {
-    if (!isset($_REQUEST['session']) || 
+    if (!isset($_REQUEST['session']) ||
         !isset($_REQUEST['mapname']) ||
-        !isset($_REQUEST['x1']) || 
-        !isset($_REQUEST['y1']) || 
-        !isset($_REQUEST['x2']) || 
+        !isset($_REQUEST['x1']) ||
+        !isset($_REQUEST['y1']) ||
+        !isset($_REQUEST['x2']) ||
         !isset($_REQUEST['y2'])) {
         echo "<Error>Arguments missing </Error>";
         exit;
@@ -57,14 +57,14 @@ try {
         /*convert to meter*/
         $distance = GetMetersPerUnit($oMap->units)*$distance;
     }
-      
+
     header('Content-type: application/json');
     header('X-JSON: true');
     echo "{distance:$distance}";
     exit;
 } catch (MgException $e) {
     echo "last error";
-    echo "ERROR: " . $e->GetMessage() . "\n";
+    echo "ERROR: " . $e->GetExceptionMessage() . "\n";
     echo $e->GetDetails() . "\n";
     echo $e->GetStackTrace() . "\n";
 }
@@ -75,7 +75,7 @@ try {
 /*         Calculate distance in meters fro 2 lat/long coordinates.     */
 /*      Comes from http://www.movable-type.co.uk/scripts/latlong.html   */
 /************************************************************************/
-function distHaversine($lon1, $lat1, $lon2, $lat2) 
+function distHaversine($lon1, $lat1, $lon2, $lat2)
 {
   $R = 6371000; // earth's mean radius in m
   $dLat = ($lat2-$lat1)*(M_PI/180);//toRad();
@@ -84,7 +84,7 @@ function distHaversine($lon1, $lat1, $lon2, $lat2)
   $lat2 = $lat2*(M_PI/180);
 
   $a = sin($dLat/2) * sin($dLat/2) +
-          cos($lat1) * cos($lat2) * 
+          cos($lat1) * cos($lat2) *
           sin($dLon/2) * sin($dLon/2);
   $c = 2 * atan2(sqrt($a), sqrt(1-$a));
   $d = $R * $c;
@@ -105,7 +105,7 @@ function GetMetersPerUnit($unit)       //, $center_y)
       return 1000;
   else if ($unit == MS_DD)
     return (111118.7516);
-    
+
     else if ($unit == MS_PIXELS)
       return 1;
 }

@@ -134,7 +134,7 @@ try
 }
 catch (MgException $e)
 {
-    $initializationErrorMessage = $e->GetMessage();
+    $initializationErrorMessage = $e->GetExceptionMessage();
     $initializationErrorDetail = $e->GetDetails();
     $initializationErrorStackTrace = $e->GetStackTrace();
     $initializationErrorOccurred = true;

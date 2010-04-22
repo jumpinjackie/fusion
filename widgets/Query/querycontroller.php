@@ -72,7 +72,7 @@
     }
     catch (MgException $mge)
     {
-        $errorMsg = $mge->GetMessage();
+        $errorMsg = $mge->GetExceptionMessage();
         $errorDetail = $mge->GetDetails();
     }
     catch (Exception $e)
