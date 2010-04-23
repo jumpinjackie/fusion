@@ -152,7 +152,15 @@
             for (var i = 0; i < polygon.Count; i++) {
                 points.push(polygon.Point(i).X+' '+polygon.Point(i).Y);
             }
+            
+            // Close the polygon if it isn't already closed
+            if(polygon.Point(0).X != polygon.Point(polygon.Count - 1).X ||
+               polygon.Point(0).Y != polygon.Point(polygon.Count - 1).Y) {
+                points.push(polygon.Point(0).X+' '+polygon.Point(0).Y);
+            }
+            
             var geomText = 'POLYGON(('+points.join(',')+'))';
+            
             SetSpatialFilter(geomText);
         }
 
