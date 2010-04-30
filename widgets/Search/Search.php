@@ -274,9 +274,12 @@
 
 function OnError($title, $msg)
 {
-    global $target, $popup, $mapName;
+    global $target, $popup, $mapName, $locale;
+    $ok = GetLocalizedString("BUTTONOK", $locale);
+    $cancel = GetLocalizedString("BUTTONCANCEL", $locale);
+
     $templ = file_get_contents("./ErrorPage.templ");
-    print sprintf($templ, $popup, $mapName, $title, $msg);
+    print sprintf($templ, $popup, $mapName, $title, $msg, $ok, $cancel);
 }
 
 function GetParameters($params)

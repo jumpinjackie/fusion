@@ -39,14 +39,14 @@ class Query
         $this->args = $args;
         $this->site = new MgSiteConnection();
         $this->site->Open(new MgUserInformation($args['SESSION']));
-        
+
         SetLocalizedFilesPath(GetLocalizationPath());
-        if(isset($_REQUEST['locale'])) {
-            $locale = $_REQUEST['locale'];
+        if(isset($_REQUEST['LOCALE'])) {
+            $locale = $_REQUEST['LOCALE'];
         } else {
             $locale = GetDefaultLocale();
         }
-        
+
         $equalToLocal = GetLocalizedString('QUERYEQUALTO', $locale );
         $notEqualToLocal = GetLocalizedString('QUERYNOTEQUALTO', $locale );
         $greatThanLocal = GetLocalizedString('QUERYGREATTHAN', $locale );
@@ -230,7 +230,7 @@ class Query
         $featureClass = $layer->GetFeatureClassName();
         $filter = $layer->GetFilter();
         $featureGeometry = $layer->GetFeatureGeometryName();
-        
+
         // Initialize the coordinate system transform
 
         $schemaAndClass = explode(":", $featureClass);
@@ -268,7 +268,7 @@ class Query
                 $propertyFilter .= sprintf($this->strExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
             else
                 $propertyFilter .= sprintf($this->numExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
-                
+
             if($filter != '')
                 $propertyFilter = $propertyFilter . ' AND (' . $filter . ')';
         }
@@ -279,7 +279,7 @@ class Query
         }
         if($propertyFilter != '')
             $queryOptions->SetFilter($propertyFilter);
-        
+
         if ($this->args['USESPATIALFILTER'] == 'true')
         {
             $polygon = $this->CreatePolygonFromGeomText($this->args['GEOMTEXT']);
@@ -573,7 +573,7 @@ class Query
             $coord = $geometryFactory->CreateCoordinateXY($coords->GetItem(0)->GetX(), $coords->GetItem(0)->GetY());
             $coords->Add($coord);
         }
-        
+
         $linearRing = $geometryFactory->CreateLinearRing($coords);
         $polygon = $geometryFactory->CreatePolygon($linearRing, null);
 
