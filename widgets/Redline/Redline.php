@@ -31,10 +31,10 @@
 
 $fusionMGpath = '../../layers/MapGuide/php/';
 include $fusionMGpath . 'Common.php';
-  
+
 SetLocalizedFilesPath(GetLocalizationPath());
-if(isset($_REQUEST['locale'])) {
-    $locale = $_REQUEST['locale'];
+if(isset($_REQUEST['LOCALE'])) {
+    $locale = $_REQUEST['LOCALE'];
 } else {
     $locale = GetDefaultLocale();
 }
@@ -104,7 +104,7 @@ else {
 
         }
       </script>
-      
+
       <table id="RedlineWidgetOptions" borders="1" width="100%">
       <tr>
       <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 13pt">
@@ -129,8 +129,8 @@ else {
       </tr>
       <tr>
         <td style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 8pt; background-color: #DCDCDC; color: black; height: 20px;"><?php echo $drawLocal ?></td>
-       </tr> 
-       <tr> 
+       </tr>
+       <tr>
         <td>
           <input id="RedlineWidgetPointRadio" type="radio" name="RedlineWidgetDrawRadio"/>
           <label for="RedlineWidgetPointeRadio"><?php echo $pointLocal ?></label><br/>
@@ -153,6 +153,7 @@ else {
           <form id="RedlineWidgetUploadForm" enctype="multipart/form-data" action="Redline.php" method="post">
              <input type="file" name="uploadedfile"/>
              <input type="hidden" name="action" value="upload"/>
+             <input type="hidden" name="LOCALE" value="<?=$locale?>"/>
              <br/>
              <input id="RedlineWidgetUploadButton" type="submit" name="submit_element" value="<?php echo $uploadLocal ?>" />
           </form>

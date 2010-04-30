@@ -60,7 +60,7 @@ function InitDocument()
     if (namesIn != "") {
       names = namesIn.split(',');
     }
-    
+
     document.getElementById('title').innerHTML = title;  //TODO use a better property than this
     document.getElementById('prompt').innerHTML = prompt;  //TODO use a better property than this
     document.getElementById('target').value = target;  //TODO use a better property than this
@@ -111,6 +111,7 @@ function SetMatchLabel()
         <input class="Ctrl" type="edit" name="userinput" id="Fld">
         <input type="hidden" name="mapname" value="%s">
         <input type="hidden" name="session" value="%s">
+        <input type="hidden" name="locale" value="%s">
         <input type="hidden" name="target" id="target">
         <input type="hidden" name="popup" id="popup">
         <input type="hidden" name="layer" id="layer">

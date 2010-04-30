@@ -25,8 +25,8 @@
         exit;
     }
     SetLocalizedFilesPath(GetLocalizationPath());
-    if(isset($_REQUEST['locale'])) {
-        $locale = $_REQUEST['locale'];
+    if(isset($_REQUEST['LOCALE'])) {
+        $locale = $_REQUEST['LOCALE'];
     } else {
         $locale = GetDefaultLocale();
     }
