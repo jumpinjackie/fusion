@@ -364,7 +364,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
         this.layerRoot.clear();
-        this.oldLayers = $A(this.aLayers);
+        var oldLayers = $A(this.aLayers);
         this.aLayers = [];
 
         var sl = Fusion.getScriptLanguage();
@@ -374,7 +374,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
         var params = {'mapname': this._sMapname, 'session': sessionid};
         var options = {
-              onSuccess: OpenLayers.Function.bind(this.mapReloaded,this),
+              onSuccess: OpenLayers.Function.bind(this.mapReloaded,this,oldLayers),
               onException: OpenLayers.Function.bind(this.reloadFailed, this),
               parameters: params};
         Fusion.ajaxRequest(loadmapScript, options);
@@ -439,22 +439,21 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
     },
 //TBD: this function not yet converted for OL
-    mapReloaded: function(r) {
+    mapReloaded: function(oldLayers,r) {
         if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
             this.parseMapLayersAndGroups(o);
             for (var i=0; i<this.aLayers.length; ++i) {
               var newLayer = this.aLayers[i];
-              for (var j=0; j<this.oldLayers.length; ++j){
-                if (this.oldLayers[j].uniqueId == newLayer.uniqueId) {
-                  newLayer.selectedFeatureCount = this.oldLayers[j].selectedFeatureCount;
-                  newLayer.noCache = this.oldLayers[j].noCache;
+              for (var j=0; j<oldLayers.length; ++j){
+                if (oldLayers[j].uniqueId == newLayer.uniqueId) {
+                  newLayer.selectedFeatureCount = oldLayers[j].selectedFeatureCount;
+                  newLayer.noCache = oldLayers[j].noCache;
                   break;
                 }
               }
             }
-            this.oldLayers = null;
             this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
             this.drawMap();
         }
