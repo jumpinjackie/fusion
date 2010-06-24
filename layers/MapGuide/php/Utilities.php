@@ -896,9 +896,11 @@ function GetSiteVersion() {
     global $user;
     $serverAdmin = new MgServerAdmin();
     $serverAdmin->Open($user);
+    /* use these lines for MGOS < 2.2
     $infoProps = $serverAdmin->GetInformationProperties();
     $versionProp = $infoProps->GetItem(MgServerInformationProperties::ServerVersion);
-    $serverVersion = $versionProp->GetValue();
+    $serverVersion = $versionProp->GetValue();*/
+    $serverVersion = $serverAdmin->GetSiteVersion();
     return $serverVersion;
 }
 ?>
