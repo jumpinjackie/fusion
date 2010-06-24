@@ -303,6 +303,16 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //set projection units and code if supplied
             if (o.epsg != 0) {
               this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
+            } else {
+              if (o.wkt.length > 0) {
+                  var wkt = o.wkt;
+                  var wktContentRE = /(\w+)\[(.*)\]/;
+                  var wktContent = wkt.match(wktContentRE);
+                  var wktName = wktContent[2].split(",")[0];
+                  wktName = wktName.toUpperCase();
+                  this.mapTag.layerOptions.projection = wktName;
+                  Proj4js.defs[wktName] = "+proj=identity +"+wkt;
+              }  
             }
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units

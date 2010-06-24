@@ -65,6 +65,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     /* Style for the polygon used for area draw */
     fillStyle: null,
 
+    /* set to false for local coordinate systems */   
+    geodesic: true,
+
     /* Style for the polygon line used for area draw */
     areaStyle: null,
     segmentLabels: true,
@@ -318,7 +321,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             from = this.getMap().geoToPix(v[0].x,v[0].y);
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
-            quantity = geom.getGeodesicLength(proj);
+            if (this.geodesic) {
+              quantity = geom.getGeodesicLength(proj);
+            } else {
+              quantity = geom.getLength();
+            }
 
             //calculate the length in pixels
             pixQuantity = Math.sqrt((to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y));
@@ -333,7 +340,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
             var cg = geom.getCentroid();
             at = this.getMap().geoToPix(cg.x, cg.y);
-            quantity = geom.getGeodesicArea(proj);
+            if (this.geodesic) {
+              quantity = geom.getGeodesicArea(proj);
+            } else {
+              quantity = geom.getArea();
+            }
 
             measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
