@@ -200,7 +200,7 @@ function mgApiDeactivate() {
         mgApiActiveControl = null;
     }
   if (mgApiActiveWidget) {
-    var Fusion = window.top.Fusion;
+    //var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
     mapWidget.activateWidget(mgApiActiveWidget);
     mgApiActiveWidget = null;
@@ -219,7 +219,7 @@ var mgApiStyle = new OpenLayers.Style({
         });
 var mgApiStyleMap = new OpenLayers.StyleMap(mgApiStyle);
     
-window.top.Fusion.registerForEvent(window.top.Fusion.Event.FUSION_INITIALIZED, mgApiInit);
+Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, mgApiInit);
 
 //set up of digitizing tools once everything is initialized
 function mgApiInit() {
@@ -227,7 +227,7 @@ function mgApiInit() {
         return;
     }
     mgApiInitialized = true;
-  var map = window.top.Fusion.getWidgetById(mgApiMapWidgetId).oMapOL;
+  var map = Fusion.getWidgetById(mgApiMapWidgetId).oMapOL;
   
   mgApiDigitizingLayer = new OpenLayers.Layer.Vector("Digitizing Layer", {styleMap: mgApiStyleMap});
   map.addLayers([mgApiDigitizingLayer]);
