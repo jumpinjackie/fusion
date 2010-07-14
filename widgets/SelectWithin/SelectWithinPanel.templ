@@ -146,12 +146,16 @@ function RefreshLayers()
 }
 
 function GetParent()
-{
-    if(popup) {
-        return opener;
-    } else {
-        return parent.parent;
-    }
+{debugger;
+	if(popup)
+		return opener;
+	else
+	{
+		var node = parent;
+		while (!node.Fusion && node.parent)
+			node = node.parent;
+		return node;
+	}
 }
 
 </script>
