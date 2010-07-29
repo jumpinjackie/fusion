@@ -15,6 +15,7 @@
         <SingleTile>true</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
+          <ProjectionCode>EPSG:4326</ProjectionCode>
           <ImageFormat>PNG8</ImageFormat>
           <SelectionAsOverlay>true</SelectionAsOverlay>
           <SelectionFormat>PNG</SelectionFormat>
@@ -44,6 +45,7 @@
         <SingleTile>true</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/Maps/Sheboygan.MapDefinition</ResourceId>
+          <ProjectionCode>EPSG:4326</ProjectionCode>
           <SelectionAsOverlay>true</SelectionAsOverlay>
           <SelectionFormat>PNG</SelectionFormat>
           <SelectionColor>0xFF0000FF</SelectionColor>
@@ -56,6 +58,7 @@
         <SingleTile>false</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/MapsTiled/Sheboygan.MapDefinition</ResourceId>
+          <ProjectionCode>EPSG:4326</ProjectionCode>
         </Extension>
       </Map>
     </MapGroup>
