@@ -173,14 +173,15 @@ function GetInputLayers()
 
 function GetParent()
 {
-    if (popup) {
-        return opener;
-    } else if (parent.Fusion) {
-        return parent;
-    } else if (parent.parent.Fusion) {
-        return parent.parent;
-    }
-    return null;
+	if(popup)
+		return opener;
+	else
+	{
+		var node = parent;
+		while (!node.Fusion && node.parent && node != node.parent)
+			node = node.parent;
+		return node;
+	}
 }
 
 function PickColor(what, allowTransparency, transparent)
