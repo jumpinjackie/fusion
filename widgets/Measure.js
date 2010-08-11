@@ -80,6 +80,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         if(json.SegmentLabels){
             this.segmentLabels = (json.SegmentLabels[0].toLowerCase == "true" && json.SegmentLabels[0]) ? true : false;
         }
+        if(json.Geodesic){
+            this.geodesic = (json.Geodesic[0].toLowerCase == "false") ? false : true;
+        }
         this.sTarget = json.Target ? json.Target[0] : "";
         this.sBaseUrl = Fusion.getFusionURL() + 'widgets/Measure/Measure.php';
 
@@ -636,8 +639,12 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
      * Subsequent calls from a ViewOptions widget would override the value specified.
      */
     setUnits: function(units) {
-      units = (units == Fusion.UNKNOWN)?Fusion.unitFromName(this.getMap().getUnits()):units;
+      var map = this.getMap();
+      units = (units == Fusion.UNKNOWN)?Fusion.unitFromName(map.getUnits()):units;
       this.setParameter('Units', Fusion.unitName(units));
+      if (map.oMapOL.baseLayer.projection.proj && map.oMapOL.baseLayer.projection.proj.localCS) {
+        this.geodesic = false;
+      }
     },
 
     setParameter: function(param, value) {
