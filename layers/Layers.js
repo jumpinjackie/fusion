@@ -327,9 +327,9 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
             return;
         }
         this.oMap.showGroup(this, noDraw ? true : false);
-        this.visible = true;
-        if (this.legend && this.legend.checkBox) {
-            this.legend.checkBox.checked = true;
+        this.set('visible', true);
+        if (this.legend && this.legend.treeItem && this.legend.treeItem.checkBox) {
+            this.legend.treeItem.checkBox.checked = true;
         }
     },
 
@@ -338,9 +338,9 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
             return;
         }
         this.oMap.hideGroup(this, noDraw ? true : false);
-        this.visible = false;
-        if (this.legend && this.legend.checkBox) {
-            this.legend.checkBox.checked = false;
+        this.set('visible', false);
+        if (this.legend && this.legend.treeItem && this.legend.treeItem.checkBox) {
+            this.legend.treeItem.checkBox.checked = false;
         }
     },
 
@@ -504,8 +504,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         this.set('visible', true);
         this.oMap.showLayer(this, noDraw ? true : false);
-        if (this.legend && this.legend.checkBox) {
-            this.legend.checkBox.checked = true;
+        if (this.legend && this.legend.treeItem && this.legend.treeItem.checkBox) { 
+            this.legend.treeItem.checkBox.checked = true;
         }
     },
 
@@ -515,8 +515,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         }
         this.set('visible',false);
         this.oMap.hideLayer(this, noDraw ? true : false);
-        if (this.legend && this.legend.checkBox) {
-            this.legend.checkBox.checked = false;
+        if (this.legend && this.legend.treeItem && this.legend.treeItem.checkBox) { 
+            this.legend.treeItem.checkBox.checked = false;
         }
     },
 
