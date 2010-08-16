@@ -258,6 +258,13 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     
     getSessionID: function() {
         return '';
-    }
+    },
+    
+    getLinkParams: function() {
+      var queryParams = {};
+      queryParams.layerType = this.layerType; //need this? and one for this.mapTag.layerOptions.type?
+
+      return queryParams;
+    }    
 
 });

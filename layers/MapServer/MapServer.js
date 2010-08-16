@@ -174,11 +174,27 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     mapSessionCreated: function() {
         // restore the mapfile from a saved state.
-        if(this.bRestoreMapState === true && this.oRestoredState.loadmap ){
+        if (this.bRestoreMapState === true && this.oRestoredState.loadmap ) {
             this.loadMap(this.oRestoredState.loadmap);
-        }
-        else if (this.sMapFile != '') {
-            this.loadMap(this.sMapFile);
+        } else if (this.sMapFile != '') {
+          var options = {};
+          if (this.bIsMapWidgetLayer) {
+            var showlayers = Fusion.getQueryParam('showlayers');
+            Fusion.queryParams['showlayers'] = null;
+            var hidelayers = Fusion.getQueryParam('hidelayers');
+            Fusion.queryParams['hidelayers'] = null;
+            var showgroups = Fusion.getQueryParam('showgroups');
+            Fusion.queryParams['showgroups'] = null;
+            var hidegroups = Fusion.getQueryParam('hidegroups');
+            Fusion.queryParams['hidegroups'] = null;
+            var options = {
+              showlayers: showlayers == '' ? [] : showlayers.split(','),
+              hidelayers: hidelayers == '' ? [] : hidelayers.split(','),
+              showgroups: showgroups == '' ? [] : showgroups.split(','),
+              hidegroups: hidegroups == '' ? [] : hidegroups.split(',')
+            };
+          }
+          this.loadMap(this.sMapFile, options);
         }
         window.setInterval(OpenLayers.Function.bind(this.pingServer, this), 
                                                 this.keepAliveInterval * 1000);
@@ -215,8 +231,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
         options = options || {};
 
-        this.aVisibleLayers = options.showlayers || [];
-        this.aVisibleGroups = options.showgroups || [];
+        this.aShowLayers = options.showlayers || [];
+        this.aHideLayers = options.hidelayers || [];
+        this.aShowGroups = options.showgroups || [];
+        this.aHideGroups = options.showgroups || [];
+        this.aVisibleLayers = [];
         this.aLayers = [];
 
         this.oSelection = null;
@@ -273,8 +292,27 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             var minScale = 1.0e10;
             var maxScale = 0;
             for (var i=0; i<this.aLayers.length; i++) {
+              var testLayer = this.aLayers[i].layerName;
               if (this.aLayers[i].visible) {
-                  this.aVisibleLayers.push(this.aLayers[i].layerName);
+                var layerName = testLayer;
+                for (var j=0; j<this.aHideLayers.length; ++j) {
+                  if (layerName == this.aHideLayers[j]) {
+                    layerName = null;
+                    this.aLayers[i].hide(true);
+                    break;
+                  }
+                }
+                if (layerName) this.aVisibleLayers.push(layerName);
+              } else {
+                var layerName = null;
+                for (var j=0; j<this.aShowLayers.length; ++j) {
+                  if (testLayer == this.aShowLayers[j]) {
+                    layerName = testLayer;
+                    this.aLayers[i].show(true);
+                    break;
+                  }
+                }
+                if (layerName) this.aVisibleLayers.push(layerName);
               }
       				minScale = Math.min(minScale, this.aLayers[i].minScale);
       				maxScale = Math.max(maxScale, this.aLayers[i].maxScale);
@@ -529,19 +567,23 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         this.oLayerOL.mergeNewParams(params);
     },
 
-    showLayer: function( sLayer ) {
+    showLayer: function( sLayer, noDraw ) {
         this.aVisibleLayers.push(sLayer.layerName);
-        this.drawMap();
+        if (!noDraw) {
+          this.drawMap();
+        }
     },
 
-    hideLayer: function( sLayer ) {
+    hideLayer: function( sLayer, noDraw ) {
         for (var i=0; i<this.aLayers.length; i++) {
             if (this.aVisibleLayers[i] == sLayer.layerName) {
                 this.aVisibleLayers.splice(i,1);
                 break;
             }
         }
-        this.drawMap();
+        if (!noDraw) {
+          this.drawMap();
+        }
     },
 
     showGroup: function( group, noDraw ) {
@@ -859,6 +901,43 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         return url + '?'+params;
     },
 
+    getLinkParams: function() {
+      var queryParams = {};
+      queryParams.theme = this.sMapResourceId;
+
+      //determine which layers have been toggled
+      var showLayers = [];
+      var hideLayers = [];
+      for (var i=0; i<this.aLayers.length; ++i) {
+        var layer = this.aLayers[i];
+        if (layer.visible && !layer.initiallyVisible) {  //layer was turned on
+          showLayers.push(layer.layerName);
+        }
+        if (!layer.visible && layer.initiallyVisible) {  //layer was turned off
+          hideLayers.push(layer.layerName);
+        }
+      }
+      queryParams.showlayers = showLayers.join(',');
+      queryParams.hidelayers = hideLayers.join(',');
+
+      //determine which groups have been toggled
+      var showGroups = [];
+      var hideGroups = [];
+      for (var i=0; i<this.layerRoot.groups.length; ++i) {
+        var group = this.layerRoot.groups[i];
+        if (group.visible && !group.initiallyVisible) {  //layer was turned on
+          showGroups.push(group.groupName);
+        }
+        if (!group.visible && group.initiallyVisible) {  //layer was turned off
+          hideGroups.push(group.groupName);
+        }
+      }
+      queryParams.showgroups = showGroups.join(',');
+      queryParams.hidegroups = hideGroups.join(',');
+
+      return queryParams;
+    },
+    
     getMapTip: function(oMapTips){
         if(this.bMapTipFired == false){
             //console.log("MAPSERVER:getMapTip");
