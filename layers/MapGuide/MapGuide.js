@@ -165,7 +165,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
           this.loadMap(this.sMapResourceId, options);
         }
-        window.setInterval(OpenLayers.Function.bind(this.pingServer, this), this.keepAliveInterval * 1000);
+        this.keepAliveTimer = window.setInterval(OpenLayers.Function.bind(this.pingServer, this), this.keepAliveInterval * 1000);
     },
 
     sessionReady: function() {
@@ -1127,9 +1127,20 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     pingServer: function() {
         var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/Common." + Fusion.getScriptLanguage() ;
-        var params = {};
+        var params = {onSuccess: OpenLayers.Function.bind(this.checkPingResponse, this)};
         params.parameters = {'session': this.getSessionID()};
         Fusion.ajaxRequest(s, params);
+    },
+    
+    checkPingResponse: function(xhr) {
+      if (xhr.responseText) {
+        var o;
+        eval("o="+xhr.responseText);
+        if (!o.success) {
+          Fusion.reportError(o.message);
+          clearInterval(this.keepAliveTimer);
+        }
+      }
     },
 
     getLinkParams: function() {
