@@ -59,5 +59,6 @@ Fusion.Strings.en = {
 'printShowLegend':'Show Legend?',
 'printShowNorthArrow':'Show North Arrow?',
 
+'quickPlotResolutionWarning':'The current settings exceed the map resolution. Zooming out or increasing the scaling will help create a more legible plot',
 'end': ''
 };
