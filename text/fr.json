@@ -50,5 +50,6 @@ Fusion.Strings.fr = {
 'printGenerate': 'Generate',
 'maptipLinkText': 'Cliquer pour plus d information',
 
+'quickPlotResolutionWarning':'The current settings exceed the map resolution. Zooming out or increasing the scaling will help create a more legible plot',
 'end': ''
 };

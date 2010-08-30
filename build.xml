@@ -221,7 +221,8 @@ $Id$
                           MGBroker.js
                           Widget.js
                           Search.js
-                          Map.js"
+                          Map.js
+                          MapMessage.js"
         />
         <filelist dir="${build.home}/layers" files="Layers.js"/>
         <fileset dir="${build.home}/text" includes="**/*.json"/>
