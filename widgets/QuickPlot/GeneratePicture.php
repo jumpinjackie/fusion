@@ -102,7 +102,7 @@
         // Get the correct port number
         $mapAgent .= "://" . $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"];
         // Get the correct virtual directory
-        $mapAgent .= substr($_SERVER["URL"], 0, strpos($_SERVER["URL"], "/", 1) + 1);
+        $mapAgent .= substr($_SERVER["REQUEST_URI"], 0, strpos($_SERVER["REQUEST_URI"], "/", 1));
         $mapAgent .="/mapagent/mapagent.fcgi?VERSION=1.0.0&OPERATION=GETMAPIMAGE" .
                     "&SESSION=$sessionID" .  
                     "&MAPNAME=$mapName" .
