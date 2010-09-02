@@ -43,6 +43,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             'G_NORMAL_MAP': null,
             'G_SATELLITE_MAP': null,
             'G_HYBRID_MAP': null,
+            'G_PHYSICAL_MAP': null,
             'YAHOO_MAP_REG': null,
             'YAHOO_MAP_SAT': null,
             'YAHOO_MAP_HYB': null,
@@ -98,6 +99,13 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 else
                                     this.options['G_HYBRID_MAP'] = "Google Hybrid";
                                 this.baseMaps['G_HYBRID_MAP'] = map;
+                                break;
+                            case 'G_PHYSICAL_MAP':
+                                if (map.mapTag.extension.Options[0].name)
+                                    this.options['G_PHYSICAL_MAP'] = map.mapTag.extension.Options[0].name[0];
+                                else
+                                    this.options['G_PHYSICAL_MAP'] = "Google Terrain";
+                                this.baseMaps['G_PHYSICAL_MAP'] = map;
                                 break;
                             default:
                                 break;
