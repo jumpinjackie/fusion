@@ -13,6 +13,7 @@ Fusion.require("widgets/QuickPlot/PreviewDialog.js");
 
 Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget, 
 {
+    isExclusive: true,
     uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
     options : {},
