@@ -43,12 +43,16 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             'G_NORMAL_MAP': null,
             'G_SATELLITE_MAP': null,
             'G_HYBRID_MAP': null,
+            'G_PHYSICAL_MAP': null,
             'YAHOO_MAP_REG': null,
             'YAHOO_MAP_SAT': null,
             'YAHOO_MAP_HYB': null,
             'Road': null,
             'Aerial': null,
             'Hybrid': null,
+            'Mapnik': null,
+            'Osmarender': null,
+            'CycleMap': null,
             'None': null
         };
     },
@@ -62,13 +66,13 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             var map = maps[i];
             switch (map.layerType) {
                 case 'MapGuide':
-                    this.options['None'] = 'None';
+                    this.options['None'] = OpenLayers.i18n('noCommercialMapLayers');
                     this.baseMaps['None'] = map;
                     break;
                 case 'Google':
                     // if user didn't indicate basemap types, use the default Google Street
                     if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {
-                        this.options['G_NORMAL_MAP'] = "Google Street";
+                        this.options['G_NORMAL_MAP'] = OpenLayers.i18n('googleStreet');
                         this.baseMaps['G_NORMAL_MAP'] = map;
 
                         // The first non-MapGuide basemap will be the default basemap
@@ -79,25 +83,40 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                     else {
                         switch (map.mapTag.extension.Options[0].type[0]) {
                             case 'G_NORMAL_MAP':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['G_NORMAL_MAP'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['G_NORMAL_MAP'] = "Google Street";
+                                }
+                                else {
+                                    this.options['G_NORMAL_MAP'] = OpenLayers.i18n('googleStreet');
+                                }
                                 this.baseMaps['G_NORMAL_MAP'] = map;
                                 break;
                             case 'G_SATELLITE_MAP':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['G_SATELLITE_MAP'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['G_SATELLITE_MAP'] = "Google Satellite";
+                                }
+                                else {
+                                    this.options['G_SATELLITE_MAP'] = OpenLayers.i18n('googleSatellite');
+                                }
                                 this.baseMaps['G_SATELLITE_MAP'] = map;
                                 break;
                             case 'G_HYBRID_MAP':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['G_HYBRID_MAP'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['G_HYBRID_MAP'] = "Google Hybrid";
+                                }
+                                else {
+                                    this.options['G_HYBRID_MAP'] = OpenLayers.i18n('googleHybrid');
+                                }
                                 this.baseMaps['G_HYBRID_MAP'] = map;
+                                break;
+                            case 'G_PHYSICAL_MAP':
+                                if (map.mapTag.extension.Options[0].name) {
+                                    this.options['G_PHYSICAL_MAP'] = map.mapTag.extension.Options[0].name[0];
+                                }
+                                else {
+                                    this.options['G_PHYSICAL_MAP'] = OpenLayers.i18n('googleTerrain');
+                                }
+                                this.baseMaps['G_PHYSICAL_MAP'] = map;
                                 break;
                             default:
                                 break;
@@ -113,7 +132,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                 case 'Yahoo':
                     // if user didn't indicate basemap types, use the default Yahoo Street
                     if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {
-                        this.options['YAHOO_MAP_REG'] = "Yahoo Street";
+                        this.options['YAHOO_MAP_REG'] = OpenLayers.i18n('yahooStreet');
                         this.baseMaps['YAHOO_MAP_REG'] = map;
 
                         // The first non-MapGuide basemap will be the default basemap
@@ -124,24 +143,30 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                     else {
                         switch (map.mapTag.extension.Options[0].type[0]) {
                             case 'YAHOO_MAP_REG':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['YAHOO_MAP_REG'] = map.mapTag.extension.Options[0].name[0];
-                                else
+                                }
+                                else {
                                     this.options['YAHOO_MAP_REG'] = "Yahoo Street";
+                                }
                                 this.baseMaps['YAHOO_MAP_REG'] = map;
                                 break;
                             case 'YAHOO_MAP_SAT':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['YAHOO_MAP_SAT'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['YAHOO_MAP_SAT'] = "Yahoo Satellite";
+                                }
+                                else {
+                                    this.options['YAHOO_MAP_SAT'] = OpenLayers.i18n('yahooStreet');
+                                }
                                 this.baseMaps['YAHOO_MAP_SAT'] = map;
                                 break;
                             case 'YAHOO_MAP_HYB':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['YAHOO_MAP_HYB'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['YAHOO_MAP_HYB'] = "Yahoo Hybrid";
+                                }
+                                else {
+                                    this.options['YAHOO_MAP_HYB'] = OpenLayers.i18n('yahooHybrid');
+                                }
                                 this.baseMaps['YAHOO_MAP_HYB'] = map;
                                 break;
                             default:
@@ -156,7 +181,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                 case 'VirtualEarth':
                     // if user didn't indicate basemap types, use the default Bing Street
                     if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {
-                        this.options['Road'] = "Bing Street";
+                        this.options['Road'] = OpenLayers.i18n('bingStreet');
                         this.baseMaps['Road'] = map;
                         // The first non-MapGuide basemap will be the default basemap
                         if (!this.defaultBasemap) {
@@ -167,25 +192,80 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
 
                         switch (map.mapTag.extension.Options[0].type[0]) {
                             case 'Road':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['Road'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['Road'] = "Bing Street";
+                                }
+                                else {
+                                    this.options['Road'] = OpenLayers.i18n('bingStreet');
+                                }
                                 this.baseMaps['Road'] = map;
                                 break;
                             case 'Aerial':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['Aerial'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['Aerial'] = "Bing Satellite";
+                                }
+                                else {
+                                    this.options['Aerial'] = OpenLayers.i18n('bingSatellite');
+                                }
                                 this.baseMaps['Aerial'] = map;
                                 break;
                             case 'Hybrid':
-                                if (map.mapTag.extension.Options[0].name)
+                                if (map.mapTag.extension.Options[0].name) {
                                     this.options['Hybrid'] = map.mapTag.extension.Options[0].name[0];
-                                else
-                                    this.options['Hybrid'] = "Bing Hybrid";
+                                }
+                                else {
+                                    this.options['Hybrid'] = OpenLayers.i18n('bingHybrid');
+                                }
                                 this.baseMaps['Hybrid'] = map;
+                                break;
+                            default:
+                                break;
+                        }
+                        // The first non-MapGuide basemap will be the default basemap
+                        if (!this.defaultBasemap) {
+                            this.defaultBasemap = map.mapTag.extension.Options[0].type[0];
+                        }
+                    }
+                    break;
+                case 'OpenStreetMap':
+                    // if user didn't indicate basemap types, use the default OSM Mapnik render
+                    if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {
+                        this.options['Mapnik'] = OpenLayers.i18n('openStreetMap');
+                        this.baseMaps['Mapnik'] = map;
+                        // The first non-MapGuide basemap will be the default basemap
+                        if (!this.defaultBasemap) {
+                            this.defaultBasemap = "Mapnik";
+                        }
+                    }
+                    else {
+
+                        switch (map.mapTag.extension.Options[0].type[0]) {
+                            case 'Mapnik':
+                                if (map.mapTag.extension.Options[0].name) {
+                                    this.options['Mapnik'] = map.mapTag.extension.Options[0].name[0];
+                                }
+                                else {
+                                    this.options['Mapnik'] =  OpenLayers.i18n('openStreetMap');
+                                }
+                                this.baseMaps['Mapnik'] = map;
+                                break;
+                            case 'Osmarender':
+                                if (map.mapTag.extension.Options[0].name) {
+                                    this.options['Osmarender'] = map.mapTag.extension.Options[0].name[0];
+                                }
+                                else {
+                                    this.options['Osmarender'] = OpenLayers.i18n('openStreetMapOsmarender');
+                                }
+                                this.baseMaps['Osmarender'] = map;
+                                break;
+                            case 'CycleMap':
+                                if (map.mapTag.extension.Options[0].name) {
+                                    this.options['CycleMap'] = map.mapTag.extension.Options[0].name[0];
+                                }
+                                else {
+                                    this.options['CycleMap'] =  OpenLayers.i18n('openStreetMapCycleMap');
+                                }
+                                this.baseMaps['CycleMap'] = map;
                                 break;
                             default:
                                 break;

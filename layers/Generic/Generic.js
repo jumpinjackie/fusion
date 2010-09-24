@@ -155,6 +155,14 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 break;
             }
             break;
+         case 'OpenStreetMap':
+            if (this.mapTag.layerOptions.type) {
+                this.mapTag.layerOptions.type = this.mapTag.layerOptions.type;
+            }
+            else {
+                this.mapTag.layerOptions.type = 'Mapnik';
+            }
+            break;
           default:
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
@@ -185,7 +193,12 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             if (typeof this.mapTag.layerOptions.numZoomLevels == 'undefined') {
                 this.mapTag.layerOptions.numZoomLevels = 20;
             }
-            this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
+            if(this.layerType == 'OpenStreetMap') {
+                this.oLayerOL = new OpenLayers.Layer.OSM[this.mapTag.layerOptions.type](this.getMapName(), this.mapTag.layerOptions );
+            }
+            else {
+                this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
+            }
             this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
         }
@@ -258,6 +271,13 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     
     getSessionID: function() {
         return '';
-    }
+    },
+    
+    getLinkParams: function() {
+      var queryParams = {};
+      queryParams.layerType = this.layerType; //need this? and one for this.mapTag.layerOptions.type?
+
+      return queryParams;
+    }    
 
 });

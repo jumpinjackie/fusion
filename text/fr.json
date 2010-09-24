@@ -50,5 +50,20 @@ Fusion.Strings.fr = {
 'printGenerate': 'Generate',
 'maptipLinkText': 'Cliquer pour plus d information',
 
+'quickPlotResolutionWarning':'The current settings exceed the map resolution. Zooming out or increasing the scaling will help create a more legible plot',
+'noCommercialMapLayers':'NONE',
+'googleStreet':'Google Street',
+'googleSatellite':'Google Satellite',
+'googleTerrain':'Google Terrain',
+'googleHybrid':'Google Hybrid',
+'yahooStreet':'Yahoo Street',
+'yahooSatellite':'Yahoo Satellite',
+'yahooHybrid':'Yahoo Hybrid',
+'bingStreet':'Bing Street',
+'bingSatellite':'Bing Satellite',
+'bingHybrid':'Bing Hybrid',
+'openStreetMap':'Open Street Map',
+'openStreetMapOsmarender':'Open Street Map (Osmarender)',
+'openStreetMapCycleMap':'Open Street Map (CycleMap)',
 'end': ''
 };
