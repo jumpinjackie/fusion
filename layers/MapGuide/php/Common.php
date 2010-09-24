@@ -138,6 +138,8 @@ catch (MgException $e)
     $initializationErrorDetail = $e->GetDetails();
     $initializationErrorStackTrace = $e->GetStackTrace();
     $initializationErrorOccurred = true;
+    echo "{success: false, message:'".$initializationErrorMessage."'}";
+    //DisplayInitializationErrorHTML();
 }
 
 function InitializationErrorOccurred()

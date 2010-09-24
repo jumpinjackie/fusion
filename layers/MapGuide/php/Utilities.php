@@ -773,7 +773,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
     array_push($properties->$layerName->metadatanames, 'length');
 
     $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];
-    foreach($mappings as $name => $value)
+    foreach((array)$mappings as $name => $value)
     {
         $propType = $featureReader->GetPropertyType($name);
         array_push($properties->$layerName->propertynames, $name);
