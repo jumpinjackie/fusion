@@ -597,11 +597,12 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
               request: 'GetCapabilities'
             },
             callback: function(gc_response) {
+              console.dir(gc_response);
               var gc_parser = new OpenLayers.Format.WFSCapabilities();
               var capabilities = gc_parser.read(gc_response.responseText);
               console.dir(capabilities);
               OpenLayers.Request.GET({
-                url: this.metadata.wfs_onlineresource,
+                url: that.metadata.wfs_onlineresource,
                 params: {
                   service: 'WFS',
                   version: version,
