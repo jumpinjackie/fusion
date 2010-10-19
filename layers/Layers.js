@@ -575,8 +575,77 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.isEditing = false;
         this.oMap.triggerEvent(Fusion.Event.LAYER_STOP_EDIT, this);
       }
+    },
+    
+    hasWFSConnection: function() {
+      return this.metadata['wfs_onlineresource'] != undefined && 
+             this.metadata.wfs_onlineresource != '';
+    },
+    
+    getWFSConnection: function(callback) {
+      var that = this;
+      if (this.hasWFSConnection()) {
+        if (!this.wfsConnection) {
+          var version = this.metadata['wfs_version'] || '1.1.0';
+          var typeName = this.metadata['wfs_typename'] || this.name;
+          
+          OpenLayers.Request.GET({
+            url: this.metadata.wfs_onlineresource,
+            params: {
+              service: 'WFS',
+              version: version,
+              request: 'GetCapabilities'
+            },
+            callback: function(gc_response) {
+              var gc_parser = new OpenLayers.Format.WFSCapabilities();
+              var capabilities = gc_parser.read(gc_response.responseText);
+              console.dir(capabilities);
+              OpenLayers.Request.GET({
+                url: this.metadata.wfs_onlineresource,
+                params: {
+                  service: 'WFS',
+                  version: version,
+                  request: 'DescribeFeatureType',
+                  typename: typeName
+                },
+                callback: function(dft_response) {
+                  if (dft_response.status == 200) {
+                    var dft_parser = new OpenLayers.Format.WFSDescribeFeatureType();
+                    console.dir(dft_response);
+                    var xml = dft_parser.read(dft_response.responseText);
+                    console.dir(xml);
+                    if (xml.featureTypes.length) {
+                      var props = xml.featureTypes[0].properties;
+                      that.metadata.wfs_properties = props;
+                      if (!that.metadata['wfs_geometry']) {
+                        for (var i=0; i<props.length; i++) {
+                          var prop = props[i];
+                          if (prop.localType == 'GeometryPropertyType') {
+                            that.metadata.wfs_geometry = prop.name;
+                            that.metadata.wfs_geometrytype = prop.type;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                  if (callback) {
+                    callback.apply(null, [conn]);
+                  }
+                }
+              });
+            }
+          });
+          
+          // this.wfsConnection = new OpenLayers.Protocol.WFS({
+          //   version: version,
+          //   featureType: typeName
+          // });
+        }
+      } else if (callback) {
+        callback.apply(null, [this.wfsConnection]);
+      }
     }
-
 });
 
 /***************************************************************************

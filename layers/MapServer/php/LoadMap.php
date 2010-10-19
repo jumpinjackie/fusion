@@ -209,6 +209,15 @@ if ($oMap) {
         $layer->set("name",replaceInvalidLayerName($layer->name));
 
         $layerObj->metadata = NULL;
+        $wfs_onlineresource = $layer->getMetadata('wfs_onlineresource');
+        if ($wfs_onlineresource != '') {
+          $layerObj->metadata->wfs_onlineresource = $wfs_onlineresource;
+          $wfs_typename = $layer->getMetadata('wfs_typename');
+          $layerObj->metadata->wfs_typename = $wfs_typename != '' ? $wfs_typename : $layer->name;
+          $wfs_version = $layer->getMetadata('wfs_version');
+          $layerObj->metadata->wfs_version = $wfs_version != '' ? $wfs_version : '1.1.0';
+        }
+        
         if (isset($_REQUEST['layer_metadata'])) {
             $layerMetadataKeys = explode(',',$_REQUEST['layer_metadata']);
             foreach($layerMetadataKeys as $key) {
