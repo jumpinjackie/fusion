@@ -50,6 +50,7 @@ Fusion.Widget.ActivityIndicator = OpenLayers.Class(Fusion.Widget, {
         this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, 
                               OpenLayers.Function.bind(this.busyChanged, this));
     },
+    
     busyChanged: function() {
         this.element.style.visibility = this.getMap().isBusy() ? 'visible' : 'hidden';
     }

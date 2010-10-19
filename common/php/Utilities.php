@@ -25,7 +25,8 @@
  */
 
 /* recursively convert a variable to its json representation */
-function var2json($var) {
+if (!function_exists('var2json')) {
+  function var2json($var) {
     if (function_exists('json_encode')) {
         $result = json_encode($var);
     } else {
@@ -61,8 +62,10 @@ function var2json($var) {
 
     return utf8_encode($result);
 }
+}
 
-function xml2json($domElement) {
+if (!function_exists('xml2json')) {
+  function xml2json($domElement) {
     $result = '';
     if ($domElement->nodeType == XML_COMMENT_NODE) {
         return '';
@@ -166,6 +169,7 @@ function xml2json($domElement) {
     }
     return $result;
 }
+}
 
 /**
  * this function determines if a path represents an absolute path and returns
@@ -173,7 +177,8 @@ function xml2json($domElement) {
  * @param szPath string the path to test
  * @result boolean true if the path is absolute, false otherwise
  */
-function isAbsolutePath( $szPath ) {
+if (!function_exists('isAbsolutePath')) {
+  function isAbsolutePath( $szPath ) {
     if ($szPath == "") { return false; }
     if ($szPath[0] == "/" || preg_match('/^(\w:)/', $szPath)) {
         return true;
@@ -181,7 +186,7 @@ function isAbsolutePath( $szPath ) {
         return false;
     }
 }
-
+}
 
 /**
  * This function translate $szDestPath (relative or absolute)
@@ -190,7 +195,8 @@ function isAbsolutePath( $szPath ) {
  * @param $szDestPath string Destination path to translate
  * @param $szOrigPath string Reference path
  */
-function resolvePath2 ($szDestPath, $szOrigPath) {
+if (!function_exists('resolvePath2')) {
+  function resolvePath2 ($szDestPath, $szOrigPath) {
     // If one or other path is missing or absolute, return it.
     if ($szDestPath == "") { return $szOrigPath; }
     if ($szOrigPath == "") { return $szDestPath; }
@@ -229,6 +235,7 @@ function resolvePath2 ($szDestPath, $szOrigPath) {
     //Rest of the function
     return $szPrefix.$szPath;
 }
+}
 
 /**
  * Recursive ereg_replace
@@ -239,7 +246,8 @@ function resolvePath2 ($szDestPath, $szOrigPath) {
  *
  * @return string szString with the matching result replaced.
  */
-function iterate_ereg_replace ( $szPattern, $szReplacement, $szString) {
+if (!function_exists('iterate_ereg_replace')) {
+  function iterate_ereg_replace ( $szPattern, $szReplacement, $szString) {
     $szResult = $szString;
     do {
         $szString = $szResult;
@@ -248,8 +256,11 @@ function iterate_ereg_replace ( $szPattern, $szReplacement, $szString) {
 
     return $szResult;
 }
+}
 
-function arguments($argv) {
+
+if (!function_exists('arguments')) {
+  function arguments($argv) {
     $_ARG = array();
     foreach ($argv as $arg) {
         if (ereg('--[a-zA-Z0-9]*=.*',$arg)) {
@@ -266,8 +277,10 @@ function arguments($argv) {
     }
     return $_ARG;
 }
+}
 
-function loadFusionConfig() {
+if (!function_exists('loadFusionConfig')) {
+  function loadFusionConfig() {
     /* json decode only in PHP 5.2 and later */
     if (function_exists('json_decode')) {
         $configFile = realpath(dirname(__FILE__)."/../../config.json");
@@ -290,6 +303,7 @@ function loadFusionConfig() {
           echo "config file not found";
         }
     }
+}
 }
 
 ?>

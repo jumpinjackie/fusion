@@ -65,6 +65,9 @@ Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {
 
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.update, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.update, this));
+        
+        Fusion.addWidgetStyleSheet(widgetTag.location + '/SelectionInfo/SelectionInfo.css');
+        
     },
     
     setUiObject: function(uiObj) {

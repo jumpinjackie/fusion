@@ -45,6 +45,9 @@ Fusion.Widget.ScalebarDual = OpenLayers.Class(Fusion.Widget, {
             bottomInUnits: bottomInUnits,
             bottomOutUnits: bottomOutUnits
         };
+        if (this.domObj) {
+            options.div = this.domObj;
+        }
         this.addControl(new OpenLayers.Control.ScaleLine(options));
     }
 });

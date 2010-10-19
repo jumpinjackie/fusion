@@ -68,6 +68,9 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         var map = this.getMap();
         if (this.bSelectionOnly || !map) {
             if (map && map.hasSelection()) {
+                if (map.aMaps[0]._sQueryfile) {
+                  this.additionalParameters.push('queryfile='+map.aMaps[0]._sQueryfile);
+                }
                 if (this.action) {
                     this.action.setEnabled(true);
                 } else {
@@ -95,9 +98,9 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         
         var map = this.getMap();
         var params = [];
-        params.push('LOCALE='+Fusion.locale);
-        params.push('SESSION='+map.getSessionID());
-        params.push('MAPNAME='+map.getMapName());
+        params.push('locale='+Fusion.locale);
+        params.push('session='+map.getSessionID());
+        params.push('mapname='+map.getMapName());
         params = params.concat(this.additionalParameters);
         if (url.indexOf('?') < 0) {
             url += '?';

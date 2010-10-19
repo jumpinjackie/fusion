@@ -110,6 +110,7 @@ try
 
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapid;
+    $mapObj->metadata = NULL;
     $mapObj->metersPerUnit = $metersPerUnit;
     $mapObj->wkt = $srs;
     $mapObj->epsg = $epsgCode;

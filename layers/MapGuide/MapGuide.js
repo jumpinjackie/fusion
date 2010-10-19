@@ -45,6 +45,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
     oLayerOL2: false,   //a layer object for tiled maps that also contains dynamic layers
+    supports: {
+      query: true,
+      edit: true
+    },
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -404,39 +408,34 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      * used by the legend widget.
      */
 
-    loadScaleRanges: function(userFunc) {
+    loadScaleRanges: function() {
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
 
         var sessionid = this.getSessionID();
 
         var params = {'mapname': this._sMapname, "session": sessionid};
-        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this, userFunc),
+        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this),
                        parameters:params};
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
-    scaleRangesLoaded: function(userFunc, r)
+    scaleRangesLoaded: function(r)
     {
-        if (r.status == 200)
-        {
+        if (r.status == 200) {
             var o;
             eval('o='+r.responseText);
-            if (o.layers && o.layers.length > 0)
-            {
+            if (o.layers && o.layers.length > 0) {
                 var iconOpt = {
                     url: o.icons_url || null,
                     width: o.icons_width || 16,
                     height: o.icons_height || 16
                 };
-                for (var i=0; i<o.layers.length; i++)
-                {
+                for (var i=0; i<o.layers.length; i++)  {
                     var oLayer = this.getLayerById(o.layers[i].uniqueId);
-                    if (oLayer)
-                    {
+                    if (oLayer) {
                         oLayer.scaleRanges = [];
-                        for (var j=0; j<o.layers[i].scaleRanges.length; j++)
-                        {
+                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) {
                             var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j],
                                                                                  oLayer.layerType, iconOpt);
                             oLayer.scaleRanges.push(scaleRange);
@@ -444,10 +443,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     }
                 }
             }
-
-            userFunc();
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_SCALE_RANGE_LOADED);
         }
     },
+    
 //TBD: this function not yet converted for OL
     mapReloaded: function(oldLayers,r) {
         if (r.status == 200) {

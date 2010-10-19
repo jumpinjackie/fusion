@@ -35,7 +35,7 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
-    nTolerance : 3,     //default pixel tolerance for a point click
+    nTolerance: 3,     //default pixel tolerance for a point click
     bActiveOnly: false, //only select feature(s) on the active layer?
     maxFeatures: 0,     //default of 0 selects all features (i.e. no maximum)
     pointClickSingleSelect: true, //default of true causes a point click always to select only a single feature

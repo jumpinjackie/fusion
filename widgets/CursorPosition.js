@@ -83,6 +83,9 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
         
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
         this.registerParameter('Units');
+        
+        Fusion.addWidgetStyleSheet(widgetTag.location + '/CursorPosition/CursorPosition.css');
+        
     },
     
     setUiObject: function(uiObj) {

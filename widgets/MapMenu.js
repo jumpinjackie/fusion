@@ -45,6 +45,9 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         
         var json = this.widgetTag.extension;
         
+        this.loadMaxExtent = json.LoadMaxExtent ? 
+                      (json.LoadMaxExtent[0].toLowerCase() == 'true') : false;
+        
         //If no folder is specified for enumeration, build a menu
         //from the mapgroup alone. Folders are only supported with MapGuide.
         //Otherwise, create a hash of mapgroup resourceId to mapGroup data
@@ -80,9 +83,73 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
             var params =  {parameters: {'folder': this.rootFolder},
                           onComplete: OpenLayers.Function.bind(this.processMapMenu, this)};
             Fusion.ajaxRequest(s, params);
+        } else if (this.arch == 'MapServer' && json.Folder) {
+            this.rootFolder = json.Folder ? json.Folder[0] : '/';
+            //var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + '/MapMenu.' + Fusion.getScriptLanguage();
+            var s = json.ListURL ? json.ListURL[0] : '/platform/api/mapsherpa.php';
+            var options =  {
+                  parameters: {
+                    request: 'listpublishedmaps',
+                    depth: -1,
+                    folder: this.rootFolder
+                  },
+                  method: 'GET',
+                  onComplete: OpenLayers.Function.bind(this.processMSMapMenu, this)
+            };
+            var temp = new OpenLayers.Ajax.Request( s, options);
         };
     },
-
+    
+    processMSMapMenu: function(r) {
+        if (r.status == 200) {
+            var o;
+            eval("o="+r.responseText);
+            //var testData = '{"success":true,"errorMessages":[],"values":[{"sPath":"/ms4w/apps/gmap/cap/HamiltonLowIncome.map","sPermissions":"2","sResourceId":"/Hamilton/Hamilton Low Income","sMapResource":"/Hamilton/hamilton_low_income"},{"sPath":"/mnt/FGS_ENVIRONS/fgs-cap/apps/platform/data/home/root/Canada1.map","sPermissions":"2","sResourceId":"/Canada/Canada1","sMapResource":"/Canada/Canada"}],"request":"listpublishedmaps","version":1}';
+            //eval("o="+testData);
+            this.menus = {};
+            var list = o.values;
+            if (o.values) {
+              var basemap = this.getMap().aMaps[0];
+              for (var i=0; i<list.length; i++) {
+                  var resource = list[i];
+                  var mapId = resource.sResourceId;
+                  mapId = mapId.replace(this.rootFolder, '');
+                  var folders = mapId.split('/');
+                  var label = folders.pop();
+                  var path = folders.join('/');
+                  this.createFolders(path);
+                  
+                  // check for mapgroup data and if there is none,
+                  // create a maptag that will be passed to the map
+                  // widget constructor 
+                  data = {maps:[{'resourceId': resource.sResourceId,
+                          'singleTile':true,
+                          'type': this.arch,
+                          'extension':{
+                            'MapFile': [resource.sPath],
+                            'MapMetadata': [basemap.mapMetadataKeys],
+                            'LayerMetadata': [basemap.layerMetadataKeys]
+                          }
+                         }]};
+                  //set up needed accessor
+                  data.getInitialView = function() {
+                      return this.initialView;
+                  };
+                  var menuItem = new Jx.Menu.Item({
+                      label: label,
+                      onClick: OpenLayers.Function.bind(this.switchMap, this, data)
+                  });
+                  
+                  if (path == '') {
+                      this.uiObj.add(menuItem);
+                  }else {
+                      this.menus[path].add(menuItem);
+                  }
+              }
+            }
+        }
+    },
+    
     processMapMenu: function(r) {
         if (r.status == 200) {
             var o;
@@ -156,23 +223,29 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         
     //change the map, preserving current extents
     switchMap: function(data) {
-        var ce = this.getMap().getCurrentExtents();
-        var dest = null;
-        for (var i=0; i<data.maps.length; ++i) {
-          dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
-          if (data.maps[i].layerOptions.isBaseLayer) {
-            break;
+        data.initialView = null;
+        if (!this.loadMaxExtent) {
+          var ce = this.getMap().getCurrentExtents();
+          var dest = null;
+          for (var i=0; i<data.maps.length; ++i) {
+            if (data.maps[i].layerOptions && data.maps[i].layerOptions.projection) {
+              dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
+              if (data.maps[i].layerOptions.isBaseLayer) {
+                break;
+              }
+            }
           }
-        }
-        if (!dest) {
-          dest = new OpenLayers.Projection("EPSG:4326");
-        }
-        ce = ce.transform(this.oMap.oMapOL.getProjectionObject(), dest);
-        data.initialView = {minX:ce.left,
+          if (!dest) {
+            dest = new OpenLayers.Projection("EPSG:4326");
+          }
+          ce = ce.transform(this.oMap.oMapOL.getProjectionObject(), dest);
+          data.initialView = {minX:ce.left,
                             minY:ce.bottom,
                             maxX:ce.right,
-                            maxY:ce.top
+                            maxY:ce.top,
+                            projection: dest
                             };        
+        }
         this.getMap().loadMapGroup(data);
     }
 });

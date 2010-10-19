@@ -44,9 +44,12 @@ $oMapProjection = $oMap->getProjection();
 
 
 
-if (isset($_REQUEST['queryfile']) && $_REQUEST['queryfile'] != "")
+if ((isset($_REQUEST['queryfile']) && $_REQUEST['queryfile'] != "") ||
+    isset($_SESSION['selection_array']))
+  
 {
-    $oMap->loadquery($_REQUEST['queryfile']);
+    if (isset($_REQUEST['queryfile']) && $_REQUEST['queryfile'] != "")
+      $oMap->loadquery($_REQUEST['queryfile']);
 
 
     if (isset($_SESSION['selection_array']))
@@ -56,14 +59,14 @@ if (isset($_REQUEST['queryfile']) && $_REQUEST['queryfile'] != "")
         $aLayers = array();
         if (isset($_REQUEST['layers']) && $_REQUEST['layers'] !='')
         {
-            $aLayers = split(",", $_REQUEST['layers']);
+            $aLayers = explode(",", $_REQUEST['layers']);
             $bAllLayers = 0;
         }
 
         $aStartCount = array();
         if (isset($_REQUEST['startcount']) && $_REQUEST['startcount'] !='')
         {
-            $aStartCount =  split(",", $_REQUEST['startcount']);
+            $aStartCount =  explode(",", $_REQUEST['startcount']);
         }
 
         /* if number of layers and number of startcount should be the same */
@@ -106,7 +109,7 @@ if (isset($_REQUEST['queryfile']) && $_REQUEST['queryfile'] != "")
                         {
                             if ($aLayers[$j] == $layerName)
                             {
-                                $aIndiceCount = split(':', $aStartCount[$j]);
+                                $aIndiceCount = explode(':', $aStartCount[$j]);
                                 if (count($aIndiceCount) == 2)
                                 {
                                     $start = $aIndiceCount[0];
@@ -184,7 +187,7 @@ function getBBox($layername){
     global $properties;
     foreach($properties->$layername->metadatanames as $key=>$value){
         if($value == "bbox"){
-            $aBBox = split(",",$properties->$layername->metadata[0][$key]);
+            $aBBox = explode(",",$properties->$layername->metadata[0][$key]);
             $oBBox->minx = $aBBox[0];
             $oBBox->miny = $aBBox[1];
             $oBBox->maxx = $aBBox[2];

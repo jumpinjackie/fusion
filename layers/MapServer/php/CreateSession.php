@@ -32,7 +32,8 @@
 include(dirname(__FILE__).'/Common.php');
 include('../../../common/php/Utilities.php');
 
-initializeSession( "sid", "", "" );
+$cookie = isset($_COOKIE['session'])?$_COOKIE['session']:"";
+initializeSession( "session", "", $cookie);
 $sessionId = session_id();
 loadFusionConfig();
 

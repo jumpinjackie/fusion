@@ -39,6 +39,10 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Generic.initialize');
         Fusion.Layers.prototype.initialize.apply(this, arguments);
+        
+        if (mapTag.extension.LayerType) {
+          this.layerType = mapTag.extension.LayerType[0];
+        }
 
         this._sMapname = mapTag.layerOptions['name'] ? mapTag.layerOptions['name'] : 'generic layer';
         
@@ -47,7 +51,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         var scaleRange = new Fusion.Layers.ScaleRange({
             minScale: this.minScale,
             maxScale: this.maxScale}, 
-            Fusion.Constant.LAYER_RASTER_TYPE);
+            Fusion.Constant.LAYER_RASTER_TYPE,{label:this._sMapname});
         
         rootOpts = {
           layerName: this._sMapname,

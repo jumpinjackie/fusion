@@ -111,7 +111,12 @@ if ($str) {
     if ($height <=0) {
         $height = 16;
     }
-    $oImg = $oClass->createLegendIcon($width, $height);
+    if ($oClass) {
+      $oImg = $oClass->createLegendIcon($width, $height);
+    } else {
+      $oMap->setSize($width,$height);
+      $oImg = $oMap->prepareImage();
+    }
     /* TODO: can we figure out what the content type is? */
     header('Content-type: image/png');
     if ($cacheLegendIcons) {

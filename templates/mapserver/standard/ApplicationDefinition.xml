@@ -293,9 +293,13 @@
       <Item xsi:type="SeparatorItemType">
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+       <Item xsi:type="WidgetItemType">
         <Function>Widget</Function>
         <Widget>Select</Widget>
+      </Item>
+     <Item xsi:type="WidgetItemType">
+        <Function>Widget</Function>
+        <Widget>Select2</Widget>
       </Item>
       <Item xsi:type="WidgetItemType">
         <Function>Widget</Function>
@@ -1011,6 +1015,10 @@
       <Name>Legend</Name>
       <Type>Legend</Type>
       <StatusText/>
+      <Extension>
+        <ShowRootFolder>false</ShowRootFolder>
+        <ShowMapFolder>true</ShowMapFolder>
+      </Extension>
     </Widget>
 
 <!-- SELECTION -->
@@ -1105,6 +1113,20 @@
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>select-features</ImageClass>
       <Tooltip>Select mode</Tooltip>
+      <Label/>
+      <Disabled/>
+    </Widget>
+
+    <Widget xsi:type="UiWidgetType">
+      <Name>Select2</Name>
+      <Type>Select</Type>
+      <StatusText>Select features by clicking and dragging.</StatusText>
+      <Extension>
+      	<QueryActiveLayer>true</QueryActiveLayer>
+      </Extension>
+      <ImageUrl>images/icons.png</ImageUrl>
+      <ImageClass>select-features</ImageClass>
+      <Tooltip>Select mode for 2</Tooltip>
       <Label/>
       <Disabled/>
     </Widget>

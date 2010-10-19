@@ -136,22 +136,26 @@ if ($oMap) {
 		//create classes and slot them into the scale breaks
 		for ($j=0; $j<$layer->numclasses; $j++) {
 			$oClass = $layer->getClass($j);
-			$classObj = NULL;
-			// Use formatted legend label as defined by CLASS->TITLE
-			$classObj->legendLabel = $oClass->title != '' ? $oClass->title : $oClass->name;
-			//$classObj->legendLabel = $oClass->name;
-			$classObj->filter = $oClass->getExpression();
-			$classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
-			$classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
-			$classObj->minScale = $classMin;
-			$classObj->maxScale = $classMax;
-			$classObj->index = $j;
-			for ($k=0; $k<count($aScaleRanges); $k++) {
-				if ($classMin < $aScaleRanges[$k]->maxScale &&
-					$classMax > $aScaleRanges[$k]->minScale) {
-					array_push($aScaleRanges[$k]->styles, $classObj);
-				}
-			}
+			$displayInLegend = strtolower($oClass->getMetaData('displayInLegend')) == 'false' ? false : true;
+      if ($displayInLegend) {
+        $title = $oClass->getMetaData('legendlabel');
+        $classObj = NULL;
+  			// Use formatted legend label as defined by CLASS->TITLE
+  			$classObj->legendLabel = $title != '' ? $title : $oClass->name;
+  			//$classObj->legendLabel = $oClass->name;
+  			$classObj->filter = $oClass->getExpression();
+  			$classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
+  			$classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
+  			$classObj->minScale = $classMin;
+  			$classObj->maxScale = $classMax;
+  			$classObj->index = $j;
+  			for ($k=0; $k<count($aScaleRanges); $k++) {
+  				if ($classMin < $aScaleRanges[$k]->maxScale &&
+  					$classMax > $aScaleRanges[$k]->minScale) {
+  					array_push($aScaleRanges[$k]->styles, $classObj);
+  				}
+  			}
+      }
 		}
 		//$layerObj->scaleRanges = $aScaleRanges;
 		$_SESSION['scale_ranges'][$mapName][$layer->name] = $aScaleRanges;
@@ -200,12 +204,13 @@ if ($oMap) {
                 $nClassIndex = $scaleranges[$j]->styles[$k]->index;
                 $oClass = $layer->getClass($nClassIndex);
                 
-
-                $oImg = $oClass->createLegendIcon($nIconWidth, $nIconHeight);
-                array_push($aIcons, $oImg);
-                $scaleranges[$j]->styles[$k]->icon_x = ($nTotalClasses*$nIconWidth);
-                $scaleranges[$j]->styles[$k]->icon_y=0;
-                $nTotalClasses++;
+                if ($oClass) {
+                  $oImg = $oClass->createLegendIcon($nIconWidth, $nIconHeight);
+                  array_push($aIcons, $oImg);
+                  $scaleranges[$j]->styles[$k]->icon_x = ($nTotalClasses*$nIconWidth);
+                  $scaleranges[$j]->styles[$k]->icon_y=0;
+                  $nTotalClasses++;
+                }
             }
         }
 

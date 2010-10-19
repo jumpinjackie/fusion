@@ -37,13 +37,13 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      * {String} The default image for DWF layer
      */
     defaultLayerDWFIcon: 'images/icons/legend-DWF.png',
-
+    
     /**
      * Constant: defaultLayerRasterIcon
      * {String} The default image for Raster layer
      */
     defaultLayerRasterIcon: 'images/icons/legend-raster.png',
-
+    
     /**
      * Constant: defaultLayerThemeIcon
      * {String} The default image for layers that are currently themed.
@@ -61,24 +61,24 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      * {String} The default image for the root folder
      */
     defaultRootFolderIcon: 'images/icons/legend-map.png',
-
+    
     /**
      * Constant: defaultLayerInfoIcon
      * {String} The default image for layer info
      */
-    defaultLayerInfoIcon: 'images/icons/tree_layer_info.png',
-
+    defaultLayerInfoIcon: 'images/icons/layer-info.png',
+    
     /**
      * Constant: defaultGroupInfoIcon
      * {String} The default image for groupd info
      */
-    defaultGroupInfoIcon: 'images/icons/tree_group_info.png',
-
+    defaultGroupInfoIcon: 'images/icons/group-info.png',
+    
     initializeWidget: function(widgetTag) {
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         // duplication if we plan to apply this pattern to others widgets
         Fusion.addWidgetStyleSheet(widgetTag.location + 'Legend/Legend.css');
-
+        
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         //       duplication if we plan to apply this pattern to others widgets
         var json = widgetTag.extension;
@@ -110,6 +110,9 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
         if (this.renderer.mapLoaded)
             this.getMap().registerForEvent(Fusion.Event.MAP_LOADED,
                                            OpenLayers.Function.bind(this.renderer.mapLoaded, this.renderer));
+        if (this.renderer.scaleRangesLoaded)
+            this.getMap().registerForEvent(Fusion.Event.MAP_SCALE_RANGE_LOADED,
+                                           OpenLayers.Function.bind(this.renderer.scaleRangesLoaded, this.renderer));
     }
 });
 
@@ -145,7 +148,7 @@ Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
      *
      */
     renderLegend: function() {},
-
+    
     /**defaultDisabledLayerIcon
      * Method: mapLoading
      * Abstract method that handle the event: Fusion.Event.MAP_LOADING. This method
@@ -169,6 +172,14 @@ Fusion.Widget.Legend.LegendRenderer = OpenLayers.Class(
      *
      */
     mapReloaded: function() {},
+
+     /**
+     * Method: mapRefresh
+     * Abstract method that handle the event: Fusion.Event.MAP_LAYER_ORDER_CHANGED. This method
+     * should be implemented by all concrete class.
+     *
+     */
+    mapRefresh: function() {},
 
     /**
      * Method: getMap
@@ -205,12 +216,18 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * {Jx.TreeNode} The current selected node.
      */
     currentNode: null,
-
+    
     /**
      * Property: bIsDrawn
      * {Boolean} Determine if the map is drawn.
      */
     bIsDrawn: false,
+
+    /**
+     * Property: updateDelay
+     * {Integer} number of milliseconds to delay the update of legend
+     */
+    updateDelay: 500,
 
     /**
      * Property: targetFolder
@@ -223,8 +240,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * {Boolean} Determine if non-visible layer must be draw in the legend.
      */
     bIncludeVisToggle: true,
-
-    initialize: function(legend, widgetTag) {
+    offsetsCalculated: false,
+   
+    initialize: function(legend, widgetTag) {   
         Fusion.Widget.Legend.LegendRenderer.prototype.initialize.apply(this, [legend]);
 
         var json = widgetTag.extension;
@@ -234,19 +252,34 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.oLegend.defaultLayerInfoIcon;
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.oLegend.defaultGroupInfoIcon;
-
+       
         //not used?
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
-
-        this.oTree = new Jx.Tree({parent:this.oLegend.domObj});
-
+        
+        this.selection = new Jx.Selection({
+            onSelect: function(item) {
+                var treeItem = item.retrieve('jxTreeItem');
+                var data = treeItem.options.data;
+                if (data instanceof Fusion.Layers.Group) {
+                    this.getMap().setActiveLayer(null);
+                } else {
+                    this.getMap().setActiveLayer(data);
+                }
+            }.bind(this)
+        });
+       
+        this.oTree = new Jx.Tree({
+            template: '<ul class="jxTreeRoot fusionLegendTreeRoot"></ul>',
+            selection:this.selection
+        }).addTo(this.oLegend.domObj);
+       
         this.hideInvisibleLayers = (json.HideInvisibleLayers && json.HideInvisibleLayers[0]) == 'true' ? true : false;
         //don't show the root folder by default
         this.showRootFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true:false;
         //do show the map folder by default
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
-
+        
         if (!this.showRootFolder) {
             //console.log('supressing root folder');
             this.oRoot = this.oTree;
@@ -254,30 +287,28 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
            // console.log('showing root folder');
             var opt = {
                 label: OpenLayers.i18n('defaultMapTitle'),
-                open: true,
-                draw: this.renderFolderCheckbox,
-                contextMenu: this.getContextMenu(),
-                'class':'fusionLegendFolder'
+                // contextMenu: this.getContextMenu(),
+                open: true
             };
             this.oRoot = new Jx.TreeFolder(opt);
-            this.oTree.append(this.oRoot);
-            this.oRoot.options.contextMenu.add(
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('collapse'),
-                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, this.oRoot)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('expand'),
-                    onClick: OpenLayers.Function.bind(this.expandBranch, this, this.oRoot)
-                })
-            );
+            this.oTree.add(this.oRoot);
+            // this.oRoot.options.contextMenu.add([
+            //     new Jx.Menu.Item({
+            //         label: OpenLayers.i18n('collapse'),
+            //         onClick: OpenLayers.Function.bind(this.collapseBranch, this, this.oRoot)
+            //     }),
+            //     new Jx.Menu.Item({
+            //         label: OpenLayers.i18n('expand'),
+            //         onClick: OpenLayers.Function.bind(this.expandBranch, this, this.oRoot)
+            //     })]
+            // );
         }
-
+        
         this.extentsChangedWatcher = this.update.bind(this);
     },
-
+    
     getContextMenu: function() {
-        return new Jx.Menu.Context(this.name).add(
+        return new Jx.Menu.Context(this.name).add([
             new Jx.Menu.Item({
                 label: OpenLayers.i18n('refresh'),
                 onClick: OpenLayers.Function.bind(this.update, this)
@@ -289,44 +320,40 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             new Jx.Menu.Item({
                 label: OpenLayers.i18n('expandAll'),
                 onClick: OpenLayers.Function.bind(this.expandAll, this)
-            })
+            })]
         );
     },
-
+    
     expandAll: function(folder) {
-        for (var i=0; i<this.oTree.nodes.length; i++) {
-            var item = this.oTree.nodes[i];
+        this.oTree.items().each(function(item){
             if (item instanceof Jx.TreeFolder) {
-              item.expand();
-              this.recurseTree('expand', item);
+                this.recurseTree('expand', item);
             }
-        }
+        },this);
         if (this.showRootFolder) {
           this.oRoot.expand();
         }
     },
-
+    
     collapseAll: function(folder) {
-        for (var i=0; i<this.oTree.nodes.length; i++) {
-            var item = this.oTree.nodes[i];
+        this.oTree.items().each(function(item){
             if (item instanceof Jx.TreeFolder) {
-              item.collapse();
-              this.recurseTree('collapse', item);
+                this.recurseTree('collapse', item);
             }
-        }
+        },this);
         if (this.showRootFolder) {
           this.oRoot.collapse();
         }
     },
-
+    
     collapseBranch: function(folder) {
         folder.collapse();
     },
-
+    
     expandBranch: function(folder) {
         folder.expand();
     },
-
+    
   /**
      * recursively descend the tree applying the request operation which is either 'collapse' or 'expand'
      *
@@ -334,43 +361,44 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * @param the folder to operate on
      */
     recurseTree: function(op, folder) {
-        for (var i=0; i<folder.nodes.length; i++) {
-            var item = folder.nodes[i];
+        folder.items().each(function(item){
             if (item instanceof Jx.TreeFolder) {
                 this.recurseTree(op, item);
                 item[op]();
             }
-        }
+        },this);
     },
-
+   
     scaleRangesLoaded: function() {
         this.layerRoot = this.getMap().layerRoot;
         this.renderLegend();
     },
+    
     mapLoading: function() {
         this.getMap().deregisterForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
         this.clear();
     },
-
+   
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
-        this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
+        var baseLayer = this.getMap().aMaps[0]; 
+        baseLayer.registerForEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED, OpenLayers.Function.bind(this.mapRefresh, this));
+        this.layerRoot = this.getMap().layerRoot;
+        //this.renderLegend();
     },
-
+    
     mapReloaded: function() {
-        this.getMap().loadScaleRanges(OpenLayers.Function.bind(this.scaleRangesLoaded, this));
+        this.layerRoot = this.getMap().layerRoot;
+        this.renderLegend();
     },
-    /**
-     * the map state has become invalid in some way (layer added, removed,
-     * ect).  For now, we just re-request the map state from the server
-     * which calls draw which recreates the entire legend from scratch
-     *
-     * TODO: more fine grained updating of the legend would be nice
-     */
-    invalidate: function() {
-        this.draw();
+    
+    mapRefresh: function() {
+        var baseLayer = this.getMap().aMaps[0];
+        baseLayer.parseLayers();
+        this.layerRoot = this.getMap().layerRoot;
+        this.renderLegend();
     },
-
+    
     /**
      * Callback for legend XML response. Creates a list of layers and sets up event
      * handling. Create groups if applicable.
@@ -378,12 +406,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      *
      * @param r Object the reponse xhr object
      */
-    /*renderLegend: function(r) {
+    renderLegend: function(r) {
         this.bIsDrawn = false;
         this.clear();
 
         if (this.showRootFolder) {
-            this.oRoot.itemLabelobj.innerHTML = this.getMap().getMapTitle();
+            this.oRoot.setLabel(this.getMap().getMapTitle());
         }
         var startGroup = this.layerRoot;
         if (!this.showMapFolder) {
@@ -402,42 +430,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         this.bIsDrawn = true;
         this.update();
-    },*/
-    renderLegend: function(r) {
-        this.bIsDrawn = false;
-        this.clear();
-
-        if (this.showRootFolder) {
-            this.oRoot.itemLabelobj.innerHTML = this.getMap().getMapTitle();
-        }
-
-        if (this.showMapFolder) {
-        this.renderGroup(this.layerRoot);
-        } else {
-        if (this.layerRoot.groups.length > 0) {
-            for (var i = 0; i < this.layerRoot.groups.length; i++)
-                this.renderGroup(this.layerRoot.groups[i]);
-        } else {
-            for (var i = 0; i < group.layers.length; i++)
-                this.processMapLayer(group.layers[i], this.oRoot);
-        }
-        }
-
-        this.bIsDrawn = true;
-        this.update();
-    },
-
-    renderGroup: function(group) {
-        if (!group.legend) {
-            group.legend = {};
-            group.legend.treeItem = this.oRoot;
-        }
-        for (var i = 0; i < group.groups.length; i++) {
-            this.processMapGroup(group.groups[i], this.oRoot);
-        }
-        for (var i = 0; i < group.layers.length; i++) {
-            this.processMapLayer(group.layers[i], this.oRoot);
-        }
     },
 
     processMapGroup: function(group, folder) {
@@ -447,55 +439,38 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             var opt = {
                 label: group.legendLabel,
                 open: group.expandInLegend,
-                draw: this.renderFolderCheckbox,
-                contextMenu: this.getContextMenu(),
-                'class':'fusionLegendFolder'
+                // contextMenu: this.getContextMenu(),
+                checked: group.visible
             };
-            group.legend.treeItem = new Jx.TreeFolder(opt);
-            group.legend.treeItem.domObj.store('data', group);
-            group.legend.treeItem.options.contextMenu.add(
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('collapse'),
-                    onClick: OpenLayers.Function.bind(this.collapseBranch, this, group.legend.treeItem)
-                }),
-                new Jx.Menu.Item({
-                    label: OpenLayers.i18n('expand'),
-                    onClick: OpenLayers.Function.bind(this.expandBranch, this, group.legend.treeItem)
-                })
-            );
+            var treeItem = new Fusion.Widget.Legend.TreeFolder(opt);
+            treeItem.options.data = group;
+            group.legend.treeItem = treeItem;
+            // treeItem.options.contextMenu.add(
+            //     new Jx.Menu.Item({
+            //         label: OpenLayers.i18n('collapse'),
+            //         onClick: OpenLayers.Function.bind(this.collapseBranch, this, treeItem)
+            //     }),
+            //     new Jx.Menu.Item({
+            //         label: OpenLayers.i18n('expand'),
+            //         onClick: OpenLayers.Function.bind(this.expandBranch, this, treeItem)
+            //     })
+            // );
 
-            folder.append(group.legend.treeItem);
-            if(group.legend.treeItem.checkBox)
-            {
-                group.legend.treeItem.checkBox.checked = group.visible?true:false;
-                OpenLayers.Event.observe(group.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, group));
-            }
+            folder.add(treeItem);
 
             var groupInfo = group.oMap.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
-                var a = document.createElement('a');
-                a.href = groupInfo;
-                if (groupInfo.indexOf('javascript:') < 0) {
-                  a.target = '_blank';
-                }
-                var img = document.createElement('img');
-                Jx.addToImgQueue({element:img, src: this.imgGroupInfoIcon});
-                img.border = 0;
-                a.appendChild(img);
-                group.legend.treeItem.domObj.insertBefore(a, group.legend.treeItem.domObj.childNodes[4]);
-            }
-            if (this.oSelectionListener) {
-                group.legend.treeItem.addEvent('click', OpenLayers.Function.bind(this.selectionChanged, this));
+                treeItem.setGroupInfo(groupInfo, this.imgGroupInfoIcon);
             }
             for (var i=0; i<group.groups.length; i++) {
-                this.processMapGroup(group.groups[i], group.legend.treeItem);
+                this.processMapGroup(group.groups[i], treeItem);
             }
             for (var i=0; i<group.layers.length; i++) {
-                this.processMapLayer(group.layers[i], group.legend.treeItem);
+                this.processMapLayer(group.layers[i], treeItem);
             }
         }
     },
-
+   
     processMapLayer: function(layer, folder) {
         /* make a 'namespace' on the layer object to store legend-related info */
         layer.legend = {};
@@ -503,24 +478,27 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         layer.legend.currentRange = null;
         layer.oMap.registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerPropertyChanged, this));
     },
-
+   
     layerPropertyChanged: function(eventID, layer) {
-        if(layer.legend.treeItem.checkBox)
-        {
-            layer.legend.treeItem.checkBox.checked = layer.isVisible();
-        }
+        layer.legend.treeItem.check(layer.isVisible());
     },
 
+    updateTimer: null,
     update: function() {
         if (this.bIsDrawn) {
-            window.setTimeout(OpenLayers.Function.bind(this._update, this), 1);
+          if (this.updateTimer) {
+            window.clearTimeout(this.updateTimer);
+            this.updateTimer = null;
+          }
+          this.updateTimer = window.setTimeout(OpenLayers.Function.bind(this._update, this), this.updateDelay);
         }
     },
-
+   
     /**
      * update the tree when the map scale changes
      */
     _update: function() {
+        this.updateTimer = null;
         var map = this.getMap();
         var currentScale = map.getScale();
         for (var i=0; i<map.layerRoot.groups.length; i++) {
@@ -530,31 +508,38 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
     },
-
+   
     /**
      * remove the dom objects representing the legend layers and groups
      */
     clear: function() {
-        while (this.oRoot.nodes.length > 0) {
-            this.oRoot.remove(this.oRoot.nodes[0]);
+        //console.log('clear legend');
+        var map = this.getMap();
+        for (var i=0; i<map.layerRoot.groups.length; i++) {
+            this.clearGroup(map.layerRoot.groups[i]);
         }
+        for (var i=0; i<map.layerRoot.layers.length; i++) {
+          if (map.layerRoot.layers[i].legend) {
+            map.layerRoot.layers[i].legend.treeItem = null;
+            map.layerRoot.layers[i].legend.checkbox = null;
+            map.layerRoot.layers[i].legend.currentRange = null;
+          }
+        }
+        this.oRoot.empty();
     },
-
-    selectionChanged: function(o) {
-        if (this.currentNode) {
-          //console.log(this.currentNode);
-            $(this.currentNode.domObj.childNodes[1]).removeClass('jxTreeItemSelected');
+    
+    clearGroup: function(group) {
+      for (var i=0; i<group.groups.length; i++) {
+        this.clearGroup(group.groups[i]);
+      }
+      for (var i=0; i<group.layers.length; i++) {
+        if (group.layers[i].legend) {
+          group.layers[i].legend.treeItem = null;
+          group.layers[i].legend.currentRange = null;
         }
-        this.currentNode = o;
-        $(this.currentNode.domObj.childNodes[1]).addClass('jxTreeItemSelected');
-
-        var data = o.domObj.retrieve('data');
-        if (data instanceof Fusion.Layers.Group) {
-            this.getMap().setActiveLayer(null);
-        } else {
-            this.getMap().setActiveLayer(data);
-        }
+      }
     },
+    
     updateGroupLayers: function(group, fScale) {
         for (var i=0; i<group.groups.length; i++) {
             this.updateGroupLayers(group.groups[i], fScale);
@@ -564,391 +549,385 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
     },
     updateLayer: function(layer, fScale) {
-
-        var checkbox = layer.isBaseMapLayer ? false : this.bIncludeVisToggle;
+        /* no need to do anything if we are hiding the layer */
         if (!layer.displayInLegend || !layer.legend) {
             return;
         }
+        /* check the layer's current scale range against the previous one
+         * if the range hasn't changed, don't do anything
+         */
         var range = layer.getScaleRange(fScale);
         if (range == layer.legend.currentRange && layer.legend.treeItem) {
             return;
         }
-
+        
+        /* remember the range we are now representing for the next update */
         layer.legend.currentRange = range;
-        if (range != null) {
+        
+        /* if layer is in range and has at least one style */
+        if (range != null && range.styles && range.styles.length > 0) {
+            /* if it has more than one style, we represent it as a folder
+             * with classes as items in it
+             */
             if (range.styles.length > 1) {
                 //tree item needs to be a folder
                 if (!layer.legend.treeItem) {
-                    layer.legend.treeItem = this.createFolderItem(layer, checkbox);
-                    if(layer.legend.treeItem.checkBox)
-                    {
-                        OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
-                    }
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else if (layer.legend.treeItem instanceof Jx.TreeItem) {
-                    var insertAt = this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createFolderItem(layer, checkbox);
-                    if(layer.legend.treeItem.checkBox)
-                    {
-                        OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
-                    }
-                    layer.parentGroup.legend.treeItem.insert(layer.legend.treeItem, insertAt);
+                    layer.legend.treeItem = this.createFolderItem(layer);
+                    layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
+                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeItem) {
+                    this.clearTreeItem(layer);
+                    layer.legend.treeItem = this.createFolderItem(layer);
+                    layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
                 } else {
-                    while(layer.legend.treeItem.nodes.length > 0) {
-                        layer.legend.treeItem.remove(layer.legend.treeItem.nodes[0]);
-                    }
+                    layer.legend.treeItem.empty();
                 }
                 for (var i=0; i<range.styles.length; i++) {
                     var item = this.createTreeItem(layer, range.styles[i], fScale, false);
-                    layer.legend.treeItem.append(item);
+                    layer.legend.treeItem.add(item);
                 }
+            /* if there is only one style, we represent it as a tree item */
             } else {
-
                 var style = range.styles[0];
-                if (style && !style.legendLabel) {
-                  style.legendLabel = layer.legendLabel;
+                if (!style.legendLabel) {
+                    style.legendLabel = layer.legendLabel;
                 }
                 if (!layer.legend.treeItem) {
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, checkbox);
-                    if (checkbox) {
-                      OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
-                    }
-
-                    layer.parentGroup.legend.treeItem.append(layer.legend.treeItem);
-                } else if (layer.legend.treeItem instanceof Jx.TreeFolder) {
-                    var insertAt = this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, checkbox);
-                    if (checkbox) {
-                      OpenLayers.Event.observe(layer.legend.treeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
-                    }
-
-                    layer.parentGroup.legend.treeItem.insert(layer.legend.treeItem, insertAt);
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
+                    layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
+                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeFolder) {
+                    this.clearTreeItem(layer);
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
+                    layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
                 } else {
                     if (range.styles.length > 0) {
-                        layer.legend.treeItem.domImg.style.backgroundImage = 'url('+layer.oMap.getLegendImageURL(fScale, layer, range.styles[0])+')';
-                        layer.legend.treeItem.domImg.style.backgroundPosition = '0px 0px';
-                        $(layer.legend.treeItem.domObj).removeClass('jxDisabled');
+                        var url = layer.oMap.getLegendImageURL(fScale, layer, range.styles[0]);
+                        layer.legend.treeItem.setImage(url);
+                        layer.legend.treeItem.enable(true);
                     } else {
-                        $(layer.legend.treeItem.domObj).addClass('jxDisabled');
+                        layer.legend.treeItem.enable(false);
                     }
                 }
             }
-            if (checkbox) {
-              layer.legend.treeItem.checkBox.checked = layer.visible?true:false;
-              if (layer.layerTypes[0] == 4 || layer.layerTypes[0] == 5 || range.styles.length > 0) {
-                layer.legend.treeItem.checkBox.disabled = false;
-              } else {
-                layer.legend.treeItem.checkBox.disabled = true;
-              }
-            }
         } else {
+            /* the layer is to be displayed but is not visible in the map
+             * at the current map scale so disable it and display as a tree
+             * item or hide it altogether if necessary;
+             */
             if (this.hideInvisibleLayers) {
                 if (layer.legend.treeItem) {
                     layer.parentGroup.legend.treeItem.remove(layer.legend.treeItem);
                     layer.legend.treeItem = null;
                 }
             } else {
-              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, checkbox);
-                if (checkbox) {
-                  OpenLayers.Event.observe(newTreeItem.checkBox, 'click', OpenLayers.Function.bind(this.stateChanged, this, layer));
-                }
+              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, true);
                 if (layer.legend.treeItem) {
-                    if (checkbox) layer.legend.treeItem.checkBox.disabled = true;
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
                     layer.legend.treeItem.finalize();
                 } else {
-                    layer.parentGroup.legend.treeItem.append(newTreeItem);
+                    layer.parentGroup.legend.treeItem.add(newTreeItem);
                 }
                 layer.legend.treeItem = newTreeItem;
             }
         }
         if (layer.legend.treeItem) {
-            layer.legend.treeItem.domObj.store('data', layer);
+            layer.legend.treeItem.options.data = layer;
+            layer.legend.treeItem.check(layer.visible);
         }
     },
-
-    createFolderItem: function(layer, hasCheckbox) {
+    
+    createFolderItem: function(layer) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
-            open: layer.expandInLegend,
-            draw: hasCheckbox ? this.renderFolderCheckbox : this.renderFolder,
-            'class':'fusionLegendItemCheckbox',
-            contextMenu: this.getContextMenu(),
-            // image overrides
+            isOpen: layer.expandInLegend,
+            // contextMenu: this.getContextMenu(),
             image: this.imgLayerThemeIcon
         };
-        var folder = new Jx.TreeFolder(opt);
-        folder.options.contextMenu.add(
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('collapse'),
-                onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
-            }),
-            new Jx.Menu.Item({
-                label: OpenLayers.i18n('expand'),
-                onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
-            })
-        );
-
-
+        if (layer.metadata) {
+          opt.selectable = !layer.metadata.jxUnselectable || (layer.metadata.jxUnselectable && layer.metadata.jxUnselectable != 'true');
+        } else {
+          opt.selectable = false;
+        }
+        var folder = new Fusion.Widget.Legend.TreeFolder(opt);
+        var img = folder.elements.get('jxTreeIcon');
+        img.style.backgroundPosition = '0px 0px';
+        // folder.options.contextMenu.add([
+        //     new Jx.Menu.Item({
+        //         label: OpenLayers.i18n('collapse'),
+        //         onClick: OpenLayers.Function.bind(this.collapseBranch, this, folder)
+        //     }),
+        //     new Jx.Menu.Item({
+        //         label: OpenLayers.i18n('expand'),
+        //         onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
+        //     })]
+        // );
+        
         var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
         if (layerInfo) {
-            var a = document.createElement('a');
-            a.href = layerInfo;
-            if (layerInfo.indexOf('javascript:') < 0) {
-              a.target = '_blank';
-            }
-            var img = document.createElement('img');
-            Jx.addToImgQueue({element:img, src:this.imgLayerInfoIcon});
-            img.border = 0;
-            a.appendChild(img);
-            folder.domObj.insertBefore(a, folder.domObj.childNodes[4]);
+            folder.setLayerInfo(layerInfo, this.imgLayerInfoIcon);
         }
-        folder.addEvent('click', OpenLayers.Function.bind(this.selectionChanged, this));
-
+       
         return folder;
     },
-    createTreeItem: function(layer, style, scale, bCheckBox) {
+    
+    createTreeItem: function(layer, style, scale, checkbox) {
         var opt = {};
         opt.statusIsDefault = layer.statusDefault;
-
-        //set the label
-        if (style && style.legendLabel) {
-            opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        if (layer.metadata) {
+          opt.selectable = !layer.metadata.jxUnselectable || (layer.metadata.jxUnselectable && layer.metadata.jxUnselectable != 'true');
         } else {
-            opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
-        }
-
-        //set the checkbox rendererer
-        if (bCheckBox ) {
-            opt.draw = this.renderItemCheckBox;
-        } else {
-            opt.draw = this.renderItem;
+          opt.selectable = false;
         }
 
         if (!style) {
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-            if(style.iconOpt && style.iconOpt.url){
+           var defaultIcon = this.imgDisabledLayerIcon;
+           if (layer.layerTypes[0] == 4) {
+               if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
+                 defaultIcon = this.imgLayerDWFIcon;
+              } else {
+                defaultIcon = this.imgLayerRasterIcon;
+              }
+            }
+            if (style.iconOpt && style.iconOpt.url) {
                 opt.image = style.iconOpt.url;
-            }else{
+            } else {
                 opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
             }
         }
-        // MapGuide DWF and Raster layer
-         // MapGuide Raster and DWF layer
-        if(layer.layerTypes[0] == 4){
-            opt.image = this.imgLayerRasterIcon;
-            opt.enabled = true;
-        } else if(layer.layerTypes[0] == 5){
-            opt.image = this.imgLayerDWFIcon;
-            opt.enabled = true;
-        }
-        opt.contextMenu = this.getContextMenu();
 
-        var item = new Jx.TreeItem(opt);
-        if (style && style.iconOpt && style.iconX >= 0 && style.iconY >= 0) {
-            item.domImg;
-            item.domImg.style.backgroundImage = 'url('+opt.image+')';
-            item.domImg.src = Jx.aPixel.src;
-            item.domImg.style.backgroundPosition = (-1*style.iconX) + 'px ' + (-1*style.iconY) + 'px';
-            if (style.iconOpt.width) {
-                item.domImg.style.width = style.iconOpt.width + 'px';
-            }
-            if (style.iconOpt.height) {
-                item.domImg.style.height = style.iconOpt.height + 'px';
-            }
-        }
-
-        if (bCheckBox) {
-            //item.domObj.insertBefore(layer.legend.checkBox, item.domObj.childNodes[1]);
+        var item;
+        if (checkbox) {
+            // opt.contextMenu = this.getContextMenu();
+            item = new Fusion.Widget.Legend.TreeItem(opt);
             /* only need to add layer info if it has a check box too */
             var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
             if (layerInfo) {
-                var a = document.createElement('a');
-                a.href = layerInfo;
-                if (layerInfo.indexOf('javascript:') < 0) {
-                  a.target = '_blank';
-                }
-                var img = document.createElement('img');
-                Jx.addToImgQueue({element:img, src: this.imgLayerInfoIcon});
-                img.border = 0;
-                a.appendChild(img);
-                item.domObj.insertBefore(a, item.domObj.childNodes[4]);
+                item.setLayerInfo(layerInfo, this.imgLayerInfoIcon);
             }
+        }  else {
+            opt.selectable = false;
+            item = new Jx.TreeItem(opt);
         }
-
-        item.addEvent('click', OpenLayers.Function.bind(this.selectionChanged, this));
-
+        
+        var iconX = 0;
+        var iconY = 0;
+        var img = item.elements.get('jxTreeIcon');
+        if (style && style.iconX >= 0 && style.iconY >= 0) {
+            /* calculate the size of the image that holds the icon
+             * only once and cache the values as it is an expensive operation
+             * We use the size to center the class/layer icon as a background
+             * image inside the image that holds it so that if the icon is
+             * not the same size it is represented in a reasonable way
+             */
+            if (!this.offsetsCalculated) {
+                var parent = img.parentNode;
+                var sibling = img.getPrevious();
+                var d = new Element('div', {'class':'fusionLegendTreeRoot'});
+                img.setStyle('visiblity','hidden');
+                img.inject(d);
+                //TODO: img.getStyle doesn't seem to work for IE, need another solution here
+                var w = 16;//img.getStyle('width').toInt();
+                var h = 16;//img.getStyle('height').toInt();
+                if (!sibling) {
+                    img.inject(parent,'top');
+                } else {
+                    img.inject(sibling, 'after');
+                }
+                img.setStyle('visibility','visible');
+                this.iconWidth = (style.iconOpt.width - w)/2;
+                this.iconHeight = (style.iconOpt.height - h)/2;
+                //alert(w+":"+h);
+                this.offsetsCalculated = true;
+            }
+            iconX = -1 * (style.iconX + this.iconWidth);
+            iconY = -1 * (style.iconY + this.iconHeight);
+        }
+        img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
+        
         return item;
     },
     clearTreeItem: function(layer) {
-        var prevSibling = null;
         if (layer.legend.treeItem && layer.legend.treeItem.owner) {
-            prevSibling = layer.legend.treeItem.domObj.previousSibling;
-            layer.legend.treeItem.domObj.store('data', null);
             layer.legend.treeItem.owner.remove(layer.legend.treeItem);
-            layer.legend.treeItem.finalize();
+            // layer.legend.treeItem.finalize();
+            layer.legend.treeItem.destroy();
             layer.legend.treeItem = null;
         }
-        return prevSibling;
-    },
-    stateChanged: function(obj, event) {
-        if (obj.legend && obj.legend.treeItem.checkBox) {
-            if (obj.legend.treeItem.checkBox.checked) {
-                obj.show();
-            } else {
-                obj.hide();
-            }
-        }
-        OpenLayers.Event.stop(event, true);
-    },
-
-    renderFolder: function() {
-        var domA = new Element('a',{
-            'class':this.options['class'],
-            href:'javascript:void(0)',
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
-        });
-
-
-        this.domImg = document.createElement('img');
-        this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
-        this.domImg.src = Jx.aPixel.src;
-
-        if (this.options.image) {
-            this.domImg.style.backgroundImage = 'url('+this.options.image+')';
-        }
-
-        var domLabel = new Element('span',{
-            'class': 'fusionLegendLabel',
-            html: this.options.label
-        });
-
-        domA.appendChild(this.domImg);
-        domA.appendChild(domLabel);
-
-        this.itemLabelobj = domA;
-
-        return domA;
-
-    },
-
-    renderFolderCheckbox: function() {
-        var domA = new Element('a',{
-            'class':this.options['class'],
-            href:'javascript:void(0)',
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
-        });
-
-        this.checkBox = document.createElement('input');
-        this.checkBox.type = 'checkbox';
-
-        this.domImg = document.createElement('img');
-        this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
-        this.domImg.src = Jx.aPixel.src;
-
-        if (this.options.image) {
-            this.domImg.style.backgroundImage = 'url('+this.options.image+')';
-        }
-
-        var domLabel = new Element('span',{
-            'class': 'fusionLegendLabel',
-            html: this.options.label
-        });
-
-        domA.appendChild(this.checkBox);
-        domA.appendChild(this.domImg);
-        domA.appendChild(domLabel);
-
-        this.itemLabelobj = domA;
-
-        return domA;
-
-    },
-
-    renderItem: function() {
-
-        var domA = new Element('a', {
-            'class': 'fusionLegendItem',
-            href: 'javascript:void(0)',
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
-        });
-
-
-        this.domImg = document.createElement('img');
-        this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
-        this.domImg.src = Jx.aPixel.src;
-
-        if (this.options.image) {
-            this.domImg.style.backgroundImage = 'url('+this.options.image+')';
-        }
-
-        var domLabel = new Element('span',{
-            'class': 'fusionLegendLabel',
-            html: this.options.label
-        });
-
-        domA.appendChild(this.domImg);
-        domA.appendChild(domLabel);
-        this.itemLabelobj = domA;
-
-        return domA;
-    },
-
-    renderItemCheckBox: function() {
-        var domA = new Element('a', {
-            'class': 'fusionLegendItemCheckbox',
-            'href':'javascript:void(0);',
-            events: {
-                click: this.selected.bindWithEvent(this),
-                dblclick: this.selected.bindWithEvent(this),
-                contextmenu: this.options.contextMenu.show.bindWithEvent(this.options.contextMenu)
-            }
-        });
-
-        this.checkBox = document.createElement('input');
-        this.checkBox.type = 'checkbox';
-
-        /* layer is set to "status default" set checkbox to checked , disabled , read only*/
-        if(this.options.statusIsDefault){
-            this.checkBox.checked = true;
-            this.checkBox.disabled = true;
-            this.checkBox.readOnly = true;
-        }
-
-        this.domImg = document.createElement('img');
-        this.domImg.className = 'jxTreeIcon ' + (this.options.imageClass ? this.options.imageClass : '');
-        this.domImg.src = Jx.aPixel.src;
-
-        if (this.options.image) {
-            this.domImg.style.backgroundImage = 'url('+this.options.image+')';
-        }
-
-        var domLabel = new Element('span',{
-            'class': 'fusionLegendLabel',
-            html: this.options.label
-        });
-
-
-        domA.appendChild(this.checkBox);
-        domA.appendChild(this.domImg);
-        domA.appendChild(domLabel);
-        this.itemLabelobj = domA;
-
-        return domA;
     }
+});
 
+Fusion.Widget.Legend.TreeItem = new Class({
+    Extends: Jx.TreeItem,
+    options: {
+        template: '<li class="jxTreeContainer jxTreeLeaf"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="fusionLayerInfo" target="_blank"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel"></span></a></li>'
+    },
+    classes: new Hash({
+        domObj: 'jxTreeContainer', 
+        domA: 'jxTreeItem', 
+        domImg: 'jxTreeImage', 
+        domIcon: 'jxTreeIcon',
+        domLabel: 'jxTreeLabel',
+        checkbox: 'fusionLegendCheckboxInput',
+        layerInfo: 'fusionLayerInfo',
+        layerInfoIcon: 'fusionLayerInfoIcon'
+    }),
+    init: function() {
+      this.bound.onClick = function(e){
+          if (this.options.data) {
+              if (e.target.checked && this.options.data.show) {
+                  this.options.data.show();
+              } else if (!e.target.checked && this.options.data.hide) {
+                  this.options.data.hide();
+              }
+          }
+      }.bind(this);
+      this.bound.enabled = function() {
+          this.checkbox.disabled = false;
+      }.bind(this);
+      this.bound.disabled = function() {
+          this.checkbox.disabled = true;
+      }.bind(this);
+      this.parent();
+    },
+    render: function() {
+        this.parent();
+        if (this.checkbox) {
+            if ($defined(this.options.checked)) {
+                this.check(this.options.checked);
+            }
+            this.checkbox.addEvent('click', this.bound.onClick);
+            this.addEvents({
+              enabled: this.bound.enabled,
+              disabled: this.bound.disabled
+            });
+        }
+    },
+    cleanup: function() {
+      this.removeEvents({
+        enabled: this.bound.enabled,
+        disabled: this.bound.disabled
+      });
+      if (this.checkbox) {
+        this.checkbox.removeEvent('click', this.bound.onClick);
+      }
+      this.bound.onClick = null;
+      this.bound.enabled = null;
+      this.bound.disabled = null;
+      this.parent();
+    },
+    check: function(state) {
+        if (this.checkbox) {
+            this.checkbox.set('checked', state);
+        }
+    },
+    isChecked: function() {
+        return this.checkbox && this.checkbox.checked;
+    },
+    setLayerInfo: function(url, icon) {
+        //change class to make fusionLayerInfo display block
+        this.domObj.addClass('fusionShowLayerInfo');
+        if (this.layerInfo) {
+            this.layerInfo.set('href', url);
+        }
+        if (this.layerInfoIcon) {
+            this.layerInfoIcon.set('src', icon);
+        }
+    }
+});
+
+Fusion.Widget.Legend.TreeFolder = new Class({
+    Extends: Jx.TreeFolder,
+    options: {
+        template: '<li class="jxTreeContainer jxTreeBranch"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel"></span></a><a class="fusionGroupInfo"><img class="fusionGroupInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="fusionLayerInfo"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><ul class="jxTree"></ul></li>'
+    },
+    classes: new Hash({
+        domObj: 'jxTreeContainer', 
+        domA: 'jxTreeItem', 
+        domImg: 'jxTreeImage', 
+        domIcon: 'jxTreeIcon',
+        domLabel: 'jxTreeLabel',
+        domTree: 'jxTree',
+        checkbox: 'fusionLegendCheckboxInput',
+        layerInfo: 'fusionLayerInfo',
+        layerInfoIcon: 'fusionLayerInfoIcon',
+        groupInfo: 'fusionGroupInfo',
+        groupInfoIcon: 'fusionGroupInfoIcon'
+    }),
+    init: function() {
+      this.bound.onClick = function(e){
+          if (this.options.data) {
+              if (e.target.checked && this.options.data.show) {
+                  this.options.data.show();
+              } else if (!e.target.checked && this.options.data.hide) {
+                  this.options.data.hide();
+              }
+          }
+      }.bind(this);
+      this.bound.enabled = function() {
+          this.checkbox.disabled = false;
+      }.bind(this);
+      this.bound.disabled = function() {
+          this.checkbox.disabled = true;
+      }.bind(this);
+      this.parent();
+    },
+    
+    render: function() {
+        this.parent();
+        if (this.checkbox) {
+            if ($defined(this.options.checked)) {
+                this.check(this.options.checked);
+            }
+            this.checkbox.addEvent('click', this.bound.onClick);
+            this.addEvents({
+                enabled: this.bound.enabled,
+                disabled: this.bound.disabled
+            });
+        }
+    },
+    cleanup: function() {
+      this.removeEvents({
+        enabled: this.bound.enabled,
+        disabled: this.bound.disabled
+      });
+      if (this.checkbox) {
+        this.checkbox.removeEvent('click', this.bound.onClick);
+      }
+      this.bound.onClick = null;
+      this.bound.enabled = null;
+      this.bound.disabled = null;
+      this.parent();
+    },
+    check: function(state) {
+        if (this.checkbox) {
+            this.checkbox.set('checked', state);
+        }
+    },
+    isChecked: function() {
+        return this.checkbox && this.checkbox.checked;
+    },
+    setLayerInfo: function(url, icon) {
+        //change class to make fusionLayerInfo display block
+        this.domObj.addClass('fusionShowLayerInfo');
+        if (this.layerInfo) {
+            this.layerInfo.set('href', url);
+        }
+        if (this.layerInfoIcon) {
+            this.layerInfoIcon.set('src', icon);
+        }
+    },
+    
+    setGroupInfo: function(url, icon) {
+        //change class to make fusionGroupInfo display block
+        this.domObj.addClass('fusionShowGroupInfo');
+        if (this.groupInfo) {
+            this.groupInfo.set('href', url);
+        }
+        if (this.groupInfoIcon) {
+            this.groupInfoIcon.set('src', icon);
+        }
+    }
 });

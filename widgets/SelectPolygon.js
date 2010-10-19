@@ -33,6 +33,7 @@
 Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
+    bActiveOnly: false, //only select feature(s) on the active layer?
     selectionType: 'INTERSECTS',
     nTolerance: 3, //default pixel tolernace for a point click
     
@@ -45,6 +46,11 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         if (json.Tolerance && (parseInt(json.Tolerance[0]) > 0)) {
             nTolerance = parseInt(json.Tolerance[0]);
         }
+        
+        this.bActiveOnly = (json.QueryActiveLayer &&
+                           (json.QueryActiveLayer[0] == 'true' ||
+                            json.QueryActiveLayer[0] == '1')) ? true : false;
+
         this.bComputeMetadata = (json.ComputeMetadata &&
                            (json.ComputeMetadata[0] == 'true' ||
                             json.ComputeMetadata[0] == '1')) ? true : false;

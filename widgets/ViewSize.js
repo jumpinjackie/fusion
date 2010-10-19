@@ -56,6 +56,9 @@ Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setUnits, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateViewSize, this));
         this.registerParameter('Units');
+        
+        Fusion.addWidgetStyleSheet(widgetTag.location + '/ViewSize/ViewSize.css');
+        
     },
     
     setUiObject: function(uiObj) {

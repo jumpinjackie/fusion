@@ -185,7 +185,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         
         this.aExecutedTasks.push(newUrl);
         ++this.nCurrentTask;
-        this.loadFrame(url);
+        this.loadFrame(newUrl);
     },
     
     loadFrame: function(url) {

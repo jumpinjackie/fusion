@@ -1,0 +1,30 @@
+/* SHEET STYLES */
+
+.addWMSDialog {
+  padding: 5px;
+  font-size: 12px;
+  line-height: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.addWMSDialog label {
+  display: block;
+  float: left;
+  clear: left;
+  background-color:transparent;
+  color:#000000;
+}
+
+.addWMSDialog select, 
+.addWMSDialog textarea,
+.addWMSDialog input {
+  float: left;
+}
+
+#AddWMSLayersContent {
+  overflow: auto;
+  border: 1px solid #999;
+  background-color: #fff;
+  height: 200px;
+}
+

@@ -33,6 +33,8 @@ Fusion.Event.MAP_LAYER_TOGGLED = Fusion.Event.lastEventId++;
 Fusion.Event.MAP_LAYER_ORDER_CHANGED = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_LOADED = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_LOADING = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_START_EDIT = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_STOP_EDIT = Fusion.Event.lastEventId++;
 
 Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bSingleTile: null,
@@ -48,6 +50,10 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     noCache: false,
     _sMapTitle: null,
     _sMapname: null,
+    supports: {
+      query: false,
+      edit: false
+    },
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Fusion.Layers.initialize');
@@ -59,6 +65,8 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.registerEventID(Fusion.Event.LAYER_LOADING);
         this.registerEventID(Fusion.Event.MAP_LAYER_ORDER_CHANGED);
         this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
+        this.registerEventID(Fusion.Event.LAYER_START_EDIT);
+        this.registerEventID(Fusion.Event.LAYER_STOP_EDIT);
         
         this.mapWidget = map;
         this.oSelection = null;
@@ -87,7 +95,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
      */
 
     loadScaleRanges: function(userFunc) {
-      userFunc();
+      if (userFunc) userFunc();
     },
 
 
@@ -97,6 +105,14 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
 
     getMapTitle: function() {
         return this._sMapTitle;
+    },
+    
+    getMetadata: function(key) {
+        if (this.metadata && typeof this.metadata[key] != 'undefined') {
+            return this.metadata[key];
+        } else {
+            return '';
+        }
     },
 
     /**
@@ -288,7 +304,11 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         return null;
     },
     
-    getMapTip: function(mapTipWidget) {}
+    getMapTip: function(mapTipWidget) {},
+    
+    startEditing: function() { },
+
+    stopEditing: function() { }
 });
 
 /***************************************************************************
@@ -416,6 +436,17 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
             }
         }
         return null;
+    },
+
+    deleteLayer: function(uniqueId) {
+        for (var i=0; i<this.layers.length; i++) {
+            if (this.layers[i]['uniqueId'] == uniqueId) {
+                this.layers.splice(i,1);
+            }
+        }
+        for (var i=0; i<this.groups.length; i++) {
+            this.groups[i].deleteLayer(uniqueId);
+        }
     }
 
 });
@@ -446,11 +477,12 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.actuallyVisible = o.actuallyVisible;
         this.statusDefault = o.statusdefault;
         this.editable = o.editable;
+        this.isEditing = false;
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
         this.selectable = o.selectable;
+        this.metadata = o.metadata?o.metadata:{};
         this.isBaseMapLayer = o.isBaseMapLayer;
-
 
         //determine the layer type so that the correct icon can be displayed in the legend
         this.layerType = null;
@@ -529,6 +561,20 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
     set: function(property, value) {
         this[property] = value;
         this.oMap.triggerEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, this);
+    },
+    
+    startEditing: function() {
+      if (this.oMap.supports.edit && this.editable && !this.isEditing) {
+        this.isEditing = true;
+        this.oMap.triggerEvent(Fusion.Event.LAYER_START_EDIT, this);
+      }
+    },
+    
+    stopEditing: function() {
+      if (this.oMap.supports.edit && this.editable && this.isEditing) {
+        this.isEditing = false;
+        this.oMap.triggerEvent(Fusion.Event.LAYER_STOP_EDIT, this);
+      }
     }
 
 });
@@ -549,7 +595,7 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
         }
         this.styles = [];
         if (!o.styles) {
-          var styleItem = new Fusion.Layers.StyleItem({legendLabel:'DWF'}, layerType, iconOpt);
+          var styleItem = new Fusion.Layers.StyleItem({legendLabel:iconOpt.label}, layerType, iconOpt);
           this.styles.push(styleItem);
           return;
         }

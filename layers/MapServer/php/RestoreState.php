@@ -5,10 +5,10 @@ dl('zip.so');
 include(dirname(__FILE__).'/Common.php');
 include('../../../common/php/Utilities.php');
 
-header('Content-type: application/json');
-header('X-JSON: true');
+//header('Content-type: application/json');
+//header('X-JSON: true');
 
-isset($_REQUEST["session"])?$szSessionID = $_REQUEST["session"]:$szSessionID = NULL ;
+isset($_POST["session"])?$szSessionID = $_POST["session"]:$szSessionID = NULL ;
 isset($_REQUEST["id"])?$loadSessionID = $_REQUEST["id"]:$loadSessionID = NULL ;
 
 $oReturn = NULL;
@@ -39,6 +39,19 @@ if (isset($_SESSION['fusionConfig'])) {
 
                 $oMap = ms_newMapObj($oReturn->loadmap);
                 checkForGMLLayers($szDestination);
+                // turn off all the layers
+                for ($i=0;$i<$oMap->numlayers;$i++){
+                    $oLayer=$oMap->GetLayer($i);
+                    $oLayer->set("status", MS_OFF);
+                    }
+                // turn on the vis layers
+                $aLayers = explode(",",$oReturn->vislayers);
+                foreach($aLayers as $szName){
+                    $oLayer = $oMap->getLayerByName($szName);
+                    if($oLayer){
+                        $oLayer->set("status", MS_ON);
+                    }
+                }
                 $oMap->save($oReturn->loadmap);
                 echo var2json($oReturn);
             }
@@ -56,6 +69,7 @@ if (isset($_SESSION['fusionConfig'])) {
     {
     die("{'error':'PHP Session path is invalid.'}");
     }
+
 
 function checkForGMLLayers($szDestination){
     global $oMap;

@@ -64,7 +64,7 @@ if (!extension_loaded('MapScript')) {
 /* handle restoring a session */
 if (isset($REQUEST_VARS['session'])) {
     $sessionID = $REQUEST_VARS['session'];
-    initializeSession( "sid", "", $sessionID );
+    initializeSession( "session", "", $sessionID );
 }
 
 if (isset($_REQUEST['mapname'])) { 

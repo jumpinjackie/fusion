@@ -35,6 +35,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
     selectionType: 'INTERSECTS',
+    bActiveOnly: false, //only select feature(s) on the active layer?
     nTolerance: 3, //default pixel tolernace for a point click
     defaultRadius: 20, //this is now in pixels
     
@@ -53,6 +54,9 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
                            (json.ComputeMetadata[0] == 'true' ||
                             json.ComputeMetadata[0] == '1')) ? true : false;
         
+        this.bActiveOnly = (json.QueryActiveLayer &&
+                           (json.QueryActiveLayer[0] == 'true' ||
+                            json.QueryActiveLayer[0] == '1')) ? true : false;
         
         var container = json.RadiusTooltipContainer ? json.RadiusTooltipContainer[0] : '';
         if (container != '') {

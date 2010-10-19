@@ -28,7 +28,6 @@
  * Purpose: Load a mapfile into the session and return information about the
  *          map to the client
  *****************************************************************************/
-
 /* Common starts the session */
 include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include(dirname(__FILE__).'/Common.php');
@@ -40,6 +39,7 @@ define('MAX_SCALE', 1000000000);
 
 /* could potentially make this optional */
 $moveToSession = true;
+$modifyPaths = false;
 
 /**
    TODO make it possible to specify only a relative path
@@ -75,60 +75,80 @@ if (isset($_REQUEST['mapfile'])) {
         }
     }
 
-    $oMap = ms_newMapObj($szMapFile);
+    $sMapFileContents = '';
+    if (strpos($szMapFile, 'platform://') === 0) {
+        include_once($configObj->mapserver->platformPath . "/include/Common.php");
+        global $platformDefaultConfig;
+        $platformContext = new PlatformContext($platformDefaultConfig);
+        $platformContext->RestoreSession(session_id());
+
+        $mapGen = new Map($platformContext, substr($szMapFile, 10));
+        if ($mapGen->Exists()) {
+            $result = $mapGen->Save();
+            if ($result->IsOk()) {
+                $sMapFileContents = $result->Get('MAPDATA');
+            }
+        }
+        $oMap = ms_newMapObjFromString($sMapFileContents);
+    } else if (file_exists($szMapFile)) {
+        $modifyPaths = true;
+        $oMap = ms_newMapObj($szMapFile);
+    }
 
     /* optionally move the mapfile to the session */
     if ($moveToSession) {
         //path to map file in the session is used by the client
         $mapId = getSessionSavePath().($oMap->name).".map";
         //modify various paths if necessary
-        $pathToMap = dirname($szMapFile);
-        $cwd = getcwd();
-        chdir($pathToMap);
-        $shapePath = $oMap->shapepath;
-        $oMap->set('shapepath', realpath($shapePath));
-        $symbolSet = $oMap->symbolsetfilename;
-        if ($symbolSet != '') {
-            $oMap->setSymbolSet(realpath($symbolSet));
-        }
-        $fontSet = $oMap->fontsetfilename;
-        if ($fontSet != '') {
-            $oMap->setFontSet(realpath($fontSet));
-        }
-        /* need to modify all image symbols reference in the map file
-         eg STYLE
-             SYMBOL "../etc/markers/target-7.gif" : this is relative to the map file
-        */
-
-        for ($i=0; $i<$oMap->numlayers; $i++)
-        {
-            $oLayer = &$oMap->GetLayer($i);
-            /* check layername for invalid URI characters and replace */
-            $oLayer->set("name",replaceInvalidLayerName($oLayer->name));
-
-            for ($j=0; $j<$oLayer->numclasses; $j++)
-            {
-                $oClass = $oLayer->GetClass($j);
-                /* if keyimage is defined, change the path*/
-                if ($oClass->keyimage && strlen($oClass->keyimage) > 0)
-                {
-                     $oClass->set("keyimage", realpath($oClass->keyimage));
-                }
-                for ($k=0; $k<$oClass->numstyles; $k++)
-                {
-                    $oStyle = $oClass->getStyle($k);
-                    if ($oStyle->symbolname != "")
-                    {
-                        if (file_exists(realpath($oStyle->symbolname)))
-                        {
-                            $oStyle->set("symbolname", realpath($oStyle->symbolname));
-                        }
-                    }
-                }
-            }
+        if ($modifyPaths) {
+          $pathToMap = dirname($szMapFile);
+          $cwd = getcwd();
+          chdir($pathToMap);
+          $shapePath = $oMap->shapepath;
+          $oMap->set('shapepath', realpath($shapePath));
+          $symbolSet = $oMap->symbolsetfilename;
+          if ($symbolSet != '') {
+              $oMap->setSymbolSet(realpath($symbolSet));
+          }
+          $fontSet = $oMap->fontsetfilename;
+          if ($fontSet != '') {
+              $oMap->setFontSet(realpath($fontSet));
+          }
+          /* need to modify all image symbols reference in the map file
+           eg STYLE
+               SYMBOL "../etc/markers/target-7.gif" : this is relative to the map file
+          */
+  
+          for ($i=0; $i<$oMap->numlayers; $i++)
+          {
+              $oLayer = &$oMap->GetLayer($i);
+              /* check layername for invalid URI characters and replace */
+              $oLayer->set("name",replaceInvalidLayerName($oLayer->name));
+  
+              for ($j=0; $j<$oLayer->numclasses; $j++)
+              {
+                  $oClass = $oLayer->GetClass($j);
+                  /* if keyimage is defined, change the path*/
+                  if ($oClass->keyimage && strlen($oClass->keyimage) > 0)
+                  {
+                       $oClass->set("keyimage", realpath($oClass->keyimage));
+                  }
+                  for ($k=0; $k<$oClass->numstyles; $k++)
+                  {
+                      $oStyle = $oClass->getStyle($k);
+                      if ($oStyle->symbolname != "")
+                      {
+                          if (file_exists(realpath($oStyle->symbolname)))
+                          {
+                              $oStyle->set("symbolname", realpath($oStyle->symbolname));
+                          }
+                      }
+                  }
+              }
+          }
+          chdir($cwd);
         }
         $oMap->save($mapId);
-        chdir($cwd);
     } else {
         $mapId = $_REQUEST['mapfile'];
     }
@@ -139,6 +159,8 @@ if (isset($_REQUEST['mapfile'])) {
 
 $mapObj = NULL;
 if ($oMap) {
+    $mapName = $oMap->name;
+    
     header('Content-type: application/json');
     header('X-JSON: true');
     $mapObj->sessionId = $sessionID;
@@ -307,20 +329,24 @@ if ($oMap) {
          //create classes and slot them into the scale breaks
          for ($j=0; $j<$layer->numclasses; $j++) {
              $oClass = $layer->getClass($j);
-             $classObj = NULL;
-             // Use formatted legend label as defined by CLASS->TITLE
-             $classObj->legendLabel = $oClass->title != '' ? $oClass->title : $oClass->name;
-             $classObj->filter = $oClass->getExpression();
-             $classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
-             $classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
-             $classObj->minScale = $classMin;
-             $classObj->maxScale = $classMax;
-             $classObj->index = $j;
-             for ($k=0; $k<count($aScaleRanges); $k++) {
-                 if ($classMin < $aScaleRanges[$k]->maxScale &&
-                     $classMax > $aScaleRanges[$k]->minScale) {
-                     array_push($aScaleRanges[$k]->styles, $classObj);
-                 }
+             $displayInLegend = strtolower($oClass->getMetaData('displayInLegend')) == 'false' ? false : true;
+             if ($displayInLegend) {
+               $title = $oClass->getMetaData('legendlabel');
+               $classObj = NULL;
+               // Use formatted legend label as defined by CLASS->TITLE
+               $classObj->legendLabel = $title != '' ? $title : $oClass->name;
+               $classObj->filter = $oClass->getExpression();
+               $classMin = $oClass->minscale == -1 ? $layerMin : max($oClass->minscale, $layerMin);
+               $classMax = $oClass->maxscale == -1 ? $layerMax : min($oClass->maxscale, $layerMax);
+               $classObj->minScale = $classMin;
+               $classObj->maxScale = $classMax;
+               $classObj->index = $j;
+               for ($k=0; $k<count($aScaleRanges); $k++) {
+                   if ($classMin < $aScaleRanges[$k]->maxScale &&
+                       $classMax > $aScaleRanges[$k]->minScale) {
+                       array_push($aScaleRanges[$k]->styles, $classObj);
+                   }
+               }
              }
          }
          //$layerObj->scaleRanges = $aScaleRanges;
