@@ -167,6 +167,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var controlOptions = {
             persist: true,
             handlerOptions: handlerOptions,
+            partialDelay: 600,
             callbacks: {
                 'modify': OpenLayers.Function.bind(this.measurePartial, this),
                 'cancel': OpenLayers.Function.bind(this.resetMeasure, this)
