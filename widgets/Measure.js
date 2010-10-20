@@ -167,6 +167,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var controlOptions = {
             persist: true,
             handlerOptions: handlerOptions,
+            partialDelay: 600,
             callbacks: {
                 'modify': OpenLayers.Function.bind(this.measurePartial, this),
                 'cancel': OpenLayers.Function.bind(this.resetMeasure, this)
@@ -303,11 +304,6 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             this.areaMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, '', true);
         }
         this.updateMarker(this.areaMarker, geom);
-    },
-
-    delayUpdate: function(marker, geom) {
-        this.delayUpdateTimer = null;
-        this.updateMarker(marker, geom);
     },
 
     updateMarker: function(marker, geom) {
