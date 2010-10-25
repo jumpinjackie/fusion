@@ -216,6 +216,8 @@ if ($oMap) {
           $layerObj->metadata->wfs_typename = $wfs_typename != '' ? $wfs_typename : $layer->name;
           $wfs_version = $layer->getMetadata('wfs_version');
           $layerObj->metadata->wfs_version = $wfs_version != '' ? $wfs_version : '1.1.0';
+          if ($layer->getMetadata('wfs_geometry') !='')
+            $layerObj->metadata->wfs_geometry = $layer->getMetadata('wfs_geometry');
         }
         
         if (isset($_REQUEST['layer_metadata'])) {
