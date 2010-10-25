@@ -628,10 +628,15 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
                           }
                         }
                       }
+                      that.wfsConnection = new OpenLayers.Protocol.WFS({
+                        version: version,
+                        featureType: typeName,
+                        geometryName: that.metadata.wfs_geometry
+                      });
                     }
                   }
                   if (callback) {
-                    callback.apply(null, [conn]);
+                    callback.apply(null, [that.wfsConnection]);
                   }
                 }
               });
