@@ -34,6 +34,9 @@ include ("Common.php");
 include ("Utilities.php");
 include('../../../common/php/Utilities.php');
 
+header('Content-type: application/json');
+header('X-JSON: true');
+
 /* the name of the layer in the map to query */
 if ($_REQUEST['layers'] != '') {
     $layers = explode(',',$_REQUEST['layers']);
@@ -54,8 +57,9 @@ if (isset($_REQUEST['variant'])) {
         $variant = 'inside';
     }
 }
-/* a filter expression to apply, in the form of an FDO SQL statement */
-$filter = isset($_REQUEST['filter']) ? str_replace(array('*', '"'), array('%', "'"),html_entity_decode(urldecode( $_REQUEST['filter']))) : false;
+/* a filter expression to apply, in the form of an MapServer expression statement */
+$filter = isset($_REQUEST['filter']) ? html_entity_decode(urldecode( $_REQUEST['filter'])) : false;
+$filterItem = isset($_REQUEST['filterItem']) ? html_entity_decode(urldecode( $_REQUEST['filterItem'])) : false;
 //echo "<!-- filter: $filter -->\n";
 /* a spatial filter in the form on a WKT geometry */
 $spatialFilter = (isset($_REQUEST['spatialfilter']) && $_REQUEST['spatialfilter'] != '') ? urldecode($_REQUEST['spatialfilter']) : false;
@@ -74,7 +78,7 @@ $msVersion = ms_GetVersion();
 $versArray = explode(" ",$msVersion);
 $versNumber = $versArray[2];
 $versParts = explode(".", $versNumber);
-$queryTemplate = "query.qry";
+$queryTemplate = "query.qy";
 //convert to an integer value to make the comparison easier
 $versValue = $versParts[0]*100 + $versParts[1]*10 + $versParts[2];
 if ($versValue >= 522) {
@@ -91,7 +95,7 @@ if ($spatialFilter !== false ) {
 $bExtendSelection = isset($_REQUEST['extendselection']) && strcasecmp($_REQUEST['extendselection'], 'true') == 0;
 if ($bExtendSelection) {
     //TODO figure out how to load an existing selection here
-    $oMap->loadquery(getSessionSavePath()."query.qry");
+    $oMap->loadquery(getSessionSavePath()."query.qy");
 }
 
 $bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['computed'], 'true') == 0; 
@@ -99,14 +103,78 @@ $bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['com
 $bAllLayers = false;
 $nLayers = count($layers);
 $nSelections = 0;
-if ($nLayers == 0) {
-    $nLayers = $oMap->numlayers;
-    $bAllLayers = true;
-}
 
 $result = NULL;
 $result->hasSelection = false;
 $result->layers = array();
+
+if ($nLayers == 0) {
+    $nLayers = $oMap->numlayers;
+    $bAllLayers = true;
+    
+    if ($spatialFilter !== false ) {
+      if (@$oMap->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+	  $result->hasSelection = true;
+      }
+    }
+    
+} else {
+	for ($i=0; $i<$nLayers; $i++) {
+	    if (!$bAllLayers) {
+		$oLayer = $oMap->GetLayerByName($layers[$i]);
+	    } else {
+		$oLayer = $oMap->GetLayer($i);
+	    }
+	    $oLayer->set('tolerance', 0);
+	    if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
+		$oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
+		continue;            
+	    }
+	    if ($spatialFilter !== false ) {
+	      if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+		  $result->hasSelection = true;
+		  $layerName = $oLayer->name;
+		  array_push($result->layers, $layerName);
+		  $result->$layerName->featureCount = $oLayer->getNumResults();
+		  //TODO: dump out the extents of the selection
+	      }
+	    }
+	    if ($filter !== false ) {
+	      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
+		$f = $filter;
+		$filter = $filterItem . ' IN (' . $filter . ')';
+	      }
+	      if (@$oLayer->queryByAttributes($filterItem,$filter,MS_MULTIPLE) == MS_SUCCESS) {
+	      //if (@$oLayer->queryByAttributes($filterItem,'([REG_CODE] eq 61)',MS_MULTIPLE) == MS_SUCCESS) {
+	      //if (@$oLayer->queryByAttributes('NAME_E','/.*Buffalo.*/gi',MS_MULTIPLE) == MS_SUCCESS) {
+		  $result->hasSelection = true;
+		  $layerName = $oLayer->name;
+		  array_push($result->layers, $layerName);
+		  $result->$layerName->featureCount = $oLayer->getNumResults();
+		  //TODO: dump out the extents of the selection
+	      }
+	      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
+		$filter = $f;
+	      }
+	    }
+	
+	    if ($bExtendSelection) {
+	    } else {
+	    }
+	}
+}
+if ($bExtendSelection) {
+}
+
+/************************************************************************/
+/*         Save the query file here before doing any raster queries     */
+/************************************************************************/
+if ($result->hasSelection) {
+    $oMap->savequery(getSessionSavePath()."query.qy");
+    $result->queryFile = getSessionSavePath()."query.qy";
+ }
+
+/*raster query: limit the result to 100 if it is not already set in the map fle*/
 for ($i=0; $i<$nLayers; $i++) {
     if (!$bAllLayers) {
         $oLayer = $oMap->GetLayerByName($layers[$i]);
@@ -114,13 +182,40 @@ for ($i=0; $i<$nLayers; $i++) {
         $oLayer = $oMap->GetLayer($i);
     }
     $oLayer->set('tolerance', 0);
-    if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
-        $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
+    if ($oLayer->type != MS_LAYER_RASTER)
         continue;            
+    
+    $aProcessings = $oLayer->getprocessing();
+
+    $nCount = count($aProcessings);
+    $bRasterMaxSet = 0;
+    for ($i=0;$i<$nCount; $i++)
+    {
+        $aKeyVal = explode("=", $aProcessings[$i]);
+        if (count($aKeyVal) == 2 && 
+            strcasecmp(trim($aKeyVal[0]), "RASTER_QUERY_MAX_RESULT") == 0)
+        {
+            $bRasterMaxSet = 1;
+            break;
+        }
     }
 
-    
-    if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+    if (!$bRasterMaxSet)
+      $oLayer->setprocessing("RASTER_QUERY_MAX_RESULT=100");
+
+    /*are we doing a point query? In that case maxfeatures was set to 1*/
+    /*this is not ideal but It is better to use querybypoint when we do point query and
+      a query by shape when we do other type of queries*/
+    if (isset($_REQUEST['maxfeatures']) && $_REQUEST['maxfeatures'] == '1')
+    {
+        $oCenterPoint = ms_newpointobj();
+        $oPoint = $oSpatialFilter->getCentroid();
+        $status = $oLayer->queryByPoint($oPoint, MS_SINGLE, -1);
+    }
+    else
+      $status = @$oLayer->queryByShape($oSpatialFilter);
+
+    if ($status == MS_SUCCESS) {
         $result->hasSelection = true;
         $layerName = $oLayer->name;
         array_push($result->layers, $layerName);
@@ -132,15 +227,8 @@ for ($i=0; $i<$nLayers; $i++) {
     } else {
     }
 }
-if ($bExtendSelection) {
-}
 
-header('Content-type: application/json');
-header('X-JSON: true');
 if ($result->hasSelection) {
-    $oMap->savequery(getSessionSavePath()."query.qry");
-    $result->queryFile = getSessionSavePath()."query.qry";
-
     /*holds selection array*/
     $properties = NULL;
     $properties->layers = array();
@@ -168,7 +256,8 @@ if ($result->hasSelection) {
         $properties->$layerName->propertyvalues = array();
         $properties->$layerName->propertytypes = array();
         $properties->$layerName->values = array();
-
+        $aQueryItems = array();
+        
         $properties->$layerName->metadatanames= array();
         array_push($properties->$layerName->metadatanames, 'dimension');
         array_push($properties->$layerName->metadatanames, 'bbox');
@@ -199,7 +288,7 @@ if ($result->hasSelection) {
                   $token = strtok($tokenSeparator);
               }
             }
-          
+
             // checking if metadata "query_exclude_items" is set
             $metadataItems = $oLayer->getMetaData('query_exclude_items');
             if ($metadataItems != "") {

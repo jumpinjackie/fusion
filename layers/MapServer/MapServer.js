@@ -826,7 +826,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         var layers = options.layers || '';
         /* if no layes are given, query only visible layers. This is ususally the most common case*/
         if (layers == '') {
-          layers = this.aVisibleLayers.join(',');
+          //layers = this.aVisibleLayers.join(',');
         }
         var zoomTo = options.zoomTo || false;
         var sl = Fusion.getScriptLanguage();
