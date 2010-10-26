@@ -41,7 +41,7 @@ if ($_REQUEST['layer'] != '') {
 }
 
 /* The Label*/
-if ($_REQUEST['layer'] != '') {
+if ($_REQUEST['label'] != '') {
     $aLabel = split(",",$_REQUEST['label']);
 }
 
