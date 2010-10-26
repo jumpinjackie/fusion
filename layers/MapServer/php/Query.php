@@ -103,55 +103,65 @@ $bComputedProperties = isset($_REQUEST['computed']) && strcasecmp($_REQUEST['com
 $bAllLayers = false;
 $nLayers = count($layers);
 $nSelections = 0;
-if ($nLayers == 0) {
-    $nLayers = $oMap->numlayers;
-    $bAllLayers = true;
-}
+
 $result = NULL;
 $result->hasSelection = false;
 $result->layers = array();
-for ($i=0; $i<$nLayers; $i++) {
-    if (!$bAllLayers) {
-        $oLayer = $oMap->GetLayerByName($layers[$i]);
-    } else {
-        $oLayer = $oMap->GetLayer($i);
-    }
-    $oLayer->set('tolerance', 0);
-    if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
-        $oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
-        continue;            
-    }
-    if ($spatialFilter !== false ) {
-      if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
-          $result->hasSelection = true;
-          $layerName = $oLayer->name;
-          array_push($result->layers, $layerName);
-          $result->$layerName->featureCount = $oLayer->getNumResults();
-          //TODO: dump out the extents of the selection
-      }
-    }
-    if ($filter !== false ) {
-      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
-        $f = $filter;
-        $filter = $filterItem . ' IN (' . $filter . ')';
-      }
-      if (@$oLayer->queryByAttributes($filterItem,$filter,MS_MULTIPLE) == MS_SUCCESS) {
-      //if (@$oLayer->queryByAttributes($filterItem,'([REG_CODE] eq 61)',MS_MULTIPLE) == MS_SUCCESS) {
-      //if (@$oLayer->queryByAttributes('NAME_E','/.*Buffalo.*/gi',MS_MULTIPLE) == MS_SUCCESS) {
-          $result->hasSelection = true;
-          $layerName = $oLayer->name;
-          array_push($result->layers, $layerName);
-          $result->$layerName->featureCount = $oLayer->getNumResults();
-          //TODO: dump out the extents of the selection
-      }
-      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
-        $filter = $f;
-      }
-    }
 
-    if ($bExtendSelection) {
-    } else {
+if ($nLayers == 0) {
+    $nLayers = $oMap->numlayers;
+    $bAllLayers = true;
+    
+    if ($spatialFilter !== false ) {
+      if (@$oMap->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+	  $result->hasSelection = true;
+      }
     }
+    
+} else {
+	for ($i=0; $i<$nLayers; $i++) {
+	    if (!$bAllLayers) {
+		$oLayer = $oMap->GetLayerByName($layers[$i]);
+	    } else {
+		$oLayer = $oMap->GetLayer($i);
+	    }
+	    $oLayer->set('tolerance', 0);
+	    if ($oLayer->type ==  MS_LAYER_RASTER || $oLayer->type == MS_LAYER_QUERY ||
+		$oLayer->type ==  MS_LAYER_CIRCLE ||  $oLayer->type == MS_LAYER_CHART) {
+		continue;            
+	    }
+	    if ($spatialFilter !== false ) {
+	      if (@$oLayer->queryByShape($oSpatialFilter) == MS_SUCCESS) {
+		  $result->hasSelection = true;
+		  $layerName = $oLayer->name;
+		  array_push($result->layers, $layerName);
+		  $result->$layerName->featureCount = $oLayer->getNumResults();
+		  //TODO: dump out the extents of the selection
+	      }
+	    }
+	    if ($filter !== false ) {
+	      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
+		$f = $filter;
+		$filter = $filterItem . ' IN (' . $filter . ')';
+	      }
+	      if (@$oLayer->queryByAttributes($filterItem,$filter,MS_MULTIPLE) == MS_SUCCESS) {
+	      //if (@$oLayer->queryByAttributes($filterItem,'([REG_CODE] eq 61)',MS_MULTIPLE) == MS_SUCCESS) {
+	      //if (@$oLayer->queryByAttributes('NAME_E','/.*Buffalo.*/gi',MS_MULTIPLE) == MS_SUCCESS) {
+		  $result->hasSelection = true;
+		  $layerName = $oLayer->name;
+		  array_push($result->layers, $layerName);
+		  $result->$layerName->featureCount = $oLayer->getNumResults();
+		  //TODO: dump out the extents of the selection
+	      }
+	      if ($oLayer->connectiontype == MS_POSTGIS && $filterItem != '') {
+		$filter = $f;
+	      }
+	    }
+	
+	    if ($bExtendSelection) {
+	    } else {
+	    }
+	}
 }
 if ($bExtendSelection) {
 }
