@@ -3,6 +3,10 @@
 <html>
 <head>
 <title>Sample Fusion Application</title>
+<!-- uncomment for Google layers -->
+<!-- script type="text/javascript" src='http://maps.google.com/maps/api/js?sensor=false'></script-->
+<!-- uncomment for Bing layers -->
+<!-- script src='http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.1'></script-->
 <!-- change the source of the following tag to point to your fusion installation -->
 <script type="text/javascript" src="../../../lib/fusion.js"></script>
 <link rel="stylesheet" href="themes/delicious/jxtheme.css" type="text/css" media="screen" charset="utf-8">
@@ -75,9 +79,9 @@ window.onload = function() {
     var pm = new Jx.PanelSet({parent:'PanelPane', panels:[p1, p2, p3]});
     
     Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, function() {
-        $('thePage').resize({forceResize: true});
         $('thePage').style.visibility = 'visible';
         mainPanel.layoutContent();
+        $('thePage').resize({forceResize: true});
     });
     Fusion.registerForEvent(Fusion.Event.FUSION_ERROR, fusionError);
     Fusion.initialize();

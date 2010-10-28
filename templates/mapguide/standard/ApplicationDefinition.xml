@@ -102,6 +102,58 @@
         </Extension>
       </Map>
     </MapGroup>
+    <MapGroup id="bing">
+      <InitialView>
+          <MinX>-9774168</MinX>
+          <MinY>5415995</MinY>
+          <MaxX>-9754637</MaxX>
+          <MaxY>5434757</MaxY>
+      </InitialView>
+      <Map>
+        <Type>VirtualEarth</Type>
+        <Extension>
+          <ResourceId>ve</ResourceId>
+        </Extension>
+      </Map>
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/Maps/SheboyganMercator.MapDefinition</ResourceId>
+          <Options>
+             <isBaseLayer>false</isBaseLayer>
+             <useOverlay>true</useOverlay>
+             <projection>EPSG:900913</projection>
+          </Options>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="google2">
+      <InitialView>
+          <MinX>-9774168</MinX>
+          <MinY>5415995</MinY>
+          <MaxX>-9754637</MaxX>
+          <MaxY>5434757</MaxY>
+      </InitialView>
+      <Map>
+        <Type>Google</Type>
+        <Extension>
+          <ResourceId>google</ResourceId>
+        </Extension>
+      </Map>
+      <Map xsi:type="MapGuideLayerType">
+        <Type>MapGuide</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/Maps/SheboyganMercator.MapDefinition</ResourceId>
+          <Options>
+             <isBaseLayer>false</isBaseLayer>
+             <useOverlay>true</useOverlay>
+             <projection>EPSG:900913</projection>
+          </Options>
+        </Extension>
+      </Map>
+    </MapGroup>
     <MapGroup id="google" xsi:type="MapType">
       <Map xsi:type="WMSLayerType">
         <Type>Google</Type>
