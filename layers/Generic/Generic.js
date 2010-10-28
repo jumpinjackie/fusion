@@ -95,26 +95,30 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
           case 'Google':
             switch (this.mapTag.layerOptions.type) {   //Google layer types are actual objects
               case 'G_PHYSICAL_MAP':              //defined by gmap, not a string
-                this.mapTag.layerOptions.type = G_PHYSICAL_MAP;
+              case 'TERRAIN':
+                this.mapTag.layerOptions.type = google.maps.MapTypeId.TERRAIN;
                 break;
               case 'G_HYBRID_MAP':
-                this.mapTag.layerOptions.type = G_HYBRID_MAP;
+              case 'HYBRID':
+                this.mapTag.layerOptions.type = google.maps.MapTypeId.HYBRID;
                 break;
               case 'G_SATELLITE_MAP':
-                this.mapTag.layerOptions.type = G_SATELLITE_MAP;
+              case 'SATELLITE':
+                this.mapTag.layerOptions.type = google.maps.MapTypeId.SATELLITE;
                 break;
               case 'G_NORMAL_MAP':
-                this.mapTag.layerOptions.type = G_NORMAL_MAP;
+              case 'ROADMAP':
+                this.mapTag.layerOptions.type = google.maps.MapTypeId.ROADMAP;
               default:
                 // For the re-loaded Google layers
-                if(this.mapTag.layerOptions.type == G_PHYSICAL_MAP)
-                  this.mapTag.layerOptions.type = G_PHYSICAL_MAP;
-                else if(this.mapTag.layerOptions.type == G_HYBRID_MAP)
-                  this.mapTag.layerOptions.type = G_HYBRID_MAP;
-                else if(this.mapTag.layerOptions.type == G_SATELLITE_MAP)
-                  this.mapTag.layerOptions.type = G_SATELLITE_MAP;
+                if(this.mapTag.layerOptions.type == google.maps.MapTypeId.TERRAIN)
+                  this.mapTag.layerOptions.type = google.maps.MapTypeId.TERRAIN;
+                else if(this.mapTag.layerOptions.type == google.maps.MapTypeId.HYBRID)
+                  this.mapTag.layerOptions.type = google.maps.MapTypeId.HYBRID;
+                else if(this.mapTag.layerOptions.type == google.maps.MapTypeId.SATELLITE)
+                  this.mapTag.layerOptions.type = google.maps.MapTypeId.SATELLITE;
                 else 
-                  this.mapTag.layerOptions.type = G_NORMAL_MAP;
+                  this.mapTag.layerOptions.type = google.maps.MapTypeId.ROADMAP;
                 break;
             }
             break;
