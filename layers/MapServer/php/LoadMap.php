@@ -157,6 +157,11 @@ if (isset($_REQUEST['mapfile'])) {
     $mapId = getSessionSavePath().($oMap->name).".map";
 }
 
+if ($configObj->mapserver->obscureMapFile) {
+  error_log('obscuring map file');
+  $mapId = $oMap->name;
+}
+
 $mapObj = NULL;
 if ($oMap) {
     $mapName = $oMap->name;
