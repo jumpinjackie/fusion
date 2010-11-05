@@ -8,9 +8,9 @@
 * application.
  ****************************************** -->
 
-  <MapSet xsi:type="MapSetType">
-    <MapGroup id="sheboygan" xsi:type="MapType">
-      <Map xsi:type="MapGuideLayerType">
+  <MapSet>
+    <MapGroup id="sheboygan">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>true</SingleTile>
         <Extension>
@@ -22,8 +22,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="mixed" xsi:type="MapType">
-      <Map xsi:type="WMSLayerType">
+    <MapGroup id="mixed">
+      <Map>
         <Type>WMS</Type>
         <Extension>
           <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
@@ -39,7 +39,7 @@
           </Parameters>
         </Extension>
       </Map>
-      <Map xsi:type="MapGuideLayerType">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>true</SingleTile>
         <Extension>
@@ -50,8 +50,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="sheboygan-tiled" xsi:type="MapType">
-      <Map xsi:type="MapGuideLayerType">
+    <MapGroup id="sheboygan-tiled">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>false</SingleTile>
         <Extension>
@@ -59,8 +59,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="gmap-tiled" xsi:type="MapType">
-      <Map xsi:type="MapGuideLayerType">
+    <MapGroup id="gmap-tiled">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>false</SingleTile>
         <Extension>
@@ -70,8 +70,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="gmap" xsi:type="MapType">
-      <Map xsi:type="MapGuideLayerType">
+    <MapGroup id="gmap">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>false</SingleTile>
         <Extension>
@@ -81,8 +81,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="wmsOnly" xsi:type="MapType">
-      <Map xsi:type="WMSLayerType">
+    <MapGroup id="wmsOnly">
+      <Map>
         <Type>WMS</Type>
         <Extension>
           <ResourceId>http://localhost/cgi-bin/testwms.exe</ResourceId>
@@ -115,7 +115,7 @@
           <ResourceId>ve</ResourceId>
         </Extension>
       </Map>
-      <Map xsi:type="MapGuideLayerType">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>true</SingleTile>
         <Extension>
@@ -141,7 +141,7 @@
           <ResourceId>google</ResourceId>
         </Extension>
       </Map>
-      <Map xsi:type="MapGuideLayerType">
+      <Map>
         <Type>MapGuide</Type>
         <SingleTile>true</SingleTile>
         <Extension>
@@ -154,8 +154,8 @@
         </Extension>
       </Map>
     </MapGroup>
-    <MapGroup id="google" xsi:type="MapType">
-      <Map xsi:type="WMSLayerType">
+    <MapGroup id="google">
+      <Map>
         <Type>Google</Type>
         <Extension>
           <ResourceId>google</ResourceId>
@@ -178,7 +178,7 @@
 * application.
  ****************************************** -->
 
-  <WidgetSet xsi:type="WidgetSetType">
+  <WidgetSet>
 
 <!-- ****************************************** 
 * ContextMenu (Tasks)
@@ -186,14 +186,14 @@
 * Menu available to the Task Pane
  ****************************************** -->
 
-    <Container xsi:type="UiItemContainerType">
+    <Container>
       <Name>TaskContextMenu</Name>
       <Type>ContextMenu</Type>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuMeasure</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarBuffer</Widget>
       </Item>
@@ -205,124 +205,124 @@
 * Menu available to the Map on right-click
  ****************************************** -->
 
-    <Container xsi:type="UiItemContainerType">
+    <Container>
       <Name>MapContextMenu</Name>
       <Type>ContextMenu</Type>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuRefreshMap</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuPan</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuZoomInRectangle</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuZoomInFixed</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuZoomOutFixed</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="FlyoutItemType">
+      <Item>
         <Function>Flyout</Function>
         <Label>Zoom</Label>
         <Tooltip>Open the zoom menu</Tooltip>
         <ImageUrl/>
         <ImageClass/>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuInitialMapView</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuPreviousView</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuNextView</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuInitialMapScaleAndCenter</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuZoomSelection</Widget>
         </Item>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuSelect</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuClearSelection</Widget>
       </Item>
-      <Item xsi:type="FlyoutItemType">
+      <Item>
         <Function>Flyout</Function>
         <Label>Select More</Label>
         <Tooltip>Open the select menu</Tooltip>
         <ImageUrl/>
         <ImageClass/>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuSelectRadius</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuSelectPolygon</Widget>
         </Item>
-        <Item xsi:type="WidgetItemType">
+        <Item>
           <Function>Widget</Function>
           <Widget>menuSelectWithin</Widget>
         </Item>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuBuffer</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuMeasure</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
 
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuViewOptions</Widget>
       </Item>
 
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
 
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuHelp</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>menuAbout</Widget>
       </Item>
@@ -334,86 +334,86 @@
 * 
  ****************************************** -->
 
-    <Container xsi:type="UiItemContainerType">
+    <Container>
       <Name>Toolbar</Name>
       <Type>Toolbar</Type>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>MapMenu</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarHelp</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarViewOptions</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>GetPrintablePage</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>Select</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>Pan</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>ZoomInRectangle</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>ZoomInFixed</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>ZoomOutFixed</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSecondaryInitialMapView</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSecondaryPreviousView</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSecondaryNextView</Widget>
       </Item>
-      <Item xsi:type="SeparatorItemType">
+      <Item>
         <Function>Separator</Function>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSecondaryZoomSelection</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSelectPolygon</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSelectRadius</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarMeasure</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
         <Function>Widget</Function>
         <Widget>toolbarSaveMap</Widget>
       </Item>
@@ -427,22 +427,31 @@
  ****************************************** -->
 
 
-    <Container xsi:type="UiItemContainerType">
+    <Container>
       <Name>Statusbar</Name>
-      <Type>Splitterbar</Type>
-      <Item xsi:type="WidgetItemType">
+      <Type>Toolbar</Type>
+      <Item>
         <Function>Widget</Function>
         <Widget>StatusCoords</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
+        <Function>Separator</Function>
+      </Item>
+      <Item>
         <Function>Widget</Function>
         <Widget>StatusSelection</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
+        <Function>Separator</Function>
+      </Item>
+      <Item>
         <Function>Widget</Function>
         <Widget>StatusScale</Widget>
       </Item>
-      <Item xsi:type="WidgetItemType">
+      <Item>
+        <Function>Separator</Function>
+      </Item>
+      <Item>
         <Function>Widget</Function>
         <Widget>StatusViewSize</Widget>
       </Item>
@@ -450,11 +459,11 @@
 
 <!-- MAP -->
 
-    <MapWidget xsi:type="WidgetType">
+    <MapWidget>
       <Name>Map</Name>
       <Type>Map</Type>
       <StatusText>The map.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <MenuContainer>MapContextMenu</MenuContainer>
         <!--Scales>100000,50000,25000,12500,8000,4000</Scales-->
       </Extension>
@@ -469,7 +478,7 @@
 
 <!-- CONTEXT MENU PAN -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuPan</Name>
       <Type>Pan</Type>
       <StatusText>Drag the map to view areas out of range.</StatusText>
@@ -482,11 +491,11 @@
 
 <!-- CONTEXT MENU ZOOM RECTANGLE -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuZoomInRectangle</Name>
       <Type>Zoom</Type>
       <StatusText>Zoom in on an area.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Tolerance>5</Tolerance>
         <Factor>2</Factor>
       </Extension>
@@ -499,11 +508,11 @@
 
 <!-- CONTEXT MENU ZOOM FIXED (IN) -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuZoomInFixed</Name>
       <Type>ZoomOnClick</Type>
       <StatusText>Zoom in by a preset increment.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Factor>2</Factor>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -515,7 +524,7 @@
 
 <!-- CONTEXT MENU REFRESH MAP -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuRefreshMap</Name>
       <Type>RefreshMap</Type>
       <StatusText>Refreshes the map image.</StatusText>
@@ -528,11 +537,11 @@
 
 <!-- CONTEXT MENU ZOOM FIXED (OUT) -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuZoomOutFixed</Name>
       <Type>ZoomOnClick</Type>
       <StatusText>Zoom out by a preset increment</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Factor>0.5</Factor>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -544,11 +553,11 @@
 
 <!-- CONTEXT MENU INITIAL MAP VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuInitialMapView</Name>
       <Type>InitialMapView</Type>
       <StatusText>Fit the extents of the map to the window</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <ViewType>extent</ViewType>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -560,11 +569,11 @@
 
 <!-- CONTEXT MENU PREVIOUS VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuPreviousView</Name>
       <Type>ExtentHistory</Type>
       <StatusText>Go to previous view.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Direction>previous</Direction>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -576,11 +585,11 @@
 
 <!-- CONTEXT MENU NEXT VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuNextView</Name>
       <Type>ExtentHistory</Type>
       <StatusText>Go to next view.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Direction>next</Direction>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -592,11 +601,11 @@
 
 <!-- CONTEXT MENU INITIAL MAP VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuInitialMapScaleAndCenter</Name>
       <Type>InitialMapView</Type>
       <StatusText>Zoom to initial map center and scale.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <ViewType>center</ViewType>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -608,7 +617,7 @@
 
 <!-- CONTEXT MENU ZOOM SELECTION -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuZoomSelection</Name>
       <Type>ZoomToSelection</Type>
       <StatusText>Zoom to the extents of the current selection.</StatusText>
@@ -621,7 +630,7 @@
 
 <!-- CONTEXT MENU SELECT -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuSelect</Name>
       <Type>Select</Type>
       <StatusText>Select features by clicking and dragging.</StatusText>
@@ -634,7 +643,7 @@
 
 <!-- CONTEXT MENU CLEAR SELECTION -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuClearSelection</Name>
       <Type>ClearSelection</Type>
       <StatusText>Clears the current selection.</StatusText>
@@ -647,7 +656,7 @@
 
 <!-- CONTEXT MENU SELECT RADIUS -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuSelectRadius</Name>
       <Type>SelectRadius</Type>
       <StatusText>Click and drag to select all features inside a circle.</StatusText>
@@ -660,7 +669,7 @@
 
 <!-- CONTEXT MENU SELECT POLYGON -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuSelectPolygon</Name>
       <Type>SelectPolygon</Type>
       <StatusText>Create a polygon and select all features that fall within.</StatusText>
@@ -673,7 +682,7 @@
 
 <!-- CONTEXT MENU SELECT WITHIN -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuSelectWithin</Name>
       <Type>SelectWithin</Type>
       <StatusText>Select all features that fall within the currently selected area.</StatusText>
@@ -686,7 +695,7 @@
 
 <!-- CONTEXT MENU BUFFER -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuBuffer</Name>
       <Type>BufferPanel</Type>
       <StatusText>Create buffers around the selected features</StatusText>
@@ -699,11 +708,11 @@
 
 <!-- CONTEXT MENU  VIEW OPTIONS -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuViewOptions</Name>
       <Type>ViewOptions</Type>
       <StatusText>Switch between Imperial and Metric units</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <DisplayUnits>degrees</DisplayUnits>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -715,7 +724,7 @@
 
 <!-- CONTEXT MENU HELP -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuHelp</Name>
       <Type>Help</Type>
       <StatusText/>
@@ -728,7 +737,7 @@
 
 <!-- CONTEXT MENU ABOUT -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuAbout</Name>
       <Type>About</Type>
       <StatusText/>
@@ -741,11 +750,11 @@
 
 <!-- CONTEXT MENU MEASURE -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>menuMeasure</Name>
       <Type>Measure</Type>
       <StatusText>Measure distances and areas on the map.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Type>both</Type>
         <MeasureTooltipContainer>MeasureResult</MeasureTooltipContainer>
         <MeasureTooltipType>dynamic</MeasureTooltipType>
@@ -769,7 +778,7 @@
 
 <!-- TOOLBAR BUFFER -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarBuffer</Name>
       <Type>BufferPanel</Type>
       <StatusText>Create buffers around the selected features</StatusText>
@@ -785,7 +794,7 @@
 
 <!-- TOOLBAR REFRESH MAP -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarRefreshMap</Name>
       <Type>RefreshMap</Type>
       <StatusText>Refreshes the map image.</StatusText>
@@ -798,11 +807,11 @@
 
 <!-- TOOLBAR MEASURE -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarMeasure</Name>
       <Type>Measure</Type>
       <StatusText>Measure distances and areas on the map.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Type>both</Type>
         <MeasureTooltipContainer>MeasureResult</MeasureTooltipContainer>
         <MeasureTooltipType>dynamic</MeasureTooltipType>
@@ -818,11 +827,11 @@
       <Disabled/>
     </Widget>
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSaveMap</Name>
       <Type>SaveMap</Type>
       <StatusText></StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
       </Extension>
       <Tooltip>SaveMap</Tooltip>
       <Label>Save Map</Label>
@@ -831,11 +840,11 @@
 
 <!-- TOOLBAR VIEW OPTIONS -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarViewOptions</Name>
       <Type>ViewOptions</Type>
       <StatusText>Switch between Imperial and Metric units</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <DisplayUnits>meters</DisplayUnits>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -847,7 +856,7 @@
 
 <!-- TOOLBAR HELP -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarHelp</Name>
       <Type>Help</Type>
       <StatusText/>
@@ -860,7 +869,7 @@
 
 <!-- TOOLBAR ABOUT -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarAbout</Name>
       <Type>About</Type>
       <StatusText/>
@@ -873,7 +882,7 @@
 
 <!-- TOOLBAR CLEAR SELECTION -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarClearSelection</Name>
       <Type>ClearSelection</Type>
       <StatusText>Clears the current selection.</StatusText>
@@ -886,7 +895,7 @@
 
 <!-- TOOLBAR SELECT RADIUS -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSelectRadius</Name>
       <Type>SelectRadius</Type>
       <StatusText>Click and drag to select all features inside a circle.</StatusText>
@@ -902,7 +911,7 @@
 
 <!-- TOOLBAR SELECT POLYGON -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSelectPolygon</Name>
       <Type>SelectPolygon</Type>
       <StatusText>Create a polygon and select all features that fall within.</StatusText>
@@ -923,11 +932,11 @@
 
 <!-- SECONDARY TOOLBAR INITIAL MAP VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSecondaryInitialMapView</Name>
       <Type>InitialMapView</Type>
       <StatusText>Fit the extents of the map to the window</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <ViewType>extent</ViewType>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -939,11 +948,11 @@
 
 <!-- SECONDARY TOOLBAR PREVIOUS VIEW-->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSecondaryPreviousView</Name>
       <Type>ExtentHistory</Type>
       <StatusText>Go to previous view.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Direction>previous</Direction>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -955,11 +964,11 @@
 
 <!-- SECONDARY TOOLBAR NEXT VIEW -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSecondaryNextView</Name>
       <Type>ExtentHistory</Type>
       <StatusText>Go to next view.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Direction>next</Direction>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -971,7 +980,7 @@
 
 <!-- SECONDARY TOOLBAR ZOOM SELECTION -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSecondaryZoomSelection</Name>
       <Type>ZoomToSelection</Type>
       <StatusText>Zoom to the extents of the current selection.</StatusText>
@@ -984,7 +993,7 @@
 
 <!-- SECONDARY TOOLBAR SELECT WITHIN -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>toolbarSelectWithin</Name>
       <Type>SelectWithin</Type>
       <StatusText>Select all features that fall within the currently selected area.</StatusText>
@@ -1008,11 +1017,11 @@
 
 <!-- STATUS POSITION -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>StatusCoords</Name>
       <Type>CursorPosition</Type>
       <StatusText/>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Template>X: {x} {units}, Y: {y} {units}</Template>
         <Precision>4</Precision>
         <EmptyText>&amp;nbsp;</EmptyText>
@@ -1021,7 +1030,7 @@
 
 <!-- STATUS SELECTION INFO -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>StatusSelection</Name>
       <Type>SelectionInfo</Type>
       <StatusText/>
@@ -1032,7 +1041,7 @@
 
 <!-- STATUS SCALE -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>StatusScale</Name>
       <Type>EditableScale</Type>
       <StatusText/>
@@ -1040,11 +1049,11 @@
 
 <!-- STATUS VIEWSIZE -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>StatusViewSize</Name>
       <Type>ViewSize</Type>
       <StatusText/>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Template>{w} x {h} ({units})</Template>
         <Precision>2</Precision>
       </Extension>
@@ -1059,7 +1068,7 @@
 <!-- LEGEND 
 -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>Legend</Name>
       <Type>Legend</Type>
       <Extension>
@@ -1069,7 +1078,7 @@
     </Widget>
 <!-- SELECTION -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>SelectionPanel</Name>
       <Type>SelectionPanel</Type>
       <StatusText/>
@@ -1077,7 +1086,7 @@
 
 <!-- TASKS -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>TaskPane</Name>
       <Type>TaskPane</Type>
       <StatusText/>
@@ -1094,20 +1103,20 @@
 
 <!-- INMAP NAVIGATOR -->
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>Navigator</Name>
       <Type>Navigator</Type>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
       </Extension>
     </Widget>
 
 <!-- ZOOM IN RECTANGLE -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>ZoomInRectangle</Name>
       <Type>Zoom</Type>
       <StatusText>Zoom in on an area.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Tolerance>5</Tolerance>
         <Factor>2</Factor>
       </Extension>
@@ -1120,11 +1129,11 @@
 
 <!-- ZOOM ON CLICK (IN) -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>ZoomInFixed</Name>
       <Type>ZoomOnClick</Type>
       <StatusText>Zoom in by a preset increment.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Factor>4</Factor>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -1136,11 +1145,11 @@
 
 <!-- ZOOM ON CLICK (OUT) -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>ZoomOutFixed</Name>
       <Type>ZoomOnClick</Type>
       <StatusText>Zoom out by a preset increment</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <Factor>0.5</Factor>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
@@ -1152,7 +1161,7 @@
 
 <!-- SELECT -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>Select</Name>
       <Type>Select</Type>
       <StatusText>Select features by clicking and dragging.</StatusText>
@@ -1182,22 +1191,22 @@
 <!-- OVERVIEW MAP -->
 
 
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>OverviewMap</Name>
       <Type>OverviewMap</Type>
       <Description/>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <MapId>sheboygan</MapId>
       </Extension>
     </Widget>
     
 <!-- PRINT -->
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>GetPrintablePage</Name>
       <Type>Print</Type>
       <StatusText>Get printer-friendly page.</StatusText>
-      <Extension xsi:type="CustomContentType">
+      <Extension>
         <ShowPrintUI>true</ShowPrintUI>
         <ShowTitle>true</ShowTitle>
         <PageTitle>Some Title</PageTitle>
@@ -1213,7 +1222,7 @@
     </Widget>
 
 <!-- PAN -->
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
     
       <Name>Pan</Name>
       <Type>Pan</Type>
@@ -1225,12 +1234,12 @@
       <Disabled/>
     </Widget>
 
-    <Widget xsi:type="UiWidgetType">
+    <Widget>
       <Name>Scalebar</Name>
       <Type>ScalebarDual</Type>
     </Widget>
     
-    <Widget xsi:type="WidgetType">
+    <Widget>
       <Name>MapTip</Name>
       <Type>Maptip</Type>
       <Extension>
