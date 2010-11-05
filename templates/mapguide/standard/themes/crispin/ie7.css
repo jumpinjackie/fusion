@@ -1,6 +1,6 @@
 /**
  * @project         Jx
- * @revision        $Id: ie7.css 321 2009-04-06 18:23:39Z fred.warnock $
+ * @revision        $Id: ie7.css 978 2010-09-08 18:37:27Z pagameba $
  * @author          Fred Warnock (fwarnock@dmsolutions.ca)
  * @copyright       (c) 2006 DM Solutions Group Inc.
  */
@@ -18,9 +18,11 @@
  * Please note that IE8 changed how filters are written. 
  */
 .jxChromeDrag {filter: Alpha(opacity=50);}
-.jxDialogModal {filter: Alpha(opacity=20);}
 .jxDisabled {filter:Alpha(opacity=40);}
 .jxDisabled * {filter:Alpha(opacity=40);}
+.jxMask {filter:Alpha(opacity=50);}
+.jxModalMask {filter: Alpha(opacity=20);}
+.jxSpinner {filter: alpha(opacity=50);}
 iframe.jxIframeShim {filter:Alpha(opacity:0);}
 
 /* tree item focus style */
@@ -33,6 +35,14 @@ iframe.jxIframeShim {filter:Alpha(opacity:0);}
   outline: expression(hideFocus='true');
 }
 
+.jxTree,
+.jxTreeRoot,
+.jxTreeNest,
+li.jxTreeContainer {
+ /* zoom needed to fix alignment/sizing issues in IE 7 */
+ zoom: 1;
+}
+
 /* IE versions 7 and below do not recognize the focus pseudo-class, but instead
  * use the active pseudo-class.  Other browsers use the active-pseudo-class
  * while something is being pressed so IE specific definitions are needed. */
@@ -43,6 +53,7 @@ ul.jxToolbar .jxButton:active,
   outline: expression(hideFocus='true');
 }
 
+ul.jxToolbar .jxButton:active span.jxButtonContent,
 .jxButton:active span.jxButtonContent {
   background-position: right -96px;
 }
@@ -53,6 +64,7 @@ ul.jxToolbar .jxButtonActive:active,
   background-position: left -144px;
 }
 
+ul.jxToolbar .jxButtonActive:active span.jxButtonContent,
 .jxButtonActive:active span.jxButtonContent {
   background-position: right -144px;
 }
@@ -63,6 +75,7 @@ ul.jxToolbar .jxButtonPressed:active,
   background-position: left -120px;
 }
 
+ul.jxToolbar .jxButtonPressed:active span.jxButtonContent,
 .jxButtonPressed:active span.jxButtonContent {
   background-position: right -120px;
 }
