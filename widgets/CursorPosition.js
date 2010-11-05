@@ -80,7 +80,7 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
         this.displayProjection = json.DisplayProjection ? new OpenLayers.Projection(json.DisplayProjection[0]) : null;
         
         this.control = new OpenLayers.Control.MousePosition({
-        		div: this.domObj,
+        		div: this.domSpan,
         		formatOutput: OpenLayers.Function.bind(this.formatHTML, this),
         		emptyString: this.emptyText,
         		displayProjection: this.displayProjection
