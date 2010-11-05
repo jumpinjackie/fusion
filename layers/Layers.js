@@ -35,6 +35,10 @@ Fusion.Event.LAYER_LOADED = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_LOADING = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_START_EDIT = Fusion.Event.lastEventId++;
 Fusion.Event.LAYER_STOP_EDIT = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_DATA_FILTER = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_DATA_RELOAD = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_DATA_ADD = Fusion.Event.lastEventId++;
+Fusion.Event.LAYER_DATA_DELETE = Fusion.Event.lastEventId++;
 
 Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
     bSingleTile: null,
@@ -67,6 +71,10 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.registerEventID(Fusion.Event.LAYER_PROPERTY_CHANGED);
         this.registerEventID(Fusion.Event.LAYER_START_EDIT);
         this.registerEventID(Fusion.Event.LAYER_STOP_EDIT);
+        this.registerEventID(Fusion.Event.LAYER_DATA_FILTER);
+        this.registerEventID(Fusion.Event.LAYER_DATA_RELOAD);
+        this.registerEventID(Fusion.Event.LAYER_DATA_ADD);
+        this.registerEventID(Fusion.Event.LAYER_DATA_DELETE);
         
         this.mapWidget = map;
         this.oSelection = null;
@@ -629,9 +637,11 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
                         }
                       }
                       that.wfsConnection = new OpenLayers.Protocol.WFS({
+                        url: that.metadata.wfs_onlineresource,
                         version: version,
                         featureType: typeName,
-                        geometryName: that.metadata.wfs_geometry
+                        geometryName: that.metadata.wfs_geometry,
+                        srsName: that.oMap.oLayerOL.projection ? that.oMap.oLayerOL.projection.getCode() : '4326'
                       });
                     }
                   }
@@ -647,9 +657,9 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
           //   version: version,
           //   featureType: typeName
           // });
+        } else if (callback) {
+          callback.apply(null, [this.wfsConnection]);
         }
-      } else if (callback) {
-        callback.apply(null, [this.wfsConnection]);
       }
     }
 });
