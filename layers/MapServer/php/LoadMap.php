@@ -294,8 +294,33 @@ if ($oMap) {
          $layerObj->visible = ($layer->status == MS_ON || $layer->status == MS_DEFAULT);
          $layerObj->actuallyVisible = true;
 
-         $editable = strtolower($layer->getMetaData('editable'));
-         $layerObj->editable = $editable == 'true' ? true : false;
+         $layerObj->feature = null;
+         
+         $create = strtolower($layer->getMetaData('feature_create'));
+         $layerObj->feature->create = $create == 'true' ? true : false;
+
+         $read = strtolower($layer->getMetaData('feature_read'));
+         $layerObj->feature->read = $read == 'true' ? true : false;
+
+         $update = strtolower($layer->getMetaData('feature_update'));
+         $layerObj->feature->update = $update == 'true' ? true : false;
+
+         $del = strtolower($layer->getMetaData('feature_delete'));
+         $layerObj->feature->del = $del == 'true' ? true : false;
+
+         $layerObj->attribute = null;
+         
+         $create = strtolower($layer->getMetaData('attribute_create'));
+         $layerObj->attribute->create = $create == 'true' ? true : false;
+
+         $read = strtolower($layer->getMetaData('attribute_read'));
+         $layerObj->attribute->read = $read == 'true' ? true : false;
+
+         $update = strtolower($layer->getMetaData('attribute_update'));
+         $layerObj->attribute->update = $update == 'true' ? true : false;
+
+         $del = strtolower($layer->getMetaData('attribute_delete'));
+         $layerObj->attribute->del = $del == 'true' ? true : false;
 
          /* process the classes.  The legend expects things
           * organized by scale range so we have to first
@@ -382,11 +407,13 @@ if ($oMap) {
     }
     $mapObj->groups = array();
     $aGroups = $oMap->getAllGroupNames();
-    foreach($aGroups as $groupName) {
-        $aLayerIndexes = $oMap->getLayersIndexByGroup($groupName);
-        if (count($aLayerIndexes) > 0) {
-            array_push($mapObj->groups, getGroupObject($oMap->getLayer($aLayerIndexes[0])));
-        }
+    if (is_array($aGroups)) {
+      foreach($aGroups as $groupName) {
+          $aLayerIndexes = $oMap->getLayersIndexByGroup($groupName);
+          if (count($aLayerIndexes) > 0) {
+              array_push($mapObj->groups, getGroupObject($oMap->getLayer($aLayerIndexes[0])));
+          }
+      }
     }
     echo var2json($mapObj);
 }

@@ -484,7 +484,14 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.expandInLegend = o.expandInLegend;
         this.actuallyVisible = o.actuallyVisible;
         this.statusDefault = o.statusdefault;
-        this.editable = o.editable;
+        this.feature = OpenLayers.Util.extend({},o.feature);
+        this.attribute = OpenLayers.Util.extend({},o.attribute);
+        this.editable = this.feature.create || 
+                        this.feature.update || 
+                        this.feature.del || 
+                        this.attribute.create || 
+                        this.attribute.update || 
+                        this.attribute.del;
         this.isEditing = false;
         this.visible = o.visible;
         this.initiallyVisible = o.visible;
