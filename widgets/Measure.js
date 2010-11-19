@@ -71,6 +71,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     /* Style for the polygon line used for area draw */
     areaStyle: null,
     segmentLabels: true,
+    
+    /* maintain measurements for other widgets to read */
+    totalLength: 0,
+    totalArea: 0,
+    
     initializeWidget: function(widgetTag) {
         this.asCursor = ['crosshair'];
         var json = widgetTag.extension;
@@ -604,7 +609,17 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
+        this.totalLength = totalDistance;
       }
+      if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
+	    var value = this.areaMarker.getQuantity();
+	    if (this.areaPrecision == 0) {
+		value = Math.floor(value);
+	    } else {
+		value = value.toPrecision(this.areaPrecision);
+	    }
+	    this.totalArea = value;
+	}
     },
 
   /*
@@ -632,6 +647,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
       */
     clearTotalDistance: function() {
       this.totalDistanceMarker.domObj.style.display = 'none';
+      this.totalLength = 0;
     },
 
   /*
