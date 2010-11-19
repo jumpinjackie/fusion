@@ -608,6 +608,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             var distance = this.distanceMarkers[i].getQuantity();
             totalDistance += distance;
         }
+        totalDistance += this.lastMarker.getQuantity();
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
         
