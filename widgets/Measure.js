@@ -360,6 +360,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
                 var rate = Fusion.convert(measureUnits, this.units, 1);
                 quantity = quantity * rate * rate;
             }
+            this.areaMarker.quantity = quantity;
 
             //calculate the area in square pixels
             var resolution = this.getMap().getResolution();
@@ -609,6 +610,12 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
+        
+	if (this.distancePrecision == 0) {
+		totalDistance = Math.floor(totalDistance);
+	} else {
+		totalDistance = totalDistance.toPrecision(this.areaPrecision);
+	}
         this.totalLength = totalDistance;
       }
       if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
