@@ -611,10 +611,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
         
-	if (this.distancePrecision == 0) {
+	if (this.distPrecision == 0) {
 		totalDistance = Math.floor(totalDistance);
 	} else {
-		totalDistance = totalDistance.toPrecision(this.areaPrecision);
+		totalDistance = totalDistance.toPrecision(this.distPrecision);
 	}
         this.totalLength = totalDistance;
       }
