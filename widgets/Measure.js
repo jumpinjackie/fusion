@@ -601,12 +601,18 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
      * updates the summary display if it is loaded in a window somewhere
      */
     updateTotalDistance: function() {
-      var totalDistance = this.lastMarker.getQuantity();
-      if (this.distanceMarkers.length > 1) {
+      	var totalDistance = 0;
         var units = Fusion.unitAbbr(this.units);
         for (var i=0; i<this.distanceMarkers.length; i++) {
             var distance = this.distanceMarkers[i].getQuantity();
             totalDistance += distance;
+        }
+        if (this.lastMarker) {
+		var lastDist = this.lastMarker.getQuantity();
+		//only add this in if it's a multi-point geometry
+		if (lastDist != totalDistance) {
+		    totalDistance += lastDist;
+		}
         }
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
@@ -617,8 +623,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 		totalDistance = totalDistance.toPrecision(this.distPrecision);
 	}
         this.totalLength = totalDistance;
-      }
-      if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
+        if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
 	    var value = this.areaMarker.getQuantity();
 	    if (this.areaPrecision == 0) {
 		value = Math.floor(value);
