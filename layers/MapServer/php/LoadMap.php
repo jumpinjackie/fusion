@@ -199,6 +199,7 @@ if ($oMap) {
     $mapObj->mapTitle = $title == "" ? $mapObj->mapName : $title;
     //layers
     $mapObj->layers = array();
+    $mapObj->groups = array();
     for ($i=0;$i<$oMap->numlayers;$i++)
     {
         $layer=$oMap->getLayer($i);
@@ -404,8 +405,23 @@ if ($oMap) {
             $layerObj->maxScale = max($layerObj->maxScale, $aScaleRanges[$j]->maxScale);
         }
         array_push($mapObj->layers, $layerObj);
+        
+        //allow for nested groups using a "parentGroup" piece of metadata
+        $parent = $layer->getMetaData('parentGroup');
+        if (strlen($parent)>0) {
+          $alreadyListed = false;
+          foreach($mapObj->groups as $pGroup){
+              if ($pGroup->groupName == $parent) {
+                $alreadyListed = true;
+                break;
+              }
+          }
+          if (!$alreadyListed) {
+            array_push($mapObj->groups, getParentGroupObject($layer));
+          }
+        }
+
     }
-    $mapObj->groups = array();
     $aGroups = $oMap->getAllGroupNames();
     if (is_array($aGroups)) {
       foreach($aGroups as $groupName) {
@@ -415,6 +431,7 @@ if ($oMap) {
           }
       }
     }
+    
     echo var2json($mapObj);
 }
 
@@ -429,7 +446,31 @@ function getGroupObject($layer) {
     $b = $layer->getMetaData('groupExpandInLegend');
     $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
-    /* parent is always not set for mapserver since we can't have nested groups */
+    /* parent group for nested groups */
+    $parent = $layer->getMetaData('parentGroup');
+    $group->parentUniqueId = $parent;
+    $group->parent = $parent;
+    $b = $layer->getMetaData('groupVisible');
+    $group->visible = ($b == 'false') ? false : true;
+    $group->actuallyVisible = $layer->isVisible();
+    $group->groupParent = $layer->getMetaData('groupParent');
+
+    return $group;
+}
+
+function getParentGroupObject($layer) {
+    $parentGroup = $layer->getMetaData('parentGroup');
+    $group = NULL;
+    $group->groupName = $parentGroup;
+    $ll = $layer->getMetaData('parentGroupLegendLabel');
+    $group->legendLabel = $ll != '' ? $ll : $group->groupName;
+    $group->uniqueId = $group->groupName;
+    $b = $layer->getMetaData('groupDisplayInLegend');
+    $group->displayInLegend = ($b == 'false') ? false : true;
+    $b = $layer->getMetaData('groupExpandInLegend');
+    $group->expandInLegend = ($b == 'false') ? false : true;
+    $group->layerGroupType = '';
+    /* maybe do some parsing of the metadata to get parents of paretns? */
     $group->parentUniqueId = '';
     $group->parent = '';
     $b = $layer->getMetaData('groupVisible');
