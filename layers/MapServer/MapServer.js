@@ -569,6 +569,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         } else {
             this.aVisibleGroups.push(group.uniqueId);
             this.deferredDraw = true;
+            for (var i=0; i<group.groups.length; ++i) {
+              if (group.groups[i].wasVisibleInGroup) {
+                this.showGroup(group.groups[i], true);
+              }
+            }
             for (var i=0; i<group.layers.length; ++i) {
               if (group.layers[i].wasVisibleInGroup) {
                 group.layers[i].show();
@@ -591,6 +596,12 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
                 }
             }
             this.deferredDraw = true;
+            for (var i=0; i<group.groups.length; ++i) {
+              if (group.groups[i].visible) {
+                group.groups[i].wasVisibleInGroup = true;
+                this.hideGroup(group.groups[i], true);
+              }
+            }
             for (var i=0; i<group.layers.length; ++i) {
               if (group.layers[i].visible) {
                 group.layers[i].wasVisibleInGroup = true;

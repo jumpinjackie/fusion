@@ -407,18 +407,25 @@ if ($oMap) {
         array_push($mapObj->layers, $layerObj);
         
         //allow for nested groups using a "parentGroup" piece of metadata
-        $parent = $layer->getMetaData('parentGroup');
-        if (strlen($parent)>0) {
-          $alreadyListed = false;
-          foreach($mapObj->groups as $pGroup){
-              if ($pGroup->groupName == $parent) {
-                $alreadyListed = true;
-                break;
-              }
+        //nesting of groups is accomplished by using the | as a separator
+        $parentStr = $layer->getMetaData('parentGroup');
+        $nestedParents = explode('|',$parentStr);
+        $parentParent = '';
+        foreach($nestedParents as $parent) {
+          //echo "testing:".$parent;
+          if (strlen($parent)>0) {
+            $alreadyListed = false;
+            foreach($mapObj->groups as $pGroup){
+                if ($pGroup->groupName == $parent) {
+                  $alreadyListed = true;
+                  break;
+                }
+            }
+            if (!$alreadyListed) {
+              array_push($mapObj->groups, getParentGroupObject($layer, $parent, $parentParent));
+            }
           }
-          if (!$alreadyListed) {
-            array_push($mapObj->groups, getParentGroupObject($layer));
-          }
+          $parentParent = $parent;
         }
 
     }
@@ -447,7 +454,9 @@ function getGroupObject($layer) {
     $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
     /* parent group for nested groups */
-    $parent = $layer->getMetaData('parentGroup');
+    $parentStr = $layer->getMetaData('parentGroup');
+    $nestedParents = explode('|',$parentStr);
+    $parent = array_pop($nestedParents);
     $group->parentUniqueId = $parent;
     $group->parent = $parent;
     $b = $layer->getMetaData('groupVisible');
@@ -458,10 +467,10 @@ function getGroupObject($layer) {
     return $group;
 }
 
-function getParentGroupObject($layer) {
+function getParentGroupObject($layer,$groupName,$parent) {
     $parentGroup = $layer->getMetaData('parentGroup');
     $group = NULL;
-    $group->groupName = $parentGroup;
+    $group->groupName = $groupName;
     $ll = $layer->getMetaData('parentGroupLegendLabel');
     $group->legendLabel = $ll != '' ? $ll : $group->groupName;
     $group->uniqueId = $group->groupName;
@@ -471,8 +480,8 @@ function getParentGroupObject($layer) {
     $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
     /* maybe do some parsing of the metadata to get parents of paretns? */
-    $group->parentUniqueId = '';
-    $group->parent = '';
+    $group->parentUniqueId = $parent;
+    $group->parent = $parent;
     $b = $layer->getMetaData('groupVisible');
     $group->visible = ($b == 'false') ? false : true;
     $group->actuallyVisible = $layer->isVisible();
