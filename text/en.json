@@ -17,7 +17,7 @@ Fusion.Strings.en = {
 'mapLoadError': 'Failed to load requested map:\n${error}',
 'setLayersError': "setLayers failure: ${error}",
 'printTitle': 'Printable Page ',
-'noSelection': 'No Selection',
+'noSelection': 'No features selected',
 'selectionInfo': '${features} feature(s) selected on ${layers} layer(s)',
 'attribute': 'Attribute',
 'value': 'Value',
