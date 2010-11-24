@@ -36,9 +36,15 @@ Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, {
         this.control = new OpenLayers.Control.DragPan();
         this.getMap().oMapOL.addControl(this.control);
         this.control.handler.keyMask = 0;
+        var index = window.location.href.indexOf("?");
+        var mainpath = window.location.href.substring(0,index);
+        index = mainpath.lastIndexOf("/");
+        mainpath = mainpath.substring(0,index+1);
+        var grabpath= "url(" + mainpath + "images/grab.cur" + "), move";
+        var grabbingpath = "url(" + mainpath + "images/grabbing.cur" + "), move";
         
-        this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
-        this.cursorDrag = ["url('images/grabbing.cur'),move", 'grabbing', '-moz-grabbing', 'move'];
+        this.cursorNormal = [grabpath, 'grab', '-moz-grab', 'move'];
+        this.cursorDrag = [grabbingpath, 'grabbing', '-moz-grabbing', 'move'];
     },
 
     activate : function() {

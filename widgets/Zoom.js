@@ -38,9 +38,15 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
     
     initializeWidget: function(widgetTag){
-        this.asCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
-        this.zoomInCursor = ["url('images/zoomin.cur'),auto",'-moz-zoom-in', 'auto'];
-        this.zoomOutCursor = ["url('images/zoomout.cur'),auto",'-moz-zoom-out', 'auto'];
+        var index = window.location.href.indexOf("?");
+        var mainpath = window.location.href.substring(0,index);
+        index = mainpath.lastIndexOf("/");
+        mainpath = mainpath.substring(0,index+1);
+        var asCursorString= "url(" + mainpath + "images/zoomin.cur" + "), auto";
+        var zoomOutCursorString = "url(" + mainpath + "images/zoomout.cur" + "), auto";
+        this.asCursor = [asCursorString,'-moz-zoom-in', 'auto'];
+        this.zoomInCursor = [asCursorString,'-moz-zoom-in', 'auto'];
+        this.zoomOutCursor = [zoomOutCursorString,'-moz-zoom-out', 'auto'];
         
         var json = widgetTag.extension;
         this.tolerance = json.Tolerance ? json.Tolerance[0] : this.tolerance;
