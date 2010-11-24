@@ -762,7 +762,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
 Fusion.Widget.Legend.TreeItem = new Class({
     Extends: Jx.TreeItem,
     options: {
-        template: '<li class="jxTreeContainer jxTreeLeaf"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="fusionLayerInfo" target="_blank"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel"></span></a></li>'
+        template: '<li class="jxTreeContainer jxTreeLeaf"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="fusionLayerInfo" target="_blank"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel" alt="" title=""></span></a></li>'
     },
     classes: new Hash({
         domObj: 'jxTreeContainer', 
@@ -794,6 +794,8 @@ Fusion.Widget.Legend.TreeItem = new Class({
     },
     render: function() {
         this.parent();
+        this.domLabel.set('alt', this.options.label);
+        this.domLabel.set('title', this.options.label);
         if (this.checkbox) {
             if ($defined(this.options.checked)) {
                 this.check(this.options.checked);
@@ -841,7 +843,7 @@ Fusion.Widget.Legend.TreeItem = new Class({
 Fusion.Widget.Legend.TreeFolder = new Class({
     Extends: Jx.TreeFolder,
     options: {
-        template: '<li class="jxTreeContainer jxTreeBranch"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel"></span></a><a class="fusionGroupInfo"><img class="fusionGroupInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="fusionLayerInfo"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><ul class="jxTree"></ul></li>'
+        template: '<li class="jxTreeContainer jxTreeBranch"><img class="jxTreeImage" src="'+Jx.aPixel.src+'" alt="" title=""><span class="fusionLegendCheckboxContainer"><input type="checkbox" class="fusionLegendCheckboxInput"></span><a class="jxTreeItem fusionCheckboxItem" href="javascript:void(0);"><img class="jxTreeIcon" src="'+Jx.aPixel.src+'" alt="" title=""><span class="jxTreeLabel" alt="" title=""></span></a><a class="fusionGroupInfo"><img class="fusionGroupInfoIcon" src="'+Jx.aPixel.src+'"></a><a class="fusionLayerInfo"><img class="fusionLayerInfoIcon" src="'+Jx.aPixel.src+'"></a><ul class="jxTree"></ul></li>'
     },
     classes: new Hash({
         domObj: 'jxTreeContainer', 
@@ -877,6 +879,8 @@ Fusion.Widget.Legend.TreeFolder = new Class({
     
     render: function() {
         this.parent();
+        this.domLabel.set('alt', this.options.label);
+        this.domLabel.set('title', this.options.label);
         if (this.checkbox) {
             if ($defined(this.options.checked)) {
                 this.check(this.options.checked);
