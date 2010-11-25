@@ -292,6 +292,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 }
             }
 
+            if (o.hasBaseMapLayers && this.bIsMapWidgetLayer) {	//Use tile if there is base layer and in main map
+                this.bSingleTile = false;
+            }
+
             if (!this.bSingleTile) {
               if (o.groups.length >0) {
                 this.bSingleTile = false;
