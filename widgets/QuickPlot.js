@@ -93,7 +93,7 @@ Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget,
         }
         
         // Expand taskpane automatically if it is the target window
-        if (panelman)
+        if (typeof (panelman) != "undefined")
         {
             var panel = null;
             for (var i = 0; i < panelman.panels.length; ++i)
