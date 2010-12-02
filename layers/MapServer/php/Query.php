@@ -182,16 +182,17 @@ for ($i=0; $i<$nLayers; $i++) {
         $oLayer = $oMap->GetLayer($i);
     }
     $oLayer->set('tolerance', 0);
-    if ($oLayer->type != MS_LAYER_RASTER)
-        continue;            
+    if ($oLayer->type != MS_LAYER_RASTER) {
+        continue;
+    }
     
     $aProcessings = $oLayer->getprocessing();
 
     $nCount = count($aProcessings);
     $bRasterMaxSet = 0;
-    for ($i=0;$i<$nCount; $i++)
+    for ($j=0;$j<$nCount; $j++)
     {
-        $aKeyVal = explode("=", $aProcessings[$i]);
+        $aKeyVal = explode("=", $aProcessings[$j]);
         if (count($aKeyVal) == 2 && 
             strcasecmp(trim($aKeyVal[0]), "RASTER_QUERY_MAX_RESULT") == 0)
         {
@@ -200,8 +201,9 @@ for ($i=0; $i<$nLayers; $i++) {
         }
     }
 
-    if (!$bRasterMaxSet)
+    if (!$bRasterMaxSet) {
       $oLayer->setprocessing("RASTER_QUERY_MAX_RESULT=100");
+    }
 
     /*are we doing a point query? In that case maxfeatures was set to 1*/
     /*this is not ideal but It is better to use querybypoint when we do point query and
@@ -212,8 +214,9 @@ for ($i=0; $i<$nLayers; $i++) {
         $oPoint = $oSpatialFilter->getCentroid();
         $status = $oLayer->queryByPoint($oPoint, MS_SINGLE, -1);
     }
-    else
+    else {
       $status = @$oLayer->queryByShape($oSpatialFilter);
+    }
 
     if ($status == MS_SUCCESS) {
         $result->hasSelection = true;
