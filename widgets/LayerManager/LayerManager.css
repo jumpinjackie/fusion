@@ -20,6 +20,7 @@ li.jxLmanLayer {
   margin: 0px;
   padding: 0px;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 ul.jxLman a, 
@@ -53,5 +54,10 @@ a.jxLmanHandle {
   visibility: hidden;
   position: absolute;
   right: 0px;
+}
+.lmanInfoIcon {
+  visibility: hidden;
+  position: absolute;
+  right: 16px;
 }
 

@@ -54,7 +54,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
     map: null, 
-    defTemplate: '<li id="{id}" class="jxListItemContainer jxLmanLayer"><a class="jxListItem lmanLabel" href="javascript:void(0);" alt="{label}" title="{label}"><img src="{delIcon}" class="lmanDelIcon"><input type="checkbox" class="lmanVisCheck" {visSelect}><img src="'+Jx.aPixel.src+'" style="background-image: url({icon}); background-position: {iconOffset};">{label}</a></li>',
+    defTemplate: '<li id="{id}" class="jxListItemContainer jxLmanLayer"><a class="jxListItem lmanLabel" href="javascript:void(0);" alt="{label}" title="{label}"><input type="checkbox" class="lmanVisCheck" {visSelect}><img src="'+Jx.aPixel.src+'" style="background-image: url({icon}); background-position: {iconOffset}; width:16px; height:16px;">{label}<img src="{delIcon}" class="lmanDelIcon"><img src="{infoIcon}" class="lmanInfoIcon"></a></li>',
     
     initializeWidget: function(widgetTag) {
         //console.log("initializeWidget");
@@ -177,6 +177,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
       var range = layer.getScaleRange(scale);
       var iconUrl = Jx.aPixel.src;
       var iconOffset = '0px 0px';
+      var label = layer.legendLabel;
       if (range && range.styles.length>0) {
           var style = range.styles[0];//TODO: handle multiple styles?
           var iconX = 0;
@@ -185,23 +186,29 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
               iconX = -1 * (style.iconX);
               iconY = -1 * (style.iconY);
           }
-          iconUrl = '"'+style.iconOpt.url+'"';
+          iconUrl = style.iconOpt.url;
           iconOffset = iconX + 'px ' + iconY + 'px';
+          if (style.legendLabel) {
+            label = style.legendLabel;
+          }
       }
       
       var templStr = this.template.substitute({
         'id': 'layer_'+layer.uniqueId,
-        'label': layer.legendLabel,
+        'label': label,
         'icon': iconUrl,
         'iconOffset': iconOffset,
         'delIcon': this.delIconSrc,
+        'infoIcon': this.infoIconSrc,
         'visSelect': layer.visible? 'CHECKED': ''
       });
     
     var listItem = new Jx.ListItem({template: templStr });
     
-    //OpenLayers.Event.observe(infoIcon, 'click', OpenLayers.Function.bind(this.showLayerInfo, this, layer));
-    var delIcon = listItem.domObj.getElement('img');
+    var icons = listItem.domObj.getElements('img');
+    var infoIcon = icons[2];
+    var delIcon = icons[1];
+    OpenLayers.Event.observe(infoIcon, 'click', OpenLayers.Function.bind(this.showLayerInfo, this, layer));
     OpenLayers.Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
     OpenLayers.Event.observe(listItem.domObj.getElement('input'), 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
     
@@ -209,20 +216,20 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     OpenLayers.Event.observe(listItem.domObj, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
     OpenLayers.Event.observe(listItem.domObj, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
     
-    OpenLayers.Event.observe(listItem.domObj, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon));
-    OpenLayers.Event.observe(listItem.domObj, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon));
+    OpenLayers.Event.observe(listItem.domObj, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon, infoIcon));
+    OpenLayers.Event.observe(listItem.domObj, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon, infoIcon));
     
     return listItem;
   },
   
   setHandleVis: function(delIcon, infoIcon) {
     delIcon.style.visibility = 'visible';
-    //infoIcon.style.visibility = 'visible';
+    infoIcon.style.visibility = 'visible';
   },
   
   setHandleHide: function(delIcon, infoIcon) {
     delIcon.style.visibility = 'hidden';
-    //infoIcon.style.visibility = 'hidden';
+    infoIcon.style.visibility = 'hidden';
   },
   
   setGrabCursor: function(ev) {
