@@ -257,22 +257,51 @@ class Theme
         $areaTypeStyle = $vectorScaleRangecElement->getElementsByTagName('AreaTypeStyle')->item(0);
         
         // Remove any existing <AreaRule> elements.
-
-        $areaRuleList = $areaTypeStyle->getElementsByTagName('AreaRule');
-        $ruleCount = $areaRuleList->length;
-        for($index = 0; $index < $ruleCount; $index++)
+        if($areaTypeStyle != null)
         {
-            $areaTypeStyle->removeChild($areaRuleList->item(0));
+            $areaRuleList = $areaTypeStyle->getElementsByTagName('AreaRule');
+            $ruleCount = $areaRuleList->length;
+            for($index = 0; $index < $ruleCount; $index++)
+            {
+                $areaTypeStyle->removeChild($areaRuleList->item(0));
+            }
+
+            $hasChild = $areaTypeStyle->hasChildNodes();
+            if($hasChild)
+            {
+              $element = $areaTypeStyle->childNodes->item(0);
+            }
         }
 
-        $hasChild = $areaTypeStyle->hasChildNodes();
-        if($hasChild)
+        $CompositeTypeStyles = $vectorScaleRangecElement->getElementsByTagName('CompositeTypeStyle');
+        
+        // Remove any existing <CompositeTypeStyle> elements with Polygon <GeometryContext>.
+        if($CompositeTypeStyles != null)
         {
-          $element = $areaTypeStyle->childNodes->item(0);
+            $template = 'templates/arearuletemplate-'.$version.'-Enhanced.xml';
+            $styleCount = $CompositeTypeStyles->length;
+            for($index = 0; $index < $styleCount; $index++)
+            {
+
+                $CompositeTypeStyle = $CompositeTypeStyles->item($index);
+                $GeometryContexts = $CompositeTypeStyle->getElementsByTagName('GeometryContext');
+                $contextCount = $GeometryContexts->length;
+
+                for($i = 0; $i < $contextCount; $i++)
+                {
+                    $GeometryContext = $GeometryContexts->item($i);
+                    if($GeometryContext->nodeValue == 'Polygon')
+                    {
+                        $vectorScaleRangecElement->removeChild($CompositeTypeStyle);
+                        $index--;
+                        $styleCount--;
+                        break;
+                    }
+                }
+            }
         }
 
-        // Now create the new <AreaRule> elements.
-
+        // Now create the new <AreaRule> or <CompositeTypeStyle> elements.
         $areaRuleTemplate = file_get_contents($template);
         $aggregateOptions = new MgFeatureAggregateOptions();
 
@@ -316,13 +345,22 @@ class Theme
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                if($hasChild)
+                if($areaTypeStyle != null)
                 {
-                  $areaTypeStyle->insertBefore($areaNode, $element);
+                    if($hasChild)
+                    {
+                      $areaTypeStyle->insertBefore($areaNode, $element);
+                    }
+                    else
+                    {
+                      $areaTypeStyle->appendChild($areaNode);
+                    }
                 }
-                else
+                if($CompositeTypeStyles != null)
                 {
-                  $areaTypeStyle->appendChild($areaNode);
+                    $compositeTypeStyle = $doc->createElement('CompositeTypeStyle');
+                    $compositeTypeStyle->appendChild($areaNode);
+                    $vectorScaleRangecElement->appendChild($compositeTypeStyle);
                 }
 
                 $portion += $increment;
@@ -361,13 +399,22 @@ class Theme
 
                 $areaDoc = DOMDocument::loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
-                if($hasChild)
+                if($areaTypeStyle != null)
                 {
-                   $areaTypeStyle->insertBefore($areaNode, $element);
+                    if($hasChild)
+                    {
+                      $areaTypeStyle->insertBefore($areaNode, $element);
+                    }
+                    else
+                    {
+                      $areaTypeStyle->appendChild($areaNode);
+                    }
                 }
-                else
+                if($CompositeTypeStyles != null)
                 {
-                   $areaTypeStyle->appendChild($areaNode);
+                    $compositeTypeStyle = $doc->createElement('CompositeTypeStyle');
+                    $compositeTypeStyle->appendChild($areaNode);
+                    $vectorScaleRangecElement->appendChild($compositeTypeStyle);
                 }
 
                 $portion += $increment;
