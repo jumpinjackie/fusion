@@ -46,7 +46,12 @@ ul.jxLman img {
 }
 
 a.jxLmanHandle {
-  font-size: 14px;
   font-weight: bold;
+}
+
+.lmanDelIcon {
+  visibility: hidden;
+  position: absolute;
+  right: 0px;
 }
 

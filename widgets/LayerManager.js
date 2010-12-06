@@ -53,12 +53,15 @@
 Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
-    map: null,
+    map: null, 
+    defTemplate: '<li id="{id}" class="jxListItemContainer jxLmanLayer"><a class="jxListItem lmanLabel" href="javascript:void(0);" alt="{label}" title="{label}"><img src="{delIcon}" class="lmanDelIcon"><input type="checkbox" class="lmanVisCheck" {visSelect}><img src="'+Jx.aPixel.src+'" style="background-image: url({icon}); background-position: {iconOffset};">{label}</a></li>',
+    
     initializeWidget: function(widgetTag) {
         //console.log("initializeWidget");
         var json = widgetTag.extension;
         this.delIconSrc = json.DeleteIcon ? json.DeleteIcon[0] : 'images/icons/select-delete.png';
         this.infoIconSrc = json.LayerInfoIcon ? json.LayerInfoIcon[0] : 'images/icons/tree_layer_info.png';
+        this.template = json.Template ? json.Template[0] : this.defTemplate;
     
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LayerManager/LayerManager.css');
         this.cursorNormal = ["url('images/grab.cur'),move", 'grab', '-moz-grab', 'move'];
@@ -104,146 +107,136 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
      */
     draw: function(r) {
         //console.log("draw");
-      if (this.mapList) {
-        this.clear(this.mapList);
-        //this.mapList.destroy();
-        this.mapList = null;
+      //clear the domOBj
+      var contents = this.domObj.getChildren();
+      for (var i=0; i<contents.length; ++i) {
+        contents[i].destroy();
       }
-       
-      //create the master UL element to hold the list of layers
-      this.mapList = document.createElement('ul');
-      this.mapList.className = 'jxLman';
-      this.domObj.appendChild(this.mapList);
-        
+      
       //this processes the OL layers
       var map = this.getMap();
 
       for (var i=0; i<map.aMaps.length; ++i) {
-        var mapBlock = document.createElement('li');
-        mapBlock.className = 'jxLmanMap';
-        mapBlock.id = 'mapBlock_'+i;
-
-        //add a handle so the map blocks can be re-arranged
-        var handle = document.createElement('a');
-        handle.innerHTML = map.aMaps[i]._sMapTitle;
-        handle.className = 'jxLmanHandle';
-        mapBlock.appendChild(handle);
         
-        this.mapList.appendChild(mapBlock);
+        var mapBlock = new Element('div', {
+            //'class': 'jxLmanHandle',
+            id: 'mapBlock_'+i
+        });
+        mapBlock.map = map;
+        var mapHandle = new Element('a', {
+            html: map.aMaps[i]._sMapTitle,
+            'class': 'jxLmanHandle jxListItem'
+        });
+        
+        mapBlock.adopt(mapHandle);
         this.processMapBlock(mapBlock, map.aMaps[i]);
+        this.domObj.adopt(mapBlock);
       }
       
+      //create the sortables for re-arranging whole maps
+      //TODO: not yet working
+      /*
       if (map.aMaps.length >1) {
-        var options = [];
-        options.onUpdate = OpenLayers.Function.bind(this.updateMapBlock, this, map);
-        options.handle = 'jxLmanHandle';
-        options.scroll = this.domObj.id;
-        Sortable.create(this.mapList.id, options);
+        var sortableOptions = {
+            constrain: true,
+            clone: false,
+            revert: true,
+            onComplete: OpenLayers.Function.bind(this.updateMapBlock, this, map)
+        };
+        var mySortables = new Sortables(new Elements(this.domObj.getChildren()), sortableOptions);
       }
+      */
     },
 
-    processMapBlock: function(blockDom, map) {
+    processMapBlock: function(mapBlock, map) {
       //console.log("processMapBlock");
-      this.mapBlockList = document.createElement('ul');
-      this.mapBlockList.className = 'jxLmanSet';
-      this.mapBlockList.id = 'fusionLayerManager_'+map.getMapName();
-      blockDom.appendChild(this.mapBlockList);
+      map.layerList = new Jx.ListView({
+          'class': 'jxLmanSet',
+          'id': 'fusionLayerManager_'+map.getMapName()
+      }).addTo(mapBlock);
+      
       map.layerPrefix = 'layer_';   //TODO make this unique for each block
       //this process all layers within an OL layer
-      var processArray = map.aLayers;
-    
-      for (var i=0; i<processArray.length; ++i) {
-        var blockItem = document.createElement('li');
-        blockItem.className = 'jxLmanLayer';
-        blockItem.id = map.layerPrefix+i;
-        this.mapBlockList.appendChild(blockItem);
-        this.createItemHtml(blockItem, processArray[i]);
-        blockItem.layer = processArray[i];
+      var layers = map.aLayers;
+      for (var i=0; i<layers.length; ++i) {
+        var listItem = this.createItem(layers[i]);
+        listItem.addTo(map.layerList);
       }
 
       var sortableOptions = {
-                constrain: true,
-                clone: false,
-                revert: true,
-                onComplete: OpenLayers.Function.bind(this.updateLayer, this, map)
-            };
-      var mySortables = new Sortables(this.mapBlockList.id, sortableOptions);
+          constrain: true,
+          clone: false,
+          revert: true,
+          onComplete: OpenLayers.Function.bind(this.updateLayer, this, map)
+      };
+      var mySortables = new Sortables(map.layerList, sortableOptions);
     },
    
-  createItemHtml: function(parent, layer) {
-    var infoIcon = document.createElement('img');
-    infoIcon.src = this.infoIconSrc;
-    OpenLayers.Event.observe(infoIcon, 'click', OpenLayers.Function.bind(this.showLayerInfo, this, layer));
-    infoIcon.style.visibility = 'hidden';
-    //re-do this as Jx template
-    //parent.appendChild(infoIcon);
+    createItem: function(layer) {
+      var scale = layer.oMap.getScale();
+      var range = layer.getScaleRange(scale);
+      var iconUrl = Jx.aPixel.src;
+      var iconOffset = '0px 0px';
+      if (range && range.styles.length>0) {
+          var style = range.styles[0];//TODO: handle multiple styles?
+          var iconX = 0;
+          var iconY = 0;
+          if (style && style.iconX >= 0 && style.iconY >= 0) {
+              iconX = -1 * (style.iconX);
+              iconY = -1 * (style.iconY);
+          }
+          iconUrl = '"'+style.iconOpt.url+'"';
+          iconOffset = iconX + 'px ' + iconY + 'px';
+      }
+      
+      var templStr = this.template.substitute({
+        'id': 'layer_'+layer.uniqueId,
+        'label': layer.legendLabel,
+        'icon': iconUrl,
+        'iconOffset': iconOffset,
+        'delIcon': this.delIconSrc,
+        'visSelect': layer.visible? 'CHECKED': ''
+      });
     
-    var delIcon = document.createElement('img');
-    delIcon.src = this.delIconSrc;
+    var listItem = new Jx.ListItem({template: templStr });
+    
+    //OpenLayers.Event.observe(infoIcon, 'click', OpenLayers.Function.bind(this.showLayerInfo, this, layer));
+    var delIcon = listItem.domObj.getElement('img');
     OpenLayers.Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
-    delIcon.style.visibility = 'hidden';
-    parent.appendChild(delIcon);
+    OpenLayers.Event.observe(listItem.domObj.getElement('input'), 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
     
-    var visSelect = document.createElement('input');
-    visSelect.type = 'checkbox';
-    OpenLayers.Event.observe(visSelect, 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
-    parent.appendChild(visSelect);
-    if (layer.visible) {
-      visSelect.checked = true;
-    } else {
-      visSelect.checked = false;
-    }
+    OpenLayers.Event.observe(listItem.domObj, 'mouseover', OpenLayers.Function.bind(this.setGrabCursor, this));
+    OpenLayers.Event.observe(listItem.domObj, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
+    OpenLayers.Event.observe(listItem.domObj, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
     
-    var img = document.createElement('img');
-    var scale = layer.oMap.getScale();
-    var range = layer.getScaleRange(scale);
-    if (range && range.styles.length>0) {
-        var style = range.styles[0];//TODO: handle multiple styles?
-        var iconX = 0;
-        var iconY = 0;
-        if (style && style.iconX >= 0 && style.iconY >= 0) {
-            iconX = -1 * (style.iconX);
-            iconY = -1 * (style.iconY);
-        }
-        img.src = Jx.aPixel.src;
-        img.style.backgroundImage = 'url('+style.iconOpt.url+')';
-        img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
-        parent.appendChild(img);
-    }
+    OpenLayers.Event.observe(listItem.domObj, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon));
+    OpenLayers.Event.observe(listItem.domObj, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon));
     
-    var label = document.createElement('a');
-    label.innerHTML = layer.legendLabel;
-    OpenLayers.Event.observe(label, 'mouseover', OpenLayers.Function.bind(this.setGrabCursor, this));
-    OpenLayers.Event.observe(label, 'mousedown', OpenLayers.Function.bind(this.setDragCursor, this));
-    OpenLayers.Event.observe(label, 'mouseout', OpenLayers.Function.bind(this.setNormalCursor, this));
-    parent.appendChild(label);
-    
-    OpenLayers.Event.observe(parent, 'mouseover', OpenLayers.Function.bind(this.setHandleVis, this, delIcon, infoIcon));
-    OpenLayers.Event.observe(parent, 'mouseout', OpenLayers.Function.bind(this.setHandleHide, this, delIcon, infoIcon));
+    return listItem;
   },
   
   setHandleVis: function(delIcon, infoIcon) {
     delIcon.style.visibility = 'visible';
-    infoIcon.style.visibility = 'visible';
+    //infoIcon.style.visibility = 'visible';
   },
   
   setHandleHide: function(delIcon, infoIcon) {
     delIcon.style.visibility = 'hidden';
-    infoIcon.style.visibility = 'hidden';
+    //infoIcon.style.visibility = 'hidden';
   },
   
   setGrabCursor: function(ev) {
-    var targetLI = (new Event(ev)).target.parentNode;
+    var targetLI = (new Event(ev)).target;
     this.setCursor(this.cursorDrag, targetLI);
   },
   
   setDragCursor: function(ev) {
-    var targetLI = (new Event(ev)).target.parentNode;
+    var targetLI = (new Event(ev)).target;
    this.setCursor(this.cursorDrag, targetLI);
   },
   
   setNormalCursor: function(ev) {
-    var targetLI = (new Event(ev)).target.parentNode;
+    var targetLI = (new Event(ev)).target;
     this.setCursor('auto', targetLI);
   },
   
@@ -265,24 +258,24 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   
   updateLayer: function(map) {
    //console.log("updateLayer");
-   //console.log("updateLayer");
     //reorder the layers in the client as well as the session
     var aLayerIndex = [];
     var aIds = [];
-    var nLayers = this.mapBlockList.childNodes.length;
+    var layerList = map.layerList.listObj.getChildren();
+    var nLayers = layerList.length;
     for (var i=0; i<nLayers; ++i) {
-      aIds[i] = this.mapBlockList.childNodes[i].id.split('_');
+      aIds[i] = layerList[i].id.split('_');
       var index = parseInt(aIds[i].pop());
       aLayerIndex.push(index);
-      this.mapBlockList.childNodes[i].id = '';
+      layerList[i].id = '';
     }
     
     //reset the ID's on the LI elements to be in order
-    for (var i=0; i<this.mapBlockList.childNodes.length; ++i) {
-      var node = this.mapBlockList.childNodes[i];
+    for (var i=0; i<layerList.length; ++i) {
+      var node = layerList[i];
       aIds[i].push(i);
       node.id = aIds[i].join('_');
-      node.childNodes[2].checked = node.layer.isVisible()
+      //node.childNodes[2].checked = node.layer.isVisible();
     }
     
     //check tos ee if the layer indexes have been modified
@@ -304,13 +297,14 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
    
   updateMapBlock: function(map) {
-    //reorder the OL layers
+    //reorder the OL layers and the <Map> elements in AppDef
   },
   
   deleteLayer: function(layer, ev) {
    // console.log("deleteLayer");
-    var targetLI = (new Event(ev)).target.parentNode;
+    var targetLI = (new Event(ev)).target.parentNode.parentNode;
     $(targetLI).dispose();
+    layer.oMap.layerList.remove(targetLI);
     
     this.oMap.layerRoot.deleteLayer(layer.uniqueId);
     this.updateLayer(layer.oMap);
@@ -323,15 +317,15 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     }
   },
   
-  visChanged: function(layer2, ev) {
+  visChanged: function(layer, ev) {
     var target = (new Event(ev)).target;
-    var layer = target.parentNode.layer;
     if (target.checked) {
       layer.show();
     } else {
       layer.hide();
     }
   },
+  
   updateSessionMapFile: function(){
    // console.log("updateSessionMapFile");
     // get map
