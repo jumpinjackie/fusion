@@ -46,6 +46,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
 
         this._sMapname = mapTag.layerOptions['name'] ? mapTag.layerOptions['name'] : 'generic layer';
         
+        this.bSingleTile = mapTag.singleTile;
+        
         this.minScale = mapTag.layerOptions.minScale ? mapTag.layerOptions.minScale : 1;
         this.maxScale = mapTag.layerOptions.maxScale ? mapTag.layerOptions.maxScale : 'auto';
         var scaleRange = new Fusion.Layers.ScaleRange({
@@ -94,6 +96,27 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             this.oLayerOL.destroy();
             this.oLayerOL = null;
         }
+        
+        if (typeof this.mapTag.layerOptions.sphericalMercator == 'undefined') {
+            this.mapTag.layerOptions.sphericalMercator = true;
+        }
+        if (this.mapTag.layerOptions.sphericalMercator) {
+          if (!this.mapTag.layerOptions.maxExtent) {
+              this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
+          }
+          this.mapTag.layerOptions.units = "m";
+          this.mapTag.layerOptions.projection = "EPSG:900913";
+        } else {
+          if (!this.mapTag.layerOptions.maxExtent) {
+              this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-180,-90,180,90);
+          }
+          this.mapTag.layerOptions.units = "dd";
+          this.mapTag.layerOptions.projection = "EPSG:4326";
+        }
+        if (typeof this.mapTag.layerOptions.numZoomLevels == 'undefined') {
+            this.mapTag.layerOptions.numZoomLevels = 20;
+        }
+    
 
         switch (this.layerType) {
           case 'Google':
@@ -171,6 +194,12 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = 'Mapnik';
             }
             break;
+         case 'XYZ':
+            this.oLayerOL = new OpenLayers.Layer[this.layerType](
+                                  this.getMapName(), 
+                                  this.sMapResourceId, 
+                                  this.mapTag.layerOptions );
+            break;
           default:
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
@@ -180,37 +209,21 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
 
             break;
         }
-
+       
         if (!this.oLayerOL) {
-            if (typeof this.mapTag.layerOptions.sphericalMercator == 'undefined') {
-                this.mapTag.layerOptions.sphericalMercator = true;
-            }
-            if (this.mapTag.layerOptions.sphericalMercator) {
-              if (!this.mapTag.layerOptions.maxExtent) {
-                  this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-20037508.3427892, -20037508.3427892, 20037508.3427892, 20037508.3427892);
-              }
-              this.mapTag.layerOptions.units = "m";
-              this.mapTag.layerOptions.projection = "EPSG:3785";
-            } else {
-              if (!this.mapTag.layerOptions.maxExtent) {
-                  this.mapTag.layerOptions.maxExtent = new OpenLayers.Bounds(-180,-90,180,90);
-              }
-              this.mapTag.layerOptions.units = "dd";
-              this.mapTag.layerOptions.projection = "EPSG:4326";
-            }
-            if (typeof this.mapTag.layerOptions.numZoomLevels == 'undefined') {
-                this.mapTag.layerOptions.numZoomLevels = 20;
-            }
             if(this.layerType == 'OpenStreetMap') {
                 this.oLayerOL = new OpenLayers.Layer.OSM[this.mapTag.layerOptions.type](this.getMapName(), this.mapTag.layerOptions );
             }
             else {
                 this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
             }
-            this.mapWidget.fractionalZoom = false;        //fractionalZoom not permitted with Google layers
+        }
+        
+        //fractionalZoom not permitted with tiled base layers
+        if (!this.bSingleTile) {
+            this.mapWidget.fractionalZoom = false;
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
         }
-
 
         this.oLayerOL.events.register("loadstart", this, this.loadStart);
         this.oLayerOL.events.register("loadend", this, this.loadEnd);
