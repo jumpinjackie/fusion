@@ -41,6 +41,8 @@ define('MAX_SCALE', 1000000000);
 $moveToSession = true;
 $modifyPaths = false;
 
+unset($_SESSION['selection_array']);
+
 /**
    TODO make it possible to specify only a relative path
    in the WebLayout and have this code know where to
