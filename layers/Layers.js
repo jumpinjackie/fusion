@@ -612,10 +612,8 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
               request: 'GetCapabilities'
             },
             callback: function(gc_response) {
-              console.dir(gc_response);
               var gc_parser = new OpenLayers.Format.WFSCapabilities();
               var capabilities = gc_parser.read(gc_response.responseText);
-              console.dir(capabilities);
               OpenLayers.Request.GET({
                 url: that.metadata.wfs_onlineresource,
                 params: {
@@ -627,9 +625,7 @@ Fusion.Layers.Layer = OpenLayers.Class(Fusion.Lib.EventMgr, {
                 callback: function(dft_response) {
                   if (dft_response.status == 200) {
                     var dft_parser = new OpenLayers.Format.WFSDescribeFeatureType();
-                    console.dir(dft_response);
                     var xml = dft_parser.read(dft_response.responseText);
-                    console.dir(xml);
                     if (xml.featureTypes.length) {
                       var props = xml.featureTypes[0].properties;
                       that.metadata.wfs_properties = props;
