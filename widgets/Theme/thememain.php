@@ -368,12 +368,31 @@
         {
             OnLayerChange();
             UpdateColors();
+            
+            AdjustTextInputWidth();
         }
+        
+        function OnResize()
+        {
+           AdjustTextInputWidth();
+        }
+        
+        //fix the defects in IE9 beta, it is a workaround for IE9beta,
+        //it is because  style="width: 100%" doesn't work in IE9 beta for input type="text" under the frame, its length will be 0 when you input anything
+        //if in the final release of IE9 doesn't have this problem, maybe we can remove this fix
+        function AdjustTextInputWidth()
+        {
+            document.getElementById("themeName").style.width = (document.body.clientWidth-8)+"px";
+            document.getElementById("minValue").style.width = (document.body.clientWidth-8)+"px";
+            document.getElementById("maxValue").style.width = (document.body.clientWidth-8)+"px";
+            document.getElementById("fillTrans").style.width = (document.body.clientWidth-23)+"px";
+        }
+        
     </script>
 
 </head>
 
-<body onLoad="OnLoad()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
+<body onLoad="OnLoad();" OnResize="OnResize();" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
 
 <?php if ($errorMsg == null) { ?>
 
@@ -399,7 +418,7 @@
     <tr><td colspan="2"><?php echo $nameLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
-            <input maxlength="100" class="Ctrl" id="themeName" style="width: 100%">
+            <input type="Text" maxlength="100" id="themeName" class="Ctrl"/>
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
@@ -414,13 +433,13 @@
     <tr><td colspan="2"><?php echo $minLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
-            <input maxlength="100" class="Ctrl" id="minValue" style="width: 100%">
+            <input type="Text" maxlength="100" class="Ctrl" id="minValue"/>
         </td>
     </tr>
     <tr><td colspan="2"><?php echo $maxLocal ?></td></tr>
     <tr>
         <td colspan="2" class="RegText">
-            <input maxlength="100" class="Ctrl" id="maxValue" style="width: 100%">
+            <input type="Text" maxlength="100" class="Ctrl" id="maxValue">
         </td>
     </tr>
     <tr><td colspan="2"><?php echo $distributionLocal ?></td></tr>
@@ -449,7 +468,7 @@
     <tr><td><?php echo $fillTransparencyLocal ?></td></tr>
     <tr>
         <td  colspan="2" class="RegText">
-            <input class="Ctrl" id="fillTrans" type="text"  maxlength="3" value="0" style="width:90%">&nbsp;%
+            <input class="Ctrl" id="fillTrans" type="text"  maxlength="3" value="0"/>&nbsp;%
         </td>
     </tr>
     <tr><td colspan="2" class="Spacer"></td></tr>
@@ -457,12 +476,12 @@
     <tr>
         <td valign="top">
             &nbsp;&nbsp;&nbsp;<?php echo $fromLocal ?><br>
-            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillFromSwatch" style="color: #FF0000; background-color: #FF0000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillFromSwatch" style="color: #FF0000; background-color: #FF0000">&nbsp;transpar&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_FILL_FROM_COLOR,false,false)">
         </td>
         <td valign="top">
             &nbsp;&nbsp;&nbsp;<?php echo $toLocal ?><br>
-            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillToSwatch" style="color: #0000FF; background-color: #0000FF">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="fillToSwatch" style="color: #0000FF; background-color: #0000FF">&nbsp;transpar&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_FILL_TO_COLOR,false,false)">
         </td>
     </tr>
@@ -471,12 +490,12 @@
     <tr>
         <td valign="top">
             &nbsp;&nbsp;&nbsp;<?php echo $fromLocal ?><br>
-            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineFromSwatch" style="color: #000000; background-color: #000000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineFromSwatch" style="color: #000000; background-color: #000000">&nbsp;transpar&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_LINE_FROM_COLOR,false,false)">
         </td>
         <td valign="top">
             &nbsp;&nbsp;&nbsp;<?php echo $toLocal ?><br>
-            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineToSwatch" style="color: #000000; background-color: #000000">&nbsp;transparent&nbsp;</span>&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;<span class="Swatch" id="lineToSwatch" style="color: #000000; background-color: #000000">&nbsp;transpar&nbsp;</span>&nbsp;&nbsp;
             <input class="Ctrl" type="button" value="..." style="width: 22px;" onClick="PickColor(SET_LINE_TO_COLOR,false,false)">
         </td>
     </tr>

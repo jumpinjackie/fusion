@@ -398,17 +398,32 @@
         {
             OnLayerChange();
             OnResultChange();
+
+            AdjustTextInputWidth();
         }
 
         function OnUnload()
         {
             ToggleSpatialFilter(false);
         }
+
+        function OnResize()
+        {
+            AdjustTextInputWidth();
+        }
+        
+        //fix the defects in IE9 beta, it is a workaround for IE9beta,
+        //it is because  style="width: 100%" doesn't work in IE9 beta for input type="text" under the frame, its length will be 0 when you input anything
+        //if in the final release of IE9 doesn't have this problem, maybe we can remove this fix
+        function AdjustTextInputWidth()
+        {
+            document.getElementById("valueInput").style.width = (document.body.clientWidth-8)+"px";
+        }
     </script>
 
 </head>
 
-<body onLoad="OnLoad();" onUnload="OnUnload();" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
+<body onLoad="OnLoad();" onUnload="OnUnload();" onResize="OnResize();" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
 
 <?php if ($errorMsg == null) { ?>
 
@@ -450,7 +465,7 @@
     <tr><td><?php echo $valueLocal ?></td></tr>
     <tr>
         <td class="RegText">
-            <input maxlength="100" class="Ctrl" id="valueInput" style="width: 100%">
+            <input type="Text" maxlength="100" class="Ctrl" id="valueInput"/>
         </td>
     </tr>
     <tr><td class="Spacer"></td></tr>
