@@ -106,6 +106,9 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
       if (userFunc) userFunc();
     },
 
+    getScale: function() {
+        return this.mapWidget.getScale();
+    },
 
     getMapName: function() {
         return this._sMapname;

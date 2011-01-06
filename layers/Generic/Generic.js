@@ -240,6 +240,17 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     },
     
     asyncTrigger: function() {
+        this.aLayers = new Array();
+        this.aLayers[0] = new Fusion.Layers.Layer({
+          layerName: this.getMapName(),
+          legendLabe: this.getMapName(),
+          displayInLegend: true,
+          expandInLegend: true,
+          actuallyVisible: true,
+          visible: true,
+          initiallyVisible: true,
+          selectable: false
+        }, this);
         this.bMapLoaded = true;
         this.triggerEvent(Fusion.Event.LAYER_LOADED);
     },

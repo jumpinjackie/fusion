@@ -517,10 +517,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    getScale: function() {
-        return this.mapWidget.getScale();
-    },
-
     updateLayer: function() {   //to be fleshed out, add query file to layer if selection, call this before draw
       if (this.hasSelection()) {
           this.oLayerOL.addOptions({queryfile: this._sQueryfile});

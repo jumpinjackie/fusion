@@ -737,8 +737,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     img.inject(sibling, 'after');
                 }
                 img.setStyle('visibility','visible');
-                this.iconWidth = (style.iconOpt.width - w)/2;
-                this.iconHeight = (style.iconOpt.height - h)/2;
+                this.iconWidth = ((style.iconOpt?style.iconOpt.width:16) - w)/2;
+                this.iconHeight = ((style.iconOpt?style.iconOpt.height:16) - h)/2;
                 //alert(w+":"+h);
                 this.offsetsCalculated = true;
             }
