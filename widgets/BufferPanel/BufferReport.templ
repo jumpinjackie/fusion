@@ -30,7 +30,7 @@ var mapName = '%s';
 function InitDocument()
 {
     var map = GetParent().Fusion.getMapByName(mapName);
-    map.reloadNamedMap(mapName);
+    map.reloadMap();
     if (!errors) {
       Back();
     }
@@ -47,7 +47,7 @@ function Back()
 }
 
 function GetParent()
-{debugger;
+{
 	if(popup)
 		return opener;
 	else
