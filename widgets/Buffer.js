@@ -202,25 +202,25 @@ Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, {
         }
         
         var mapWidget = this.getMap();
-        var aMaps = mapWidget.getAllMaps();        
-        var s = aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage();
+        var widgetLayer = this.getMapLayer();        
+        var s = widgetLayer.arch + '/' + Fusion.getScriptLanguage() + "/Buffer." + Fusion.getScriptLanguage();
         var params = {};
         params.parameters = 'locale='+Fusion.locale +
                             '&merge=1' +
-                            '&session='+aMaps[0].getSessionID() +
-                            '&mapname='+ aMaps[0].getMapName()+
+                            '&session='+widgetLayer.getSessionID() +
+                            '&mapname='+ widgetLayer.getMapName()+
                             layer+distance+borderColor+fillColor; 
         params.onComplete = OpenLayers.Function.bind(this.bufferCreated, this);
         Fusion.ajaxRequest(s, params);
     },
     
     bufferCreated: function() {
-        var aMaps = this.getMap().getAllMaps();
-        var layer = aMaps[0].getLayerByName(this.layerName);
+        var widgetLayer = this.getMapLayer();        
+        var layer = widgetLayer.getLayerByName(this.layerName);
         if (layer) {
           layer.noCache = true;
         }
-        aMaps[0].reloadMap();
-        aMaps[0].drawMap();
+        widgetLayer.reloadMap();
+        widgetLayer.drawMap();
     }
 });

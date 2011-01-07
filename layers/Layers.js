@@ -92,6 +92,7 @@ Fusion.Layers = OpenLayers.Class(Fusion.Lib.EventMgr, {
         this.sMapResourceId = mapTag.resourceId ? mapTag.resourceId : '';
         this.mapInfo = mapTag.mapInfo;
         this.layerType = mapTag.type;
+        this.id = mapTag.id;
     },
 
     /**

@@ -50,15 +50,14 @@ Fusion.Widget.Theme = OpenLayers.Class(Fusion.Widget, {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
 
-        var map = this.getMap();
-        var mapLayers = map.getAllMaps();
+        var widgetLayer = this.getMapLayer();
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         var pageElement = $(this.sTarget);
 
         var params = [];
         params.push('LOCALE='+Fusion.locale);
-        params.push('SESSION='+mapLayers[0].getSessionID());
-        params.push('MAPNAME='+mapLayers[0].getMapName());
+        params.push('SESSION='+widgetLayer.getSessionID());
+        params.push('MAPNAME='+widgetLayer.getMapName());
         if (taskPaneTarget || pageElement) {
           params.push('POPUP=false');
         } else {

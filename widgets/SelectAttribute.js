@@ -68,7 +68,7 @@ Fusion.Widget.SelectAttribute = OpenLayers.Class(Fusion.Widget, {
     listLayers: function() {
         //this.layerList.empty();
         this.layerList.innerHTML = '';
-        var map = this.getMap().aMaps[0]; 
+        var map = this.getMapLayer(); 
         this.layerList.options[this.layerList.options.length] = new Option('--select--','');
         for (var i=0; i<map.aLayers.length; ++i) {
             var layer = map.aLayers[i];
@@ -116,10 +116,10 @@ Fusion.Widget.SelectAttribute = OpenLayers.Class(Fusion.Widget, {
     activateLayer: function(event) {
       if (this.drawn) {
         var layer = this.layerList[this.layerList.selectedIndex].value;
-        var map = this.getMap();
-        for (var i=0; i<map.aMaps[0].aLayers.length; ++i) {
-          if (map.aMaps[0].aLayers[i].layerName == layer) {
-            map.setActiveLayer(map.aMaps[0].aLayers[i]);
+        var map = this.getMapLayer();
+        for (var i=0; i<map.aLayers.length; ++i) {
+          if (map.aLayers[i].layerName == layer) {
+            map.setActiveLayer(map.aLayers[i]);
             break;
           }
         }

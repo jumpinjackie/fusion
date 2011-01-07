@@ -62,7 +62,8 @@ Fusion.Widget.MapMetadata = OpenLayers.Class(Fusion.Widget, {
      * 
      */
     showMetadata: function() {
-      var metadata = this.getMap().getMetadata(this.metadataId);
+      var metadataLayer = this.getMapLayer();
+      var metadata = metadataLayer.getMetadata(this.metadataId);
       if (metadata) {
         //this.domObj.appendChild(metadata);
         if (this.content == 'markup') {             

@@ -37,7 +37,7 @@
 
 Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
-    sFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    sFeatures: 'menubar=no,location=no,resizable=no,status=no',
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -66,10 +66,11 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
 
     enable: function() {
         var map = this.getMap();
+        var widgetLayer = this.getMapLayer();
         if (this.bSelectionOnly || !map) {
             if (map && map.hasSelection()) {
-                if (map.aMaps[0]._sQueryfile) {
-                  this.additionalParameters.push('queryfile='+map.aMaps[0]._sQueryfile);
+                if (widgetLayer._sQueryfile) {
+                  this.additionalParameters.push('queryfile='+widgetLayer._sQueryfile);
                 }
                 if (this.action) {
                     this.action.setEnabled(true);
@@ -96,7 +97,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         var url = this.sBaseUrl;
         //add in other parameters to the url here
         
-        var map = this.getMap();
+        var map = this.getMapLayer();
         var params = [];
         params.push('locale='+Fusion.locale);
         params.push('session='+map.getSessionID());

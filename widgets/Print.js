@@ -168,9 +168,9 @@ Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {
         var centerY = (extents.top + extents.bottom)/ 2;
         var dpi = mainMap._nDpi;
         var scale = mainMap.getScale();
-        var maps = mainMap.getAllMaps();
-        url = url + 'MAPNAME=' + mainMap.getMapName();
-        url = url + '&SESSION=' + maps[0].getSessionID();
+        var widgetLayer = this.getMapLayer();
+        url = url + 'MAPNAME=' + widgetLayer.getMapName();
+        url = url + '&SESSION=' + widgetLayer.getSessionID();
         url = url + '&CENTERX='+centerX;
         url = url + '&CENTERY='+centerY;
         url = url + '&DPI='+dpi;

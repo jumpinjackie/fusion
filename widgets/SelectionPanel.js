@@ -503,7 +503,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
             var layerObj = this.oSelection.getLayer(i);
             var aNames = layerObj.getPropertyNames();
             //find the legend label from the Map layer objects
-            var mapLayers = this.getMap().aMaps[0].aLayers; //TODO: allow multiple maps
+            var mapLayers = this.getMapLayer().aLayers;
             var labelName = layerObj.getName();
             for (var j=0; j<mapLayers.length; ++j) {
                 if (mapLayers[j].layerName == labelName) {

@@ -493,13 +493,13 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     remoteMeasureSegment: function(marker, from, to, geom) {
         var mapWidget = this.getMap();
-        var aMaps = mapWidget.getAllMaps();
-        var s = 'layers/' + aMaps[0].arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage();
+        var widgetLayer = this.getMapLayer();
+        var s = 'layers/' + widgetLayer.arch + '/' + Fusion.getScriptLanguage() + "/Measure." + Fusion.getScriptLanguage();
         var fromGeo = mapWidget.pixToGeo(from.x, from.y);
         var toGeo = mapWidget.pixToGeo(to.x, to.y);
         var options = {
             parameters: {
-                'session': aMaps[0].getSessionID(),
+                'session': widgetLayer.getSessionID(),
                 'locale': Fusion.locale,
                 'mapname': mapWidget.getMapName(),
                 'x1': fromGeo.x,

@@ -381,7 +381,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
    
     mapLoaded: function() {
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, this.extentsChangedWatcher);
-        var baseLayer = this.getMap().aMaps[0]; 
+        var baseLayer = this.oLegend.getMapLayer(); 
         baseLayer.registerForEvent(Fusion.Event.MAP_LAYER_ORDER_CHANGED, OpenLayers.Function.bind(this.mapRefresh, this));
         this.layerRoot = this.getMap().layerRoot;
         //this.renderLegend();
@@ -393,7 +393,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     },
     
     mapRefresh: function() {
-        var baseLayer = this.getMap().aMaps[0];
+        var baseLayer = this.oLegend.getMapLayer();
         baseLayer.parseLayers();
         this.layerRoot = this.getMap().layerRoot;
         this.renderLegend();
@@ -411,7 +411,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.clear();
 
         if (this.showRootFolder) {
-            this.oRoot.setLabel(this.getMap().getMapTitle());
+            this.oRoot.setLabel(this.oLegend.getMapLayer().getMapTitle());
         }
         var startGroup = this.layerRoot;
         if (!this.showMapFolder) {
