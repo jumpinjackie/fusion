@@ -415,7 +415,7 @@ Fusion.Layers.Group = OpenLayers.Class(Fusion.Lib.EventMgr, {
     },
 
     findGroup: function(name) {
-        return this.findGroupByAttribute('name', name);
+        return this.findGroupByAttribute('uniqueId', name);
     },
 
     findGroupByAttribute: function(attribute, value) {

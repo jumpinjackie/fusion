@@ -272,6 +272,7 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             this.layerRoot.displayInLegend = true;
             this.layerRoot.expandInLegend = true;
 
+            o.groups.sort(function(a,b) {return a.depth-b.depth} );
             this.parseMapLayersAndGroups(o);
 
             var minScale = 1.0e10;
@@ -377,12 +378,11 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     loadScaleRanges: function() {
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
-        
-        var sessionid = this.getSessionID();
-        
         var params = {'mapname': this._sMapname, "session": this.getSessionID()};
-        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded, this), 
-                       parameters:params};
+        var options = {
+          onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded, this), 
+          parameters: params
+        };
         Fusion.ajaxRequest(loadmapScript, options);
     },
 
@@ -500,20 +500,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             }
             parent.addLayer(layer, this.bLayersReversed);
             this.aLayers.push(layer);
-        }
-    },
-
-    parseLayers: function() {
-        //this.layerRoot.clear();
-        for (var i=0; i<this.aLayers.length; i++) {
-            var layer = this.aLayers[i];
-            var parent;
-            if (layer.parentGroup != '') {
-                parent = this.layerRoot.findGroup(layer.parentGroup.name);
-            } else {
-                parent = this.layerRoot;
-            }
-            parent.addLayer(layer, this.bLayersReversed);
         }
     },
 

@@ -406,31 +406,40 @@ if ($oMap) {
             $layerObj->minScale = min($layerObj->minScale, $aScaleRanges[$j]->minScale);
             $layerObj->maxScale = max($layerObj->maxScale, $aScaleRanges[$j]->maxScale);
         }
-        array_push($mapObj->layers, $layerObj);
         
         //allow for nested groups using a "parentGroup" piece of metadata
         //nesting of groups is accomplished by using the | as a separator
         $parentStr = $layer->getMetaData('parentGroup');
-        $nestedParents = explode('|',$parentStr);
-        $parentParent = '';
-        foreach($nestedParents as $parent) {
-          //echo "testing:".$parent;
-          if (strlen($parent)>0) {
+        $nestedParents = array();
+        if (strlen($parentStr)>0) {
+          $nestedParents = explode('|',$parentStr);
+        }
+        if (strlen($layer->group)>0) {
+          array_push($nestedParents, $layer->group);
+          $layerObj->parentGroup = implode("|",$nestedParents);
+        }
+        //echo "/*";
+        //print_r($nestedParents);
+        while (count($nestedParents)>0) {
             $alreadyListed = false;
-            foreach($mapObj->groups as $pGroup){
-                if ($pGroup->groupName == $parent) {
+            $parentId = implode("|",$nestedParents);
+            $parent = array_pop($nestedParents);
+            //echo "-testing:".$parent." from:".$parentId."\n";
+            foreach($mapObj->groups as $pGroup) {
+                if ($pGroup->uniqueId == $parentId) {
                   $alreadyListed = true;
                   break;
                 }
             }
             if (!$alreadyListed) {
-              array_push($mapObj->groups, getParentGroupObject($layer, $parent, $parentParent));
+              array_push($mapObj->groups, getGroupObject($layer, $parentId));
             }
-          }
-          $parentParent = $parent;
         }
+        //echo "*/";
+        array_push($mapObj->layers, $layerObj);
 
     }
+    /*
     $aGroups = $oMap->getAllGroupNames();
     if (is_array($aGroups)) {
       foreach($aGroups as $groupName) {
@@ -440,31 +449,32 @@ if ($oMap) {
           }
       }
     }
-    
+    */
     echo var2json($mapObj);
 }
 
-function getGroupObject($layer) {
+function getGroupObject($layer, $parentId) {
     $group = NULL;
-    $group->groupName = $layer->group;
+    
+    /* parent group for nested groups */
+    $group->uniqueId =  $parentId;
+    $nestedParents = explode('|',$parentId);
+    $parent = array_pop($nestedParents);
+    $group->groupName = $parent;
+    $group->parentUniqueId = implode('|',$nestedParents);
+    $group->parent = $group->parentUniqueId;
+    $group->depth = count($nestedParents);
+    
     $ll = $layer->getMetaData('groupLegendLabel');
     $group->legendLabel = $ll != '' ? $ll : $group->groupName;
-    $group->uniqueId = $group->groupName;
     $b = $layer->getMetaData('groupDisplayInLegend');
     $group->displayInLegend = ($b == 'false') ? false : true;
     $b = $layer->getMetaData('groupExpandInLegend');
     $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
-    /* parent group for nested groups */
-    $parentStr = $layer->getMetaData('parentGroup');
-    $nestedParents = explode('|',$parentStr);
-    $parent = array_pop($nestedParents);
-    $group->parentUniqueId = $parent;
-    $group->parent = $parent;
     $b = $layer->getMetaData('groupVisible');
     $group->visible = ($b == 'false') ? false : true;
     $group->actuallyVisible = $layer->isVisible();
-    $group->groupParent = $layer->getMetaData('groupParent');
 
     return $group;
 }
@@ -482,12 +492,11 @@ function getParentGroupObject($layer,$groupName,$parent) {
     $group->expandInLegend = ($b == 'false') ? false : true;
     $group->layerGroupType = '';
     /* maybe do some parsing of the metadata to get parents of paretns? */
-    $group->parentUniqueId = $parent;
+    $group->parentUniqueId = $parentGroup;
     $group->parent = $parent;
     $b = $layer->getMetaData('groupVisible');
     $group->visible = ($b == 'false') ? false : true;
     $group->actuallyVisible = $layer->isVisible();
-    $group->groupParent = $layer->getMetaData('groupParent');
 
     return $group;
 }
