@@ -36,32 +36,62 @@ Fusion.Widget.AddWMSLayer = OpenLayers.Class(Fusion.Widget, {
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         
-        this.serviceURL = json.ServiceURL ? json.ServiceURL[0] : '';
+        this.template = json.Template ? json.Template[0] : '<li id="{id}" class="jxListItemContainer"><a class="jxListItem" href="javascript::void(0)" alt="{layerTitle}" title="{layerTitle}">{layerTitle}</a></li>';
+        this.serviceURL = json.ServiceURL ? json.ServiceURL : [];
         
         this.dialogContentURL = Fusion.getFusionURL() + widgetTag.location + 'AddWMSLayer/AddWMSLayer.html';
         this.addWMSLayerURL = widgetTag.location + 'AddWMSLayer/AddWMSLayer.php';
         Fusion.addWidgetStyleSheet(widgetTag.location + 'AddWMSLayer/AddWMSLayer.css');
-        var onload = OpenLayers.Function.bind(this.contentLoaded, this);
-        this.domObj.set('load', {onComplete: onload});
-        this.domObj.load(this.dialogContentURL);
+        
+        this.draw();
     },
     
-    contentLoaded: function() {
-        this.outputDiv = this.domObj.getElementById('AddWMSLayersContent');
-        this.urlInput = this.domObj.getElementById('wmsServerName');
-        if (this.serviceURL != '') {
-          this.urlInput.value = this.serviceURL;
-        }
-        var listButton = new Jx.Button({
-            label: 'List Layers',
-            onClick: OpenLayers.Function.bind(this.initializeWMS, this)
-        }).addTo(this.domObj.getElementById('listLayersButton'));
+    draw: function() {
+      var form = new Jx.Form({
+        name: 'addWMSLayer',
+        formClass: 'jxFormBlock'
+      }).addTo(this.domObj);
+      
+    // First Fieldset
+    
+      var fieldSet1 = new Jx.Fieldset({
+        legend: 'Select a layer from:',
+        id: 'FieldSet1',
+        fieldsetClass: 'jxFormInlineblock'
+      }).addTo(form);
+      
+      var serviceURLs = [];
+      for (var i=0; i<this.serviceURL.length; ++i) {
+        serviceURLs.push({label: this.serviceURL[i]}); 
+      }
+      this.serviceList = new Jx.Field.Combo({
+        id: 'serviceURL',
+        name: 'serviceURL',
+        label: 'WMS Server URL',
+        readonly: false,
+        items: serviceURLs,
+        required: true
+      }).addTo(fieldSet1);
+    
+      var button = new Jx.Button({
+        id: 'listButton',
+        name: 'listButton',
+        label: 'List Layers',
+        readonly: true
+      }).addTo(fieldSet1);
+      button.addEvent('click', OpenLayers.Function.bind(this.initializeWMS, this));
+      
+      this.outputDiv = new Element('div', {
+          id: 'layerList',
+          'class': 'layerList'
+      });
+      this.domObj.adopt(this.outputDiv);
     },
     
     initializeWMS: function() {
         this.listLayersWait();
         //prep the server URL to remove WMS params
-        var serverURL = this.urlInput.value;
+        var serverURL = this.serviceList.getValue();
         if (serverURL.length >0) {
           var newParams = [];
           var urlParams = serverURL.split('?')
@@ -76,10 +106,8 @@ Fusion.Widget.AddWMSLayer = OpenLayers.Class(Fusion.Widget, {
           }
           serverURL = urlParams.join('?');
           
-          var maps = this.oMap.getAllMaps(); 
-          var map = maps[0];
-          
-           var opts = {
+          var map = this.getMapLayer(); 
+          var opts = {
               parameters: {
                   session: map.getSessionID(),
                   mapname: map._sMapname,
@@ -107,55 +135,37 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
         }
         if (gCatalogLayersObj) {
         
-          this.outputDiv.innerHTML = '';
+          this.outputDiv.set('html','');
             
           if (gCatalogLayersObj.error) {
-            this.outputDiv.innerHTML = gCatalogLayersObj.error + '<br>' + gCatalogLayersObj.message;
+            this.outputDiv.set('html', gCatalogLayersObj.error + '<br>' + gCatalogLayersObj.message);
             return;
           }
             
-          var ul = document.createElement('ul');
-          ul.id = 'catalogListLayerUL';
-          this.outputDiv.appendChild(ul);
-      
+          var layerList = new Jx.ListView({
+            'id': 'catalogListLayerUL'
+          }).addTo(this.outputDiv); 
+          
           for(var i=0;i<gCatalogLayersObj.length;i++){
               var szOwsTitle = gCatalogLayersObj[i].owstitle;
               if (szOwsTitle.length < 1) {
                 szOwsTitle = gCatalogLayersObj[i].name;
               }
-              var li = document.createElement('li');
-              ul.appendChild(li);
               
-              var a = document.createElement('a');
-              a.href = "javascript:void(0)";
-              a.layertype = gCatalogLayersObj[i].layertype;
-              a.layername =  gCatalogLayersObj[i].name;
-              a.owstitle =  gCatalogLayersObj[i].owstitle;
-              a.group =  gCatalogLayersObj[i].group;
-              a.srs = gCatalogLayersObj[i].srs;
-              a.imageFormat = gCatalogLayersObj[i].imageformat;
-              a.servername = gCatalogLayersObj[i].servername;
-              a.wmsservicetitle = gCatalogLayersObj[i].wmsservicetitle;
-              a.queryable = gCatalogLayersObj[i].queryable;
-              a.metadataurl = gCatalogLayersObj[i].metadataurl;
-              a.minx = gCatalogLayersObj[i].minx;
-              a.miny = gCatalogLayersObj[i].miny;
-              a.maxx = gCatalogLayersObj[i].maxx;
-              a.maxy = gCatalogLayersObj[i].maxy;
-              
-              a.onclick = OpenLayers.Function.bind(this.addWMSLayer, this, a);
-              
-              li.appendChild(a);
-              
-              a.innerHTML = szOwsTitle;
-              li.appendChild(a);
+              var templStr = this.template.substitute({
+                  'id': gCatalogLayersObj[i].name,
+                  'layerTitle':szOwsTitle
+              });
+              var listItem = new Jx.ListItem({template: templStr });
+              listItem.addTo(layerList);
+              OpenLayers.Event.observe(listItem.domObj, 'click', OpenLayers.Function.bind(this.addWMSLayer, this, gCatalogLayersObj[i]));
           }
         }
       }
     },
     
     listLayersWait: function() {
-        this.outputDiv.innerHTML = 'Request in progress...';
+        this.outputDiv.set('html', 'Request in progress...');
     },
     
     /* 
@@ -165,8 +175,7 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
     
     */    
     addWMSLayer: function(cb){
-        var maps = this.oMap.getAllMaps(); 
-        var map = maps[0];
+        var map = this.getMapLayer();
         
         //prep the servername to remove existing WMS params
         var params = {
@@ -174,11 +183,11 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
             mapname: map._sMapname,
             action: 'addLayer',
             layertype: cb.layertype,
-            layername: cb.layername,
+            layername: cb.name,
             group: cb.group,
             owstitle: cb.owstitle,
             srs: map.oLayerOL.projection.projCode,
-            imageFormat: cb.imageFormat,
+            imageFormat: cb.imageformat,
             servername: cb.servername,
             wmsservicetitle: cb.wmsservicetitle,
             queryable: cb.queryable,
@@ -201,9 +210,8 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
 
         if(o.addedLayer == true){
           var map = this.oMap; 
-          var maps = map.getAllMaps();
           map.triggerEvent(Fusion.Event.WMS_LAYER_ADDED, new Array(o));
-          maps[0].reloadMap();
+          this.getMapLayer().reloadMap();
         } else {
            // d.log('addCatalogLayerCB:could not add layer');
         }
