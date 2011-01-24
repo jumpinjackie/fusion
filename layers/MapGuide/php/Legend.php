@@ -68,7 +68,7 @@ for($i=0;$i<$layers->GetCount();$i++)
 
     echo '<layer>';
     echo '<uniqueid>'.$layer->GetObjectId().'</uniqueid>';
-    echo '<layername>'.htmlentities($layer->GetName()).'</layername>';
+    echo '<layername>'.htmlspecialchars($layer->GetName()).'</layername>';
     echo '<layertype>'.$layer->GetLayerType().'</layertype>';
     echo '<displayinlegend>'.BooleanToString($layer->GetDisplayInLegend()).'</displayinlegend>';
     echo '<expandinlegend>'.BooleanToString($layer->GetExpandInLegend()).'</expandinlegend>';
@@ -76,7 +76,7 @@ for($i=0;$i<$layers->GetCount();$i++)
     if ($layer->GetGroup()) {
         echo '<parentgroup>'.$layer->GetGroup()->GetObjectId().'</parentgroup>';
     }
-    echo '<legendlabel>'.htmlentities($layer->GetLegendLabel()).'</legendlabel>';
+    echo '<legendlabel>'.htmlspecialchars($layer->GetLegendLabel()).'</legendlabel>';
     echo '<selectable>'.BooleanToString($layer->GetSelectable()).'</selectable>';
     echo '<visible>'.BooleanToString($layer->GetVisible()).'</visible>';
     echo '<actuallyvisible>'.BooleanToString($layer->isVisible()).'</actuallyvisible>';
@@ -93,8 +93,8 @@ for($i=0;$i<$groups->GetCount();$i++)
     $group=$groups->GetItem($i);
     $layerDefinition = $layer->GetLayerDefinition();
     echo '<group>';
-    echo '<groupname>'.htmlentities($group->GetName()).'</groupname>';
-    echo '<legendlabel>'.htmlentities($group->GetLegendLabel()).'</legendlabel>';
+    echo '<groupname>'.htmlspecialchars($group->GetName()).'</groupname>';
+    echo '<legendlabel>'.htmlspecialchars($group->GetLegendLabel()).'</legendlabel>';
     echo '<uniqueid>'.$group->GetObjectId().'</uniqueid>';
     echo '<displayinlegend>'.BooleanToString($group->GetDisplayInLegend()).'</displayinlegend>';
     echo '<expandinlegend>'.BooleanToString($group->GetExpandInLegend()).'</expandinlegend>';
@@ -168,8 +168,8 @@ function buildScaleRanges($layer) {
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
                     $output .= '<styleitem>';
-                    $output .= '<label>'.htmlentities(trim($labelText)).'</label>';
-                    $output .= '<filter>'.htmlentities(trim($filterText)).'</filter>';
+                    $output .= '<label>'.htmlspecialchars(trim($labelText)).'</label>';
+                    $output .= '<filter>'.htmlspecialchars(trim($filterText)).'</filter>';
                     $output .= '<geomtype>'.($ts+1).'</geomtype>';
                     $output .= '<categoryindex>'.($catIndex++).'</categoryindex>';
                     $output .= '</styleitem>';
