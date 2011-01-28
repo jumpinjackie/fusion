@@ -274,9 +274,9 @@ class Theme
         }
 
         $CompositeTypeStyles = $vectorScaleRangecElement->getElementsByTagName('CompositeTypeStyle');
-        
+        $isEnhancedStyle = ($CompositeTypeStyles->length != 0);
         // Remove any existing <CompositeTypeStyle> elements with Polygon <GeometryContext>.
-        if($CompositeTypeStyles != null)
+        if($isEnhancedStyle)
         {
             $template = 'templates/arearuletemplate-'.$version.'-Enhanced.xml';
             $styleCount = $CompositeTypeStyles->length;
@@ -356,7 +356,7 @@ class Theme
                       $areaTypeStyle->appendChild($areaNode);
                     }
                 }
-                if($CompositeTypeStyles != null)
+                if($isEnhancedStyle)
                 {
                     $compositeTypeStyle = $doc->createElement('CompositeTypeStyle');
                     $compositeTypeStyle->appendChild($areaNode);
@@ -410,7 +410,7 @@ class Theme
                       $areaTypeStyle->appendChild($areaNode);
                     }
                 }
-                if($CompositeTypeStyles != null)
+                if($isEnhancedStyle)
                 {
                     $compositeTypeStyle = $doc->createElement('CompositeTypeStyle');
                     $compositeTypeStyle->appendChild($areaNode);
