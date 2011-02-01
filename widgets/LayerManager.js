@@ -54,7 +54,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     currentNode: null,
     bIsDrawn: false,
     map: null, 
-    defTemplate: '<li id="{id}" class="jxListItemContainer jxLmanLayer"><a class="jxListItem lmanLabel" href="javascript:void(0);" alt="{label}" title="{label}"><input type="checkbox" class="lmanVisCheck" {visSelect}><img src="'+Jx.aPixel.src+'" style="background-image: url({icon}); background-position: {iconOffset}; width:16px; height:16px;">{label}<img src="{delIcon}" class="lmanDelIcon"><img src="{infoIcon}" class="lmanInfoIcon"></a></li>',
+    defTemplate: '<li id="{id}" class="jxListItemContainer jxLmanLayer"><a class="jxListItem lmanLabel" href="javascript:void(0);" alt="{label}" title="{label}"><input type="checkbox" class="lmanVisCheck" {visSelect}><img class="lmanLayerIcon" src="'+Jx.aPixel.src+'" style="background-image: url({icon}); background-position: {iconOffset}; width:16px; height:16px;"><span class="lmanLayerLabel">{label}</span><img src="{delIcon}" class="lmanDelIcon"><img src="{infoIcon}" class="lmanInfoIcon"></a></li>',
     
     initializeWidget: function(widgetTag) {
         //console.log("initializeWidget");

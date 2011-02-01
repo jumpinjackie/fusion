@@ -53,11 +53,25 @@ a.jxLmanHandle {
 .lmanDelIcon {
   visibility: hidden;
   position: absolute;
-  right: 0px;
+  right: 1px;
+  top: 2px
 }
 .lmanInfoIcon {
   visibility: hidden;
   position: absolute;
-  right: 16px;
+  right: 18px;
+  top: 2px;
 }
 
+.lmanVisCheck {
+  vertical-align: middle;
+}
+
+.lmanLayerIcon {
+  vertical-align: middle;
+  margin: 0px 4px;
+}
+
+.lmanLayerLabel {
+  vertical-align: middle;
+}

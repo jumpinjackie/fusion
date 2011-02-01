@@ -55,8 +55,8 @@ Fusion.Widget.AddWMSLayer = OpenLayers.Class(Fusion.Widget, {
     // First Fieldset
     
       var fieldSet1 = new Jx.Fieldset({
-        legend: 'Select a layer from:',
-        id: 'FieldSet1',
+        legend: 'Show WMS layers from:',
+        id: 'serviceURLFieldset',
         fieldsetClass: 'jxFormInlineblock'
       }).addTo(form);
       
@@ -67,17 +67,21 @@ Fusion.Widget.AddWMSLayer = OpenLayers.Class(Fusion.Widget, {
       this.serviceList = new Jx.Field.Combo({
         id: 'serviceURL',
         name: 'serviceURL',
-        label: 'WMS Server URL',
+        label: 'Server URL',
         readonly: false,
-        items: serviceURLs,
-        required: true
+        items: serviceURLs
       }).addTo(fieldSet1);
     
-      var button = new Jx.Button({
-        id: 'listButton',
-        name: 'listButton',
-        label: 'List Layers',
-        readonly: true
+      var button = new Jx.Field.Button({
+        buttonOptions:{
+          id: 'listButton',
+          name: 'listButton',
+          label: 'List Layers',
+          onClick: function() {
+            console.log('Go!');
+          }
+        },
+        defaultAction: true
       }).addTo(fieldSet1);
       button.addEvent('click', OpenLayers.Function.bind(this.initializeWMS, this));
       
