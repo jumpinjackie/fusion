@@ -151,7 +151,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
 
             var map = this.getMap();
             this.mapSize = map.getSize();
-            this.mapOffset = map._oDomObj.offsets;
+            this.mapOffset = map._oDomObj.getOffsets();
 
             var p = map.getEventPosition(e);
             if (p.x == this.oCurrentPosition.x && p.y == this.oCurrentPosition.y ) {
@@ -258,7 +258,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
             
             if (!empty) {
                 var size = $(this.domObj).getBorderBoxSize();
-                this.oMapTipPosition = this.oMapTipPosition.add(this.mapOffset[0], this.mapOffset[1]);
+                this.oMapTipPosition = this.oMapTipPosition.add(this.mapOffset.x, this.mapOffset.y);
                 if (this.oCurrentPosition.x < this.mapSize.w/2) {
                     this.domObj.style.left = (this.oMapTipPosition.x + this.offset.x) + 'px';
                 } else {
