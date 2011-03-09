@@ -45,6 +45,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         }
 
         this._sMapname = mapTag.layerOptions['name'] ? mapTag.layerOptions['name'] : 'generic layer';
+        this._sMapTitle = this._sMapname;
         
         this.bSingleTile = mapTag.singleTile;
         
@@ -243,7 +244,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         this.aLayers = new Array();
         this.aLayers[0] = new Fusion.Layers.Layer({
           layerName: this.getMapName(),
-          legendLabe: this.getMapName(),
+          legendLabel: this.getMapName(),
           displayInLegend: true,
           expandInLegend: true,
           actuallyVisible: true,
