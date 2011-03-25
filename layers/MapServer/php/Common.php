@@ -67,8 +67,8 @@ if (isset($REQUEST_VARS['session'])) {
     initializeSession( "session", "", $sessionID );
 }
 
-if (isset($_REQUEST['mapname'])) { 
-    $mapName = $_REQUEST['mapname'];
+if (isset($REQUEST_VARS['mapname'])) { 
+    $mapName = $REQUEST_VARS['mapname'];
 }
 
 ?>
