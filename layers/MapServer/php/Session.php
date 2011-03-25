@@ -34,6 +34,9 @@
  *
  * Developer's notes:
  *
+ * This file has been updated to work with PHP 5.3 it includes a more robust locking
+ * for cross platform.
+ *
  * Include this file and call installSessionDirectoryHandler() before starting
  * a session.
  *
@@ -42,25 +45,20 @@
  * Session-based resources can be saved in the directory returned from
  * getSessionSavePath().
  *
- * Setting $GLOBALS['bDebug'] = true will enable outputting some debug
- * messages into the session.log file in the debug directory defined
- * by $GLOBALS['szDebugDir']
+ * Note the old GC cleanup does not function correctly, Honestly I don't think we should cleanup with php
+ * a support script should be used on the server to cleanup old sessions. 
  *
  */
 
 global $gszSessSavePath;
 global $gszSessName;
+global $gSzSessionDebug;
+global $gszLockFile;
+global $gszSessId;
+global $bLockSession;
 
-$GLOBALS['bDebug'] = false;
-$GLOBALS['szDebugPage'] = isset( $_SERVER['ORIG_PATH_TRANSLATED'] ) ? basename( $_SERVER['ORIG_PATH_TRANSLATED'] ) : 'not set';
-$GLOBALS['szDebugDir'] = "/tmp/";
-
-/* file-based session locking based on code contributed by
- * Andreas Hocevar ahocevar@hotmail.com
- */
-if (!isset($GLOBALS['bLockSession'])) {
-    $GLOBALS['bLockSession'] = false;
-}
+$gSzSessionDebug = FALSE;
+$bLockSession = FALSE;
 
 if (!function_exists("_open")) {
   /**
@@ -71,93 +69,112 @@ if (!function_exists("_open")) {
    *        save session info.
    * @param szSessionName String contqaining the session name.
    */
-  function _open($szSavePath, $szSessionName)
-  {
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("Opened() $szSavePath, $szSessionName");
-        debug_msg("session_id() says ".session_id());
-      }
+    function _open($szSavePath, $szSessionName){
+        
+        debug_msg(" _open: ".$_SERVER['PHP_SELF']);
+        $GLOBALS['gszSessSavePath'] = $szSavePath;
+        $GLOBALS['gszSessName'] = $szSessionName;
+        $GLOBALS['gszSessId'] = session_id();
+        $GLOBALS['gszLockFile'] = $GLOBALS['gszSessSavePath']."/sess_".$GLOBALS["gszSessId"]."/lock";
+        
+        // Check to see if the session locked already.
+        _checkLock();
 
-      $GLOBALS['gszSessSavePath'] = $szSavePath;
-      $GLOBALS['gszSessName'] = $szSessionName;
-      $GLOBALS['gszSessId'] = session_id();
+        // Create the session folder if it doesn't already exists.
+        $szSessionDir = $GLOBALS['gszSessSavePath']."/sess_".$GLOBALS['gszSessId'];
+        clearstatcache();
+        if (!file_exists($szSessionDir)){
+            mkdir($szSessionDir);
+        }
 
-      $szSessionDir = $GLOBALS['gszSessSavePath']."/sess_".$GLOBALS['gszSessId'];
-      $szSessionFile = $szSessionDir."/session_file";
-      $szLockFile = $szSessionDir."/lock";
+        // If the session is locked wait.
+        if ($GLOBALS['bLockSession']) {
+            $start_time = microtime(true);
+            $end_time = $start_time + microtime(true) + (ini_get("max_execution_time") -2); // end time is 2 seconds less then the max_execution_time
+            while ($start_time < $end_time  ){ 
+                debug_msg("BLOCKING");
+                if (!_isLocked()){
+                    // Free now set the lock.
+                    _setLock();
+                    break;
+                }
+                time_sleep_until(microtime(true)+0.01); // sleep for 10ms
+                $start_time = microtime(true);
+            }
+        }
+        else
+        {
+        // session is already free set a lock
+        _setLock();
+        }
+        return(true);
+    }
+    /**
+    * __isLocked() called to check if the session locked returns a boolean
+    *
+    */
+    function _isLocked(){
+        clearstatcache();
+        if(file_exists($GLOBALS['gszLockFile'])){
+            debug_msg("LOCKED");
+            return true;
+        }
+        else
+        {
+            debug_msg("UNLOCKED");
+            return false;
+        }
+    }
 
-      clearstatcache();
-      if (!file_exists($szSessionDir))
-      {
-          mkdir($szSessionDir);
-      }
+    /**
+    * _setLock() creates a lockfile and sets the global 'bLockSession' to true
+    */
+    function _setLock(){
+        debug_msg(" _setLock: ".$_SERVER['PHP_SELF']);
+        $GLOBALS['bLockSession'] = true;
+        clearstatcache();
+        if(!file_exists($GLOBALS['gszLockFile'])){
+            $fh = fopen( $GLOBALS['gszLockFile'], "w+" );
+            if ($fh !== false){
+                fwrite( $fh, "1" );
+                fclose($fh);
+            }
+        }
+    }
+    /**
+    * _checkLock() used on init to see if another process already has a lock on this session.
+    */
+    function _checkLock(){
+        if(_isLocked()){
+            $GLOBALS['bLockSession'] = true;
+        }
+        else
+        {
+            $GLOBALS['bLockSession'] = false;
+        }
+    }
 
-      if ( PHP_OS == "WINNT" || PHP_OS == "WIN32" || $GLOBALS['bLockSession'])
-      {
-          $i=0;
-          while ($i < ini_get("max_execution_time") - 2 ) //wait at most 2 seconds less than the execution time for the lock
-          {
-              clearstatcache();
-              if (!file_exists($szLockFile))
-              {
-                  break;
-              }
-              if ($GLOBALS["bDebug"])
-              {
-                  debug_msg("pausing in open()");
-              }
-              $i++;
-              sleep(1);
-          }
-          $fh = fopen( $szLockFile, "w+" );
-          if ($fh !== false)
-          {
-              fwrite( $fh, "1" );
-              fclose($fh);
-              if ($GLOBALS["bDebug"])
-              {
-                  debug_msg("created lock file in open()");
-              }
-          }
-      }
-
-      return(true);
-  }
+    /**
+    * _freeLock() deletes the locfile and sets the global 'bLockSession' to false
+    */
+    function _freeLock(){
+        debug_msg(" _freeLock: ".$_SERVER['PHP_SELF']);
+        debug_msg("FREE LOCK");
+        if(file_exists($GLOBALS['gszLockFile'])){
+            unlink($GLOBALS['gszLockFile']);
+        }
+        $GLOBALS['bLockSession'] = false;
+    }
 
   /**
    * _close Called by PHP session manager when a session is closed,
    * not destroyed. In this case we do nothing.
    */
-  function _close()
-  {
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("Closed()");
-      }
-      if ( PHP_OS == "WINNT" || PHP_OS == "WIN32" || $GLOBALS['bLockSession'])
-      {
-          $szLockFile = $GLOBALS['gszSessSavePath']."/sess_".$GLOBALS["gszSessId"]."/lock";
-          if ($GLOBALS["bDebug"])
-          {
-              debug_msg("checking lock file $szLockFile");
-          }
-          clearstatcache();
-          if ( @is_file( $szLockFile )  )
-          {
-              @unlink( $szLockFile );
-              if ($GLOBALS["bDebug"])
-              {
-                  debug_msg("removed lock file $szLockFile");
-              }
-          }
-          else
-          {
-              if ($GLOBALS["bDebug"])
-              {
-                  debug_msg("lock file $szLockFile is missing.");
-              }
-
+  function _close(){
+      debug_msg(" _close: ".$_SERVER['PHP_SELF']);
+      if ($GLOBALS['bLockSession']){
+          if ( _isLocked()  ){
+              _freeLock();
           }
       }
       return(true);
@@ -168,35 +185,30 @@ if (!function_exists("_open")) {
    * is read. In this case we just return the file content of
    * session_file file.
    */
-  function _read($szId)
-  {
-      $GLOBALS["gszSessId"] = $szId;
+  function _read($szId){
+      _setLock();
+     debug_msg(" _read: ".$_SERVER['PHP_SELF']);
+    $GLOBALS["gszSessId"] = $szId;
 
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("Read() $szId");
-      }
+    $szSessionDir = $GLOBALS['gszSessSavePath']."/sess_".$szId;
+    $szSessionFile = $szSessionDir."/session_file";
 
-      $szSessionDir = $GLOBALS['gszSessSavePath']."/sess_".$szId;
-      $szSessionFile = $szSessionDir."/session_file";
+    clearstatcache();
+    if (!file_exists($szSessionDir)){
+        mkdir($szSessionDir);
+    }
 
-      clearstatcache();
-      if (!file_exists($szSessionDir))
-      {
-          mkdir($szSessionDir);
-      }
-
-      if ($fp = @fopen($szSessionFile, "r"))
-      {
-          $szSessionData = fread($fp, filesize($szSessionFile));
-          fclose( $fp );
-          return($szSessionData);
-      }
-      else
-      {
-          return(""); // Must return "" here.
-      }
-  }
+    if ($fp = @fopen($szSessionFile, "r")){
+        $szSessionData = fread($fp, filesize($szSessionFile));
+        fclose( $fp );
+        debug_msg($szSessionData);
+        return($szSessionData);
+    }
+    else
+    {
+        return(""); // Must return "" here.
+    }
+}
 
   /**
    * _write Called by PHP session manager when session should be
@@ -207,114 +219,56 @@ if (!function_exists("_open")) {
    * @param szSessionData String containig the session file content
    *                      to be saved.
    */
-  function _write($szId, $szSessionData)
-  {
+  function _write($szId, $szSessionData){
+      _setLock();
+      debug_msg(" _write: ".$_SERVER['PHP_SELF']);
       $result = false;
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("Write() $szId $szSessionData");
-      }
 
-      $szSessionFile = $GLOBALS['gszSessSavePath']."/sess_".$szId.
-                       "/session_file";
+      $szSessionFile = $GLOBALS['gszSessSavePath']."/sess_".$szId."/session_file";
 
-      // touch command don't works under windows for directory.
-      // since it is only needed for unix (for now) I'll test
-      // the platform and bypass this call is windows platform.
-      if ( !(PHP_OS == "WINNT" || PHP_OS == "WIN32") )
-          @touch($GLOBALS['gszSessSavePath']."/sess_".$szId);
-
-      if ($fp = @fopen($szSessionFile, "w"))
-      {
+      if ($fp = @fopen($szSessionFile, "w")) {
           $result = fwrite($fp, $szSessionData);
           fclose($fp);
-
+          return($result);
       }
-      return($result);
+      else
+      {
+        return false;
+      }
+      
   }
 
   /**
    * _destroy Called by PHP session manager when it should be explicitly
    * destroyed now.
    */
-  function _destroy($szId)
-  {
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("Destroy $szId");
-      }
-      if ( (PHP_OS == "WINNT" || PHP_OS == "WIN32"|| $GLOBALS['bLockSession']) )
-      {
-          $szLockFile = $GLOBALS['gszSessSavePath']."/sess_".$GLOBALS["gszSessId"]."/lock";
-
-          if ( @is_file( $szLockFile )  )
-          {
-              @unlink( $szLockFile );
-          }
-      }
-    /*
-      if ($GLOBALS['gszGarbageColectionCallBackFunction'] != "")
-      {
-          if (function_exists($GLOBALS['gszGarbageColectionCallBackFunction']))
-              eval($GLOBALS['gszGarbageColectionCallBackFunction']);
-      }
-
-      $bReturn = true;
-
-      if (!$szDir = @opendir($GLOBALS['gszSessSavePath']))
-      {
-          return false;
-      }
-
-      while($szFile = readdir($szDir))
-      {
-          if (!strstr($szFile,'sess_'.$szId))
-              continue;
-
-          $bReturn = (deleteDirectory($GLOBALS['gszSessSavePath']."/".
-                                      $szFile)) ? $bReturn : false;
-      }
-      closedir($szDir);
-
-      return $bReturn;
-    */
-    return true;
-  }
+    function _destroy($szId){
+        debug_msg(" _destroy: ".$_SERVER['PHP_SELF']);
+        if ( @is_file( $GLOBALS['gszLockFile'] )){
+            @unlink( $GLOBALS['gszLockFile'] );
+        }
+        return true;
+    }
 
   /**
    * _gc Called by PHP session manager when a session is started or
    * register (not all the time) depending og session.gc_probability
    */
-  function _gc($nMaxLifeTime)
-  {
-     if ($GLOBALS["bDebug"])
-      {
-        debug_msg("_gc called");
-      }
-      if ($GLOBALS['gszGarbageColectionCallBackFunction'] != "")
-      {
+  function _gc($nMaxLifeTime){
+      debug_msg(" _gc: ".$_SERVER['PHP_SELF']);
+
+      if ($GLOBALS['gszGarbageColectionCallBackFunction'] != ""){
           if (function_exists($GLOBALS['gszGarbageColectionCallBackFunction']))
               eval($GLOBALS['gszGarbageColectionCallBackFunction']);
       }
 
-      if ( !(PHP_OS == "WINNT" || PHP_OS == "WIN32") )
-      {
-        @touch($GLOBALS['gszSessSavePath']."/deleteme", time()-$nMaxLifeTime*60);
-        system("find ".$GLOBALS['gszSessSavePath']." -name sess_* ! -newer ".
-               $GLOBALS['gszSessSavePath']."/deleteme -exec rm -rf {} \; ");
-
-        return true;
-      }
-
       $bReturn = true;
 
-      if (!$hDir = @opendir($GLOBALS['gszSessSavePath']))
-      {
+      if (!$hDir = @opendir($GLOBALS['gszSessSavePath'])){
           return false;
       }
 
-      while($szFile = readdir($hDir))
-      {
+      while($szFile = readdir($hDir)){
           if (!strstr($szFile,'sess_'))
               continue;
 
@@ -324,38 +278,27 @@ if (!function_exists("_open")) {
           $szSessionDir = $GLOBALS['gszSessSavePath']."/".$szFile;
           $szSessionFile = $szSessionDir."/session_file";
 
-          if (!($mtime = @filemtime($szSessionFile)))
-          {
+          if (!($mtime = @filemtime($szSessionFile))){
               $bReturn=false;
               continue;
           }
 
-          if (time() > $mtime + $nMaxLifeTime)
-          {
+          if (time() > $mtime + $nMaxLifeTime){
               $bReturn = (deleteDirectory($szSessionDir)) ? $bReturn : false;
           }
           closedir($hDir);
-
           return $bReturn;
       }
   }
 
-  ////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////
 
-  function deleteDirectory($szFile)
-  {
-      if (PHP_OS != "WINNT" && PHP_OS != "WIN32")
-          chmod($szFile,0777);
-
-      if (is_dir($szFile))
-      {
+  function deleteDirectory($szFile){
+      debug_msg("deleteDirectory: called from:".$_SERVER['PHP_SELF']);
+      if (is_dir($szFile)){
+          debug_msg("DELETE:".$szFile);
           $handle = opendir($szFile);
-          while($szFileName = readdir($handle))
-          {
-              if ($szFileName != "." && $szFileName != "..")
-              {
+          while($szFileName = readdir($handle)){
+              if ($szFileName != "." && $szFileName != ".."){
                   deleteDirectory($szFile."/".$szFileName);
               }
           }
@@ -368,192 +311,113 @@ if (!function_exists("_open")) {
       }
   }
 
-  function installSessionDirectoryHandler($szGCCallBack="")
-  {
-      
+  function installSessionDirectoryHandler($szGCCallBack=""){
+      debug_msg(" installSessionDirectoryHandler: ".$_SERVER['PHP_SELF']);
       if (!isset($GLOBALS['gszSessionDirectoryHandlerInstalled'])) {
           $GLOBALS['gszGarbageColectionCallBackFunction'] = $szGCCallBack;          
           // Set handler functions
           session_set_save_handler("_open",
-                                   "_close",
-                                   "_read",
-                                   "_write",
-                                   "_destroy",
-                                   "_gc");
-          $GLOBALS['gszSessionDire ctoryHandlerInstalled'] = true;
+                                  "_close",
+                                  "_read",
+                                  "_write",
+                                  "_destroy",
+                                  "_gc");
+          $GLOBALS['gszSessionDirectoryHandlerInstalled'] = true;
       }
-      
   }
 
-  function initializeSession( $szSessName="sid", $szSessSavePath="", $szSessionID="" )
-  {
+function initializeSession( $szSessName="sid", $szSessSavePath="", $szSessionID="" ){
+    debug_msg(" initializeSession: ".$_SERVER['PHP_SELF']);
+    if($szSessName != ""){
+        debug_msg("session.name".$szSessName);
+        ini_set("session.name", $szSessName);
+    }
     
-      if ($GLOBALS["bDebug"])
-      {
-        debug_msg("initializeSession( $szSessName, $szSessSavePath, $szSessionID )");
-      }
+    if($szSessSavePath != ""){
+        debug_msg("session.save_path".$szSessSavePath);
+        ini_set("session.save_path", $szSessSavePath);
+    }
 
-    
-      //if session was run already don't execute again
-      if (isset($GLOBALS['session_started']))
-      {
-          return true;   
-      }
-      if ($szSessName == "")
-      {
-          echo "<FONT color=#FF0000>FATAL ERROR: Sessionname not specified</FONT>";
-          exit;
-      }
-      else
-          ini_set("session.name", $szSessName);
+    clearstatcache();
+    // Check if save path is writable
+    if (!(file_exists(session_save_path()) &&
+        is_writable(session_save_path()))){
+            die("FATAL ERROR: Session save path (".session_save_path().") doesn't exist or is not writable");
+    }
 
-      if ($szSessSavePath != "")
-      {
-          ini_set("session.save_path", $szSessSavePath);
-      }
+    $szTmpID = "";
 
-      clearstatcache();
-      // Check if save path is writable
-      if (!(file_exists(ini_get("session.save_path")) &&
-            is_writable(ini_get("session.save_path"))))
-      {
-          echo "<FONT COLOR=#DD0000>FATAL ERROR: Session save path (".ini_get("session.save_path").") doesn't exist or is not writable</FONT>";
-          exit;
-      }
+    // check both get and post variables
+    if ( isset($GLOBALS['_COOKIE'][ini_get('session.name')]) )
+        $szTmpID = $GLOBALS['_COOKIE'][ini_get('session.name')];
+    elseif (isset($GLOBALS['_GET'][ini_get('session.name')]))
+        $szTmpID = $GLOBALS['_GET'][ini_get('session.name')];
+    elseif  (isset($GLOBALS['_POST'][ini_get('session.name')]))
+        $szTmpID = $GLOBALS['_POST'][ini_get('session.name')];
 
-      //turn off cookies for propagating session ids
-      ini_set( "session.use_cookies", "0" );
+    debug_msg("szTmpID:".$szTmpID);
+    debug_msg("_GET:".$GLOBALS['_GET'][ini_get('session.name')]);
+    debug_msg("_POST:".$GLOBALS['_POST'][ini_get('session.name')]);
+    debug_msg("_COOKIE:".$GLOBALS['_COOKIE'][ini_get('session.name')]);
 
-      // turn off tranparent SID (becuase of buffer problem)
-      ini_set( "session.use_trans_sid", "0" );
+    // create new if necessary
+    if ( strlen( $szTmpID ) <= 0 ){
 
-      // intialize tmp id
-      $szTmpID = "";
+        // create new and set IP flag
+        if ( strlen( $szSessionID ) > 0 ){
+            $szTmpID = $szSessionID;
+        }
+        else            
+        {
+            $szTmpID = uniqid("");
+        }
+        $bNewSession = true;
+    }
+    else
+    {
+        $bNewSession = false;
+    }
 
-      // check both get and post variables
-      if ( isset($GLOBALS['_GET'][ini_get('session.name')]) )
-          $szTmpID = $GLOBALS['_GET'][ini_get('session.name')];
-      elseif (isset($GLOBALS['_POST'][ini_get('session.name')]))
-          $szTmpID = $GLOBALS['_POST'][ini_get('session.name')];
+    // initialize flag variable
+    $bSessionOK = true;
 
-      // create new if necessary
-      if ( strlen( $szTmpID ) <= 0 )
-      {
-          if ($GLOBALS["bDebug"])
-          {
-              debug_msg("creating a new session because .$szTmpID. has zero characters ");
-          }
-          // create new and set IP flag
-          if ( strlen( $szSessionID ) > 0 )
-          {
-              $szTmpID = $szSessionID;
-          }
-          else            
-          {
-              $szTmpID = uniqid("");
-          }
-          $bNewSession = true;
-          if ($GLOBALS["bDebug"])
-          {
-              debug_msg("creating a new session with id ");
-          }
-     }
-      else
-          $bNewSession = false;
+    if (!$bNewSession){
+        debug_msg("EXISTING Session");
+    }
+    else
+    {
+        debug_msg("NEW Session");
+    }
 
-      // initialize flag variable
-      $bSessionOK = true;
+    session_name($szSessName);
+    $sessionID = session_id();
+    if(empty($sessionID)){
+        session_id( $szTmpID );
+        session_start();
+    }
+    debug_msg($_SERVER['PHP_SELF']);
 
-      // set the session ID
-      session_id( $szTmpID );
+    register_shutdown_function( "session_write_close" );
 
-      // Check if session is expired
-      if (!$bNewSession)
-      {
-          $szSavePath = getSessionSavePath();
-          $szSessionFile = $szSavePath."/session_file";
+    return $bSessionOK;
+}
 
-          if (file_exists($szSessionFile))
-              if ($atime=@filemtime($szSessionFile))
-                  if (time() > $atime + ini_get("session.gc_maxlifetime"))
-                  {
-                      $szTmpID = uniqid("");
-
-                      // reset the session ID
-                      session_id( $szTmpID );
-
-                      $bNewSession = true;
-                      $bSessionOK = false;
-                  }
-      }
-
-      //start the session
-      session_start();
-      register_shutdown_function( "session_write_close" );
-
-  
-      // set IP if a new session
-      if ( $bNewSession ) $_SESSION["gszRemoteAdd"] = $_SERVER["REMOTE_ADDR"];
-
-  /* ============================================================================
-   * Check IP to see if it is the same
-   * ========================================================================= */
-
-      // check if the IP has been set and validate
-      if ( isset( $_SESSION["gszRemoteAdd"] ) &&
-                                     strlen(trim($_SESSION["gszRemoteAdd"])) > 0 )
-      {
-          // check if IP matches current client
-          if ( trim( $_SESSION["gszRemoteAdd"] ) !=
-                                                 trim( $_SERVER["REMOTE_ADDR"] ) )
-          {
-              // possible security breach void session
-              /* if the session address is the loopback interface then it is
-               * likely that the application was configured to use an external
-               * address but someone is trying to test locally using localhost
-               */
-              if ($_SESSION['gszRemoteAdd'] != '127.0.0.1')
-              {
-                  $bSessionOK = false;
-              }
-          }
-      }
-      else
-      {
-          // possible security breach void session
-          $bSessionOK = false;
-      }
-    
-      // return success or failure and set global so we
-      // know session has been inited.
-      if ($bSessionOK)
-      {
-          $GLOBALS['session_started'] = true;
-      }
-    
-        
-      return $bSessionOK;
-
-  // end intializeSession() function
-  }
-
-  function getSessionSavePath()
-  {
+  function getSessionSavePath(){
       $szReturn  = ini_get("session.save_path")."/sess_".session_id()."/";
       $szReturn = str_replace( "\\", "/", $szReturn );
       return $szReturn;
   }
 
-  function debug_msg( $szMsg )
-  {
-      list($usec, $sec) = explode(" ",microtime()); 
-      $ts = sprintf( "%s.%4d", date( "H:s", $sec), round( 10000 * $usec )); 
-      $fh = fopen($GLOBALS['szDebugDir']."session.log", "a+");
-      fwrite($fh, "$ts : ".$GLOBALS['szDebugPage']." : $szMsg\n");
-      fclose($fh);
+  function debug_msg( $szMsg ){
+        global $gSzSessionDebug;
+        if($gSzSessionDebug){
+            
+            list($usec, $sec) = explode(" ",microtime()); 
+            $ts = sprintf( "%s.%4d", date( "H:s", $sec), round( 10000 * $usec )); 
+            error_log($ts. " - ".$szMsg);
+        }
   }
 
 
 }
-
 ?>
