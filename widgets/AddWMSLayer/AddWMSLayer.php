@@ -55,7 +55,7 @@ function getLayerListFromWMS($szServerName){
         $xmlParse = simplexml_load_string($xmlData);
         if ($xmlParse) {
           $gwmsServiceTitle = $xmlParse->Service->Title;
-          $szGetCapabilities = & new CapabilitiesParser();
+          $szGetCapabilities = new CapabilitiesParser();
           $szGetCapabilities->parse($xmlData);
           $szGetCapabilities->free_parser();
           $oReturn = prepareWMS($szGetCapabilities);
@@ -154,7 +154,7 @@ function addLayer($szValue){
         $oLayer->set("type",MS_LAYER_RASTER);
         $oLayer->setMetaData("legendLabel",$_REQUEST["owstitle"]);
         
-        $aSRS = split(" ",$_REQUEST["srs"]);
+        $aSRS = explode(" ",$_REQUEST["srs"]);
         
         $oLayer->setMetaData("ows_name",$_REQUEST["layername"]);
         $oLayer->setMetaData("ows_format",$_REQUEST["imageFormat"]);
