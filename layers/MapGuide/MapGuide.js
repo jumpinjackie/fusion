@@ -1228,7 +1228,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (h) {
           this.oMaptip.h = h[0];
         }
-        this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
+        if (this.oMaptip.t != "" || this.oMaptip.h != "")
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED, this.oMaptip);
     },
     
     getLegendImageURL: function(fScale, layer, style,defaultIcon) {
