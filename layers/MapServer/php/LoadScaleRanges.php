@@ -36,15 +36,15 @@ include(dirname(__FILE__).'/../../../common/php/Utilities.php');
 include(dirname(__FILE__).'/Common.php');
 include(dirname(__FILE__).'/Utilities.php');
 
-/*if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
+if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
-}*/
+}
 
 /* if scales are not set, these become the default values */
 define('MIN_SCALE', 1);
 define('MAX_SCALE', 1000000000);
 
-$oMap = ms_newMapObj(getSessionSavePath().$mapName.".map");
+//$oMap = ms_newMapObj(getSessionSavePath().$mapName.".map");
 
 if ($oMap) {
 	$minScale = $oMap->web->minscale == -1 ? MIN_SCALE : $oMap->web->minscale;
@@ -288,5 +288,5 @@ header('Content-type: application/json');
 header('X-JSON: true');
 
 echo var2json($scaleObj);
-exit;
+
 ?>

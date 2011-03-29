@@ -52,7 +52,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         }
         this.loadOverlaysOnly = (this.extension.LoadOverlaysOnly && this.extension.LoadOverlaysOnly[0] == 'true') ? true:false;
        
-        this.getMapLayer().registerForEvent(Fusion.Event.MAP_SESSION_CREATED, OpenLayers.Function.bind(this.loadMenu, this));
+        this.getMapLayer().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.loadMenu, this));
         this.enable();
     },
     
@@ -88,6 +88,9 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     
     loadMenu: function() {
 
+        console.log("LOADMENU");
+        debugger;
+        
         //get the mapdefinitions as xml if there  is a folder specified
         //in the widget tag. All subfolders will be enumerated.
         //FIXME: this should be platform agnostic, Library:// isn't!

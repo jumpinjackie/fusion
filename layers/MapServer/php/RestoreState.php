@@ -1,6 +1,6 @@
 <?php
 ini_set("memory_limit","64M");
-dl('zip.so');
+//dl('zip.so');
  /* set up the session */
 include(dirname(__FILE__).'/Common.php');
 include('../../../common/php/Utilities.php');
