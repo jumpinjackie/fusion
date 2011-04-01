@@ -84,14 +84,39 @@ if (isset($_REQUEST['mapfile'])) {
         $platformContext = new PlatformContext($platformDefaultConfig);
         $platformContext->RestoreSession(session_id());
 
-        $mapGen = new Map($platformContext, substr($szMapFile, 10));
-        if ($mapGen->Exists()) {
-            $result = $mapGen->Save();
-            if ($result->IsOk()) {
-                $sMapFileContents = $result->Get('MAPDATA');
+        $mapResource = new Resource($platformContext, substr($szMapFile, 10));
+
+        $sType = $mapResource->GetStoredType();
+        if(strtolower($sType) == "publishedmap"){
+            $szPlatformMapfile = $mapResource->GetResourceContent("content")->get("content");
+            if(file_exists($szPlatformMapfile)){
+                $modifyPaths = true;
+                $oMap = ms_newMapObj($szPlatformMapfile);
+                $szMapFile = $szPlatformMapfile;
             }
         }
-        $oMap = ms_newMapObjFromString($sMapFileContents);
+        else
+        {
+            $mapGen = new Map($platformContext, substr($szMapFile, 10));
+            if ($mapGen->Exists()) {
+                $result = $mapGen->Save();
+                if ($result->IsOk()) {
+                    $sMapFileContents = $result->Get('MAPDATA');
+                }
+                else
+                {
+                    echo var2json($result);
+                    die();
+                }
+                $oMap = ms_newMapObjFromString($sMapFileContents);
+            }
+        }
+        
+        
+        /*
+
+        */
+        
     } else if (file_exists($szMapFile)) {
         $modifyPaths = true;
         $oMap = ms_newMapObj($szMapFile);
@@ -168,8 +193,8 @@ $mapObj = NULL;
 if ($oMap) {
     $mapName = $oMap->name;
     
-    header('Content-type: application/json');
-    header('X-JSON: true');
+    //header('Content-type: application/json');
+    //header('X-JSON: true');
     $mapObj->sessionId = $sessionID;
     $mapObj->mapId = $mapId;
 
