@@ -59,11 +59,11 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         this.anchorLabel = json.Label ? json.Label[0] : (this.domObj ? (this.domObj.innerHTML ? this.domObj.innerHTML : 'Link to View') : 'Link to View');
 
         Fusion.addWidgetStyleSheet(widgetTag.location + 'LinkToView/LinkToView.css');
-        this.anchor = document.createElement('a');
+        this.anchor = document.createElement('input');
         this.anchor.className = 'anchorLinkToView';
-        this.anchor.href = this.baseUrl;
-        this.anchor.innerHTML = this.anchorLabel;
+        this.anchor.value = this.baseUrl;
         this.anchor.title = json.Tooltip ? json.Tooltip[0] : 'Right-click to copy or bookmark link to current view';
+        this.anchor.onfocus = OpenLayers.Function.bind(this.selectAnchorValue, this);
         
         if(this.domObj){
             this.domObj.innerHTML = '';
@@ -83,6 +83,10 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
         }
     },
     
+    selectAnchorValue: function() {
+        this.anchor.select();
+    },
+    
     setListener: function(evt) {
         var layer = evt.layer;
         //register on the OL loadend event to update the link because this event
@@ -93,6 +97,7 @@ Fusion.Widget.LinkToView = OpenLayers.Class(Fusion.Widget,  {
     updateLink: function() {
         var join = (this.baseUrl.indexOf('?')==this.baseUrl.length-1)?'':'&';
         var queryStr = this.getMap().getLinkParams();
-        this.anchor.href = this.baseUrl + join + queryStr;
+        this.anchor.value = this.baseUrl + join + queryStr;
+        //this.anchor.select();
     }
 });
