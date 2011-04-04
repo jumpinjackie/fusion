@@ -83,7 +83,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.distPrecision = json.DistancePrecision ? parseInt(json.DistancePrecision[0]) : 4;
         this.areaPrecision = json.AreaPrecision ? parseInt(json.AreaPrecision[0]) : 4;
         if(json.SegmentLabels){
-            this.segmentLabels = (json.SegmentLabels[0].toLowerCase == "true" && json.SegmentLabels[0]) ? true : false;
+            this.segmentLabels = (json.SegmentLabels[0].toLowerCase() == "true" && json.SegmentLabels[0]) ? true : false;
         }
         if(json.Geodesic){
             this.geodesic = (json.Geodesic[0].toLowerCase == "false") ? false : true;
@@ -306,7 +306,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     updateArea: function(geom) {
         if (!this.areaMarker) {
-            this.areaMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, '', true);
+            this.areaMarker = new Fusion.Widget.Measure.Marker(this.units, this.areaPrecision, '', true);
         }
         this.updateMarker(this.areaMarker, geom);
     },
@@ -354,17 +354,18 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             } else {
               quantity = geom.getArea();
             }
+            var resolution = this.getMap().getResolution();
 
             measureUnits = Fusion.METERS;
             if (measureUnits != this.units) {
                 var rate = Fusion.convert(measureUnits, this.units, 1);
                 quantity = quantity * rate * rate;
+                resolution = resolution * rate;
             }
             this.areaMarker.quantity = quantity;
 
             //calculate the area in square pixels
-            var resolution = this.getMap().getResolution();
-            pixQuantity = quantity / resolution / resolution;
+            pixQuantity = quantity / (resolution*resolution);
 
         }
 
@@ -448,17 +449,19 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
             this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
         } else {
-            this.totalDistanceMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, 'Total:');
-            var oDomElem =  this.getMap().getDomObj();
-            if (!this.totalDistanceMarker.domObj.parentNode ||
-                this.totalDistanceMarker.domObj.parentNode != oDomElem) {
-                oDomElem.appendChild(this.totalDistanceMarker.domObj);
-            }
-            this.totalDistanceMarker.domObj.addClass('divMeasureTotal');
-            this.totalDistanceMarker.domObj.style.display = 'none';
-            this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));
-            this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
-            this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateTotalDistance, this));
+          if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
+              this.totalDistanceMarker = new Fusion.Widget.Measure.Marker(this.units, this.distPrecision, 'Total:');
+              var oDomElem =  this.getMap().getDomObj();
+              if (!this.totalDistanceMarker.domObj.parentNode ||
+                  this.totalDistanceMarker.domObj.parentNode != oDomElem) {
+                  oDomElem.appendChild(this.totalDistanceMarker.domObj);
+              }
+              this.totalDistanceMarker.domObj.addClass('divMeasureTotal');
+              this.totalDistanceMarker.domObj.style.display = 'none';
+              this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearTotalDistance, this));
+              this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateTotalDistance, this));
+              this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateTotalDistance, this));
+          }
         }
     },
 
@@ -608,30 +611,30 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             totalDistance += distance;
         }
         if (this.lastMarker) {
-		var lastDist = this.lastMarker.getQuantity();
-		//only add this in if it's a multi-point geometry
-		if (lastDist != totalDistance) {
-		    totalDistance += lastDist;
-		}
+            var lastDist = this.lastMarker.getQuantity();
+            //only add this in if it's a multi-point geometry
+            if (lastDist != totalDistance) {
+                totalDistance += lastDist;
+            }
         }
         this.totalDistanceMarker.domObj.style.display = 'block';
         this.totalDistanceMarker.setQuantity(totalDistance);
         
-	if (this.distPrecision == 0) {
-		totalDistance = Math.floor(totalDistance);
-	} else {
-		totalDistance = totalDistance.toPrecision(this.distPrecision);
-	}
+        if (this.distPrecision == 0) {
+          totalDistance = Math.floor(totalDistance);
+        } else {
+          totalDistance = totalDistance.toPrecision(this.distPrecision);
+        }
         this.totalLength = totalDistance;
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
-	    var value = this.areaMarker.getQuantity();
-	    if (this.areaPrecision == 0) {
-		value = Math.floor(value);
-	    } else {
-		value = value.toPrecision(this.areaPrecision);
-	    }
-	    this.totalArea = value;
-	}
+          var value = this.areaMarker.getQuantity();
+          if (this.areaPrecision == 0) {
+            value = Math.floor(value);
+          } else {
+            value = value.toPrecision(this.areaPrecision);
+          }
+          this.totalArea = value;
+        }
     },
 
   /*
@@ -733,9 +736,8 @@ Fusion.Widget.Measure.Marker = OpenLayers.Class(
     getQuantityLabel: function() {
       var value;
       if (this.precision == 0) {
-        value = Math.floor(this.quantity);
-      }
-      else {
+          value = Math.floor(this.quantity);
+      } else {
           value = this.quantity.toPrecision(this.precision);
       }
       var sq = '';
