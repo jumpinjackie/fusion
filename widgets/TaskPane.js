@@ -171,15 +171,15 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         //add in some common parameters if they aren't supplied already
         var baseUrl = url.split("?");
         var params = OpenLayers.Util.getParameters(url);
-        var mapLayers = this.getMap().getAllMaps();
+        var widgetLayer = this.getMapLayer();
         if (!params["LOCALE"] && !params["locale"]) {
           params["locale"] = Fusion.locale;
         }
         if (!params["SESSION"] && !params["session"]) {
-          params["session"] = mapLayers[0].getSessionID();
+          params["session"] = widgetLayer.getSessionID();
         }
         if (!params["MAPNAME"] && !params["mapname"]) {
-          params["mapname"] = mapLayers[0].getMapName();
+          params["mapname"] = widgetLayer.getMapName();
         }
         var newUrl = baseUrl[0] + "?" + OpenLayers.Util.getParameterString(params);
         

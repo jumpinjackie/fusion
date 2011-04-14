@@ -50,7 +50,7 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {
     
     draw: function() {
         /* put in the label */
-        var units = this.getMap().getAllMaps()[0].units;
+        var units = this.getMap().units;
         this.domLabel = document.createElement('span');
         this.domLabel.className = this.className;
         this.domLabel.innerHTML = this.label + '(' + units + ')';

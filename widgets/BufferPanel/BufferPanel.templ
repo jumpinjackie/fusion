@@ -74,7 +74,7 @@ function FillLayerList()
     mapName = document.getElementById('Frm').mapname.value;
     list.options.length = 0;
     var map = GetParent().Fusion.getMapByName(mapName);
-    var layers = map.aMaps[0].getSelectedLayers();  
+    var layers = map.getSelectedLayers();  
     if(layers.length > 0) {
       for(var i = 0; i < layers.length; i++) {
         var layer = layers[i];

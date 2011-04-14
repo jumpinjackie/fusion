@@ -66,7 +66,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
         this.map.registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapLoaded, this));
         this.map.registerForEvent(Fusion.Event.MAP_RELOADED, OpenLayers.Function.bind(this.mapReLoaded, this));
         // update changes to the legend in this widget
-        this.map.aMaps[0].registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerChanged,this));
+        this.getMapLayer().registerForEvent(Fusion.Event.LAYER_PROPERTY_CHANGED, OpenLayers.Function.bind(this.layerChanged,this));
     },
     
     mapLoaded: function() {
@@ -210,7 +210,7 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     this.setCursor('auto', ev.currentTarget.parentNode);
   },
   
-  setCursor : function(cursor, domObj) {
+  setCursor: function(cursor, domObj) {
       this.cursor = cursor;
       if (cursor && cursor.length && typeof cursor == 'object') {
           for (var i = 0; i < cursor.length; i++) {
@@ -273,14 +273,11 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
   },
   updateSessionMapFile: function(){
    // console.log("updateSessionMapFile");
-    // get map
-    var map = this.getMap();
-    var aMaps = map.getAllMaps();
-    var currentMap = aMaps[0];
-    var sessionId = aMaps[0].getSessionID();
+    var widgetLayer = this.getMapLayer();
+    var sessionId = widgetLayer.getSessionID();
 
     // get all layers
-    var oLayers = currentMap.aLayers;
+    var oLayers = widgetLayer.aLayers;
     var aLayerNames = [];
     var visibleLayers = [];
     for(var i=0;i<oLayers.length;i++){
@@ -291,13 +288,12 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     }
 
     // prepare ajax req
-    var params =  '&session='+sessionId+'&mapname='+ this.getMap().getMapName()+'&visLayers='+visibleLayers+'&layers='+aLayerNames;
+    var params =  '&session='+sessionId+'&mapname='+ widgetLayer.getMapName()+'&visLayers='+visibleLayers+'&layers='+aLayerNames;
     var options = {parameters: params};
 
     // fire the request no need to return
-    var m = this.getMap().aMaps[0];
-    var url = 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/updateSessionMapFile." + Fusion.getScriptLanguage()
-    Fusion.ajaxRequest(  url, options);
+    var url = 'layers/' + widgetLayer.arch + '/' + Fusion.getScriptLanguage() + "/updateSessionMapFile." + Fusion.getScriptLanguage()
+    Fusion.ajaxRequest(url, options);
   }
 
 });

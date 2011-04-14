@@ -10,7 +10,7 @@
 
   <MapSet>
     <MapGroup id="sheboygan">
-      <Map>
+      <Map id="mapguide">
         <Type>MapGuide</Type>
         <SingleTile>true</SingleTile>
         <Extension>
@@ -19,6 +19,32 @@
           <SelectionAsOverlay>true</SelectionAsOverlay>
           <SelectionFormat>PNG</SelectionFormat>
           <SelectionColor>0xFF0000FF</SelectionColor>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="google-sheboygan">
+      <Map>
+        <Type>Google</Type>
+        <Extension>
+          <ResourceId>google</ResourceId>
+          <Options>
+            <name>GoogleLayer</name>
+            <type>G_PHYSICAL_MAP</type>
+          </Options>
+        </Extension>
+      </Map>
+      <Map id="mapguide2">
+        <Type>MapGuide</Type>
+        <SingleTile>true</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/Maps/SheboyganMercator.MapDefinition</ResourceId>
+          <ImageFormat>PNG8</ImageFormat>
+          <SelectionAsOverlay>true</SelectionAsOverlay>
+          <SelectionFormat>PNG</SelectionFormat>
+          <SelectionColor>0xFF0000FF</SelectionColor>
+          <Options>
+            <isBaseLayer>false</isBaseLayer>
+          </Options>
         </Extension>
       </Map>
     </MapGroup>
@@ -621,6 +647,9 @@
     <Widget>
       <Name>menuSelectWithin</Name>
       <Type>SelectWithin</Type>
+      <Extension>
+        <WidgetLayerId>mapguide</WidgetLayerId>
+      </Extension>
       <StatusText>Select all features that fall within the currently selected area.</StatusText>
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>select-within</ImageClass>
@@ -634,6 +663,9 @@
     <Widget>
       <Name>menuBuffer</Name>
       <Type>BufferPanel</Type>
+      <Extension>
+        <WidgetLayerId>mapguide</WidgetLayerId>
+      </Extension>
       <StatusText>Create buffers around the selected features</StatusText>
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>buffer</ImageClass>
@@ -724,6 +756,7 @@
       <Label>Buffer</Label>
       <Extension>
         <Target>TaskPane</Target>
+        <WidgetLayerId>mapguide</WidgetLayerId>
       </Extension>
       <Disabled/>
     </Widget>
@@ -936,6 +969,7 @@
       <ImageUrl>images/icons/select-features.png</ImageUrl>
       <Extension>
         <Target>TaskPane</Target>
+        <WidgetLayerId>mapguide</WidgetLayerId>
       </Extension>
       <ImageClass/>
       <Tooltip>Select Within</Tooltip>
@@ -1025,6 +1059,9 @@
     <Widget>
       <Name>TaskPane</Name>
       <Type>TaskPane</Type>
+      <Extension>
+        <WidgetLayerId>mapguide</WidgetLayerId>
+      </Extension>
       <StatusText/>
       <Extension>
         <MenuContainer>TaskContextMenu</MenuContainer>
@@ -1149,6 +1186,7 @@
         <ShowLegend>true</ShowLegend>
         <ShowNorthArrow>true</ShowNorthArrow>
         <ImageBaseUrl>images/</ImageBaseUrl>
+        <WidgetLayerId>mapguide</WidgetLayerId>
       </Extension>
       <ImageUrl>images/icons.png</ImageUrl>
       <ImageClass>file-print</ImageClass>
@@ -1182,6 +1220,7 @@
         <Label>Map Tips</Label>
         <Delay>350</Delay>
         <Layer>Parcels</Layer>
+        <WidgetLayerId>mapguide</WidgetLayerId>
       </Extension>
     </Widget>
 

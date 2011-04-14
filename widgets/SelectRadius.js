@@ -110,10 +110,11 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
         var radius = this.getMap().pixToGeoMeasure(this.defaultRadius);
         this.handler.setOptions({radius: radius});
         this.handler.activate();
-        this.getMap().setCursor(this.asCursor);
-        /*map units for tool tip*/
-        this.units = this.getMap().getAllMaps()[0].units;
-        this.getMap().supressContextMenu(true);
+        var map = this.getMap();
+        map.setCursor(this.asCursor);
+         /*map units for tool tip*/
+        this.units = map.units;
+        map.supressContextMenu(true);
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, true);
     },
 

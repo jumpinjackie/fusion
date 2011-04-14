@@ -180,7 +180,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     },
     
     showMaptip: function() {
-        this.getMap().getMapTip(this);
+        this.getMapLayer().getMapTip(this);
         this.mapTipFired = true;
     },
     
