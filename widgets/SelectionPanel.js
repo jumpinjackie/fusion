@@ -337,7 +337,17 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         for (var i=0; i<nLayers; i++) {
             var layerObj = this.oSelection.getLayer(i);
             //find the legend label from the Map layer objects
-            var mapLayers = this.getMap().aMaps[0].aLayers; //TODO: allow multiple maps
+            //join up all layers from all maps into an array
+            var mapLayers = [];
+            var map = this.getMap();
+            for (j=0; j<map.aMaps.length; ++j) {
+              if (map.aMaps[j].aLayers) {
+                for (k=0; k<map.aMaps[j].aLayers.length; ++k) {
+                  mapLayers.push(map.aMaps[j].aLayers[k]);
+                }
+              }
+            }
+            
             var labelName = layerObj.getName();
             for (var j=0; j<mapLayers.length; ++j) {
               if (mapLayers[j].layerName == labelName) {
@@ -492,7 +502,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererHorizontal = OpenLayers.Class(Fusi
             var layerObj = this.oSelection.getLayer(i);
             var aNames = layerObj.getPropertyNames();
             //find the legend label from the Map layer objects
-            var mapLayers = this.getMap().aMaps[0].aLayers; //TODO: allow multiple maps
+            var mapLayers = this.getMapLayer().aLayers;
             var labelName = layerObj.getName();
             for (var j=0; j<mapLayers.length; ++j) {
                 if (mapLayers[j].layerName == labelName) {

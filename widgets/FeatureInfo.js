@@ -38,7 +38,7 @@
 Fusion.Widget.FeatureInfo = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,
-    sFeatures : 'menubar=no,location=no,resizable=no,status=no',
+    sFeatures: 'menubar=no,location=no,resizable=no,status=no',
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -51,14 +51,14 @@ Fusion.Widget.FeatureInfo = OpenLayers.Class(Fusion.Widget, {
         //add in other parameters to the url here
 
         var map = this.getMap();
-        var mapLayers = map.getAllMaps();
+        var widgetLayer = this.getMapLayer();
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         var pageElement = $(this.sTarget);
 
         var params = [];
         params.push('LOCALE='+Fusion.locale);
-        params.push('SESSION='+mapLayers[0].getSessionID());
-        params.push('MAPNAME='+mapLayers[0].getMapName());
+        params.push('SESSION='+widgetLayer.getSessionID());
+        params.push('MAPNAME='+widgetLayer.getMapName());
         if (taskPaneTarget || pageElement) {
           params.push('POPUP=false');
         } else {

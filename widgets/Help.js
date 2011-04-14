@@ -69,7 +69,7 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {
     activate: function() {
         var url = this.baseUrl;
         
-        var map = this.getMap();
+        var map = this.getMapLayer();
         var params = [];
         params.push('LOCALE='+Fusion.locale);
         params.push('SESSION='+map.getSessionID());

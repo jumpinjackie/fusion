@@ -197,7 +197,7 @@ Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {
         if (this.imageWidth) {
             szWidth = '&width=' + this.imageWidth;
         }
-        var m = this.getMap().aMaps[0];
+        var m = this.getMapLayer();
         if(navigator.appVersion.match(/\bMSIE\b/)) {
             var url = Fusion.fusionURL + 'layers/' + m.arch + '/' + Fusion.getScriptLanguage() + "/SaveMapFrame." + Fusion.getScriptLanguage() + '?session='+m.getSessionID() + '&mapname=' + m.getMapName() + '&format=' + this.format.toUpperCase() + szLayout + szScale + szWidth + szHeight + szPageHeight + szPageWidth + szPageMargins;
             w = open(url, "Save", 'menubar=no,height=200,width=300');
