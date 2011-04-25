@@ -185,13 +185,33 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             measure: this.measure,
             scope: this
         });
+        
+        //add in the clear button if required
+        if(json.ClearButtonContainer) {
+          var clearButtonText = json.ClearButtonText? json.ClearButtonText[0] : 'Clear';
+          this.clearButton = new Jx.Button({
+            label: clearButtonText,
+            onClick: OpenLayers.Function.bind(this.clearMeasure, this)
+          }).addTo(json.ClearButtonContainer[0]);
+          this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.toggleClearButton, this, false));
+          this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.toggleClearButton, this, true));
+          this.clearButton.setEnabled(false);
+        }
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.extentsChangedCB, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.extentsChangedCB, this));
 
     },
+    
+    clearMeasure: function() {
+      this.control.cancel();
+    },
 
-    extentsChangedCB : function() {
+    toggleClearButton: function(enabled) {
+      this.clearButton.setEnabled(enabled);
+    },
+
+    extentsChangedCB: function() {
         var olControl = this.control;
         if(olControl && olControl.active)
         {
@@ -204,7 +224,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
     },
 
-    updateMarkers : function(geom) {
+    updateMarkers: function(geom) {
         var v = geom.getVertices();
         for(var i = 0; i < this.distanceMarkers.length; i++)
         {
