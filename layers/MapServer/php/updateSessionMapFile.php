@@ -4,7 +4,7 @@ include 'Common.php';
 if (isset($_SESSION['maps']) && isset($_SESSION['maps'][$mapName])) {
     $oMap = ms_newMapObj($_SESSION['maps'][$mapName]);
     // set visible layers
-    setVisibleLayers(split(",",$_REQUEST["visLayers"]));
+    setVisibleLayers(explode(",",$_REQUEST["visLayers"]));
     // update the layers list that is in use
     //updateActiveLayers(split(",",$_REQUEST["layers"]));
     
