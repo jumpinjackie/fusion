@@ -108,6 +108,28 @@ $result = NULL;
 $result->hasSelection = false;
 $result->layers = array();
 
+/* ==================================================================== */
+/*      Get the list of raster layers that are on. We will use it       */
+/*      when doing raster query. Turn them off here. Return them on     */
+/*      before the raster query. bug #73                                 */
+/* ==================================================================== */
+$aRasterLayerIndiceOn = array();
+$aRasterLayerIndiceDefault = array();
+
+for ($i=0;  $i<$oMap->numlayers; $i++)
+  {
+    $oLayer = $oMap->GetLayer($i);        
+    if($oLayer->type ==  MS_LAYER_RASTER)
+      {
+        if ($oLayer->status == MS_ON)
+          array_push($aRasterLayerIndiceOn, $i);
+        else if ($oLayer->status ==  MS_DEFAULT)
+          array_push($aRasterLayerIndiceDefault, $i);
+
+        $oLayer->set("status", MS_OFF);
+      }
+  }
+
 if ($nLayers == 0) {
     $nLayers = $oMap->numlayers;
     $bAllLayers = true;
@@ -174,7 +196,23 @@ if ($result->hasSelection) {
     $result->queryFile = getSessionSavePath()."query.qy";
  }
 
-/*raster query: limit the result to 100 if it is not already set in the map fle*/
+/* ==================================================================== */
+/*      resttoe raster layer status #73                                 */
+/* ==================================================================== */
+for ($i=0; $i<count($aRasterLayerIndiceOn); $i++)
+  {
+    $oLayer = $oMap->getlayer($aRasterLayerIndiceOn[$i]);
+    $oLayer->set("status", MS_ON);
+  }
+
+for ($i=0; $i<count($aRasterLayerIndiceDefault); $i++)
+  {
+    $oLayer = $oMap->getlayer($aRasterLayerIndiceDefault[$i]);
+    $oLayer->set("status", MS_DEFAULT);
+  }
+
+
+/*raster query: limit the result to 100 if it is not already set in the map file*/
 for ($i=0; $i<$nLayers; $i++) {
     if (!$bAllLayers) {
         $oLayer = $oMap->GetLayerByName($layers[$i]);
@@ -186,6 +224,7 @@ for ($i=0; $i<$nLayers; $i++) {
         continue;
     }
     
+
     $aProcessings = $oLayer->getprocessing();
 
     $nCount = count($aProcessings);
