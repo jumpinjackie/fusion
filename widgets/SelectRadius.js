@@ -87,8 +87,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
             interval: 100,
             done: this.execute,
             down: this.mouseDown,
-            move: this.mouseMove,
-            up: this.mouseUp
+            move: this.mouseMove
             }, this.handlerOptions);
         mapWidget.handlers.push(this.handler);
     },
@@ -195,17 +194,6 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
       }
     },
     
-    mouseUp: function(geom) {
-        if (this.radiusTip && this.radiusTipType == 'dynamic') {
-            this.radiusTip.style.display = 'none';
-            this.radiusTip.innerHTML = '';
-        }
-        if (this.handler.start == this.handler.last) {
-          this.handler.clear();
-          this.execute(geom);
-        }
-    },
-
     /**
      *  set the extants of the map based on the pixel coordinates
      * passed
@@ -214,6 +202,14 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
      * @param radius
      **/
     execute: function(geom) {
+        if (this.radiusTip && this.radiusTipType == 'dynamic') {
+            this.radiusTip.style.display = 'none';
+            this.radiusTip.innerHTML = '';
+        }
+        if (this.handler.start == this.handler.last) {
+          this.handler.clear();
+        }
+
         var options = {};
         options.geometry = geom.toString();
         options.selectionType = this.selectionType;
