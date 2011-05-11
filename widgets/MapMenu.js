@@ -49,10 +49,18 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
             this.rootFolder = this.extension.Folder ? this.extension.Folder[0] : '/';
             //var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + '/MapMenu.' + Fusion.getScriptLanguage();
             this.requestURL = this.extension.ListURL ? this.extension.ListURL[0] : '/platform/api/mapsherpa.php';
+            this.publishedMapsOnly = this.extension.PublishedMapsOnly ? this.extension.PublishedMapsOnly : false;
+            if(this.publishedMapsOnly){
+                this.platformRequest = 'listpublishedmaps';
+            }
+            else
+            {
+                this.platformRequest = 'listresources';
+            }
         }
         this.loadOverlaysOnly = (this.extension.LoadOverlaysOnly && this.extension.LoadOverlaysOnly[0] == 'true') ? true:false;
        
-        this.getMapLayer().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.loadMenu, this));
+        this.getMapLayer().registerForEvent(Fusion.Event.MAP_SESSION_CREATED, OpenLayers.Function.bind(this.loadMenu, this));
         this.enable();
     },
     
@@ -88,8 +96,8 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     
     loadMenu: function() {
 
-        console.log("LOADMENU");
-        debugger;
+        //console.log("LOADMENU");
+        //debugger;
         
         //get the mapdefinitions as xml if there  is a folder specified
         //in the widget tag. All subfolders will be enumerated.
@@ -105,7 +113,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
             var map = this.getMapLayer();
             var options =  {
                   parameters: {
-                    request: 'listresources',
+                    request: this.platformRequest,
                     type: 'map',
                     session:  map.getSessionID(),
                     depth: -1,
@@ -131,7 +139,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
             //eval("o="+testData);
             this.menus = {};
             this.uiObj.empty();
-            if (o.values) {
+            if (o.values && o.values.resources) {
               var list = o.values.resources;
               var widgetLayer = this.getMapLayer();
               for (var i=0; i<list.length; i++) {
