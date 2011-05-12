@@ -33,6 +33,7 @@
 Fusion.Widget.MapMetadata = OpenLayers.Class(Fusion.Widget, {
     
     content: 'text',
+    layerName: null,
     
 /*
  * Constructor: MapMetadata
@@ -52,6 +53,9 @@ Fusion.Widget.MapMetadata = OpenLayers.Class(Fusion.Widget, {
         if (json.Content) {
           this.content = json.Content[0];
         }
+        if (json.LayerName) {
+          this.layerName = json.LayerName[0];
+        }
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.showMetadata, this));
     },
 
@@ -63,7 +67,7 @@ Fusion.Widget.MapMetadata = OpenLayers.Class(Fusion.Widget, {
      */
     showMetadata: function() {
       var metadataLayer = this.getMapLayer();
-      var metadata = metadataLayer.getMetadata(this.metadataId);
+      var metadata = metadataLayer.getMetadata(this.metadataId, this.layerName);
       if (metadata) {
         //this.domObj.appendChild(metadata);
         if (this.content == 'markup') {             

@@ -272,7 +272,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
             this.layerRoot.displayInLegend = true;
             this.layerRoot.expandInLegend = true;
 
-            o.groups.sort(function(a,b) {return a.depth-b.depth} );
             this.parseMapLayersAndGroups(o);
 
             var minScale = 1.0e10;
@@ -479,6 +478,9 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     parseMapLayersAndGroups: function(o) {
+        //sort the groups so that root folders are created before subfolders 
+        o.groups.sort(function(a,b) {return a.depth-b.depth} );
+        
         for (var i=0; i<o.groups.length; i++) {
             var group = new Fusion.Layers.Group(o.groups[i], this);
             var parent;
@@ -833,12 +835,33 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
         Fusion.ajaxRequest(s, params);
   },
 
-    getMetadata: function(key) {
+    getMetadata: function(key, layerName) {
+      if (layerName) {
+        var layer = this.getLayerByName(layerName);
+        if (layer.metadata && typeof layer.metadata[key] != 'undefined') {
+          return layer.metadata[key];
+        } else {
+          return '';
+        }
+        
+      } else {
         if (this.metadata && typeof this.metadata[key] != 'undefined') {
             return this.metadata[key];
         } else {
-            return '';
+          //TODO: a better way to create the layer metadata string?
+            var metadataString = ''
+            var join = "";
+            for (var i=0; i<this.aLayers.length; i++) {
+              if (this.aLayers[i].metadata && 
+                  typeof this.aLayers[i].metadata[key] != 'undefined' &&
+                  this.aLayers[i].metadata[key].length>0 ) {
+                metadataString += join + this.aLayers[i].legendLabel + ":" + this.aLayers[i].metadata[key] ;
+                join = " - ";
+              }
+            }
+            return metadataString;
         }
+      }
     },
     
     getGroupInfoUrl: function(groupName) {
