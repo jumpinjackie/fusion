@@ -208,6 +208,12 @@ Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {
     var icons = listItem.domObj.getElements('img');
     var infoIcon = icons[2];
     var delIcon = icons[1];
+    
+    var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
+    if (!layerInfo) {
+        infoIcon.style.display = "none";
+    }
+
     OpenLayers.Event.observe(infoIcon, 'click', OpenLayers.Function.bind(this.showLayerInfo, this, layer));
     OpenLayers.Event.observe(delIcon, 'click', OpenLayers.Function.bind(this.deleteLayer, this, layer));
     OpenLayers.Event.observe(listItem.domObj.getElement('input'), 'click', OpenLayers.Function.bind(this.visChanged, this, layer));
