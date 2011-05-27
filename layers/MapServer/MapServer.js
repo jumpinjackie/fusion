@@ -165,12 +165,17 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
     },
 
     restoreStateCB: function(oResponse){
-        if(oResponse.error){
+        if(oResponse.error) {
             Fusion.reportError(new Fusion.Error(Fusion.Error.WARNING, "Error Restoring Map State - "+oResponse.error));
-        }
-        else
-        {
-        this.oRestoredState = oResponse;
+        } else {
+            this.oRestoredState = oResponse;
+            var a = this.oRestoredState.extents.split(',');
+            this.mapWidget.mapGroup.initialView = {
+              minX: parseFloat(a[0]),
+              minY: parseFloat(a[1]),
+              maxX: parseFloat(a[2]),
+              maxY: parseFloat(a[3])
+            }
         }
         // done with session create, fire the event.
         this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
@@ -353,7 +358,8 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
         var params = {
             'mapname': this._sMapname,
-            'session': this.getSessionID()
+            'session': this.getSessionID(),
+            'reload': true
         };
         if (this.mapMetadataKeys) {
             params.map_metadata = this.mapMetadataKeys;
