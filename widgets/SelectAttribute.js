@@ -117,9 +117,10 @@ Fusion.Widget.SelectAttribute = OpenLayers.Class(Fusion.Widget, {
       if (this.drawn) {
         var layer = this.layerList[this.layerList.selectedIndex].value;
         var map = this.getMapLayer();
+        var mapWidget = this.getMap();
         for (var i=0; i<map.aLayers.length; ++i) {
           if (map.aLayers[i].layerName == layer) {
-            map.setActiveLayer(map.aLayers[i]);
+            mapWidget.setActiveLayer(map.aLayers[i]);
             break;
           }
         }
