@@ -35,6 +35,7 @@ if (isset($_SESSION['fusionConfig'])) {
                 $oReturn->extents = $aData["_afCurrentExtents"];
                 $oReturn->vislayers = $aData["aVisibleLayers"];
                 $oReturn->sessionname = $aData["sessionName"];
+                $oReturn->queryfile = $aData["queryfile"];
                 $oReturn->loadmap = $szDestination."/".$oReturn->mapname.'.map';
 
                 $oMap = ms_newMapObj($oReturn->loadmap);
@@ -86,6 +87,14 @@ function checkForGMLLayers($szDestination){
     $oLayer->set("connection", $szDestination."/features.gml");
     }
     @$oLayer = $oMap->getLayerByName("LWEGML-Annotation");
+    if($oLayer){
+    $oLayer->set("connection", $szDestination."/features.gml");
+    }
+    @$oLayer = $oMap->getLayerByName("LWEGML-Circle");
+    if($oLayer){
+    $oLayer->set("connection", $szDestination."/features.gml");
+    }
+    @$oLayer = $oMap->getLayerByName("LWEGML-Rectangle");
     if($oLayer){
     $oLayer->set("connection", $szDestination."/features.gml");
     }

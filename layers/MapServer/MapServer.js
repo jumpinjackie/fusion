@@ -176,6 +176,10 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               maxX: parseFloat(a[2]),
               maxY: parseFloat(a[3])
             }
+            if (this.oRestoredState.queryfile && this.oRestoredState.queryfile.length>0) {
+              this.bSelectionOn = true;
+              this._sQueryfile = this.oRestoredState.queryfile;
+            }
         }
         // done with session create, fire the event.
         this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
@@ -316,6 +320,9 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               map: this._sMapFile,
               map_imagetype: this._sImageType
             };
+            if (this.hasSelection()) {
+              params.queryfile = this._sQueryfile;
+            }
             OpenLayers.Util.extend(params, this.mapTag.layerParams);
 
             //remove this layer if it was already loaded
