@@ -52,8 +52,8 @@ Fusion.Widget.SaveSession = OpenLayers.Class(Fusion.Widget, {
             label: 'Save Session',
             modal: false,
             resize: true,
-            width:400,
-            height:200
+            width: 500,
+            height: 150
         });
         
     },
@@ -77,20 +77,15 @@ Fusion.Widget.SaveSession = OpenLayers.Class(Fusion.Widget, {
       
       this.form = new Jx.Form({
         name: 'testForm',
-        formClass: 'jxFormInline'
+        formClass: 'jxFormBlock'
       }).addTo(this.oDialog.content);
-      
-      var fieldSet2 = new Jx.Fieldset({
-        legend: 'Session URL',
-        id: 'FieldSet2',
-        fieldsetClass: 'jxFormInline'
-      }).addTo(this.form);
       
       this.oInputURL = new Jx.Field.Text({
         id: 'sessionUrl',
         name: 'sessionUrl',
-        label: 'URL'
-      }).addTo(fieldSet2);
+        label: 'Session URL',
+        width: 400
+      }).addTo(this.form);
       
       var info = document.createElement('div');
       info.innerHTML = "Copy and paste the URL above to restore this session";
