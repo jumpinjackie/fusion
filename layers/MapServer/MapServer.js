@@ -490,6 +490,20 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
 
     },
 
+    parseLayers: function() {
+        //this.layerRoot.clear();
+        for (var i=0; i<this.aLayers.length; i++) {
+            var layer = this.aLayers[i];
+            var parent;
+            if (layer.parentGroup != '') {
+                parent = this.layerRoot.findGroup(layer.parentGroup.name);
+            } else {
+                parent = this.layerRoot;
+            }
+            parent.addLayer(layer, this.bLayersReversed);
+        }
+    },
+
     parseMapLayersAndGroups: function(o) {
         //sort the groups so that root folders are created before subfolders 
         o.groups.sort(function(a,b) {return a.depth-b.depth} );
