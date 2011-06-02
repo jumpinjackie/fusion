@@ -412,7 +412,7 @@ function BuildLayerDefinitionContent()
     global $dataSource, $featureName, $ffcolor, $fbcolor, $transparent, $linestyle, $thickness, $lcolor, $fillstyle, $foretrans;
 
     $xtrans = sprintf("%02x", 255 * $foretrans / 100);
-    $layerTempl = file_get_contents("./arealayerdef.templ");
+    $layerTempl = file_get_contents("./AreaLayerDef.templ");
     $xmlStr = sprintf($layerTempl,
                       $dataSource,
                       $featureName,
