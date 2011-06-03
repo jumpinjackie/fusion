@@ -251,7 +251,7 @@ for ($i=0; $i<$nLayers; $i++) {
     {
         $oCenterPoint = ms_newpointobj();
         $oPoint = $oSpatialFilter->getCentroid();
-        $status = $oLayer->queryByPoint($oPoint, MS_SINGLE, -1);
+        $status = @$oLayer->queryByPoint($oPoint, MS_SINGLE, -1);
     }
     else {
       $status = @$oLayer->queryByShape($oSpatialFilter);
