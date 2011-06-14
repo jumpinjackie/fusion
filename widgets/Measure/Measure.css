@@ -6,6 +6,12 @@ body#MeasurementWidgetResults  {
     border: 0px;
 }
 
+#MeasurementWidgetResults p {
+    font-size: 11px;
+    margin: 0px;
+    padding: 10px;
+}
+
 .divMeasureMarker {
   position: absolute;
   background-color: #fff;
