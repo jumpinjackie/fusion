@@ -213,10 +213,10 @@ $Id$
                   files=" SingleFile.js
                           fusion.js
                           proj4js-compressed.js
-                          IE9patch.js
                           OpenLayers/OpenLayers.js
                           OLpatch.js
                           jxlib.uncompressed.js
+                          IE9patch.js
                           Error.js
                           EventMgr.js
                           ApplicationDefinition.js
