@@ -213,8 +213,9 @@ $Id$
                   files=" SingleFile.js
                           fusion.js
                           proj4js-compressed.js
+                          IE9patch.js
                           OpenLayers/OpenLayers.js
-						  OLpatch.js
+                          OLpatch.js
                           jxlib.uncompressed.js
                           Error.js
                           EventMgr.js
