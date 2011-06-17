@@ -1086,7 +1086,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           layerNames += sep + this.aLayers[i].layerName;
           sep = ',';
         }
-        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.mapWidget.getSessionID(),
+        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                             this._sMapname,
                                                             sGeometry,
                                                             maxFeatures, persist, selection, layerNames,
@@ -1117,7 +1117,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       if (!this.singleTile) {
           var center = this.mapWidget.oMapOL.getCenter();
           var display = this.mapWidget.oMapOL.getSize();
-          var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.mapWidget.getSessionID(),
+          
+          var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.getSessionID(),
                                                               this._sMapname,
                                                               center.lon, center.lat,
                                                               this.mapWidget.oMapOL.getScale(),
