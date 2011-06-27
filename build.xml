@@ -212,7 +212,7 @@ $Id$
         <filelist dir="${build.home}/lib"
                   files=" SingleFile.js
                           fusion.js
-                          proj4js-compressed.js
+                          Proj4js/proj4js-compressed.js
                           OpenLayers/OpenLayers.js
                           OLpatch.js
                           jxlib.uncompressed.js
