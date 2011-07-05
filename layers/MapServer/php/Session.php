@@ -348,17 +348,18 @@ function initializeSession( $szSessName="sid", $szSessSavePath="", $szSessionID=
     $szTmpID = "";
 
     // check both get and post variables
-    if ( isset($GLOBALS['_COOKIE'][ini_get('session.name')]) )
+    debug_msg("Checking GPC for session ...");
+    if ( isset($GLOBALS['_COOKIE'][ini_get('session.name')]) ) {
         $szTmpID = $GLOBALS['_COOKIE'][ini_get('session.name')];
-    elseif (isset($GLOBALS['_GET'][ini_get('session.name')]))
+        debug_msg("_COOKIE:".$GLOBALS['_COOKIE'][ini_get('session.name')]);
+    } elseif (isset($GLOBALS['_GET'][ini_get('session.name')])) {
         $szTmpID = $GLOBALS['_GET'][ini_get('session.name')];
-    elseif  (isset($GLOBALS['_POST'][ini_get('session.name')]))
+        debug_msg("_GET:".$GLOBALS['_GET'][ini_get('session.name')]);
+    } elseif (isset($GLOBALS['_POST'][ini_get('session.name')])) {
         $szTmpID = $GLOBALS['_POST'][ini_get('session.name')];
-
+        debug_msg("_POST:".$GLOBALS['_POST'][ini_get('session.name')]);
+    }
     debug_msg("szTmpID:".$szTmpID);
-    debug_msg("_GET:".$GLOBALS['_GET'][ini_get('session.name')]);
-    debug_msg("_POST:".$GLOBALS['_POST'][ini_get('session.name')]);
-    debug_msg("_COOKIE:".$GLOBALS['_COOKIE'][ini_get('session.name')]);
 
     // create new if necessary
     if ( strlen( $szTmpID ) <= 0 ){
