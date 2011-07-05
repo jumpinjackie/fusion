@@ -60,6 +60,19 @@ global $bLockSession;
 $gSzSessionDebug = FALSE;
 $bLockSession = FALSE;
 
+if (!function_exists('time_sleep_until')) {
+   function time_sleep_until($future) {
+       if ($future < time()) {
+           trigger_error("Time in past", E_USER_WARNING);
+           return false;
+       }
+
+       usleep(($future - microtime(1))*1000000);
+       return true;
+   }
+}
+
+
 if (!function_exists("_open")) {
   /**
    * _open Called by PHP session manager when a session is opened.
