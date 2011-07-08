@@ -102,7 +102,6 @@ PreviewDialog.prototype =
         }
         
         this.isClosing = true;
-        this.jxDialog.blanket.fade(0);
         this.jxDialog.domObj.fade(0);
     },
     
@@ -125,7 +124,19 @@ PreviewDialog.prototype =
         {
             // Resize the preview frame according to the monitor resolution
             this.innerDoc         = this.previewFrame.contentWindow.document;
-            var box       = $(document.body).getDimensions();
+            
+            // This is a workaround for JxLib3.0, which disable the getDimensions for Body.
+            //var box       = $(document.body).getDimensions();
+            var box =  null;
+            if($("AppContainer") != null)
+            {
+                box =$("AppContainer").getDimensions();
+            }
+            else
+            {
+                box =$("thePage").getDimensions();
+            }
+            
             // Width of preview dialog = screen width * factor
             var factor    = 0.5;
             this.previewContainer = $(this.innerDoc.getElementById("PreviewContainer"));
@@ -196,7 +207,6 @@ PreviewDialog.prototype =
             var size      = container.getMarginBoxSize();
             this.jxDialog.resize(size.width + delta.x, size.height + delta.y, true);
             
-            this.jxDialog.blanket.fade(0.2);
             this.jxDialog.domObj.fade(1);
             this.resizeIsPending = false;
             
@@ -204,7 +214,6 @@ PreviewDialog.prototype =
         }
         else
         {
-            this.jxDialog.blanket.setOpacity(0);
             this.jxDialog.domObj.setOpacity(0);
             this.resizeIsPending = true;
         }
