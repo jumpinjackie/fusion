@@ -112,13 +112,26 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
               this.oMapOptions.numZoomLevels = 3;  //TODO: make this configurable?
             }
 
+            ovLayers = [layer]; // layers in Overview Map
+            
+            // the last layer on the bottom
+            if(this.mapObject.oLayersOLTile && this.mapObject.oLayersOLTile.length > 1) {
+                for(var i=this.mapObject.oLayersOLTile.length-2; i>=0; i--) {
+                    // Workaround to make multiple baselayers display. 
+                    // Openlayers only supports single baselayer.
+                    this.mapObject.oLayersOLTile[i].isBaseLayer = false;
+                    
+                    ovLayers.push(this.mapObject.oLayersOLTile[i]);
+                }
+            }
+            
             var options = {
               div: this.domObj,
               size: this.oSize,
               minRatio: this.nMinRatio,
               maxRatio: this.nMaxRatio,
               mapOptions: this.oMapOptions,
-              layers: [layer]
+              layers: ovLayers
             };
 
             this.control = new OpenLayers.Control.OverviewMap(options);

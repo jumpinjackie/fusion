@@ -44,7 +44,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     selectionAsOverlay: true,
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
-    oLayerOL2: false,   //a layer object for tiled maps that also contains dynamic layers
+    oLayersOLTile: null,      //a list of baselayers
+    oLayerOLDynamic: false,   //a layer object for tiled maps that also contains dynamic layers
     supports: {
       query: true,
       edit: true
@@ -105,7 +106,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
         this.keepAliveInterval = parseInt(mapTag.extension.KeepAliveInterval ? mapTag.extension.KeepAliveInterval[0] : 300);
         this.noCache = true;
-
+        this.oLayersOLTile = [];
+        
         var sid = Fusion.sessionId;
         if (sid) {
             this.session[0] = sid;
@@ -296,18 +298,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.bSingleTile = false;
             }
 
-            if (!this.bSingleTile) {
-              if (o.groups.length >0) {
-                this.bSingleTile = false;
-                this.noCache = false;
-                this.groupName = o.groups[0].groupName;  //assumes only one group for now
-                this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED,
-                    OpenLayers.Function.bind(this.mapExtentsChanged, this));
-              } else {
-                this.bSingleTile = true;
-              }
-            }
-
             //set projection units and code if supplied
             var wktProj;
             if (o.wkt && o.wkt.length > 0){
@@ -329,7 +319,25 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
               this.mapWidget.fractionalZoom = false;
               this.mapWidget.oMapOL.fractionalZoom = false;
             }
-
+            
+            if (!this.bSingleTile) {
+                if (o.groups.length >0) {
+                    var tiledLayerIndex = 0;
+                    this.noCache = false;
+                    this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
+                    
+                    for (var i=0; i<o.groups.length; i++) {
+                        if(o.groups[i].isBaseMapGroup) {
+                            this.oLayersOLTile[tiledLayerIndex] = this.createOLLayer(this._sMapname + "_Tiled[" + tiledLayerIndex + "]", false, 2, false, o.groups[i].groupName);              
+                            tiledLayerIndex++;
+                         }
+                    }
+                }
+                else {
+                    this.bSingleTile = true;
+                }
+            }
+     
             //remove this layer if it was already created
             if (this.oLayerOL) {
                 this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
@@ -338,7 +346,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL.destroy();
             }
 
-            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile,2,false);
+            if (this.oLayersOLTile.length != 0) {
+                this.oLayerOL = this.oLayersOLTile[this.oLayersOLTile.length-1]; // The last baselayer at the bottom.
+            } else {
+                this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile, 2, false, "");
+            }
+            
             if (wktProj) {
               this.oLayerOL.projection = wktProj;
             }
@@ -357,10 +370,19 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (this.bIsMapWidgetLayer) {
                 this.mapWidget.addMap(this);
                 
+                if(this.oLayersOLTile.length > 1) {
+                    for(var i=this.oLayersOLTile.length-2; i>=0; i--) {
+                        // Workaround to make multiple baselayers display. 
+                        // Openlayers only supports single baselayer.
+                        this.oLayersOLTile[i].isBaseLayer = false; 
+                        this.mapWidget.oMapOL.addLayer(this.oLayersOLTile[i]);
+                    }                               
+                }
+                
                 //if we have a tiled map that also contains dynamic layers, we need to create
                 //an additional overlay layer to render them on top of the tiles
                 if(!this.bSingleTile && o.hasDynamicLayers) {
-                    this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true);
+                    this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
                     this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
                     this.oLayerOL2.setVisibility(true);
                 }
@@ -578,7 +600,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *
      * Returns an OpenLayers MapGuide layer object
      */
-    createOLLayer: function(layerName, bSingleTile, behavior, forceAsOverlay) {
+    createOLLayer: function(layerName, bSingleTile, behavior, forceAsOverlay, baselayerGroupName) {
       /* prevent the useOverlay flag based on MapGuide config element */
       this.useAsyncOverlay = Fusion.getConfigurationItem('mapguide', 'useAsyncOverlay');
       if (!this.useAsyncOverlay) {          //v2.0.1 or earlier
@@ -642,7 +664,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       } else {
         params = {      //tiled version
           mapdefinition: this._sResourceId,
-          basemaplayergroupname: this.groupName,  //assumes only one group for now
+          basemaplayergroupname: baselayerGroupName, 
           session: this.getSessionID(),
           clientagent: this.clientAgent
         };
@@ -945,7 +967,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
                 if (!this.queryLayer) {
-                  this.queryLayer = this.createOLLayer("query layer", true, 5, true);
+                  this.queryLayer = this.createOLLayer("query layer", true, 5, true, "");
                   this.mapWidget.oMapOL.addLayer(this.queryLayer);
                   this.mapWidget.registerForEvent(Fusion.Event.MAP_LOADING,
                         OpenLayers.Function.bind(this.removeQueryLayer, this));
@@ -1036,7 +1058,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.oLayerOL.setVisibility(true);
             if (this.oLayerOL2) this.oLayerOL2.setVisibility(true);
         } else if (group.isBaseMapGroup) {
-            this.oLayerOL.setVisibility(true);
+            for(var i=0; i<this.oLayersOLTile.length; i++) {
+                if(this.oLayersOLTile[i].params.basemaplayergroupname == group.name) {
+                    this.oLayersOLTile[i].setVisibility(true);
+                }
+            }
         } else {
             this.aShowGroups.push(group.uniqueId);
             if (!noDraw) {
@@ -1050,7 +1076,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.oLayerOL.setVisibility(false);
             if (this.oLayerOL2) this.oLayerOL2.setVisibility(false);
         } else if (group.isBaseMapGroup) {
-            this.oLayerOL.setVisibility(false);
+            for(var i=0; i<this.oLayersOLTile.length; i++) {
+                if(this.oLayersOLTile[i].params.basemaplayergroupname == group.name) {
+                    this.oLayersOLTile[i].setVisibility(false);
+                }
+            }
         } else {
             this.aHideGroups.push(group.uniqueId);
             if (!noDraw) {
