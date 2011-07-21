@@ -39,6 +39,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('Generic.initialize');
         Fusion.Layers.prototype.initialize.apply(this, arguments);
+        this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
         
         if (mapTag.extension.LayerType) {
           this.layerType = mapTag.extension.LayerType[0];
@@ -51,31 +52,6 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         
         this.minScale = mapTag.layerOptions.minScale ? mapTag.layerOptions.minScale : 1;
         this.maxScale = mapTag.layerOptions.maxScale ? mapTag.layerOptions.maxScale : 'auto';
-        var scaleRange = new Fusion.Layers.ScaleRange({
-            minScale: this.minScale,
-            maxScale: this.maxScale}, 
-            Fusion.Constant.LAYER_RASTER_TYPE,{label:this._sMapname});
-        
-        rootOpts = {
-          layerName: this._sMapname,
-          resourceId: this.sMapResourceId,
-          selectable: false,
-          editable: false,
-          layerTypes: [Fusion.Constant.LAYER_RASTER_TYPE],
-          minScale: this.minScale,          
-          maxScale: this.maxScale,
-          scaleRanges: [scaleRange],
-          parentGroup: map.layerRoot,
-          displayInLegend: this.bDisplayInLegend,
-          expandInLegend: this.bExpandInLegend,
-          legendLabel: this._sMapname,
-          uniqueId: 'layerRoot',
-          visible: true,
-          actuallyVisible: true
-          //TODO: set other opts for group initialization as required
-        };
-        this.layerRoot = new Fusion.Layers.Layer(rootOpts,this);
-        //this.layerRoot = new Fusion.Layers.Group(rootOpts,this);
         if (isMapWidgetLayer) {
             this.loadMap(this.sMapResourceId);            
         }
@@ -188,6 +164,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             }
             break;
          case 'OpenStreetMap':
+         case 'OSM':
             if (this.mapTag.layerOptions.type) {
                 this.mapTag.layerOptions.type = this.mapTag.layerOptions.type;
             }
@@ -212,8 +189,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         }
        
         if (!this.oLayerOL) {
-            if(this.layerType == 'OpenStreetMap') {
-                this.oLayerOL = new OpenLayers.Layer.OSM[this.mapTag.layerOptions.type](this.getMapName(), this.mapTag.layerOptions );
+            if(this.layerType == 'OpenStreetMap' || this.layerType == 'OSM') {
+                this.oLayerOL = new OpenLayers.Layer.OSM(this.getMapName(), null, this.mapTag.layerOptions );
             }
             else {
                 this.oLayerOL = new OpenLayers.Layer[this.layerType](this.getMapName(), this.mapTag.layerOptions );
@@ -221,6 +198,7 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         }
         
         //fractionalZoom not permitted with tiled base layers
+        this.mapWidget.oMapOL.minPx = null;  //TODO: better fix here, this prevents a mapdraw before layer is ready
         if (!this.bSingleTile) {
             this.mapWidget.fractionalZoom = false;
             this.mapWidget.oMapOL.setOptions({fractionalZoom: false});
@@ -229,6 +207,41 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         this.oLayerOL.events.register("loadstart", this, this.loadStart);
         this.oLayerOL.events.register("loadend", this, this.loadEnd);
         this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
+        
+        var parentGroup = null;
+        var scaleRange = new Fusion.Layers.ScaleRange({
+            minScale: this.minScale,
+            maxScale: this.maxScale}, 
+            Fusion.Constant.LAYER_RASTER_TYPE,{label:this._sMapname});
+        
+        rootOpts = {
+          layerName: this._sMapname,
+          resourceId: this.sMapResourceId,
+          selectable: false,
+          editable: false,
+          layerTypes: [Fusion.Constant.LAYER_RASTER_TYPE],
+          minScale: this.minScale,          
+          maxScale: this.maxScale,
+          scaleRanges: [scaleRange],
+          parentGroup: this.mapWidget.layerRoot,
+          displayInLegend: this.bDisplayInLegend,
+          expandInLegend: this.bExpandInLegend,
+          legendLabel: this._sMapname,
+          uniqueId: 'layerRoot',
+          visible: true,
+          actuallyVisible: true
+          //TODO: set other opts for group initialization as required
+        };
+        
+        if (this.layerRoot) {
+          parentGroup = this.mapWidget.layerRoot;
+          var oldLayer = parentGroup.findLayerByAttribute("layerName", this.layerRoot.layerName);
+          parentGroup.deleteLayer(oldLayer.uniqueId);
+        }
+        this.layerRoot = new Fusion.Layers.Layer(rootOpts,this);
+        if (parentGroup) {
+          parentGroup.addLayer(this.layerRoot);
+        }
         
         //this is to distinguish between a regular map and an overview map
         if (this.bIsMapWidgetLayer) {
