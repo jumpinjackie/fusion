@@ -297,10 +297,6 @@ Fusion.Layers.MapServer = OpenLayers.Class(Fusion.Layers, {
               minScale = 1.0;
             }
 
-            if (o.dpi) {
-                OpenLayers.DOTS_PER_INCH = o.dpi;
-            }
-
             //to allow for scaling that doesn't match any of the pre-canned units
             this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
             
