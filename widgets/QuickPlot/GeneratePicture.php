@@ -13,8 +13,7 @@
     $captureBox;
     $normalizedCapture;
     $printSize;
-    $paperSize;
-    
+    $paperSize;
     GetParameters();
     GenerateMap($printSize);
 ?>
@@ -32,13 +31,13 @@
         // Not necessary to validate the parameters    	
         $sessionID   = $args["session_id"];
         $mapName     = $args["map_name"];
-        $rotation    = floatval($args["rotation"]);
+        $rotation    = ParseLocaleDouble($args["rotation"]);
         $printDpi    = intval($args["print_dpi"]);
 
         $scaleDenominator = intval($args["scale_denominator"]);
 
         $array       = explode(",", $args["paper_size"]);
-        $paperSize   = new Size(floatval($array[0]), floatval($array[1]));
+        $paperSize   = new Size(ParseLocaleDouble($array[0]), ParseLocaleDouble($array[1]));
         $printSize   = new Size($paperSize->width / 25.4 * $printDpi, $paperSize->height / 25.4 * $printDpi);
         
         $array       = explode(",", $args["box"]);
@@ -56,11 +55,11 @@
         
         for ($index = 0; $index < count($coordinates); ++$index)
         {
-            $coordinate = $geometryFactory->CreateCoordinateXY(floatval($coordinates[$index]), floatval($coordinates[++$index]));
+            $coordinate = $geometryFactory->CreateCoordinateXY(ParseLocaleDouble($coordinates[$index]), ParseLocaleDouble($coordinates[++$index]));
             $coordinateCollection->Add($coordinate);
         }
         
-        $coordinateCollection->Add($geometryFactory->CreateCoordinateXY(floatval($coordinates[0]), floatval($coordinates[1])));
+        $coordinateCollection->Add($geometryFactory->CreateCoordinateXY(ParseLocaleDouble($coordinates[0]), ParseLocaleDouble($coordinates[1])));
         
         $linearRingCollection = $geometryFactory->CreateLinearRing($coordinateCollection);
         $captureBox           = $geometryFactory->CreatePolygon($linearRingCollection, null);
@@ -100,7 +99,7 @@
             $mapAgent .= "s";
         }
         // Get the correct port number
-		$mapAgent .= "://127.0.0.1:" . $_SERVER["SERVER_PORT"];
+        $mapAgent .= "://127.0.0.1:" . $_SERVER["SERVER_PORT"];
         // Get the correct virtual directory
         $mapAgent .= substr($_SERVER["REQUEST_URI"], 0, strpos($_SERVER["REQUEST_URI"], "/", 1));
         $mapAgent .="/mapagent/mapagent.fcgi?VERSION=1.0.0&OPERATION=GETMAPIMAGE" .
@@ -130,8 +129,7 @@
 
         header ("Content-type: image/png"); 
         imagepng($croppedImg);
-        imagedestroy($croppedImg);
-    }
+        imagedestroy($croppedImg);    }
     
     function DrawNorthArrow($map)
     {
@@ -164,6 +162,13 @@
         imagecopyresized($map, $rotatedNa, $mapWidth - $drawWidth - $margin, $mapHeight - $drawHeight - $margin, 0, 0, $drawWidth, $drawHeight, $naWidth, $naHeight);
         // Free the north arrow image
         imagedestroy($rotatedNa); 
+    }
+    
+    function ParseLocaleDouble($stringValue)
+    {
+        $lc = localeconv();
+        $result = str_replace(".", $lc["decimal_point"], $stringValue);
+        return doubleval($result);
     }
 ?>
 
