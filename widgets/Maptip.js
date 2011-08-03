@@ -63,11 +63,15 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     aTextFields: null,
     mapTipFired: false,
     bStartMapTips:false,
+    mapTipBtn: null,
+    label:'',
+    
     
     initializeWidget: function(widgetTag) {
-        //var json = widgetTag.extension;
-        var json = widgetTag.widgetSet.getWidgetByName(this.name).extension;
-        
+        var index = window.location.href.indexOf("?");
+    
+        this.label = widgetTag.label;
+        var json = widgetTag.extension;
         this.sTarget = json.Target ? json.Target[0] : "MaptipWindow";
         if (json.WinFeatures) {
           this.sWinFeatures = json.WinFeatures[0];
@@ -106,22 +110,103 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.iframe.className = 'maptipShim';
         this.iframe.scrolling = 'no';
         this.iframe.frameborder = 0;
+
+        this.mouseOverTipFunc = OpenLayers.Function.bind(this.mouseOverTip, this);
+        this.mouseOutTipFunc = OpenLayers.Function.bind(this.mouseOutTip, this);
+        this.mouseMoveFunc = OpenLayers.Function.bind(this.mouseMove, this);
+        this.mouseDownFunc = OpenLayers.Function.bind(this.mouseDown, this);
+        this.mouseUpFunc = OpenLayers.Function.bind(this.mouseUp, this);
+        this.mouseOutFunc = OpenLayers.Function.bind(this.mouseOut, this);
+        this.mapTipReqFinishedFunc = OpenLayers.Function.bind(this._display,this);
+        this.mapBusyChangedFunc = this.busyChanged.bind(this);
+        this.mapLoaded = this.startMapTips.bind(this);
+    },
+    
+    setUiObject: function(uiObj) {
+        Fusion.Widget.uiInstances[this.type].push(this);
+
+        this.mapTipBtn = new Jx.Button({
+            id: 'maptipButton',
+            image: Fusion.getApplicationURL() + 'images/maptip.png',
+            label: this.label,
+            toggle: true,
+            onDown: (function() {
+                    var instances = Fusion.Widget.uiInstances[this.type];
+                    for (var i=0; i<instances.length; i++) {
+                        var instance = instances[i];
+                        if (instance.shouldActivateWith(this) &&
+                            instance.mapTipBtn && instance.mapTipBtn.setActive) {
+                            instance.mapTipBtn.setActive(true);
+                        }
+                    }
+                    if(!Fusion.Widget.Maptip.ActiveInstance)
+                    {
+                        this.activate();
+                        Fusion.Widget.Maptip.ActiveInstance = this;
+                    }
+                }).bind(this),
+            onUp: (function() {
+                    var instances = Fusion.Widget.uiInstances[this.type];
+                    for (var i=0; i<instances.length; i++) {
+                        var instance = instances[i];
+                        if (instance.shouldActivateWith(this) &&
+                            instance.mapTipBtn && instance.mapTipBtn.setActive) {
+                            instance.mapTipBtn.setActive(false);
+                        }
+                    }
+                    if(Fusion.Widget.Maptip.ActiveInstance == this)
+                    {
+                        this.deactivate();
+                        Fusion.Widget.Maptip.ActiveInstance = null;
+                    }
+                }).bind(this)
+        }).addTo(uiObj);
+        if (this.widgetTag.tooltip) {
+          this.mapTipBtn.setTooltip(this.widgetTag.tooltip);
+        }
+        if (uiObj.options.active) {
+            this.mapTipBtn.setActive(true);
+        }
+
+        this.uiObj = uiObj;	
+    },
+    
+    activate : function() {
+        this.bStartMapTips = true;
         
-        OpenLayers.Event.observe(this.domObj, 'mouseover', OpenLayers.Function.bind(this.mouseOverTip, this));
-        OpenLayers.Event.observe(this.domObj, 'mouseout', OpenLayers.Function.bind(this.mouseOutTip, this));
+        OpenLayers.Event.observe(this.domObj, 'mouseover', this.mouseOverTipFunc);
+        OpenLayers.Event.observe(this.domObj, 'mouseout', this.mouseOutTipFunc);
         
         var oDomElem =  this.getMap().getDomObj();
         document.getElementsByTagName('BODY')[0].appendChild(this.domObj);
         
-        this.getMap().observeEvent('mousemove', OpenLayers.Function.bind(this.mouseMove, this));
-        this.getMap().observeEvent('mousedown', OpenLayers.Function.bind(this.mouseDown, this));
-        this.getMap().observeEvent('mouseup', OpenLayers.Function.bind(this.mouseUp, this));
-        this.getMap().observeEvent('mouseout', OpenLayers.Function.bind(this.mouseOut, this));
+        
+        this.getMap().observeEvent('mousemove', this.mouseMoveFunc);
+        this.getMap().observeEvent('mousedown', this.mouseDownFunc);
+        this.getMap().observeEvent('mouseup', this.mouseUpFunc);
+        this.getMap().observeEvent('mouseout', this.mouseOutFunc);
 
         this.eventListener = false;
-        this.getMap().registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,OpenLayers.Function.bind(this._display,this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.busyChanged.bind(this));
-        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.startMapTips.bind(this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,this.mapTipReqFinishedFunc);
+        this.getMap().registerForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.mapBusyChangedFunc);
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded);
+    },
+    
+    deactivate: function() {
+        this.bStartMapTips = false;
+        
+        OpenLayers.Event.stopObserving(this.domObj, 'mouseover', this.mouseOverTipFunc);
+        OpenLayers.Event.stopObserving(this.domObj, 'mouseout', this.mouseOutTipFunc);
+        
+        this.getMap().stopObserveEvent('mousemove', this.mouseMoveFunc);
+        this.getMap().stopObserveEvent('mousedown', this.mouseDownFunc);
+        this.getMap().stopObserveEvent('mouseup', this.mouseUpFunc);
+        this.getMap().stopObserveEvent('mouseout', this.mouseOutFunc);
+
+        this.eventListener = false;
+        this.getMap().deregisterForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,this.mapTipReqFinishedFunc);
+        this.getMap().deregisterForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.mapBusyChangedFunc);
+        this.getMap().deregisterForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded);
     },
     
     mouseOut: function(e) {
