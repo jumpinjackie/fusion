@@ -13,9 +13,18 @@
     $captureBox;
     $normalizedCapture;
     $printSize;
-    $paperSize;
-    GetParameters();
-    GenerateMap($printSize);
+    $paperSize;    
+    try
+    {
+        GetParameters();
+        GenerateMap($printSize);
+    }
+    catch (MgException $e)
+    {
+        header ("Content-type: text/html");
+        echo "ERROR: " . $e->GetExceptionMessage() . "<br>";
+        echo $e->GetStackTrace() . "<br>";
+    }
 ?>
 
 <?php    
@@ -81,7 +90,6 @@
         $map->Open($resourceService, $mapName);
         
         $selection        = new MgSelection($map);
-        $color            = new MgColor(255, 255, 255);
         
         // Calculate the generated picture size
         $envelope         = $captureBox->Envelope();
@@ -91,30 +99,27 @@
         $toSize           = new Size($size1->width / $size2->width * $size->width, $size1->height / $size2->height * $size->height);
         $center           = $captureBox->GetCentroid()->GetCoordinate();
         
-        // Get the map agent url
-        // Get the correct http protocal
-        $mapAgent = "http";
-        if ($_SERVER["HTTPS"] == "on")
-        {
-            $mapAgent .= "s";
-        }
-        // Get the correct port number
-        $mapAgent .= "://127.0.0.1:" . $_SERVER["SERVER_PORT"];
-        // Get the correct virtual directory
-        $mapAgent .= substr($_SERVER["REQUEST_URI"], 0, strpos($_SERVER["REQUEST_URI"], "/", 1));
-        $mapAgent .="/mapagent/mapagent.fcgi?VERSION=1.0.0&OPERATION=GETMAPIMAGE" .
-                    "&SESSION=$sessionID" .  
-                    "&MAPNAME=" . rawurlencode($mapName) .
-                    "&FORMAT=PNG" .
-                    "&SETVIEWCENTERX=" . $center->GetX() .
-                    "&SETVIEWCENTERY=" . $center->GetY() .
-                    "&SETVIEWSCALE=$scaleDenominator" . 
-                    "&SETDISPLAYDPI=$printDpi" . 
-                    "&SETDISPLAYWIDTH=$toSize->width" . 
-                    "&SETDISPLAYHEIGHT=$toSize->height" . 
-                    "&CLIP=0";
+        $map->SetDisplayDpi($printDpi);
+        $colorString = $map->GetBackgroundColor();
+        // The returned color string is in AARRGGBB format. But the constructor of MgColor needs a string in RRGGBBAA format
+        $colorString = substr($colorString, 2, 6) . substr($colorString, 0, 2);
+        $color = new MgColor($colorString);
 
-        $image = imagecreatefrompng($mapAgent);
+        $mgReader = $renderingService->RenderMap($map, 
+                                                $selection, 
+                                                $center,
+                                                $scaleDenominator, 
+                                                $toSize->width, 
+                                                $toSize->height,
+                                                $color,
+                                                "PNG",
+                                                false);
+
+        $tempImage = sys_get_temp_dir() . uniqid();
+        $mgReader->ToFile($tempImage);
+        $image = imagecreatefrompng($tempImage);
+        unlink($tempImage);
+
         // Rotate the picture back to be normalized
         $normalizedImg = imagerotate($image, -$rotation, 0);
         // Free the original image
