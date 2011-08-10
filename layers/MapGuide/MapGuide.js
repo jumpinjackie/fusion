@@ -1024,12 +1024,17 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         {
             maxFeatures = -1;
         }
+        if(option.filter == null)
+        {
+            option.filter = '';
+        }
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                                 this._sMapname,
                                                                 options.geometry,
                                                                 maxFeatures,
                                                                 persist,
                                                                 options.selectionType || this.selectionType,
+                                                                options.filter,
                                                                 options.layers,
                                                                 layerAttributeFilter);
         var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
@@ -1109,6 +1114,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var maxFeatures = 1;
         var persist = 0;
         var selection = 'INTERSECTS';
+        var filter = '';
         var layerNames = '';
         var layerAttributeFilter = 3;
         var sep = '';
@@ -1119,7 +1125,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                             this._sMapname,
                                                             sGeometry,
-                                                            maxFeatures, persist, selection, layerNames,
+                                                            maxFeatures, persist, selection, filter, layerNames,
                                                             layerAttributeFilter);
         var callback = OpenLayers.Function.bind(this.crtlClickDisplay, this);
         Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
@@ -1232,6 +1238,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var maxFeatures = 1;
         var persist = 0;
         var selection = 'INTERSECTS';
+        var filter = '';
         // only select visible layers with maptips defined (1+4)
         var layerAttributeFilter = 5;
         //TODO: possibly make the layer names configurable?
@@ -1239,7 +1246,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                         this._sMapname,
                                         sGeometry,
-                                        maxFeatures, persist, selection, layerNames,
+                                        maxFeatures, persist, selection, filter, layerNames,
                                         layerAttributeFilter);
         oBroker.dispatchRequest(r, 
             OpenLayers.Function.bind(Fusion.xml2json, this, 
