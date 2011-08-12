@@ -39,11 +39,14 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {
     },
         
     menuItems: null,
+    
+    system: null,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
 
         this.displayUnits = json.DisplayUnits ? json.DisplayUnits[0] : false;
+        this.paramRegister.push("Units");
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.setMapUnits, this));
         this.menuItems = {};
     },
@@ -71,9 +74,18 @@ Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {
     setMapUnits: function() {
         var units = this.displayUnits ? this.displayUnits : this.getMap().getUnits();
         this.setViewOptions(units);
-        var system = Fusion.unitSystem(Fusion.unitFromName(units));
-        if (this.menuItems[system]) {
-            this.menuItems[system].setActive(true);
+        this.system = Fusion.unitSystem(Fusion.unitFromName(units));
+        if (this.menuItems[this.system]) {
+            this.menuItems[this.system].setActive(true);
+        }
+    },
+    
+    setParameter: function(param, value) {
+        if (param == 'Units' && this.system != Fusion.unitSystem(Fusion.unitFromName(value))) {
+            this.system = Fusion.unitSystem(Fusion.unitFromName(value))
+            if (this.menuItems[this.system]) {
+                this.menuItems[this.system].setActive(true);
+            }
         }
     }
 });
