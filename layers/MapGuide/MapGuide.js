@@ -1024,9 +1024,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         {
             maxFeatures = -1;
         }
-        if(option.filter == null)
+        if(options.filter == null)
         {
-            option.filter = '';
+            options.filter = '';
         }
         var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                                 this._sMapname,
