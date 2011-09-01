@@ -1,4 +1,13 @@
 <?php
+    $fusionMGpath = '../../layers/MapGuide/php/';
+    require_once $fusionMGpath . 'Common.php';
+    if(InitializationErrorOccurred())
+    {
+        DisplayInitializationErrorHTML();
+        exit;
+    }
+    require_once $fusionMGpath . 'Utilities.php';
+    require_once $fusionMGpath . 'JSON.php';
 	require_once 'classes/markupeditor.php';
 	require_once 'classes/editcommand.php';
 
@@ -7,6 +16,13 @@
 	$refreshMap = false;
 	$errorMsg = null;
 	$errorDetail = null;
+
+    SetLocalizedFilesPath(GetLocalizationPath());
+    if(isset($_REQUEST['LOCALE'])) {
+        $locale = $_REQUEST['LOCALE'];
+    } else {
+        $locale = GetDefaultLocale();
+    }
 
 	try
 	{
@@ -43,6 +59,27 @@
 		}
 		
 		$markupFeatures = $markupEditor->GetMarkupFeatures();
+        
+        $editLocal = GetLocalizedString('REDLINEEDIT', $locale );
+        $defaultHelpLocal = GetLocalizedString('REDLINEEDITDEFAULTHELP', $locale );
+        $pointHelpLocal = GetLocalizedString('REDLINEEDITPOINTHELP', $locale );
+        $lineHelpLocal = GetLocalizedString('REDLINEEDITLINEHELP', $locale );
+        $lineStringHelpLocal = GetLocalizedString('REDLINEEDITLINESTRINGHELP', $locale );
+        $rectangleHelpLocal = GetLocalizedString('REDLINEEDITRECTANGLEHELP', $locale );
+        $polygonHelpLocal = GetLocalizedString('REDLINEEDITPOLYGONHELP', $locale );
+        $addLocal = GetLocalizedString('REDLINEADD', $locale );
+        $digitizeLocal = GetLocalizedString('REDLINEDIGITIZE', $locale );
+        $pointLocal = GetLocalizedString('REDLINEOBJECTPOINT', $locale );
+        $lineLocal = GetLocalizedString('REDLINEOBJECTLINE', $locale );
+        $lineStringLocal = GetLocalizedString('REDLINEOBJECTLINESTRING', $locale );
+        $rectangleLocal = GetLocalizedString('REDLINEOBJECTRECTANGLE', $locale );
+        $polygonLocal = GetLocalizedString('REDLINEOBJECTPOLYGON', $locale );
+        $modifyLocal = GetLocalizedString('REDLINEMODIFY', $locale );
+        $selectLocal = GetLocalizedString('REDLINESELECTOBJECT', $locale );
+        $deleteLocal = GetLocalizedString('REDLINEDELETEOBJECT', $locale );
+        $updateLocal = GetLocalizedString('REDLINEUPDATETEXT', $locale );
+        $closeLocal = GetLocalizedString('REDLINEEDITCLOSE', $locale );
+        $promptLabelLocal = GetLocalizedString('REDLINEPROMPTLABEL', $locale);
 	}
 	catch (MgException $e)
 	{
@@ -52,7 +89,7 @@
 ?>
 <html>
 <head>
-	<title>Edit Markup</title>
+	<title><?=$editLocal?></title>
     <link rel="stylesheet" href="Redline.css" type="text/css">
     <script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
     <script language="javascript" src="../../common/browserdetect.js"></script>
@@ -68,12 +105,12 @@
 		var CMD_DELETE 			= <?= EditCommand::Delete ?>;
 		var CMD_UPDATE 			= <?= EditCommand::Update ?>;
 	
-		var EDIT_DEFAULT_HELP = "To begin select the type of markup to digitize.";
-		var EDIT_POINT_HELP = "Click the map to specify the location of the point.";
-		var EDIT_LINE_HELP = "Click and drag on the map to specify the start and end points of the line.";
-		var EDIT_LINESTRING_HELP = "Click the map to define each point of the line, Double Click on the final point to end.";
-		var EDIT_RECTANGLE_HELP = "Click on the map to specify the first corner and drag the mouse to define the rectangle.";
-		var EDIT_POLYGON_HELP = "Click the map to define each point of the polygon, Double Click on the final point to end.";
+		var EDIT_DEFAULT_HELP = "<?=$defaultHelpLocal?>";
+		var EDIT_POINT_HELP = "<?=$pointHelpLocal?>";
+		var EDIT_LINE_HELP = "<?=$lineHelpLocal?>";
+		var EDIT_LINESTRING_HELP = "<?=$lineStringHelpLocal?>";
+		var EDIT_RECTANGLE_HELP = "<?=$rectangleHelpLocal?>";
+		var EDIT_POLYGON_HELP = "<?=$polygonHelpLocal?>";
 	
 		function SetDigitizeInfo(text)
 		{
@@ -124,7 +161,7 @@
 		{
 			var textInput = document.getElementById("textInput");
 
-			textLabel = window.prompt("Enter a label for the markup item", "");
+			textLabel = window.prompt("<?=$promptLabelLocal?>", "");
 			textInput.value = (textLabel != null) ? textLabel : "";
             
             ClearDigitization();
@@ -285,20 +322,20 @@
 		<td colspan="2" class="SubTitle">Add Markup</td>
 	</tr>
 	<tr>
-		<td colspan="2">Digitize markup:</td>
+		<td colspan="2"><?=$digitizeLocal?></td>
 	</tr>
 	<tr><td colspan="2" height="2px"></td></tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="Point" style="width:60px">
-			<input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="Line" style="width:60px">
-			<input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="Line String" style="width:60px">
+			<input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:60px">
+			<input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:60px">
+			<input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:60px">
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="Rectangle" style="width:60px">
-			<input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="Polygon" style="width:60px">
+			<input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:60px">
+			<input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:60px">
 		</td>
 	</tr>
 	<tr><td colspan="2" height="2px"></td></tr>
@@ -307,7 +344,7 @@
 	</tr>
 	<tr><td colspan="2"></td></tr>
 	<tr>
-		<td colspan="2" class="SubTitle">Modify Markup</td>
+		<td colspan="2" class="SubTitle"><?=$modifyLocal?></td>
 	</tr>
 	<tr>
 		<td colspan="2">
@@ -332,9 +369,9 @@
 	<tr><td colspan="2" height="2px"></td></tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="selectBtn" type="button" onClick="SelectMarkup()" value="Select Markup" style="width:80px">
-			<input class="Ctrl" id="deleteBtn" type="button" onClick="DeleteMarkup()" value="Delete Markup" style="width:80px">
-			<input class="Ctrl" id="updateBtn" type="button" onClick="UpdateMarkup()" value="Update Text" style="width:80px">
+			<input class="Ctrl" id="selectBtn" type="button" onClick="SelectMarkup()" value="<?=$selectLocal?>" style="width:80px">
+			<input class="Ctrl" id="deleteBtn" type="button" onClick="DeleteMarkup()" value="<?=$deleteLocal?>" style="width:80px">
+			<input class="Ctrl" id="updateBtn" type="button" onClick="UpdateMarkup()" value="<?=$updateLocal?>" style="width:80px">
 		</td>
 	</tr>
 	<tr><td colspan="2" height="2px"></td></tr>
@@ -342,7 +379,7 @@
 	<tr>
 		<td colspan="2" align="right">
 			<hr>
-			<input class="Ctrl" name="" type="button" onClick="CloseEditor()" value="Close" style="width:60px">
+			<input class="Ctrl" name="" type="button" onClick="CloseEditor()" value="<?=$closeLocal?>" style="width:60px">
 		</td>
 	</tr>
 

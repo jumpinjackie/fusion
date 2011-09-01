@@ -8,6 +8,7 @@ class MarkupCommand
 	const Refresh	= 4;
 	const Edit		= 5;
 	const Close		= 6;
+    const Download  = 7;
 }
 
 ?>

@@ -301,6 +301,30 @@ class MarkupManager
         
         $res = $featureService->UpdateFeatures($this->markupRegistryId, $cmds, false);
 	}
+    
+    function DownloadMarkup()
+    {
+        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+    
+        $markupLayerResId = new MgResourceIdentifier($this->args['MARKUPLAYER']);
+		$markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupLayerResId->GetName() . '.FeatureSource');
+
+        $dataName = $markupLayerResId->GetName().".sdf";
+        $byteReader = $resourceService->GetResourceData($markupSdfResId, $dataName);
+        $len = $byteReader->GetLength();
+        
+        $outputBuffer = '';
+        $buffer = '';
+        while ($byteReader->Read($buffer, 50000) != 0)
+        {
+            $outputBuffer .= $buffer;
+        }
+        
+        header("Content-Type: " . $byteReader->GetMimeType());
+        header("Content-Disposition: attachment; filename=$dataName");
+        header("Content-Length: " . strlen($outputBuffer));
+        echo $outputBuffer;
+    }
 
 	function GetOpenMarkup()
 	{
