@@ -31,7 +31,8 @@
 include('Common.php');
 if(InitializationErrorOccurred())
 {
-    DisplayInitializationErrorText();
+    //If initialization error occurred, then the error JSON has already been written
+    //so just exit.
     exit;
 }
 include('Utilities.php');

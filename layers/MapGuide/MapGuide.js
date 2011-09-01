@@ -138,15 +138,19 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (xhr.status == 200) {
             var o;
             eval('o='+xhr.responseText);
-            this.session[0] = o.sessionId;
-            var acceptLang = o.acceptLanguage.split(',');
-            //IE - en-ca,en-us;q=0.8,fr;q=0.5,fr-ca;q=0.3
-            for (var i=0; i<acceptLang.length; ++i) {
-              var locale = acceptLang[i].split(";");
-              Fusion.initializeLocale(locale[0]);
-              break;
+            if (o.success === false) {
+                Fusion.reportError(o.message);
+            } else {
+                this.session[0] = o.sessionId;
+                var acceptLang = o.acceptLanguage.split(',');
+                //IE - en-ca,en-us;q=0.8,fr;q=0.5,fr-ca;q=0.3
+                for (var i=0; i<acceptLang.length; ++i) {
+                  var locale = acceptLang[i].split(";");
+                  Fusion.initializeLocale(locale[0]);
+                  break;
+                }
+                this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
             }
-            this.triggerEvent(Fusion.Event.MAP_SESSION_CREATED);
         }
     },
 
