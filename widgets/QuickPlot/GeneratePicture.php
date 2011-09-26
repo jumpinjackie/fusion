@@ -19,15 +19,21 @@
         GetParameters();
         GenerateMap($printSize);
     }
-    catch (MgException $e)
-    {
-        header ("Content-type: text/html");
-        echo "ERROR: " . $e->GetExceptionMessage() . "<br>";
-        echo $e->GetStackTrace() . "<br>";
+    catch (MgException $e) {
+        $msg = "last error";
+        $msg .= "\nERROR: " . $e->GetExceptionMessage() . "\n";
+        $msg .= $e->GetDetails() . "\n";
+        $msg .= $e->GetStackTrace() . "\n";
+        RenderTextToImage($msg);
+    }
+    catch (Exception $ex) {
+        $msg = $ex->GetMessage();
+        RenderTextToImage($msg);
     }
 ?>
 
 <?php    
+
     function GetParameters()
     {
         global $sessionID, $mapName, $printDpi, $rotation, $paperSize, $captureBox, $printSize, $scaleDenominator, $normalizedCapture;

@@ -2,7 +2,7 @@
 
     $fusionMGpath = '../../layers/MapGuide/php/';
     include $fusionMGpath . 'Common.php';
-
+    
     $locale = GetDefaultLocale();
     $scaleDenominator;
     $annotations;
@@ -28,7 +28,7 @@
         $templ = preg_replace($pattern, $date, $templ);
     }
     
-    $jsPath    = "";
+    $jsPath = "";
     print sprintf($templ, $jsPath);
 ?>
 

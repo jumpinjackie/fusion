@@ -6,7 +6,10 @@ function innerLoaded()
 {
     if (parent.Fusion)
     {
-        parent.Fusion.getWidgetsByType("QuickPlot")[0].previewInnerLoaded();
+        var widget = parent.Fusion.getWidgetsByType("QuickPlot")[0];
+        var disclaimer = widget.disclaimer;
+        document.getElementById("legalNotice").innerHTML = disclaimer;
+        widget.previewInnerLoaded();
     }
 }
 
