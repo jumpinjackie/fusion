@@ -610,13 +610,15 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         }
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_AREA) {
             var tArea = outputDoc.getElementById('totalArea');
-            value = this.areaMarker.getQuantity();
-            if (this.areaPrecision == 0) {
-                value = Math.floor(value);
-            } else {
-                value = value.toPrecision(this.areaPrecision);
+            if (tArea) {
+                value = this.areaMarker.getQuantity();
+                if (this.areaPrecision == 0) {
+                    value = Math.floor(value);
+                } else {
+                    value = value.toPrecision(this.areaPrecision);
+                }
+                tArea.innerHTML = value + ' ' + units + '<sup>2</sup>';
             }
-            tArea.innerHTML = value + ' ' + units + '<sup>2</sup>';
         }
     },
 
