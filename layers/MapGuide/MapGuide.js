@@ -50,6 +50,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       query: true,
       edit: true
     },
+    alternateHostNames: null, //a comma-delimited list of alternate host names to use
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -90,6 +91,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this.handler.activate();
             this.nTolerance = 2; //pixels, default pixel tolernace for a point click; TBD make this configurable
           }
+        }
+        
+        //Store the list of alternate host names
+        if (mapTag.layerOptions.AlternateHostNames) {
+            this.alternateHostNames = mapTag.layerOptions.AlternateHostNames;
         }
         
         rootOpts = {
@@ -442,9 +448,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var sl = Fusion.getScriptLanguage();
         var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
 
+        //IE7 or lower: No pre-caching for you!
+        var preCacheIcons = !(Browser.Engine.trident4 || Browser.Engine.trident5);
+        //console.log("Layer icon pre-caching enabled: " + preCacheIcons);
         var sessionid = this.getSessionID();
 
-        var params = {'mapname': this._sMapname, "session": sessionid};
+        var params = {'mapname': this._sMapname, "session": sessionid, "preCacheIcons": preCacheIcons};
         var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this),
                        parameters:params};
         Fusion.ajaxRequest(loadmapScript, options);
@@ -685,6 +694,26 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       } else {
         url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
       }
+      
+      if (this.alternateHostNames)
+      {
+        var hosts = this.alternateHostNames.split(",");
+        var httpIndex = url.indexOf("http://") + 7;
+        if (httpIndex < 7) {
+            httpIndex = url.indexOf("https://") + 8;
+        }
+        var proto = url.substring(0, httpIndex);
+        var relIndex = url.indexOf("/", httpIndex+1);
+        var relPath = url.substring(relIndex);
+        
+        layerOptions.alternateUrls = [];
+        
+        for (var i = 0; i < hosts.length; i++) {
+            var altUrl = proto + hosts[i] + relPath;
+            layerOptions.alternateUrls.push(altUrl);
+        }
+      }
+      
       var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       return oNewLayerOL;
     },
@@ -1278,7 +1307,20 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
         else
         {
-            var url = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            if (style.iconOpt && style.iconOpt.url)
+            {
+                //if (style.iconOpt.url.indexOf("data:image") >= 0)
+                //    console.log("Fetching pre-cached icon");
+                return style.iconOpt.url;
+            }
+                
+            var origUrl = Fusion.getConfigurationItem('mapguide', 'mapAgentUrl');
+            var altUrl = null;
+            if (this.oLayerOL && this.oLayerOL.alternateUrls && this.oLayerOL.alternateUrls.length > 0) {
+                altUrl = this.oLayerOL.getNextAltURL();
+            }
+            var url = (altUrl == null) ? origUrl : altUrl;
+            
             url += "?OPERATION=GETLEGENDIMAGE&SESSION=" + layer.oMap.getSessionID();
             url += "&VERSION=1.0.0&SCALE=" + fScale;
             op = /\(/g; cp = /\)/g; 

@@ -682,6 +682,7 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
     initialize: function(o, layerType, iconOpt) {
         this.minScale = o.minScale;
         this.maxScale = o.maxScale;
+        this.isCompressed = o.isCompressed;
         if (this.maxScale == 'infinity' || this.maxScale == 'auto') {
           this.maxScale = Infinity;
         }
@@ -694,6 +695,14 @@ Fusion.Layers.ScaleRange = OpenLayers.Class({
         var staticIcon = o.styles.length>1 ? false : layerType;
         for (var i=0; i<o.styles.length; i++) {
             var styleItem = new Fusion.Layers.StyleItem(o.styles[i], staticIcon, iconOpt);
+            if (o.styles[i].imageData)
+            {
+                styleItem.iconOpt = {
+                    url: o.styles[i].imageData,
+                    width: iconOpt.width,
+                    height: iconOpt.height
+                };
+            }
             this.styles.push(styleItem);
         }
     },

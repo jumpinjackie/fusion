@@ -127,34 +127,50 @@ try
 
     //layers
     $mapObj->layers = array();
-
-
-    $mapObj->layers = array();
+    $layerDefinitionIds = new MgStringCollection();
+    
+    for($i=0;$i<$layers->GetCount();$i++)
+    {
+        $layer = $layers->GetItem($i);
+        $lid = $layer->GetLayerDefinition();
+        $layerDefinitionIds->Add($lid->ToString());
+    }
+    
+    //Get the layer contents in a single batch
+    $layerDefinitionContents = $resourceService->GetResourceContents($layerDefinitionIds, null);
+    $layerDocs = array();
+    for($i=0;$i<$layers->GetCount();$i++)
+    {
+        $content = $layerDefinitionContents->GetItem($i);
+        $doc = DOMDocument::LoadXML($content);
+        array_push($layerDocs, $doc);
+    }
+    
     for($i=0;$i<$layers->GetCount();$i++)
     {
         //only output layers that are part of the 'Normal Group' and
         //not the base map group used for tile maps.  (Where is the test for that Y.A.???)
 
         $layer=$layers->GetItem($i);
-        $layerDefinition = $layer->GetLayerDefinition();
+        $content = $layerDocs[$i];
         $layerObj = NULL;
-        $mappings = GetLayerPropertyMappings($resourceService, $layer);
+        $mappings = GetLayerPropertyMappings($resourceService, $layer, $content);
         $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
 
         $layerObj->uniqueId = $layer->GetObjectId();
         $layerObj->layerName = addslashes($layer->GetName());
 
         //$aLayerTypes = GetLayerTypes($featureService, $layer);
-        $aLayerTypes = GetLayerTypesFromResourceContent($layer);
+        $aLayerTypes = GetLayerTypesFromResourceContent($layer, $content);
         $layerObj->layerTypes = $aLayerTypes;
 
-        $layerObj->resourceId = $layerDefinition->ToString();
+        $layerObj->resourceId = $layerDefinitionIds->GetItem($i);
         $layerObj->parentGroup = $layer->GetGroup() ? $layer->GetGroup()->GetObjectId() : '';
 
         $layerObj->selectable = $layer->GetSelectable();
         $layerObj->visible = $layer->GetVisible();
         $layerObj->actuallyVisible = $layer->isVisible();
-        $layerObj->editable = IsLayerEditable($resourceService, $layer);
+        $layerObj->editable = IsLayerEditable($resourceService, $layer, $content);
 
         $isBaseMapLayer = ($layer->GetLayerType() == MgLayerType::BaseMap);
         $layerObj->isBaseMapLayer = $isBaseMapLayer;

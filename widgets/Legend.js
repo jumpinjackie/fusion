@@ -692,6 +692,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
               }
             }
             if (style.iconOpt && style.iconOpt.url) {
+                //if (style.iconOpt.url.indexOf("data:image") >= 0)
+                //    console.log("Fetching pre-cached icon");
                 opt.image = style.iconOpt.url;
             } else {
                 opt.image = layer.oMap.getLegendImageURL(scale, layer, style);

@@ -40,6 +40,24 @@ if(InitializationErrorOccurred())
 include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
+//This flag indicates whether to pre-cache the legend icons (in the form of data URIs that will be written back as part of the JSON response)
+//Browsers that do not support data URIs will not pass "true" and thus no pre-caching is performed.
+$preCacheIcons = false;
+
+//This is used by pre-caching to determine how many legend icons to pre-cache up-front (if $preCacheIcons = true)
+//$maxScaleRangeDepth = 3; //The maximum number of scale ranges to go through (topmost to bottom)
+$maxIconsPerScaleRange = 25; //The maximum number of icons to pre-cache per scale range. If the number of rules exceeds this value, the themed result will be compressed.
+//$maxLegendHeight = 800; //The maximum screen space available to pre-cache icons
+//$legendPos = 0; //Indicates how much screen space has already been allocated by pre-cached icons. Pre-caching stops after this value exceeds $maxLegendHeight
+//$advanceHeight = 20; //16px with 4px padding. This is just a logical guess of how much actual space one legend icon occupies in the legend widget
+//$maxGroupIndex = 5; //An initial guess of how many groups whose layer icons we can pre-cache.
+
+// Determine if we should pre-cache legend icons
+if (isset($_REQUEST['preCacheIcons']) && ($_REQUEST['preCacheIcons'] == "1" || strtolower($_REQUEST['preCacheIcons']) == "true")) {
+    $preCacheIcons = true;
+}
+
+$mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
 
 $map = new MgMap();
 $map->Open($resourceService, $mapName);
@@ -57,10 +75,50 @@ for($i=0;$i<$layers->GetCount();$i++)
         $scaleranges = $_SESSION['scale_ranges'][$layer->GetObjectId()];
         $layerObj = NULL;
         $layerObj->uniqueId = $layer->GetObjectId();
+        $layerObj = NULL;
+        $layerObj->uniqueId = $layer->GetObjectId();
+        
+        $ldfId = $layer->GetLayerDefinition();
+        foreach ($scaleranges as $sr)
+        {
+            $scaleVal = 42;
+            if (strcmp($sr->maxScale, "infinity") == 0)
+                $scaleVal = intval($sr->minScale);
+            else
+                $scaleVal = (intval($sr->minScale) + intval($sr->maxScale)) / 2.0;
+         
+            //Set compression flag
+            $styleCount = count($sr->styles);
+            $sr->isCompressed = ($styleCount > $maxIconsPerScaleRange);
+            if ($sr->isCompressed)
+            {
+                //First
+                $style = $sr->styles[0];
+                if ($preCacheIcons == true)
+                    $style->imageData = GetLegendImageInline($mappingService, $ldfId, $scaleVal, $style->geometryType, $style->categoryIndex);
+                
+                //Pass over ones in between
+                
+                //Last
+                $style = $sr->styles[$styleCount - 1];
+                if ($preCacheIcons == true)
+                    $style->imageData = GetLegendImageInline($mappingService, $ldfId, $scaleVal, $style->geometryType, $style->categoryIndex);
+            }
+            else
+            {
+                if ($preCacheIcons == true)
+                {
+                    foreach ($sr->styles as $style)
+                    {
+                        $style->imageData = GetLegendImageInline($mappingService, $ldfId, $scaleVal, $style->geometryType, $style->categoryIndex);
+                    }
+                }
+            }
+        }
         $layerObj->scaleRanges = $scaleranges;
         array_push($scaleObj->layers, $layerObj);
     }
- }
+}
 
 header('Content-type: application/json');
 

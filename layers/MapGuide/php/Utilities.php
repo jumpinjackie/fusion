@@ -608,10 +608,12 @@ function GetLayerTypes($featureService, $layer) {
 
 
 /* retrieve the property mappings for a layer */
-function GetLayerPropertyMappings($resourceService, $layer) {
+function GetLayerPropertyMappings($resourceService, $layer, $xmldoc = NULL) {
     $mappings = array();
-    $byteReader = $resourceService->GetResourceContent($layer->GetLayerDefinition());
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    if ($xmldoc == NULL) {
+        $byteReader = $resourceService->GetResourceContent($layer->GetLayerDefinition());
+        $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    }
     $mappingNodeList = $xmldoc->getElementsByTagName('PropertyMapping');
     for ($i=0; $i<$mappingNodeList->length; $i++) {
         $mapping = $mappingNodeList->item($i);
@@ -625,11 +627,13 @@ function GetLayerPropertyMappings($resourceService, $layer) {
 }
 
 /* retrieve the property mappings for a layer */
-function IsLayerEditable($resourceService, $layer) {
+function IsLayerEditable($resourceService, $layer, $xmldoc = NULL) {
     $result = true;
     $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-    $byteReader = $resourceService->GetResourceContent($dataSourceId);
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    if ($xmldoc == NULL) {
+        $byteReader = $resourceService->GetResourceContent($dataSourceId);
+        $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+    }
     $parameterList = $xmldoc->getElementsByTagName('Parameter');
     for ($i=0; $i<$parameterList->length; $i++) {
         $parameter = $parameterList->item($i);
@@ -902,5 +906,78 @@ function GetSiteVersion() {
     $serverVersion = $versionProp->GetValue();*/
     $serverVersion = $serverAdmin->GetSiteVersion();
     return $serverVersion;
+}
+
+// GetLegendImageInline
+//
+// Returns a data URI containing the base64 encoded content of the specified legend icon
+//
+// Due to the fixed size (16x16 px), the generated data URI will easily fall under the data URI limit of most (if not all) web browsers that support it.
+//
+function GetLegendImageInline($mappingService, $layerDefinitionId, $scale, $geomType, $themeCategory)
+{
+    $icon = $mappingService->GenerateLegendImage($layerDefinitionId, $scale, 16, 16, "PNG", $geomType, $themeCategory);
+    if ($icon != null)
+    {
+        $str = "";
+        $buffer = '';
+        while ($icon->Read($buffer, 50000) != 0)
+        {
+            $str .= base64_encode($buffer);
+        }
+        
+        $str = "data:image/png;base64,". $str;
+        return $str;
+    }
+    //$styleObj->imageData = "http://localhost/mapguide/mapagent/mapagent.fcgi?OPERATION=GETLEGENDIMAGE&VERSION=1.0.0&SESSION=$sessionID&SCALE=$scaleVal&LAYERDEFINITION=".$resID->ToString()."&TYPE=".$styleObj->geometryType."&THEMECATEGORY=".$styleObj->categoryIndex;
+    return null;
+}
+
+// Helper function to render out error messages for any PHP script that outputs images
+function RenderTextToImage($text) {
+    // Set font size
+    $font_size = 4;
+
+    $ts = explode("\n",$text);
+    $width = 0;
+    foreach ($ts as $k => $string) { //compute width
+        $width = max($width,strlen($string));
+    }
+
+    // Create image width dependant on width of the string
+    $width = imagefontwidth($font_size)*$width;
+    // Set height to that of the font
+    $height = imagefontheight($font_size)*count($ts);
+    $el = imagefontheight($font_size);
+    $em = imagefontwidth($font_size);
+    // Create the image pallette
+    $img = imagecreatetruecolor($width,$height);
+    // Dark red background
+    $bg = imagecolorallocate($img, 0xAA, 0x00, 0x00);
+    imagefilledrectangle($img, 0, 0,$width ,$height , $bg);
+    // White font color
+    $color = imagecolorallocate($img, 255, 255, 255);
+
+    foreach ($ts as $k=>$string) {
+        // Length of the string
+        $len = strlen($string);
+        // Y-coordinate of character, X changes, Y is static
+        $ypos = 0;
+        // Loop through the string
+        for($i=0;$i<$len;$i++){
+            // Position of the character horizontally
+            $xpos = $i * $em;
+            $ypos = $k * $el;
+            // Draw character
+            imagechar($img, $font_size, $xpos, $ypos, $string, $color);
+            // Remove character from string
+            $string = substr($string, 1);
+        }
+    }
+    // Return the image
+    header("Content-Type: image/png");
+    imagepng($img);
+    // Remove image
+    imagedestroy($img);
 }
 ?>
