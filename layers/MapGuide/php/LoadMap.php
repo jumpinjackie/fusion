@@ -119,7 +119,12 @@ try
     $mapObj->mapTitle=addslashes($mapTitle);
 
     $mapObj->mapName=addslashes($mapName);
-    $mapObj->backgroundColor = getMapBackgroundColor($map);
+    
+    //Any code that may need the map definition xml document can use $mdfDoc
+    $mapContent = $resourceService->GetResourceContent(new MgResourceIdentifier($mapid));
+    $mdfDoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+    
+    $mapObj->backgroundColor = getMapBackgroundColor($map, $mdfDoc);
 
     $mapObj->extent = array($oMin->GetX(), $oMin->GetY(), $oMax->GetX(), $oMax->GetY());
 
@@ -187,7 +192,7 @@ try
         $layerObj->displayInLegend = $layer->GetDisplayInLegend();
         $layerObj->expandInLegend = $layer->GetExpandInLegend();
 
-        $oScaleRanges = buildScaleRanges($layer);
+        $oScaleRanges = buildScaleRanges($layer, $content);
         $_SESSION['scale_ranges'][$layer->GetObjectId()] = $oScaleRanges;
         //$layerObj->scaleRanges = $oScaleRanges;
         /*get the min/max scale for the layer*/
@@ -199,10 +204,7 @@ try
             $layerObj->minScale = min($layerObj->minScale, $oScaleRanges[$j]->minScale);
             $layerObj->maxScale = max($layerObj->maxScale, $oScaleRanges[$j]->maxScale);
         }
-
-
         array_push($mapObj->layers, $layerObj);
-
     }
 
     //Get layer groups as xml
@@ -218,7 +220,6 @@ try
     //FiniteDisplayScales for tiled maps
     for ($i=0; $i<$map->GetFiniteDisplayScaleCount(); $i++)
     {
-
         array_push($mapObj->FiniteDisplayScales, $map->GetFiniteDisplayScaleAt($i));
     }
     echo var2json($mapObj);
@@ -240,7 +241,7 @@ exit;
 /*      Extract the layer types based on the styling available.         */
 /*      GetLayerTypes was costly in time when dealing in DB.            */
 /************************************************************************/
-function GetLayerTypesFromResourceContent($layer)
+function GetLayerTypesFromResourceContent($layer, $xmldoc = NULL)
 {
     $aLayerTypes = array();
     global $resourceService;
@@ -252,10 +253,11 @@ function GetLayerTypesFromResourceContent($layer)
           array_push($aLayerTypes, '5');// DWF
         else
         {
-            $resID = $layer->GetLayerDefinition();
-            $layerContent = $resourceService->GetResourceContent($resID);
-            $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
-
+            if ($xmldoc == NULL) {
+                $resID = $layer->GetLayerDefinition();
+                $layerContent = $resourceService->GetResourceContent($resID);
+                $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+            }
             $gridlayers = $xmldoc->getElementsByTagName('GridLayerDefinition');
             if ($gridlayers->length > 0)
               array_push($aLayerTypes, '4');// raster
@@ -286,11 +288,13 @@ function GetLayerTypesFromResourceContent($layer)
     return $aLayerTypes;
 }
 
-function getMapBackgroundColor($map) {
+function getMapBackgroundColor($map, $xmldoc = NULL) {
     global $resourceService;
-    $resId = $map->GetMapDefinition();
-    $mapContent = $resourceService->GetResourceContent($resId);
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+    if ($xmldoc == NULL) {
+        $resId = $map->GetMapDefinition();
+        $mapContent = $resourceService->GetResourceContent($resId);
+        $xmldoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+    }
     $bgColor = $xmldoc->getElementsByTagName('BackgroundColor');
     if ($bgColor->length > 0) {
         return '#'.substr($bgColor->item(0)->nodeValue, 2);
@@ -299,14 +303,15 @@ function getMapBackgroundColor($map) {
     }
 }
 
-function buildScaleRanges($layer)
+function buildScaleRanges($layer, $xmldoc = NULL)
 {
     $aScaleRanges = array();
     global $resourceService;
-    $resID = $layer->GetLayerDefinition();
-    $layerContent = $resourceService->GetResourceContent($resID);
-
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+    if ($xmldoc == NULL) {
+        $resID = $layer->GetLayerDefinition();
+        $layerContent = $resourceService->GetResourceContent($resID);
+        $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+    }
     $type = 0;
     $scaleRanges = $xmldoc->getElementsByTagName('VectorScaleRange');
     if($scaleRanges->length == 0) {
