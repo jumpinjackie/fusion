@@ -581,9 +581,26 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 } else {
                     layer.legend.treeItem.empty();
                 }
-                for (var i=0; i<range.styles.length; i++) {
-                    var item = this.createTreeItem(layer, range.styles[i], fScale, false);
-                    layer.legend.treeItem.add(item);
+                //This style range has the compression flag set. This would have been set server-side
+                //if it contains more than a pre-defined number of style rules (see LoadScaleRanges.php for
+                //more information)
+                if (range.isCompressed) {
+                    //Attach required data for theme expansion later on
+                    layer.legend.treeItem.layer = layer;
+                    layer.legend.treeItem.range = range;
+                    layer.legend.treeItem.scale = fScale;
+                    layer.legend.treeItem.hasDecompressedTheme = false;
+                    //console.assert(range.styles.length > 2);
+                    layer.legend.treeItem.add(this.createTreeItem(layer, range.styles[0], fScale, false));
+                    layer.legend.treeItem.add(this.createThemeCompressionItem(range.styles.length - 2, layer.legend.treeItem));
+                    layer.legend.treeItem.add(this.createTreeItem(layer, range.styles[range.styles.length-1], fScale, false));
+                } else {
+                    //FIXME: JxLib really needs an API to add these in a single batch that doesn't hammer
+                    //the DOM (if it's even possible)
+                    for (var i=0; i<range.styles.length; i++) {
+                        var item = this.createTreeItem(layer, range.styles[i], fScale, false);
+                        layer.legend.treeItem.add(item);
+                    }
                 }
             /* if there is only one style, we represent it as a tree item */
             } else {
@@ -634,7 +651,39 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             layer.legend.treeItem.check(layer.visible);
         }
     },
-    
+    getThemeExpandContextMenu: function(node) {
+        return new Jx.Menu.Context(this.name).add([
+            new Jx.Menu.Item({
+                label: OpenLayers.i18n('expandTheme'),
+                onClick: OpenLayers.Function.bind(function() { this.expandTheme(node); }, this)
+            })]
+        );
+    },
+    expandTheme: function(node) {
+        if (node.hasDecompressedTheme !== true && confirm(OpenLayers.i18n('expandCompressedThemeConfirmation'))) {
+            var range = node.range;
+            var layer = node.layer;
+            var fScale = node.scale;
+            node.empty();
+            //FIXME: JxLib really needs an API to add these in a single batch that doesn't hammer
+            //the DOM (if it's even possible)
+            for (var i = 0; i < range.styles.length; i++) {
+                var item = this.createTreeItem(layer, range.styles[i], fScale, false);
+                node.add(item);
+            }
+            node.hasDecompressedTheme = true;
+        }
+    },
+    createThemeCompressionItem: function(number, node) {
+        var opt = {
+            label: OpenLayers.i18n('otherThemeItems', { count: number }),
+            draw: this.renderItem,
+            contextMenu: this.getThemeExpandContextMenu(node),
+            image: this.imgBlankIcon
+        };
+        var item = new Jx.TreeItem(opt);
+        return item;
+    },
     createFolderItem: function(layer) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
