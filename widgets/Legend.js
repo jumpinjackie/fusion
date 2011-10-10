@@ -687,7 +687,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     createFolderItem: function(layer) {
         var opt = {
             label: layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel,
-            isOpen: layer.expandInLegend,
+            open: layer.expandInLegend,
             // contextMenu: this.getContextMenu(),
             image: this.imgLayerThemeIcon
         };
