@@ -173,8 +173,8 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
                 }
                 else if($type != MgGeometryType::Polygon)
                     continue;
-                    
-                $geomColl->Add($geom);
+                $trans = GetLayerToMapCSTrans($classDef, $geomPropName, $featureSrvc, $featureSource, $map);
+                $geomColl->Add($geom->Transform($trans));
             }
             $features->Close();
         }
@@ -192,6 +192,33 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
     }
     else
         return $gf->CreateMultiGeometry($geomColl);
+}
+
+function GetLayerToMapCSTrans($classDef, $geomPropName, $featureSrvc, $fsId, $map)
+{
+    $props = $classDef->GetProperties();
+    $geomProp = $props->GetItem($geomPropName);
+    $scAssociation = $geomProp->GetSpatialContextAssociation();
+    $csrdr = $featureSrvc->GetSpatialContexts($fsId, false);
+    $layerwkt = '';
+    
+    while($csrdr->ReadNext())
+    {
+        $csrName = $csrdr->GetName();
+        if($csrName == $scAssociation)
+        {
+            // Match found for the association
+            $layerwkt = $csrdr->GetCoordinateSystemWkt();
+            break;
+        }
+    }
+    $csrdr->Close();
+    $cf = new MgCoordinateSystemFactory();
+    $layerCS = $cf->Create($layerwkt);
+    $mapCS = $cf->Create($map->GetMapSRS());
+    $trans = $cf->GetTransform ($layerCS, $mapCS);
+    
+    return $trans;
 }
 
 function GetParameters($params)
