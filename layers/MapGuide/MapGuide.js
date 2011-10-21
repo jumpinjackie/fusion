@@ -204,7 +204,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.mapWidget._addWorker();
 
         this._fScale = -1;
-        this._nDpi = 96;
+        //this._nDpi = 96;
 
         options = options || {};
 

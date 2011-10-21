@@ -9,6 +9,47 @@
  ****************************************** -->
 
   <MapSet>
+    <MapGroup id="ticket468-test">
+      <Map id="mg1">
+        <Type>MapGuide</Type>
+        <SingleTile>false</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/MapsTiled/SheboyganMerc.MapDefinition</ResourceId>
+        </Extension>
+      </Map>
+    </MapGroup>
+    <MapGroup id="ticket468">
+      <InitialView>
+          <MinX>-9774168</MinX>
+          <MinY>5415995</MinY>
+          <MaxX>-9754637</MaxX>
+          <MaxY>5434757</MaxY>
+      </InitialView>
+      <Map>
+        <Type>Google</Type>
+        <Extension>
+          <ResourceId>google</ResourceId>
+          <Options>
+            <name>GoogleLayer</name>
+            <type>G_PHYSICAL_MAP</type>
+            <isBaseLayer>true</isBaseLayer>
+            <sphericalMercator>true</sphericalMercator>
+          </Options>
+        </Extension>
+      </Map>
+      <Map id="mg1">
+        <Type>MapGuide</Type>
+        <SingleTile>false</SingleTile>
+        <Extension>
+          <ResourceId>Library://Samples/Sheboygan/MapsTiled/SheboyganSphericalMerc.MapDefinition</ResourceId>
+          <Options>
+             <isBaseLayer>false</isBaseLayer>
+             <useOverlay>true</useOverlay>
+             <zoomOffset>9</zoomOffset>
+          </Options>
+        </Extension>
+      </Map>
+    </MapGroup>
     <MapGroup id="sheboygan">
       <Map>
         <Type>MapGuide</Type>
@@ -56,6 +97,9 @@
         <SingleTile>false</SingleTile>
         <Extension>
           <ResourceId>Library://Samples/Sheboygan/MapsTiled/Sheboygan.MapDefinition</ResourceId>
+          <Options>
+            <useHttpTile>true</useHttpTile>
+          </Options>
         </Extension>
       </Map>
     </MapGroup>
@@ -467,7 +511,7 @@
         <MenuContainer>MapContextMenu</MenuContainer>
         <!--Scales>100000,50000,25000,12500,8000,4000</Scales-->
       </Extension>
-      <MapId>sheboygan</MapId>
+      <MapId>ticket468</MapId>
     </MapWidget>
 
 <!-- ****************************************** 
@@ -1188,7 +1232,7 @@
       <Disabled/>
     </Widget>
 
-<!-- OVERVIEW MAP -->
+<!-- OVERVIEW MAP 
 
 
     <Widget>
@@ -1199,6 +1243,7 @@
         <MapId>sheboygan</MapId>
       </Extension>
     </Widget>
+    -->
     
 <!-- PRINT -->
 
