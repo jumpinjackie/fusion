@@ -283,7 +283,8 @@ class Query
         if ($this->args['USESPATIALFILTER'] == 'true')
         {
             $polygon = $this->CreatePolygonFromGeomText($this->args['GEOMTEXT']);
-            $polygon = $polygon->Transform($csInverseTransform);
+            if ($csInverseTransform)
+                $polygon = $polygon->Transform($csInverseTransform);
 
             $queryOptions->SetSpatialFilter($featureGeometry, $polygon, MgFeatureSpatialOperations::Intersects);
         }
@@ -298,7 +299,8 @@ class Query
             $byteReader = $featureReader->GetGeometry($featureGeometry);
             $geometry = $geometryReaderWriter->Read($byteReader);
             $centerPoint = $geometry->GetCentroid();
-            $centerPoint = $centerPoint->Transform($csTransform);
+            if ($csTransform)
+                $centerPoint = $centerPoint->Transform($csTransform);
 
             $idList = $this->GetFeatureIdList($map, $layer, $featureReader);
 
