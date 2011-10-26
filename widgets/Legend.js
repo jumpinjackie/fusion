@@ -564,8 +564,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         /* remember the range we are now representing for the next update */
         layer.legend.currentRange = range;
         
-        /* if layer is in range and has at least one style */
-        if (range != null && range.styles && range.styles.length > 0) {
+        /* if layer is in range */
+        if (range != null && range.styles) {
             /* if it has more than one style, we represent it as a folder
              * with classes as items in it
              */
@@ -602,10 +602,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                         layer.legend.treeItem.add(item);
                     }
                 }
-            /* if there is only one style, we represent it as a tree item */
+            /* if there is only one style or no style, we represent it as a tree item */
             } else {
                 var style = range.styles[0];
-                if (!style.legendLabel) {
+                if (style && !style.legendLabel) {
                     style.legendLabel = layer.legendLabel;
                 }
                 if (!layer.legend.treeItem) {
@@ -721,7 +721,14 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     createTreeItem: function(layer, style, scale, checkbox) {
         var opt = {};
         opt.statusIsDefault = layer.statusDefault;
-        opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        
+        //set the label
+        if (style && style.legendLabel) {
+            opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
+        } else {
+            opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
+        }
+        
         if (layer.metadata) {
           opt.selectable = !layer.metadata.jxUnselectable || (layer.metadata.jxUnselectable && layer.metadata.jxUnselectable != 'true');
         } else {
@@ -732,21 +739,20 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.image = this.imgDisabledLayerIcon;
             opt.enabled = false;
         } else {
-           var defaultIcon = this.imgDisabledLayerIcon;
-           if (layer.layerTypes[0] == 4) {
-               if (style.staticIcon == Fusion.Constant.LAYER_DWF_TYPE) {
-                 defaultIcon = this.imgLayerDWFIcon;
-              } else {
-                defaultIcon = this.imgLayerRasterIcon;
-              }
-            }
-            if (style.iconOpt && style.iconOpt.url) {
-                //if (style.iconOpt.url.indexOf("data:image") >= 0)
-                //    console.log("Fetching pre-cached icon");
+            if(style.iconOpt && style.iconOpt.url){
                 opt.image = style.iconOpt.url;
-            } else {
+            }else{
                 opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
             }
+        }
+        // MapGuide DWF and Raster layer
+         // MapGuide Raster and DWF layer
+        if(layer.layerTypes[0] == 4){
+            opt.image = this.imgLayerRasterIcon;
+            opt.enabled = true;
+        } else if(layer.layerTypes[0] == 5){
+            opt.image = this.imgLayerDWFIcon;
+            opt.enabled = true;
         }
 
         var item;
