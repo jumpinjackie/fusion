@@ -451,8 +451,8 @@
 	<tr>
 		<td colspan="2" align="right">
 			<hr>
-			<input class="Ctrl" name="" type="submit" value="OK" onclick="return CheckName()" style="width:60px">
-			<input class="Ctrl" type="button" value="Cancel" style="width:60px">
+			<input class="Ctrl" name="" type="submit" value="OK" onclick="return CheckName()" style="width:85px">
+			<input class="Ctrl" type="button" value="Cancel" style="width:85px">
 		</td>
 	</tr>
 

@@ -327,15 +327,15 @@
 	<tr><td colspan="2" height="2px"></td></tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:60px">
-			<input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:60px">
-			<input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:60px">
+			<input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:85px">
+			<input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:85px">
+			<input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:85px">
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:60px">
-			<input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:60px">
+			<input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:85px">
+			<input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:85px">
 		</td>
 	</tr>
 	<tr><td colspan="2" height="2px"></td></tr>
@@ -369,9 +369,9 @@
 	<tr><td colspan="2" height="2px"></td></tr>
 	<tr>
 		<td colspan="2">
-			<input class="Ctrl" id="selectBtn" type="button" onClick="SelectMarkup()" value="<?=$selectLocal?>" style="width:80px">
-			<input class="Ctrl" id="deleteBtn" type="button" onClick="DeleteMarkup()" value="<?=$deleteLocal?>" style="width:80px">
-			<input class="Ctrl" id="updateBtn" type="button" onClick="UpdateMarkup()" value="<?=$updateLocal?>" style="width:80px">
+			<input class="Ctrl" id="selectBtn" type="button" onClick="SelectMarkup()" value="<?=$selectLocal?>" style="width:85px">
+			<input class="Ctrl" id="deleteBtn" type="button" onClick="DeleteMarkup()" value="<?=$deleteLocal?>" style="width:85px">
+			<input class="Ctrl" id="updateBtn" type="button" onClick="UpdateMarkup()" value="<?=$updateLocal?>" style="width:85px">
 		</td>
 	</tr>
 	<tr><td colspan="2" height="2px"></td></tr>
@@ -379,7 +379,7 @@
 	<tr>
 		<td colspan="2" align="right">
 			<hr>
-			<input class="Ctrl" name="" type="button" onClick="CloseEditor()" value="<?=$closeLocal?>" style="width:60px">
+			<input class="Ctrl" name="" type="button" onClick="CloseEditor()" value="<?=$closeLocal?>" style="width:85px">
 		</td>
 	</tr>
 

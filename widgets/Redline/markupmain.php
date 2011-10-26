@@ -194,11 +194,11 @@
 	</tr>
 	<tr>
 		<td>
-			<input class="Ctrl" type="button" id="newBtn" onClick="SubmitCommand(CMD_NEW)" value="<?=$newLocal?>" style="width:50px">
-			<input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:90px">
-			<input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:50px">
-			<input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:50px">
-            <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:100px">
+			<input class="Ctrl" type="button" id="newBtn" onClick="SubmitCommand(CMD_NEW)" value="<?=$newLocal?>" style="width:85px">
+			<input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
+			<input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
+			<input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:85px">
 			<br><br>
 		</td>
 	</tr>
@@ -220,8 +220,8 @@
 	</tr>
 	<tr>
 		<td>
-			<input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:100px">
-			<input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:100px">
+			<input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:125px">
+			<input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:125px">
 			<br><br>
 		</td>
 	</tr>	
