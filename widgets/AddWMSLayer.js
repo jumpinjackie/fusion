@@ -175,11 +175,19 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
     /* 
     function addWMSLayer - adds the clicked layer from the interface created by catalogListLayers
                                then loads browseCatalog.php to add the clicked layer to the current 
-                               session map file. calls addCatalogLayerCB for a return responce.
+                               session map file. calls addCatalogLayerCB for a return response.
     
     */    
     addWMSLayer: function(cb){
         var map = this.getMapLayer();
+        var supportedSRS = cb.srs.toUpperCase();
+        var sourceSrs = map.mapWidget.oMapOL.baseLayer.projection.projCode;  //first try the code of the base map
+        if (supportedSRS.indexOf(sourceSrs) < 0 ) {
+          sourceSrs = "EPSG:4326";  //default to use 4326
+          if (supportedSRS.indexOf(sourceSrs) < 0 ) {
+            sourceSrs = supportedSRS.split(" ").shift();//just pick the first one
+          }
+        }
         
         //prep the servername to remove existing WMS params
         var params = {
@@ -190,7 +198,7 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
             layername: cb.name,
             group: cb.group,
             owstitle: cb.owstitle,
-            srs: map.oLayerOL.projection.projCode,
+            srs: sourceSrs,
             imageFormat: cb.imageformat,
             servername: cb.servername,
             wmsservicetitle: cb.wmsservicetitle,
