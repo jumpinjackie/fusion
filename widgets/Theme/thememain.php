@@ -358,12 +358,29 @@
                 document.getElementById("busyImg").src = NOT_BUSY_IMAGE;
                 themeReqHandler = null;
 
-                var map = parent.Fusion.getMapByName(mapName);
+                var fWin = GetFusionWindow().Fusion;
+                var map = fWin.getWidgetById('Map');
                 map.reloadMap();
 
             }
         }
 
+        /* locate the Fusion window */
+        function GetFusionWindow() {
+            var curWindow = window;
+            while (!curWindow.Fusion) {
+                if (curWindow.parent && curWindow != curWindow.parent) {
+                    curWindow = curWindow.parent;
+                } else if(curWindow.opener) {
+                    curWindow = curWindow.opener;
+                } else {
+                    alert('Could not find Fusion instance');
+                    break;
+                }
+            }
+            return curWindow;
+        }
+        
         function OnLoad()
         {
             OnLayerChange();
