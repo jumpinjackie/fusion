@@ -364,6 +364,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             
             if (wktProj) {
               this.oLayerOL.projection = wktProj;
+              this.oLayerOL.projection.proj.units = this.mapTag.layerOptions.units;
             }
             this.oLayerOL.events.register("loadstart", this, this.loadStart);
             this.oLayerOL.events.register("loadend", this, this.loadEnd);
