@@ -213,7 +213,11 @@
             elt.backgroundColor = "#" + labelBackColor;
             elt.color = "#" + labelBackColor;
         }
-
+		
+		 function Cancel()
+        {
+			window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>";
+		}
 	</script>
 	
 </head>
@@ -451,8 +455,8 @@
 	<tr>
 		<td colspan="2" align="right">
 			<hr>
-			<input class="Ctrl" name="" type="submit" value="OK" onclick="return CheckName()" style="width:85px">
-			<input class="Ctrl" type="button" value="Cancel" style="width:85px">
+			<input class="Ctrl" name="" type="submit" value="OK" onClick="return CheckName()" style="width:85px">
+			<input class="Ctrl" type="button" value="Cancel" style="width:85px" onClick="return Cancel()">
 		</td>
 	</tr>
 
