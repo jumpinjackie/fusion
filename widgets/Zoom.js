@@ -66,10 +66,9 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
     },
     
     shouldActivateWith: function(widget) {
-        return (widget instanceof Fusion.Widget.Zoom &&
-                widget.zoomIn == this.zoomIn &&
-                widget.factor == this.factor &&
-                widget.tolerance == this.tolerance);
+        return (widget instanceof Fusion.Widget.SelectPolygon &&
+                widget.widgetUniqueId == this.widgetUniqueId);
+        
     },
     
    /**

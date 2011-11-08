@@ -238,10 +238,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     },
 
     shouldActivateWith: function(widget) {
-        return (widget instanceof Fusion.Widget.Measure &&
-                widget.measureType == this.measureType);
+        return (widget instanceof Fusion.Widget.SelectPolygon &&
+                widget.widgetUniqueId == this.widgetUniqueId);
+        
     },
-
+    
 
     measure: function(stats) {
         this.hasMeasure = true;

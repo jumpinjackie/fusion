@@ -63,6 +63,12 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         mapWidget.handlers.push(this.handler);
     },
     
+    shouldActivateWith: function(widget) {
+        return (widget instanceof Fusion.Widget.SelectPolygon &&
+                widget.widgetUniqueId == this.widgetUniqueId);
+        
+    },
+    
     /**
      * activate the widget (listen to mouse events and change cursor)
      * This function should be defined for all functions that register
@@ -110,6 +116,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         }
         
         this.getMap().query(options);
+        return false;
     },
     
     setParameter: function(param, value) {
