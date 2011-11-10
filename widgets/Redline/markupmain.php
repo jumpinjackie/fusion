@@ -86,6 +86,7 @@
 <html>
 <head>
 	<title>Manage Markups</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="Redline.css" type="text/css">
 	
 	<script language="javascript">

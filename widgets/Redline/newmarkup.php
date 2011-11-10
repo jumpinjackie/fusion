@@ -88,9 +88,9 @@
 ?>
 <html>
 <head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title>New Markup Layer</title>
     <link rel="stylesheet" href="Redline.css" type="text/css">
-	
 	<script language="javascript">
 		var SET_MARKER_COLOR 		= 1;
 		var SET_LINE_COLOR 			= 2;
