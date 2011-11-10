@@ -102,6 +102,7 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         params.push('locale='+Fusion.locale);
         params.push('session='+map.getSessionID());
         params.push('mapname='+map.getMapName());
+        params.push('ts='+new Date().getTime());
         params = params.concat(this.additionalParameters);
         if (url.indexOf('?') < 0) {
             url += '?';
