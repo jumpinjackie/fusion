@@ -210,7 +210,12 @@
 	
 		function OnPolyonDigitized(polygon)
 		{
-			PromptAndSetMarkupText();			
+			if(polygon.Count < 3)
+			{   // clear invalid polygon
+				ClearDigitization();
+				return;
+            }
+			PromptAndSetMarkupText();
 
 			var geomText = polygon.Count;
 			for (var i = 0; i < polygon.Count; i++)
@@ -225,7 +230,7 @@
 		}
 	
 		function SelectMarkup()
-		{            
+		{
 			markupFeatures = document.getElementById("markupFeatures");
 			
             reqParams = "MAPNAME=" + encodeURIComponent(mapName);
