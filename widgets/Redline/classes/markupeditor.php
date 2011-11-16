@@ -147,6 +147,13 @@ class MarkupEditor
 			$coords->Add($coord);
 		}
 		
+		// Add the first vertex to make the ring close
+		if($count > 3)
+		{
+			$coord = $geometryFactory->CreateCoordinateXY((double) $vertices[1], (double) $vertices[2]);
+			$coords->Add($coord);
+		}
+		
 		$linearRing = $geometryFactory->CreateLinearRing($coords);
 		$polygon = $geometryFactory->CreatePolygon($linearRing, null);
         
