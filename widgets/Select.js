@@ -111,7 +111,6 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         this.handler.activate();
         //this.shiftHandler.activate();
         this.getMap().setCursor(this.asCursor);
-        this.getMap().supressContextMenu(true);
     },
 
     /**
@@ -123,7 +122,6 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         this.handler.deactivate();
         //this.shiftHandler.deactivate();
         this.getMap().setCursor('auto');
-        this.getMap().supressContextMenu(false);
     },
 
     /**
