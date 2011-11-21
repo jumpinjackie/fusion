@@ -53,6 +53,7 @@
     $srs = "";
     $featureName = "Buffer";
     $params = null;
+    $warnings = 0;
 
     GetRequestParameters();
     SetLocalizedFilesPath(GetLocalizationPath());
@@ -340,12 +341,13 @@
             $warningFmt = $excludedLayers > 1 ? GetLocalizedString( "BUFFERREPORTWARNINGSINGULAR", $locale ) : GetLocalizedString( "BUFFERREPORTWARNINGPLURAL", $locale );
             $warningStr = sprintf( $warningFmt, $excludedLayers );
             $msg = $msg."<p><p>".$warningStr;
+            $warnings = 1;
         }
 
         // return the report page
         $templ = file_get_contents("./BufferReport.templ");
         $templ = Localize($templ, $locale, GetClientOS());
-        print sprintf($templ, $popup, $mapName, $title, $msg);
+        print sprintf($templ, $popup, $warnings, $mapName, $title, $msg);
     }
     catch(MgException $e)
     {
