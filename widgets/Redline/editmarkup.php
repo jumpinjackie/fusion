@@ -89,6 +89,7 @@
 ?>
 <html>
 <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title><?=$editLocal?></title>
     <link rel="stylesheet" href="Redline.css" type="text/css">
     <script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
@@ -210,12 +211,7 @@
 	
 		function OnPolyonDigitized(polygon)
 		{
-			if(polygon.Count < 3)
-			{   // clear invalid polygon
-				ClearDigitization();
-				return;
-            }
-			PromptAndSetMarkupText();
+			PromptAndSetMarkupText();			
 
 			var geomText = polygon.Count;
 			for (var i = 0; i < polygon.Count; i++)
@@ -230,7 +226,7 @@
 		}
 	
 		function SelectMarkup()
-		{
+		{            
 			markupFeatures = document.getElementById("markupFeatures");
 			
             reqParams = "MAPNAME=" + encodeURIComponent(mapName);
