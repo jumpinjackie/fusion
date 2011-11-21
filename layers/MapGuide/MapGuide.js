@@ -647,6 +647,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         layerOptions.maxScale = this.minScale;
       }
 
+      layerOptions.displayOutsideMaxExtent = true;
       layerOptions.singleTile = bSingleTile;
       OpenLayers.Util.extend(layerOptions, this.mapTag.layerOptions);
 
