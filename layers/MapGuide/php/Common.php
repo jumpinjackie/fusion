@@ -138,7 +138,7 @@ catch (MgException $e)
     $initializationErrorDetail = $e->GetDetails();
     $initializationErrorStackTrace = $e->GetStackTrace();
     $initializationErrorOccurred = true;
-    echo "{success: false, message:'".$initializationErrorMessage."'}";
+    //echo "{success: false, message:'".$initializationErrorMessage."'}";
     //DisplayInitializationErrorHTML();
 }
 
@@ -151,7 +151,7 @@ function InitializationErrorOccurred()
 function DisplayInitializationErrorHTML()
 {
     global $initializationErrorMessage, $initializationErrorDetail;
-    echo "<table class=\"RegText\" border=\"0\" cellspacing=\"0\" width=\"100%%\">";
+    echo "<table class=\"RegText\" border=\"0\" cellspacing=\"0\" width=\"100%\">";
     echo "<tr><td class=\"Title\">Error<hr></td></tr>";
     if($initializationErrorMessage != null)
     {
