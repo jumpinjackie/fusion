@@ -62,3 +62,4 @@ try {
      echo $e->GetDetails() . "n";
      echo $e->GetStackTrace() . "n";
 }
+?>
