@@ -179,8 +179,25 @@ class MarkupManager
 		$map->Save($resourceService);
 	}
 	
+	function UniqueMarkupName(&$markupName)
+	{
+		$availableMarkups = $this->GetAvailableMarkup();
+		foreach ($availableMarkups as &$availableMarkupName)
+		{		
+			if($availableMarkupName == $markupName)
+			{
+				$markupName = $markupName . '_1';
+				$this->UniqueMarkupName($markupName);
+				break;
+			}
+		}
+	}
+	
 	function CreateMarkup()
 	{
+		$markupName = $this->args['MARKUPNAME'];
+		$this->UniqueMarkupName($markupName);
+		
 		$resourceService = $this->site->CreateService(MgServiceType::ResourceService);
 		$featureService = $this->site->CreateService(MgServiceType::FeatureService);
         
@@ -189,7 +206,7 @@ class MarkupManager
 
 		// Create the Markup Feature Source (SDF)
 
-		$markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->args['MARKUPNAME'] . '.FeatureSource');
+		$markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.FeatureSource');
 		
 		$markupSchema = MarkupSchemaFactory::CreateMarkupSchema();
 		$sdfParams = new MgCreateSdfParams('Default', $map->GetMapSRS(), $markupSchema);
@@ -252,7 +269,7 @@ class MarkupManager
 			$this->args['BORDERSIZEUNITS']); 					//<Unit> - Fill
 		
 		$byteSource = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
-        $layerDefId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->args['MARKUPNAME'] . '.LayerDefinition');
+        $layerDefId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.LayerDefinition');
 		$resourceService->SetResource($layerDefId, $byteSource->GetReader(), null);
         
         //Register markup with markup registry
