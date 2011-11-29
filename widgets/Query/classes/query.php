@@ -247,10 +247,15 @@ class Query
         {
             if ($scReader->GetName() == $spatialContext)
             {
-                $source = $coordSysFactory->Create($scReader->GetCoordinateSystemWkt());
-                $target = $coordSysFactory->Create($map->GetMapSRS());
-                $csTransform = $coordSysFactory->GetTransform($source, $target);
-                $csInverseTransform = $coordSysFactory->GetTransform($target, $source);
+                $sourceCs = $scReader->GetCoordinateSystemWkt();
+                $targetCs = $map->GetMapSRS();
+                if($sourceCs != '' && $targetCs != '')
+                {
+                    $source = $coordSysFactory->Create($sourceCs);
+                    $target = $coordSysFactory->Create($targetCs);
+                    $csTransform = $coordSysFactory->GetTransform($source, $target);
+                    $csInverseTransform = $coordSysFactory->GetTransform($target, $source);
+                }
             }
         }
         $scReader->Close();
