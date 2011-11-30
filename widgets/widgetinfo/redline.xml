@@ -23,7 +23,7 @@
       <Type>string</Type>
       <Description>A style map configuration string for features (format TBD).</Description>
       <IsMandatory>false</IsMandatory>
-      <DefaultValue/
+      <DefaultValue></DefaultValue>
     </Parameter>
     <Parameter>
       <Name>DefaultControl</Name>
