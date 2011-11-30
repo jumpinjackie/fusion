@@ -148,7 +148,7 @@ class MarkupEditor
 		}
 		
 		// Add the first vertex to make the ring close
-		if($count > 3)
+		if($count > 2)
 		{
 			$coord = $geometryFactory->CreateCoordinateXY((double) $vertices[1], (double) $vertices[2]);
 			$coords->Add($coord);
