@@ -157,7 +157,7 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
 
     setInitialContent: function(url) {
         this.aExecutedTasks = [];
-        this.nCurrentTask = 0;
+        this.nCurrentTask = -1;
         this.setContent(url);
     },
 
