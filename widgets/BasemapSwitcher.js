@@ -29,10 +29,30 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
 
     defaultBasemap: null,
 
+    activeBasemap: null,
+
     menuItems: {},
+    
+    zoomOffsets: {
+        'G_NORMAL_MAP': 0,
+        'G_SATELLITE_MAP': 0,
+        'G_HYBRID_MAP': 0,
+        'G_PHYSICAL_MAP': 0,
+        'YAHOO_MAP_REG': 0,
+        'YAHOO_MAP_SAT': 0,
+        'YAHOO_MAP_HYB': 0,
+        'Road': -1,
+        'Aerial': -1,
+        'Hybrid': -1,
+        'Mapnik': 0,
+        'Osmarender': 0,
+        'CycleMap': 0,
+        'None': 0
+    },
 
     initializeWidget: function(widgetTag) {
         this.getMap().registerForEvent(Fusion.Event.MAP_MAP_GROUP_LOADED, OpenLayers.Function.bind(this.setDefaultBasemap, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.checkZoomOffsets, this));
     },
 
     refreshSettings: function() {
@@ -289,19 +309,39 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
         Fusion.Widget.prototype.setUiObject.apply(this, [uiObj]);
         this.setDefaultBasemap();
     },
+    
+    checkZoomOffsets: function() {
+        if (this.activeBasemap != null) {
+            this.applyZoomOffset(this.activeBasemap);
+        }
+    },
+    
+    applyZoomOffset: function(baseMap) {
+        var offset = 0;
+        if (this.zoomOffsets[baseMap])
+            offset = this.zoomOffsets[baseMap];
+        for (var i = 0; i < this.getMap().aMaps.length; i++) {
+            var layer = this.getMap().aMaps[i];
+            if (layer.arch == "MapGuide" && layer.bUsesCommercialLayerScaleList) {
+                layer.applyZoomOffset(offset);
+            }
+        }
+    },
 
     setBasemap: function(baseMap) {
         if ("None" != baseMap && this.getMap().oMapOL.baseLayer.CLASS_NAME == "OpenLayers.Layer.MapGuide") {
             var visibility = this.baseMaps["None"].oLayerOL.visibility;
             this.getMap().oMapOL.setBaseLayer(this.baseMaps[baseMap].oLayerOL, false);
+            this.applyZoomOffset(baseMap);
             // Keep the MapGuide layers visibility
             this.baseMaps["None"].oLayerOL.visibility = visibility;
             this.baseMaps["None"].oLayerOL.redraw();
         }
         else {
             this.getMap().oMapOL.setBaseLayer(this.baseMaps[baseMap].oLayerOL, false);
+            this.applyZoomOffset(baseMap);
         }
-
+        this.activeBasemap = baseMap;
     },
 
     setDefaultBasemap: function() {

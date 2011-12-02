@@ -41,6 +41,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
     oSelection: null,
+    nCmsScaleTolerance: 2.0,  //When checking the scale list of a tiled map to determine if it is compatible with commercial layers, this value determines how much leeway a given scale can have to be considered equal
+    bUsesCommercialLayerScaleList: false,
+    //This is the CMS scale list as defined by MG Studio and interpreted by OpenLayers
+    aCmsScales: [
+        1128.49722, 2256.99444, 4513.98888, 9027.977761000002, 18055.95552,
+        36111.91104, 72223.82208999999, 144447.6442, 288895.2884, 577790.5767000001, 
+        1155581.153, 2311162.307, 4622324.614, 9244649.227, 18489298.45, 
+        36978596.91, 73957193.82, 147914387.6, 295828775.3, 591657550.5
+    ],
     selectionAsOverlay: true,
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
@@ -717,7 +726,48 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       
       var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
+      if (!bSingleTile) {
+        if (oNewLayerOL.scales.length == this.aCmsScales.length) { 
+            //NOTE: This is not a property of OpenLayers.Layer.MapGuide, it is something we've bolted on
+            oNewLayerOL.bUsesCommercialLayerScaleList = false;
+            for (var i = 0; i < this.aCmsScales.length; i++) {
+                if (!this.scalesAreApproximate(oNewLayerOL.scales[i], this.aCmsScales[i]))
+                {
+                    return oNewLayerOL; //Doesn't match. Nothing more to do here
+                }
+            }
+            oNewLayerOL.bUsesCommercialLayerScaleList = true;
+            this.bUsesCommercialLayerScaleList = true;
+        }
+      }
       return oNewLayerOL;
+    },
+    
+    scalesAreApproximate: function(scale1, scale2) {
+        return Math.abs(scale1 - scale2) < this.nCmsScaleTolerance;
+    },
+    
+    applyZoomOffset: function(offset) {
+        //console.log("Applying zoom offset of: " + offset);
+        //We need to redraw to prevent potential mismatch after switching of commerical layers
+        //TODO: This is called for each commerical layer in the basemap switcher widget, do
+        //redraw() calls at this point result in redundant requests?
+        if (this.oLayerOL && this.oLayerOL.bUsesCommercialLayerScaleList === true) {
+            this.oLayerOL.zoomOffset = offset;
+            this.oLayerOL.redraw();
+        }
+        if (this.oLayerOL2 && this.oLayerOL2.bUsesCommercialLayerScaleList === true) {
+            this.oLayerOL2.zoomOffset = offset;
+            this.oLayerOL2.redraw();
+        }
+        if (this.oLayersOLTile) {
+            for (var i = 0; i < this.oLayersOLTile.length; i++) {
+                if (this.oLayersOLTile[i].bUsesCommercialLayerScaleList === true) {
+                    this.oLayersOLTile[i].zoomOffset = offset;
+                    this.oLayersOLTile[i].redraw();
+                }
+            }
+        }
     },
 
     /**
