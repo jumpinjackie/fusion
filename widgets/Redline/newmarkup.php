@@ -145,7 +145,7 @@
                 return;
 				
             height = allowTransparency? 470: 445;
-            w = window.open("../../layers/MapGuide/php/ColorPicker.php?LOCALE=en&CLR=" + clr + "&ALLOWTRANS=" + (allowTransparency? "1":"0") + "&TRANS=" + (transparent?"1":"0"), "colorPicker", "toolbar=no,status=no,width=355,height=" + height);
+            w = window.open("../../layers/MapGuide/php/ColorPicker.php?LOCALE=en&CLR=" + clr + "&ALLOWTRANS=" + (allowTransparency? "1":"0") + "&TRANS=" + (transparent.value == "true"? "1":"0"), "colorPicker", "toolbar=no,status=no,width=355,height=" + height);
             w.focus();
         }
 
