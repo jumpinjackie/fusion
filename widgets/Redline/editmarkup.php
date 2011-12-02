@@ -367,7 +367,7 @@
 					$selected = 'selected';
 					foreach($markupFeatures as $markupId => $markupText) {
 				?>
-				<option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? $markupText : '[no text]' ?></option> 
+				<option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? htmlentities($markupText) : '[no text]' ?></option> 
 				<?php
 						$selected = ''; 
 					} 
