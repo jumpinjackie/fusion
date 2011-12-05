@@ -324,11 +324,11 @@
 <form action="editmarkup.php" method="post" enctype="application/x-www-form-urlencoded" id="editForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
 	<tr>
-		<td colspan="2" class="Title">Edit Markup - <?= $markupEditor->GetMarkupName() ?><hr></td>
+		<td colspan="2" class="Title"><?= $editLocal ?> - <?= $markupEditor->GetMarkupName() ?><hr></td>
 	</tr>
 
 	<tr>
-		<td colspan="2" class="SubTitle">Add Markup</td>
+		<td colspan="2" class="SubTitle"><?= $addLocal ?></td>
 	</tr>
 	<tr>
 		<td colspan="2"><?=$digitizeLocal?></td>
