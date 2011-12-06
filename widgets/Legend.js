@@ -609,11 +609,11 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     style.legendLabel = layer.legendLabel;
                 }
                 if (!layer.legend.treeItem) {
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, !layer.isBaseMapLayer);
                     layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
                 } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeFolder) {
                     this.clearTreeItem(layer);
-                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, true);
+                    layer.legend.treeItem = this.createTreeItem(layer, style, fScale, !layer.isBaseMapLayer);
                     layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
                 } else {
                     if (range.styles.length > 0) {
@@ -636,7 +636,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.legend.treeItem = null;
                 }
             } else {
-              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, true);
+              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, !layer.isBaseMapLayer);
                 if (layer.legend.treeItem) {
                     layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
                     layer.legend.treeItem.finalize();
@@ -648,7 +648,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         if (layer.legend.treeItem) {
             layer.legend.treeItem.options.data = layer;
-            layer.legend.treeItem.check(layer.visible);
+            if (!layer.isBaseMapLayer) //Tiled layers don't have a checkbox so there's nothing to check
+                layer.legend.treeItem.check(layer.visible);
         }
     },
     getThemeExpandContextMenu: function(node) {
