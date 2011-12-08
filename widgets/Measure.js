@@ -228,6 +228,9 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var v = geom.getVertices();
         for(var i = 0; i < this.distanceMarkers.length; i++)
         {
+            if (i + 1 >= v.length)
+                break;
+
             var seg =  new OpenLayers.Geometry.LineString();
             seg.addPoint(v[i].clone());
             seg.addPoint(v[i+1].clone());
@@ -283,11 +286,15 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     },
 
     measurePartial: function(point, sketch) {
-        if (this.hasMeasure) {
-            this.resetMeasure();
-            this.hasMeasure = false;
-        }
         var geom = sketch.geometry;
+        var v = geom.getVertices();
+        if (this.hasMeasure) {
+            if(v.length != 1)
+            {
+                this.resetMeasure();
+                this.hasMeasure = false;
+            }
+        }
         if (this.measureType & Fusion.Constant.MEASURE_TYPE_DISTANCE) {
             this.updateDistances(geom);
         }
