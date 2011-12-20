@@ -697,7 +697,18 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         } else {
           opt.selectable = false;
         }
-        var folder = new Fusion.Widget.Legend.TreeFolder(opt);
+        var folder;
+        if (!layer.isBaseMapLayer) {
+            folder = new Fusion.Widget.Legend.TreeFolder(opt);
+            /* only need to add layer info if it has a check box too */
+            var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
+            if (layerInfo) {
+                folder.setLayerInfo(layerInfo, this.imgLayerInfoIcon);
+            }
+        }  else {
+            opt.selectable = false;
+            folder = new Jx.TreeFolder(opt);
+        }
         var img = folder.elements.get('jxTreeIcon');
         img.style.backgroundPosition = '0px 0px';
         // folder.options.contextMenu.add([
@@ -710,11 +721,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         //         onClick: OpenLayers.Function.bind(this.expandBranch, this, folder)
         //     })]
         // );
-        
-        var layerInfo = layer.oMap.getLayerInfoUrl(layer.layerName);
-        if (layerInfo) {
-            folder.setLayerInfo(layerInfo, this.imgLayerInfoIcon);
-        }
        
         return folder;
     },
@@ -757,7 +763,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
 
         var item;
-        if (checkbox) {
+        if (!layer.isBaseMapLayer&&checkbox) {
             // opt.contextMenu = this.getContextMenu();
             item = new Fusion.Widget.Legend.TreeItem(opt);
             /* only need to add layer info if it has a check box too */
