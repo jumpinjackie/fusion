@@ -207,7 +207,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.getMap().deregisterForEvent(Fusion.Event.MAP_MAPTIP_REQ_FINISHED,this.mapTipReqFinishedFunc);
         this.getMap().deregisterForEvent(Fusion.Event.MAP_BUSY_CHANGED, this.mapBusyChangedFunc);
         this.getMap().deregisterForEvent(Fusion.Event.MAP_LOADED, this.mapLoaded);
-        this.domObj.parentNode.removeChild(this.domObj); 
+        
+        if(this.domObj != null && this.domObj.parentNode != null) {
+            this.domObj.parentNode.removeChild(this.domObj); 
+        }
     },
     
     mouseOut: function(e) {
