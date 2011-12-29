@@ -121,7 +121,7 @@
                                                 "PNG",
                                                 false);
 
-        $tempImage = sys_get_temp_dir() . uniqid();
+        $tempImage = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "mgo" . uniqid();
         $mgReader->ToFile($tempImage);
         $image = imagecreatefrompng($tempImage);
         unlink($tempImage);
