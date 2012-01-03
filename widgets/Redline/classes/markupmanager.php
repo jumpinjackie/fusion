@@ -19,6 +19,11 @@ class MarkupManager
         $this->InitMarkupRegistry();
 	}
     
+    function SetArgument($arg, $value)
+    {
+        $this->args[$arg] = $value;
+    }
+    
     function InitMarkupRegistry()
     {
         //NOTE: EnumerateResources does not work for session repositories. So to be able to "enumerate"
@@ -79,6 +84,22 @@ class MarkupManager
     {
         return "Session:" . $this->args["SESSION"] . "//";
     }
+    
+    function GetFeatureSource($layerDefinitionId)
+    {
+        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
+        $query = new MgFeatureQueryOptions();
+        $query->SetFilter("LayerDefinition = '$layerDefinitionId'");
+        $fr = $featureService->SelectFeatures($this->markupRegistryId, "Default:MarkupRegistry", $query);
+        
+        $fsId = "";
+        if($fr->ReadNext())
+        {
+            $fsId = $fr->GetString("ResourceId");
+        }
+        $fr->Close();
+        return $fsId;
+    }
 
 	function GetAvailableMarkup()
 	{
@@ -124,6 +145,100 @@ class MarkupManager
 		
 		return $markup;
 	}
+    
+    function StripAlphaFromColorString($str) {
+        return substr($str, 2, strlen($str) - 2);
+    }
+    
+    function GetLayerStyle($layerDef)
+    {
+        $style = new LayerStyle();
+        $resId = new MgResourceIdentifier($layerDef);
+        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+        $br = $resourceService->GetResourceContent($resId);
+        
+        $doc = DOMDocument::LoadXML($br->ToString());
+        $vsr = $doc->getElementsByTagName("VectorScaleRange")->item(0);
+        
+        $pts = $vsr->getElementsByTagName("PointTypeStyle");
+        $ats = $vsr->getElementsByTagName("AreaTypeStyle");
+        $lts = $vsr->getElementsByTagName("LineTypeStyle");
+        
+        if ($pts->length > 0) {
+            $pr = $pts->item(0);
+            $prLabel = $pr->getElementsByTagName("Label")->item(0);
+            $prMark = $pr->getElementsByTagName("PointSymbolization2D")->item(0)->getElementsByTagName("Mark")->item(0);
+            
+            $style->LABEL_SIZE_UNITS = $prLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+            $style->LABEL_FONT_SIZE = $prLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_STYLE = $prLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
+            $style->LABEL_BOLD = $prLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+            $style->LABEL_ITALIC = $prLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+            $style->LABEL_UNDERLINE = $prLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+            
+            $style->MARKER_SIZE_UNITS = $prMark->getElementsByTagName("Unit")->item(0)->nodeValue;
+            $style->MARKER_SIZE = $prMark->getElementsByTagName("SizeX")->item(0)->nodeValue;
+            $style->MARKER_TYPE = $prMark->getElementsByTagName("Shape")->item(0)->nodeValue;
+            
+            $style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+            //$style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->item(7)->childNodes->item(2)->nodeValue);
+        }
+        if ($lts->length > 0) {
+            $lr = $lts->item(0);
+            $lrLabel = $lr->getElementsByTagName("Label")->item(0);
+            $lrSym = $lr->getElementsByTagName("LineSymbolization2D")->item(0);
+            
+            $style->LABEL_SIZE_UNITS = $lrLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+            $style->LABEL_FONT_SIZE = $lrLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_STYLE = $lrLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
+     
+            if ($pts->length == 0) {
+                $style->LABEL_BOLD = $lrLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+                $style->LABEL_ITALIC = $lrLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+                $style->LABEL_UNDERLINE = $lrLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+            }
+            
+            $style->LINE_PATTERN = $lrSym->getElementsByTagName("LineStyle")->item(0)->nodeValue;
+            $style->LINE_THICKNESS = $lrSym->getElementsByTagName("Thickness")->item(0)->nodeValue;
+            $style->LINE_COLOR = $this->StripAlphaFromColorString($lrSym->getElementsByTagName("Color")->item(0)->nodeValue);
+            $style->LINE_SIZE_UNITS = $lrSym->getElementsByTagName("Unit")->item(0)->nodeValue;
+        }
+        if ($ats->length > 0) {
+            $ar = $ats->item(0);
+            $arLabel = $ar->getElementsByTagName("Label")->item(0);
+            $arSym = $ar->getElementsByTagName("AreaSymbolization2D")->item(0);
+            
+            $style->LABEL_SIZE_UNITS = $arLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+            $style->LABEL_FONT_SIZE = $arLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+            $style->LABEL_BACK_STYLE = $arLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
+            
+            if ($pts->length == 0 && $lts->length == 0)
+            {
+                $style->LABEL_BOLD = $arLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+                $style->LABEL_ITALIC = $arLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+                $style->LABEL_UNDERLINE = $arLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+            }
+            
+            $arSymFill = $arSym->getElementsByTagName("Fill")->item(0);
+            $arSymStroke = $arSym->getElementsByTagName("Stroke")->item(0);
+            
+            $style->FILL_PATTERN = $arSymFill->getElementsByTagName("FillPattern")->item(0)->nodeValue;
+            $style->FILL_FORE_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+            $style->FILL_BACK_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+            
+            $style->BORDER_PATTERN = $arSymStroke->getElementsByTagName("LineStyle")->item(0)->nodeValue;
+            $style->BORDER_THICKNESS = $arSymStroke->getElementsByTagName("Thickness")->item(0)->nodeValue;
+            $style->BORDER_COLOR = $this->StripAlphaFromColorString($arSymStroke->getElementsByTagName("Color")->item(0)->nodeValue);
+            $style->BORDER_SIZE_UNITS = $arSymStroke->getElementsByTagName("Unit")->item(0)->nodeValue;
+        }
+        return $style;
+    }
 		
 	function OpenMarkup()
 	{
@@ -153,8 +268,8 @@ class MarkupManager
 		
 		$markupLayerResId = new MgResourceIdentifier($this->args['MARKUPLAYER']);
 		$markupLayer = new MgLayer($markupLayerResId, $resourceService);
-		$markupLayer->SetName('_' . $markupLayerResId->GetName());
-		$markupLayer->SetLegendLabel($markupLayerResId->GetName());
+        $markupLayer->SetName('_' . $markupLayerResId->GetName());
+        $markupLayer->SetLegendLabel($markupLayerResId->GetName());
 		$markupLayer->SetDisplayInLegend(true);
 		$markupLayer->SetSelectable(true);
 		$markupLayer->SetGroup($markupGroup);
@@ -192,10 +307,10 @@ class MarkupManager
 			}
 		}
 	}
-	
+    
 	function CreateMarkup()
 	{
-		$markupName = $this->args['MARKUPNAME'];
+        $markupName = "RedlineLayer";
 		$this->UniqueMarkupName($markupName);
 		
 		$resourceService = $this->site->CreateService(MgServiceType::ResourceService);
@@ -204,15 +319,24 @@ class MarkupManager
         $map = new MgMap();
 		$map->Open($resourceService, $this->args['MAPNAME']);
 
-		// Create the Markup Feature Source (SDF)
-
-		$markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.FeatureSource');
-		
-		$markupSchema = MarkupSchemaFactory::CreateMarkupSchema();
-		$sdfParams = new MgCreateSdfParams('Default', $map->GetMapSRS(), $markupSchema);
-		$featureService->CreateFeatureSource($markupSdfResId, $sdfParams);
-
-		// Create the Markup Layer Definition
+        $featureSourceId = "";
+        $bUpdate = array_key_exists("EDITMARKUPLAYER", $this->args) && array_key_exists("MARKUPLAYERNAME", $this->args) && array_key_exists("EDITFEATURESOURCE", $this->args);
+        
+		// Create the Markup Feature Source (SDF) if not updating
+        if (!$bUpdate)
+        {
+            $markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.FeatureSource');
+            
+            $markupSchema = MarkupSchemaFactory::CreateMarkupSchema();
+            $sdfParams = new MgCreateSdfParams('Default', $map->GetMapSRS(), $markupSchema);
+            $featureService->CreateFeatureSource($markupSdfResId, $sdfParams);
+            $featureSourceId = $markupSdfResId->ToString();
+        }
+        else 
+        {
+            $featureSourceId = $this->args["EDITFEATURESOURCE"];
+        }
+		// Create the Markup Layer Definition. Create or update, this code is the same.
 
 		$hexFgTransparency = sprintf("%02x", 255 * (100 - $this->args['FILLTRANSPARENCY']) / 100); // Convert % to an alpha value
 		$hexBgTransparency = $this->args['FILLBACKTRANS'] ? "FF" : "00";							 // All or nothing
@@ -222,7 +346,7 @@ class MarkupManager
 		
         $markupLayerDefinition = file_get_contents("templates/markuplayerdefinition.xml");
         $markupLayerDefinition = sprintf($markupLayerDefinition, 
-			$markupSdfResId->ToString(),						//<ResourceId> - Feature Source
+			$featureSourceId,						            //<ResourceId> - Feature Source
 			$this->args['LABELSIZEUNITS'],						//<Unit> - Mark Label
 			$this->args['LABELFONTSIZE'],						//<SizeX> - Mark Label Size
 			$this->args['LABELFONTSIZE'],						//<SizeY> - Mark Label Size
@@ -269,21 +393,29 @@ class MarkupManager
 			$this->args['BORDERSIZEUNITS']); 					//<Unit> - Fill
 		
 		$byteSource = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
-        $layerDefId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.LayerDefinition');
+        //Save to new resource or overwrite existing
+        $layerDefId = new MgResourceIdentifier($bUpdate ? $this->args["EDITMARKUPLAYER"] : ($this->GetResourceIdPrefix() . $markupName . '.LayerDefinition'));
 		$resourceService->SetResource($layerDefId, $byteSource->GetReader(), null);
         
-        //Register markup with markup registry
-        $props = new MgPropertyCollection();
-        $props->Add(new MgStringProperty("ResourceId", $markupSdfResId->ToString()));
-        $props->Add(new MgStringProperty("LayerDefinition", $layerDefId->ToString()));
-        $props->Add(new MgStringProperty("Name", $layerDefId->GetName()));
-        $insertCmd = new MgInsertFeatures("Default:MarkupRegistry", $props);
-        
         $cmds = new MgFeatureCommandCollection();
-        $cmds->Add($insertCmd);
+        //Register markup with markup registry if not updating
+        if (!$bUpdate)
+        {
+            $props = new MgPropertyCollection();
+            $props->Add(new MgStringProperty("ResourceId", $markupSdfResId->ToString()));
+            $props->Add(new MgStringProperty("LayerDefinition", $layerDefId->ToString()));
+            $props->Add(new MgStringProperty("Name", $layerDefId->GetName()));
+            $insertCmd = new MgInsertFeatures("Default:MarkupRegistry", $props);
+            
+            $cmds->Add($insertCmd);
+        }
         
-        $res = $featureService->UpdateFeatures($this->markupRegistryId, $cmds, false);
-        MarkupManager::CleanupReaders($res);
+        if ($cmds->GetCount() > 0) {
+            $res = $featureService->UpdateFeatures($this->markupRegistryId, $cmds, false);
+            MarkupManager::CleanupReaders($res);
+        }
+        
+        return $layerDefId->ToString();
 	}
     
     //Utility function to close all feature readers in a MgPropertyCollection

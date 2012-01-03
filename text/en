@@ -223,9 +223,12 @@ REDLINEREFRESH          = Refresh
 REDLINEEDIT             = Add/Edit Redlines
 REDLINEREMOVEFROMMAP    = Remove From Map
 REDLINEDOWNLOADSDF      = Download
+REDLINEUPLOADSDF        = Upload
+REDLINEEDITSTYLE        = Edit Style
+REDLINECREATEFAILURE    = Failed to create redline
 
-# New Redline UI
-REDLINENEWLAYER         = New Redline Layer
+# Edit Redline Style UI
+REDLINEEDITLAYERSTYLE   = Edit Redline Style
 REDLINELAYERSETTINGS    = Redline Layer Settings
 REDLINENAME             = Redline Name:
 REDLINEPOINTSTYLE       = Point Style

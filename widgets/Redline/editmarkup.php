@@ -160,11 +160,13 @@
 
 		function PromptAndSetMarkupText()
 		{
-			var textInput = document.getElementById("textInput");
+            var widget = Fusion.getWidgetsByType("Redline")[0];
+            if (widget.promptForRedlineLabels) {
+                var textInput = document.getElementById("textInput");
 
-			textLabel = window.prompt("<?=$promptLabelLocal?>", "");
-			textInput.value = (textLabel != null) ? textLabel : "";
-            
+                textLabel = window.prompt("<?=$promptLabelLocal?>", "");
+                textInput.value = (textLabel != null) ? textLabel : "";
+            }
             ClearDigitization();
 		}
 	

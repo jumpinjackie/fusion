@@ -44,10 +44,16 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
     // a reference to a redline taskPane
     taskPane: null,
-
+    
+    // Indicates whether to prompt for text labels on recorded redlines
+    promptForRedlineLabels: false,
+    
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
+
+        if (json.PromptForRedlineLabels)
+            this.promptForRedlineLabels = (json.PromptForRedlineLabels[0] == "true");
 
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);
@@ -88,7 +94,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
 
     // the panel url
     panelUrl:  'widgets/Redline/markupmain.php',
-
+    
     initialize: function(widget,widgetLocation) {
         this.widget = widget;
         this.widget.registerForEvent(Fusion.Event.REDLINE_FEATURE_ADDED, OpenLayers.Function.bind(this.featureAdded, this));
