@@ -74,6 +74,12 @@ Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {
      */
     defaultGroupInfoIcon: 'images/icons/group-info.png',
     
+    /**
+     * Constant: outOfRangeIcon
+     * {String}: The default image for layers outside the current visible scale range
+     */
+    outOfRangeIcon: 'images/icons/out-of-range.png',
+    
     initializeWidget: function(widgetTag) {
         // TODO: maybe it's a good idea to do a function like Fusion.Widget.BindRenderer.. for limit the code
         // duplication if we plan to apply this pattern to others widgets
@@ -636,9 +642,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.legend.treeItem = null;
                 }
             } else {
-              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel}, null, !layer.isBaseMapLayer);
+              var newTreeItem = this.createTreeItem(layer, {legendLabel: layer.legendLabel, iconOpt: { url: this.oLegend.outOfRangeIcon } }, null, !layer.isBaseMapLayer);
                 if (layer.legend.treeItem) {
-                    layer.parentGroup.legend.treeItem.replace(newTreeItem, layer.legend.treeItem);
+                    layer.parentGroup.legend.treeItem.replace(layer.legend.treeItem, newTreeItem);
                     layer.legend.treeItem.finalize();
                 } else {
                     layer.parentGroup.legend.treeItem.add(newTreeItem);
