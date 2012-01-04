@@ -313,6 +313,14 @@ REDLINEDELETEOBJECT     = Delete
 REDLINEUPDATETEXT       = Update Text
 REDLINEEDITCLOSE        = Close
 
+# Redline Upload
+REDLINEUPLOAD           = Upload Redline
+REDLINEDATAFILE         = Redline Data File
+REDLINEUPLOADNOTE       = Note: Data file must be a SDF file and you can only data files that have either been originally created by this widget or have an identical feature schema.
+REDLINEUPLOADREQUIRED   = Redline Data File not specified
+REDLINEUPLOADTEXT       = Upload
+REDLINEUPLOADCLOSE      = Close
+
 # HtmlViewerAbout
 HTMLABOUTTITLE          = About %s
 HTMLABOUTTITLEBAR       = MapGuide Viewer

@@ -50,6 +50,10 @@
 				$markupManager->CloseMarkup();
 				$refreshMap = true;
 				break;
+            case MarkupCommand::Upload:
+                $markupManager->UploadMarkup();
+                $refreshMap = true;
+                break;
             case MarkupCommand::Download:
                 $markupManager->DownloadMarkup();
                 break;
@@ -287,9 +291,7 @@
 			<input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
 			<input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:85px">
-            <!--
             <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:85px">
-            -->
 			<br><br>
 		</td>
 	</tr>

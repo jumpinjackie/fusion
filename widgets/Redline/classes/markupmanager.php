@@ -308,35 +308,9 @@ class MarkupManager
 		}
 	}
     
-	function CreateMarkup()
-	{
-        $markupName = $this->args["MARKUPNAME"];
-		$this->UniqueMarkupName($markupName);
-		
-		$resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-		$featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        
-        $map = new MgMap();
-		$map->Open($resourceService, $this->args['MAPNAME']);
-
-        $featureSourceId = "";
-        $bUpdate = array_key_exists("EDITMARKUPLAYER", $this->args) && array_key_exists("MARKUPLAYERNAME", $this->args) && array_key_exists("EDITFEATURESOURCE", $this->args);
-        
-		// Create the Markup Feature Source (SDF) if not updating
-        if (!$bUpdate)
-        {
-            $markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.FeatureSource');
-            
-            $markupSchema = MarkupSchemaFactory::CreateMarkupSchema();
-            $sdfParams = new MgCreateSdfParams('Default', $map->GetMapSRS(), $markupSchema);
-            $featureService->CreateFeatureSource($markupSdfResId, $sdfParams);
-            $featureSourceId = $markupSdfResId->ToString();
-        }
-        else 
-        {
-            $featureSourceId = $this->args["EDITFEATURESOURCE"];
-        }
-		// Create the Markup Layer Definition. Create or update, this code is the same.
+    function CreateMarkupLayerDefinitionContent($featureSourceId)
+    {
+        // Create the Markup Layer Definition. Create or update, this code is the same.
 
 		$hexFgTransparency = sprintf("%02x", 255 * (100 - $this->args['FILLTRANSPARENCY']) / 100); // Convert % to an alpha value
 		$hexBgTransparency = $this->args['FILLBACKTRANS'] ? "FF" : "00";							 // All or nothing
@@ -391,7 +365,40 @@ class MarkupManager
 			$this->args['BORDERTHICKNESS'], 					//<Thickness> - Fill
 			'FF' . $this->args['BORDERCOLOR'], 					//<Color> - Fill
 			$this->args['BORDERSIZEUNITS']); 					//<Unit> - Fill
+            
+        return $markupLayerDefinition;
+    }
+    
+	function CreateMarkup()
+	{
+        $markupName = $this->args["MARKUPNAME"];
+		$this->UniqueMarkupName($markupName);
 		
+		$resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+		$featureService = $this->site->CreateService(MgServiceType::FeatureService);
+        
+        $map = new MgMap();
+		$map->Open($resourceService, $this->args['MAPNAME']);
+
+        $featureSourceId = "";
+        $bUpdate = array_key_exists("EDITMARKUPLAYER", $this->args) && array_key_exists("MARKUPLAYERNAME", $this->args) && array_key_exists("EDITFEATURESOURCE", $this->args);
+        
+		// Create the Markup Feature Source (SDF) if not updating
+        if (!$bUpdate)
+        {
+            $markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupName . '.FeatureSource');
+            
+            $markupSchema = MarkupSchemaFactory::CreateMarkupSchema();
+            $sdfParams = new MgCreateSdfParams('Default', $map->GetMapSRS(), $markupSchema);
+            $featureService->CreateFeatureSource($markupSdfResId, $sdfParams);
+            $featureSourceId = $markupSdfResId->ToString();
+        }
+        else 
+        {
+            $featureSourceId = $this->args["EDITFEATURESOURCE"];
+        }
+		
+		$markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($featureSourceId);
 		$byteSource = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
         //Save to new resource or overwrite existing
         $layerDefId = new MgResourceIdentifier($bUpdate ? $this->args["EDITMARKUPLAYER"] : ($this->GetResourceIdPrefix() . $markupName . '.LayerDefinition'));
@@ -473,6 +480,84 @@ class MarkupManager
         header("Content-Disposition: attachment; filename=$dataName");
         header("Content-Length: " . strlen($outputBuffer));
         echo $outputBuffer;
+    }
+    
+    function UploadMarkup()
+    {
+        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
+        $bs = new MgByteSource($_FILES["UPLOADFILE"]["tmp_name"]);
+        $br = $bs->GetReader();
+
+        $uploadFileParts = pathinfo($_FILES["UPLOADFILE"]["name"]);
+        //Use file name to drive all parameters
+        $baseName = $uploadFileParts["filename"];
+        $this->UniqueMarkupName($baseName); //Guard against potential duplicates
+        $ext = $uploadFileParts["extension"];
+        
+        $markupLayerResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . ".LayerDefinition");
+		$markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . '.FeatureSource');
+        
+        $dataName = $baseName . "." . $ext;
+        $fsXml = sprintf(file_get_contents("templates/markupfeaturesource.xml"), $dataName);
+        $bs2 = new MgByteSource($fsXml, strlen($fsXml));
+        $resourceService->SetResource($markupSdfResId, $bs2->GetReader(), null);
+        $resourceService->SetResourceData($markupSdfResId, $dataName, "File", $bs->GetReader());
+        
+        //Set up default style args
+        $this->args["MARKUPNAME"] = $baseName;
+        
+        $this->args["MARKERCOLOR"] = DefaultStyle::MARKER_COLOR;
+        $this->args["MARKERTYPE"] = DefaultStyle::MARKER_TYPE;
+        $this->args["MARKERSIZEUNITS"] = DefaultStyle::MARKER_SIZE_UNITS;
+        $this->args["MARKERSIZE"] = DefaultStyle::MARKER_SIZE;
+        $this->args["LINECOLOR"] = DefaultStyle::LINE_COLOR;
+        $this->args["LINEPATTERN"] = DefaultStyle::LINE_PATTERN;
+        $this->args["LINESIZEUNITS"] = DefaultStyle::LINE_SIZE_UNITS;
+        $this->args["LINETHICKNESS"] = DefaultStyle::LINE_THICKNESS;
+        $this->args["FILLPATTERN"] = DefaultStyle::FILL_PATTERN;
+        $this->args["FILLTRANSPARENCY"] = DefaultStyle::FILL_TRANSPARENCY;
+        $this->args["FILLFORECOLOR"] = DefaultStyle::FILL_FORE_COLOR;
+        $this->args["FILLBACKCOLOR"] = DefaultStyle::FILL_BACK_COLOR;
+        $this->args["FILLBACKTRANS"] = DefaultStyle::FILL_BACK_TRANS;
+        $this->args["BORDERPATTERN"] = DefaultStyle::BORDER_PATTERN;
+        $this->args["BORDERSIZEUNITS"] = DefaultStyle::BORDER_SIZE_UNITS;
+        $this->args["BORDERCOLOR"] = DefaultStyle::BORDER_COLOR;
+        $this->args["BORDERTHICKNESS"] = DefaultStyle::BORDER_THICKNESS;
+        $this->args["LABELSIZEUNITS"] = DefaultStyle::LABEL_SIZE_UNITS;
+        $this->args["LABELFONTSIZE"] = DefaultStyle::LABEL_FONT_SIZE;
+        
+        //Omission is considered false, which is the default. If you ever change
+        //the default style values, uncomment the matching "true" values
+        //$this->args["LABELBOLD"] = DefaultStyle::LABEL_BOLD;
+        //$this->args["LABELITALIC"] = DefaultStyle::LABEL_ITALIC;
+        //$this->args["LABELUNDERLINE"] = DefaultStyle::LABEL_UNDERLINE;
+        
+        $this->args["LABELFORECOLOR"] = DefaultStyle::LABEL_FORE_COLOR;
+        $this->args["LABELBACKCOLOR"] = DefaultStyle::LABEL_BACK_COLOR;
+        $this->args["LABELBACKSTYLE"] = DefaultStyle::LABEL_BACK_STYLE;
+        
+        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($markupSdfResId->ToString());
+        
+		$layerBs = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
+        //Save to new resource or overwrite existing
+		$resourceService->SetResource($markupLayerResId, $layerBs->GetReader(), null);
+        
+        //Add to markup registry
+        $cmds = new MgFeatureCommandCollection();
+        $props = new MgPropertyCollection();
+        $props->Add(new MgStringProperty("ResourceId", $markupSdfResId->ToString()));
+        $props->Add(new MgStringProperty("LayerDefinition", $markupLayerResId->ToString()));
+        $props->Add(new MgStringProperty("Name", $markupLayerResId->GetName()));
+        $insertCmd = new MgInsertFeatures("Default:MarkupRegistry", $props);
+
+        $cmds->Add($insertCmd);
+        $res = $featureService->UpdateFeatures($this->markupRegistryId, $cmds, false);
+        MarkupManager::CleanupReaders($res);
+        
+        //Add to map
+        $this->args["MARKUPLAYER"] = $markupLayerResId->ToString();
+        $this->OpenMarkup();
     }
 
 	function GetOpenMarkup()
