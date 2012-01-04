@@ -293,13 +293,13 @@ REDLINELABELOPAQUE      = Opaque
 
 # Redline Editing
 REDLINEEDIT             = Edit Redline
-REDLINEEDITDEFAULTHELP  = To begin select the type of markup to digitize.
+REDLINEEDITDEFAULTHELP  = To begin select the type of redline to digitize.
 REDLINEEDITPOINTHELP    = Click the map to specify the location of the point.
 REDLINEEDITLINEHELP     = Click and drag on the map to specify the start and end points of the line.
 REDLINEEDITLINESTRINGHELP = Click the map to define each point of the line, Double Click on the final point to end.
 REDLINEEDITRECTANGLEHELP = Click on the map to specify the first corner and drag the mouse to define the rectangle.
 REDLINEEDITPOLYGONHELP  = Click the map to define each point of the polygon, Double Click on the final point to end.
-REDLINEPROMPTLABEL      = Enter a label for the markup item
+REDLINEPROMPTLABEL      = Enter a label for the redline item
 REDLINEADD              = Add Redline
 REDLINEDIGITIZE         = Digitize Redline
 REDLINEOBJECTPOINT      = Point

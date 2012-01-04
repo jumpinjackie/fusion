@@ -310,7 +310,7 @@ class MarkupManager
     
 	function CreateMarkup()
 	{
-        $markupName = "RedlineLayer";
+        $markupName = $this->args["MARKUPNAME"];
 		$this->UniqueMarkupName($markupName);
 		
 		$resourceService = $this->site->CreateService(MgServiceType::ResourceService);

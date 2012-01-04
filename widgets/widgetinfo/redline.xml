@@ -25,4 +25,12 @@
         <DefaultValue>false</DefaultValue>
         <IsMandatory>false</IsMandatory>
     </Parameter>
+    <Parameter>
+        <Name>AutogenerateLayerNames</Name>
+        <Description>Indicates whether to prompt the auto-generate redline layer names when creating a new redline layer or to prompt the user. Default is true (don't prompt)</Description>
+        <Type>boolean</Type>
+        <Label>AutogenerateLayerNames</Label>
+        <DefaultValue>true</DefaultValue>
+        <IsMandatory>false</IsMandatory>
+    </Parameter>
 </WidgetInfo>

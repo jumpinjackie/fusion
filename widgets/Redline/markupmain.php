@@ -76,6 +76,7 @@
         $uploadLocal = GetLocalizedString('REDLINEUPLOADSDF', $locale );
         $editStyleLocal = GetLocalizedString('REDLINEEDITSTYLE', $locale );
         $redlineCreateFailureLocal = GetLocalizedString('REDLINECREATEFAILURE', $locale );
+        $redlineLayerNameLocal = GetLocalizedString('REDLINENAME', $locale);
 	}
 	catch (MgException $mge)
 	{
@@ -117,14 +118,28 @@
 
             var markupForm = document.getElementById("markupForm");
 			if (cmd == CMD_NEW) {
-                Fusion.ajaxRequest("widgets/redline/newmarkup.php", {
-                    onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
-                    onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
-                    parameters: {
-                        SESSION: session,
-                        MAPNAME: mapName
-                    }
-                });
+                var widget = Fusion.getWidgetsByType("Redline")[0];
+                if (widget.autogenerateLayerNames) {
+                    Fusion.ajaxRequest("widgets/redline/newmarkup.php", {
+                        onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
+                        onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
+                        parameters: {
+                            SESSION: session,
+                            MAPNAME: mapName
+                        }
+                    });
+                } else {
+                    var name = prompt("<?= $redlineLayerNameLocal ?>");
+                    Fusion.ajaxRequest("widgets/redline/newmarkup.php", {
+                        onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
+                        onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
+                        parameters: {
+                            SESSION: session,
+                            MAPNAME: mapName,
+                            NEWLAYERNAME: name
+                        }
+                    });
+                }
             } else {
                 if (cmd == CMD_EDIT) {
                     markupForm.action = "editmarkup.php";

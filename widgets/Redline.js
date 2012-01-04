@@ -48,12 +48,18 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     // Indicates whether to prompt for text labels on recorded redlines
     promptForRedlineLabels: false,
     
+    // Indicates whether to autogenerate redline layer names or to prompt the user for one.
+    autogenerateLayerNames: true,
+    
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
 
         if (json.PromptForRedlineLabels)
             this.promptForRedlineLabels = (json.PromptForRedlineLabels[0] == "true");
+            
+        if (json.AutogenerateLayerNames)
+            this.autogenerateLayerNames = (json.AutogenerateLayerNames[0] == "true");
 
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);

@@ -32,7 +32,7 @@
     $responseJson = null;
 	try
 	{
-        $args["MARKUPNAME"] = "MarkupLayer";
+        $args["MARKUPNAME"] = array_key_exists("NEWLAYERNAME", $args) ? $args["NEWLAYERNAME"] : "RedlineLayer";
         
         $args["MARKERCOLOR"] = DefaultStyle::MARKER_COLOR;
         $args["MARKERTYPE"] = DefaultStyle::MARKER_TYPE;
