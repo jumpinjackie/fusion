@@ -53,6 +53,11 @@
             case MarkupCommand::Download:
                 $markupManager->DownloadMarkup();
                 break;
+            case MarkupCommand::DownloadDataFromLayer:
+                //The opened markup layer is the one we want to download
+                $markupManager->SetArgument("MARKUPLAYER", $args["OPENMARKUP"]);
+                $markupManager->DownloadMarkup();
+                break;
 			}
 		}
 		
@@ -110,6 +115,7 @@
         var CMD_DOWNLOAD = <?= MarkupCommand::Download ?>;
         var CMD_UPLOAD = <?= MarkupCommand::Upload ?>;
         var CMD_EDITSTYLE = <?= MarkupCommand::EditStyle ?>;
+        var CMD_DOWNLOAD_LAYER_DATA = <?= MarkupCommand::DownloadDataFromLayer ?>;
 			
 		function SubmitCommand(cmd)
 		{
@@ -211,18 +217,21 @@
 			var editBtn = document.getElementById("editBtn");
 			var closeBtn = document.getElementById("closeBtn");
             var editStyleBtn = document.getElementById("editStyleBtn");
+            var downloadDataBtn = document.getElementById("downloadDataBtn");
 			
 			if (openSelect.options.length > 0 && openSelect.selectedIndex >= 0)
 			{
 				editBtn.disabled = false;
 				closeBtn.disabled = false;
                 editStyleBtn.disabled = false;
+                downloadDataBtn.disabled = false;
 			}
 			else
 			{
 				editBtn.disabled = true;
 				closeBtn.disabled = true;
                 editStyleBtn.disabled = true;
+                downloadDataBtn.disabled = true;
 			}
             
             if (openSelect.options.length > 0) {
@@ -305,6 +314,7 @@
 			<input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:125px">
 			<input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:125px">
             <input class="Ctrl" type="button" id="editStyleBtn" onClick="SubmitCommand(CMD_EDITSTYLE)" value="<?=$editStyleLocal?>" style="width:125px">
+            <input class="Ctrl" type="button" id="downloadDataBtn" onClick="SubmitCommand(CMD_DOWNLOAD_LAYER_DATA)" value="<?=$downloadLocal?>" style="width:125px">
 			<br><br>
 		</td>
 	</tr>

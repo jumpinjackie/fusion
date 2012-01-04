@@ -11,6 +11,7 @@ class MarkupCommand
     const Download  = 7;
     const Upload = 8;
     const EditStyle = 9;
+    const DownloadDataFromLayer = 10;
 }
 
 ?>
