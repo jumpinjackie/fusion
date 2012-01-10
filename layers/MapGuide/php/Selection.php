@@ -78,15 +78,16 @@ if (isset($_SESSION['selection_array']))
         for ($i=0; $i<count($aSelectedLayers); $i++)
         {
             $layerName =  $aSelectedLayers[$i];
+            $layerNameInProperties = GetLayerNameInProperties($layerName);
             if (($bAllLayers || in_array($layerName, $aLayers)) &&
-                isset($properties->$layerName) &&
-                $properties->$layerName->numelements > 0)
+                isset($properties->$layerNameInProperties) &&
+                $properties->$layerNameInProperties->numelements > 0)
             {
                 array_push($result->layers, $layerName);
-                $result->$layerName->propertynames = $properties->$layerName->propertynames;
-                $result->$layerName->propertyvalues = $properties->$layerName->propertyvalues;
-                $result->$layerName->propertytypes = $properties->$layerName->propertytypes;
-                $result->$layerName->metadatanames = $properties->$layerName->metadatanames;
+                $result->$layerName->propertynames = $properties->$layerNameInProperties->propertynames;
+                $result->$layerName->propertyvalues = $properties->$layerNameInProperties->propertyvalues;
+                $result->$layerName->propertytypes = $properties->$layerNameInProperties->propertytypes;
+                $result->$layerName->metadatanames = $properties->$layerNameInProperties->metadatanames;
 
                 /*if start and count are given, validate them. If valid return the valid elements.
                   if not return all elements. */
@@ -111,9 +112,9 @@ if (isset($_SESSION['selection_array']))
 
                     /*invalid entries*/
                     if ($start < 0 || $count <=0 ||
-                        $start >= $properties->$layerName->numelements ||
-                        $count > $properties->$layerName->numelements ||
-                        ($start + $count) > $properties->$layerName->numelements)
+                        $start >= $properties->$layerNameInProperties->numelements ||
+                        $count > $properties->$layerNameInProperties->numelements ||
+                        ($start + $count) > $properties->$layerNameInProperties->numelements)
                     {
                         $start = -1;
                         $count = -1;
@@ -124,9 +125,9 @@ if (isset($_SESSION['selection_array']))
                 if ($start < 0 || $count < 0)
                 {
                     $start =0;
-                    $count = $properties->$layerName->numelements;
+                    $count = $properties->$layerNameInProperties->numelements;
                 }
-                //print_r($properties->$layerName);
+                //print_r($properties->$layerNameInProperties);
                 $result->$layerName->numelements = $count;
 
                 $result->$layerName->values = array();
@@ -134,8 +135,8 @@ if (isset($_SESSION['selection_array']))
                 $iIndice = 0;
                 for ($j=$start; $j<($start+$count); $j++)
                 {
-                    $result->$layerName->values[$iIndice] = $properties->$layerName->values[$j];
-                    $result->$layerName->metadata[$iIndice] = $properties->$layerName->metadata[$j];
+                    $result->$layerName->values[$iIndice] = $properties->$layerNameInProperties->values[$j];
+                    $result->$layerName->metadata[$iIndice] = $properties->$layerNameInProperties->metadata[$j];
                     $iIndice++;
                 }
             }

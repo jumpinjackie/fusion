@@ -754,6 +754,11 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
     return $val;
 }
 
+function GetLayerNameInProperties($layerName)
+{
+	return 'layer'.$layerName;    // Add prefix to avoid layer name beginning with number
+}
+
 /**
    keep all the attributes of selected features in an array
  */
@@ -762,6 +767,8 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
 {
     $agf = new MgAgfReaderWriter();
     $srsFactory = new MgCoordinateSystemFactory();
+    
+    $layerName = GetLayerNameInProperties($layerName);    // Add prefix to avoid layer name beginning with number
 
     $properties->$layerName->propertynames = array();
     $properties->$layerName->propertyvalues = array();
