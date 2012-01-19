@@ -161,13 +161,8 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
         this.setContent(url);
     },
 
-    setContent: function(url) {
-        Fusion.triggerEvent(Fusion.Event.TASK_PANE_LOADED);
-        
-        if (this.nCurrentTask < this.aExecutedTasks.length-1) {
-            //this.aExecutedTasks.splice(this.nCurrentTask, this.aExecutedTasks.length - this.nCurrentTask);
-        }
-        
+
+    addCommonParams:function(url){
         //add in some common parameters if they aren't supplied already
         var baseUrl = url.split("?");
         var params = OpenLayers.Util.getParameters(url);
@@ -182,7 +177,17 @@ Fusion.Widget.TaskPane = OpenLayers.Class(Fusion.Widget, {
           params["mapname"] = widgetLayer.getMapName();
         }
         var newUrl = baseUrl[0] + "?" + OpenLayers.Util.getParameterString(params);
+        return newUrl;
+    },
+    
+    isSameWithLast:function(url){
+        return this.aExecutedTasks[this.aExecutedTasks.length-1] == this.addCommonParams(url) ;
+    },
+    
+    setContent: function(url) {
+        Fusion.triggerEvent(Fusion.Event.TASK_PANE_LOADED);
         
+        var newUrl = this.addCommonParams(url);
         this.aExecutedTasks.push(newUrl);
         ++this.nCurrentTask;
         this.loadFrame(newUrl);

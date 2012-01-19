@@ -84,7 +84,10 @@ Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {
         /* check to see if this is going into a task pane */
         var taskPaneTarget = Fusion.getWidgetById(this.target);
         if ( taskPaneTarget ) {
-            taskPaneTarget.setContent(url);
+            if(!taskPaneTarget.isSameWithLast(url))
+            {
+                taskPaneTarget.setContent(url);
+            }
         } else {
             /* check to see if it is going into a frame in the page */
             var pageElement = $(this.target);

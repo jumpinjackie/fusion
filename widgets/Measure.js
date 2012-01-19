@@ -468,7 +468,10 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
             var outputWin = window;
             if ( taskPaneTarget ) {
-                taskPaneTarget.setContent(url);
+                if(!taskPaneTarget.isSameWithLast(url))
+                {
+                    taskPaneTarget.setContent(url);
+                }
                 outputWin = taskPaneTarget.iframe.contentWindow;
             } else {
                 outputWin = window.open(url, this.sTarget, this.sWinFeatures);

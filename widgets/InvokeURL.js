@@ -112,7 +112,10 @@ Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {
         url += params.join('&');
         var taskPaneTarget = Fusion.getWidgetById(this.sTarget);
         if ( taskPaneTarget ) {
-            taskPaneTarget.setContent(url);
+            if(!taskPaneTarget.isSameWithLast(url))
+            {
+                taskPaneTarget.setContent(url);
+            }
         } else {
             var pageElement = $(this.sTarget);
             if ( pageElement ) {

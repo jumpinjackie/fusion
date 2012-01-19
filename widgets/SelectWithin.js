@@ -111,7 +111,10 @@ Fusion.Widget.SelectWithin = OpenLayers.Class(Fusion.Widget, {
         }
         url += params.join('&');
         if ( taskPaneTarget ) {
-            taskPaneTarget.setContent(url);
+            if(!taskPaneTarget.isSameWithLast(url))
+            {
+                taskPaneTarget.setContent(url);
+            }
         } else {
             if ( pageElement ) {
                 pageElement.src = url;
