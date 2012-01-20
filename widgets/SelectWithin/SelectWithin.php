@@ -112,7 +112,7 @@
                 $options->SetFilter($resultSel->GenerateFilter($layer, $layerClassName));
                 $resourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
                 $featureReader = $featureSrvc->SelectFeatures($resourceId, $layerClassName, $options);
-                $properties = BuildSelectionArray($featureReader, $layerName, $properties, false, NULL, false, $layer);
+                $properties = BuildSelectionArray($featureReader, $layerName, $properties, false, NULL, false, $layer, true);
                 $featureReader->Close();
                 array_push($result->layers, $layerName);
                 array_push($properties->layers, $layerName);

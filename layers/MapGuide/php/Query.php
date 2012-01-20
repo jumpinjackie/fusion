@@ -261,7 +261,7 @@ try {
                 $featureReader = $featureService->SelectFeatures($featureResId, $class, $queryOptions);
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties,
                                                   $bComputedProperties,
-                                                  $srsLayer, $bNeedsTransform, $layerObj);
+                                                  $srsLayer, $bNeedsTransform, $layerObj, true);
                 $featureReader->Close();
             }
         } catch (MgObjectNotFoundException $onfe) {
@@ -343,7 +343,7 @@ try {
 
                 $properties = BuildSelectionArray($featureReader, $layerName, $properties,
                                                   $bComputedProperties,
-                                                  $srsLayer, $bNeedsTransform, $oLayer);
+                                                  $srsLayer, $bNeedsTransform, $oLayer, true);
                 $featureReader->Close();
             }
         }

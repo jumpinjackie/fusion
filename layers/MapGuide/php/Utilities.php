@@ -754,21 +754,26 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
     return $val;
 }
 
-function GetLayerNameInProperties($layerName)
+function GetEncodedLayerName($layerName)
 {
-	return 'layer'.$layerName;    // Add prefix to avoid layer name beginning with number
+    return 'layer'.$layerName;    // Add prefix to avoid layer name beginning with number
 }
 
 /**
    keep all the attributes of selected features in an array
  */
 function BuildSelectionArray($featureReader, $layerName, $properties, $bComputedProperties,
-                             $srsLayer, $bNeedsTransform, $layerObj)
+                             $srsLayer, $bNeedsTransform, $layerObj, $isLayerNameEncoded)
 {
     $agf = new MgAgfReaderWriter();
     $srsFactory = new MgCoordinateSystemFactory();
     
-    $layerName = GetLayerNameInProperties($layerName);    // Add prefix to avoid layer name beginning with number
+    if($isLayerNameEncoded)
+    {
+        // Add prefix to avoid layer name beginning with number
+        // So $isLayerNameEncoded should be true when and only when the properties will be stored in session
+        $layerName = GetEncodedLayerName($layerName);    
+    }
 
     $properties->$layerName->propertynames = array();
     $properties->$layerName->propertyvalues = array();

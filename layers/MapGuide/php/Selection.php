@@ -78,7 +78,7 @@ if (isset($_SESSION['selection_array']))
         for ($i=0; $i<count($aSelectedLayers); $i++)
         {
             $layerName =  $aSelectedLayers[$i];
-            $layerNameInProperties = GetLayerNameInProperties($layerName);
+            $layerNameInProperties = GetEncodedLayerName($layerName);
             if (($bAllLayers || in_array($layerName, $aLayers)) &&
                 isset($properties->$layerNameInProperties) &&
                 $properties->$layerNameInProperties->numelements > 0)
