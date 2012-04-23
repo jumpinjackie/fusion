@@ -122,15 +122,15 @@
 
               /*save selection in the session*/
               $_SESSION['selection_array'] = $properties;
-            } else { echo "/* layers false or 0 */"; }
-          } else { echo "/* no resultsel */"; }
-        } else { echo "/* no fi */"; }
-      } else { echo "/*no multi geom*/"; }
-    } else { echo "/* no layers */"; }
+              echo str_replace("</FeatureSet>", "</FeatureSet></FeatureInformation>", str_replace("<FeatureSet", "<FeatureInformation><FeatureSet", $resultSel->ToXml()));
+            } else { echo "<!--layers false or 0-->"; }
+          } else { echo "<!--no resultsel-->"; }
+        } else { echo "<!--no fi-->"; }
+      } else { echo "<!--no multi geom-->"; }
+    } else { echo "<!--no layers-->"; }
 
-    header('Content-type: application/json');
-    header('X-JSON: true');
-    echo var2json($result);
+    //return XML
+    header("Content-type: text/xml");
   } catch(MgException $e) {
     echo "\nException: " . $e->GetDetails();
     return;
