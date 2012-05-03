@@ -100,7 +100,7 @@
                 $properties->extents->miny = $oMin->GetY();
                 $properties->extents->maxx = $oMax->GetX();
                 $properties->extents->maxy = $oMax->GetY();
-              } else { echo "/* no extents */"; }
+              } else { echo "<Message>no extents</Message>"; }
 
               //get properties for individual features
               $result->layers = array();
@@ -123,11 +123,11 @@
               /*save selection in the session*/
               $_SESSION['selection_array'] = $properties;
               echo str_replace("</FeatureSet>", "</FeatureSet></FeatureInformation>", str_replace("<FeatureSet", "<FeatureInformation><FeatureSet", $resultSel->ToXml()));
-            } else { echo "<!--layers false or 0-->"; }
-          } else { echo "<!--no resultsel-->"; }
-        } else { echo "<!--no fi-->"; }
-      } else { echo "<!--no multi geom-->"; }
-    } else { echo "<!--no layers-->"; }
+            } else { echo "<Message>layers false or 0</Message>"; }
+          } else { echo "<Message>no resultsel</Message>"; }
+        } else { echo "<Message>no fi</Message>"; }
+      } else { echo "<Message>no multi geom</Message>"; }
+    } else { echo "<Message>no layers</Message>"; }
 
     //return XML
     header("Content-type: text/xml");
