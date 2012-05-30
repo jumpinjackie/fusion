@@ -407,6 +407,19 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     this.oLayerOL2.setVisibility(true);
                 }
             }
+
+            //Fix Defect: the Base Layer Group should be invisiable when the "initially visiable in map" is set to false
+            var i = 0;
+            var j = 0;
+            for(i = 0;i < this.layerRoot.groups.length; i++){  
+                if(this.layerRoot.groups[i].isBaseMapGroup && !this.layerRoot.groups[i].initiallyVisible){
+                    for(j = 0; j<this.oLayersOLTile.length; j++) {
+                        if(this.oLayersOLTile[j].params.basemaplayergroupname === this.layerRoot.groups[i].name) {
+                            this.oLayersOLTile[j].setVisibility(false);
+                        }
+                    }    
+                }   
+            }
         }
         this.mapWidget._removeWorker();
         this.triggerEvent(Fusion.Event.LAYER_LOADED);
