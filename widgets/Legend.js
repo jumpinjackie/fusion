@@ -623,7 +623,16 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                     layer.parentGroup.legend.treeItem.add(layer.legend.treeItem);
                 } else {
                     if (range.styles.length > 0) {
-                        var url = layer.oMap.getLegendImageURL(fScale, layer, range.styles[0]);
+                        var url;
+                        if(style.iconOpt && style.iconOpt.url){
+                            url = style.iconOpt.url;
+                            var img = layer.legend.treeItem.elements.get('jxTreeIcon');
+                            var iconX = -1 * style.iconX;
+                            var iconY = -1 * style.iconY;
+                            img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
+                        }else{
+                            url = layer.oMap.getLegendImageURL(scale, layer, style);
+                        }
                         layer.legend.treeItem.setImage(url);
                         layer.legend.treeItem.enable(true);
                     } else {
@@ -760,6 +769,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
         // MapGuide DWF and Raster layer
          // MapGuide Raster and DWF layer
+
         if(layer.layerTypes[0] == 4){
             opt.image = this.imgLayerRasterIcon;
             opt.enabled = true;
@@ -767,6 +777,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             opt.image = this.imgLayerDWFIcon;
             opt.enabled = true;
         }
+
 
         var item;
         if (!layer.isBaseMapLayer&&checkbox) {
@@ -814,8 +825,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
             iconX = -1 * (style.iconX + this.iconWidth);
             iconY = -1 * (style.iconY + this.iconHeight);
+            img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
         }
-        img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
         
         return item;
     },
