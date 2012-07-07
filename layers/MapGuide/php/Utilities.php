@@ -788,15 +788,15 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
     array_push($properties->$layerName->metadatanames, 'area');
     array_push($properties->$layerName->metadatanames, 'length');
 
-    //NOTE: PHP will complain about _SESSION being undefined when display_errors = On with full verbosity
-    //messing up any JSON response in the process!
-    $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];
-    foreach((array)$mappings as $name => $value)
-    {
-        $propType = $featureReader->GetPropertyType($name);
-        array_push($properties->$layerName->propertynames, $name);
-        array_push($properties->$layerName->propertyvalues, $value);
-        array_push($properties->$layerName->propertytypes, $propType);
+    if (isset($_SESSION)) {
+        $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];    
+        foreach((array)$mappings as $name => $value)
+        {
+            $propType = $featureReader->GetPropertyType($name);
+            array_push($properties->$layerName->propertynames, $name);
+            array_push($properties->$layerName->propertyvalues, $value);
+            array_push($properties->$layerName->propertytypes, $propType);
+        }
     }
 
     $srsTarget = null;
