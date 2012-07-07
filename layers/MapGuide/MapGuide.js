@@ -1442,10 +1442,10 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
             {
                 for(var i = 0; i < layers.length; i++)
                 {
-                    var layerId = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['@id'][0];
+                    var layerId = layers[i]['@id'][0];
 
-                    var classElt = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['Class'][0];
-                    var className = o['FeatureInformation']['FeatureSet'][0]['Layer'][i]['Class'][0]['@id'][0];
+                    var classElt = layers[i]['Class'][0];
+                    var className = layers[i]['Class'][0]['@id'][0];
 
                     var layer = new Fusion.SimpleSelectionObject.Layer(layerId, className);
 
