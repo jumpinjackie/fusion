@@ -214,6 +214,7 @@ $Id$
                           fusion.js
                           Proj4js/proj4js-compressed.js
                           OpenLayers/OpenLayers.js
+                          OpenLayers/OpenLayersGMapsPatch.js
                           OLpatch.js
                           jxLib/jxlib.uncompressed.js
                           IE9patch.js
