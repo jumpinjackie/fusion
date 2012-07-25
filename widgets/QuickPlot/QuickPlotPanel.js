@@ -19,8 +19,19 @@ function panelLoaded()
         var i;
         for (i = 0; i < widget.paperList.length; i++) {
             var elOpt = document.createElement("option");
-            elOpt.text = widget.paperList[i].name;
-            elOpt.value = widget.paperList[i].size;
+            var name= widget.paperList[i].name.trim();
+            
+            //users may set the page size as 279.4,215.9 which make the height before width
+            //we should always set width before height
+            //and also make sure the paper size name is right, otherwise will result in error
+            var sizeArray = widget.paperList[i].size.split(",");
+            var width = parseFloat(sizeArray[0]);
+            var height = parseFloat(sizeArray[1]);
+            
+            var paperSizeFormatString = (width < height)? (width + "," + height + "," + name) : (height + "," + width + "," + name);
+            
+            elOpt.text = name;
+            elOpt.value = paperSizeFormatString;
             try {
                 paperList.add(elOpt, null);
             }catch (ex) {
