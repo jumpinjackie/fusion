@@ -309,9 +309,10 @@
             $fontSize = 9; $decimals = 6; $padding = 5; $textHeight = 5;
             
             $normalizedBox = $_POST["normalizedBox"];
-            $extent_cs = explode(",",$normalizedBox);//0,1 ; 4,5
-            $lefttop_cs = " x:".number_format($extent_cs[0], $decimals).", y:".number_format($extent_cs[1], $decimals)."   ";
-            $rightbuttom_cs = " x:".number_format($extent_cs[4], $decimals).", y:".number_format($extent_cs[5], $decimals)."   ";
+            
+            $extent_cs = explode(",",$normalizedBox);//2,3 ; 6,7
+            $lefttop_cs = " x:".number_format($extent_cs[6], $decimals).", y:".number_format($extent_cs[7], $decimals)."   ";
+            $rightbuttom_cs = " x:".number_format($extent_cs[2], $decimals).", y:".number_format($extent_cs[3], $decimals)."   ";
             $pdf->SetFont($font, "", $fontSize, "", true);
 
             //cell width
