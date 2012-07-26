@@ -1,6 +1,6 @@
 <?php
-    require_once("tcpdf/config/lang/eng.php");
-    require_once("tcpdf/tcpdf.php");
+    require_once("../../lib/tcpdf/config/lang/eng.php");
+    require_once("../../lib/tcpdf/tcpdf.php");
 
     $host = $_SERVER["HTTP_HOST"];
     $protocol = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] != "off") ? "https://" : "http://"; 
@@ -289,11 +289,23 @@
         $pdf->SetFont($font, "", 9, "", true);
         
         $bottomPadding = 2.5;
+        
+        //Sometimes the declaration is too short, less than 100 unit, we could set the cell width as the string length
+        //so it will align to the right
+        $SingleLineDeclarationWidth  = $pdf->GetStringWidth($declaration, $font, "", 9, false);
+        $tolerance = 3;
         $w = 100;
+        
+        if( $SingleLineDeclarationWidth + $tolerance < $w )
+        {
+            $w = $SingleLineDeclarationWidth + $tolerance;
+        }
+        
         $h = 5;
         $border = 0; //no border
         $align = "L";//align left
-        $x = ParseLocaleDouble($margin[2]) + $printSize->width - $w;
+        $tolerance = 2;
+        $x = ParseLocaleDouble($margin[2]) + $printSize->width - $w + $tolerance;
         $cellTotalHeight = $pdf->getStringHeight($w,$declaration);
         $y = $pdf->getPageHeight() - $cellTotalHeight - $bottomPadding;
 
