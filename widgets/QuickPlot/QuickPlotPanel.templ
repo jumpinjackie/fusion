@@ -90,16 +90,6 @@ function getParent()
         </div>
         <div class="HPlaceholder5px"></div>
         <div class="HPlaceholder5px"></div>
-        <div class="HPlaceholder5px"></div>
-        <div class="Label">
-            <table cellspacing="0" cellpadding="0">
-                <tr>
-                    <td><input type="checkbox" id="AdvancedOptionsCheckBox" onclick="setAdvancedOptionsUI(this.checked)" /></td>
-                    <td><label for="AdvancedOptionsCheckBox">__#QUICKPLOT_ADVANCED_OPTIONS#__</label></td>
-                </tr>
-            </table>
-        </div>
-        <div class="HPlaceholder5px"></div>
         <div class="Label">__#QUICKPLOT_PAPER_SIZE#__</div>
         <div class="Ctrl">
             <!--
@@ -115,10 +105,31 @@ function getParent()
             </select>
         </div>
         <input type="hidden" id="paperSize" name="paperSize" />
-        
+        <div class="HPlaceholder5px"></div> 
+        <div class="HPlaceholder5px"></div>       
+        <div class="Label">__#QUICKPLOT_ORIENTATION#__</div>
+        <div class="Ctrl">
+            <!--
+                The pre-defined scales. The value for each "option" item is the scale denominator.
+                We can change the html code to extend the pre-defined scales
+            -->
+            <select class="FixWidth" name="OrientationList" id="OrientationList" onchange="drawCaptureBox(this)">
+                <option value="P">__#QUICKPLOT_ORIENTATION_P#__</option>
+                <option value="L">__#QUICKPLOT_ORIENTATION_L#__</option>
+            </select>
+        </div>
+        <input type="hidden" id="orientation" name="orientation" /> 
         <div class="HPlaceholder5px"></div>
         <div class="HPlaceholder5px"></div>
-
+        <div class="HPlaceholder5px"></div>
+        <div class="Label">
+            <table cellspacing="0" cellpadding="0">
+                <tr>
+                    <td><input type="checkbox" id="AdvancedOptionsCheckBox" onclick="setAdvancedOptionsUI(this.checked)" /></td>
+                    <td><label for="AdvancedOptionsCheckBox">__#QUICKPLOT_ADVANCED_OPTIONS#__</label></td>
+                </tr>
+            </table>
+        </div>
         <div class="Label">__#QUICKPLOT_SCALING#__</div>
         <div class="Ctrl">
             <!--
@@ -133,7 +144,6 @@ function getParent()
             </select>
         </div>
         <input type="hidden" id="scaleDenominator" name="scaleDenominator" />
-        
         <div class="Label" id="DPILabel">__#QUICKPLOT_DPI#__</div>
         <div class="Ctrl" id="DPICtrl">
             <!--
@@ -147,23 +157,8 @@ function getParent()
                 <option value="600">600</option>
             </select>
         </div>
-        <input type="hidden" id="dpi" name="dpi" />
-        
+        <input type="hidden" id="dpi" name="dpi" /> 
         <div class="HPlaceholder5px"></div>
-        <div class="HPlaceholder5px"></div>        
-
-        <div class="Label">__#QUICKPLOT_ORIENTATION#__</div>
-        <div class="Ctrl">
-            <!--
-                The pre-defined scales. The value for each "option" item is the scale denominator.
-                We can change the html code to extend the pre-defined scales
-            -->
-            <select class="FixWidth" name="OrientationList" id="OrientationList" onchange="drawCaptureBox(this)">
-                <option value="P">__#QUICKPLOT_ORIENTATION_P#__</option>
-                <option value="L">__#QUICKPLOT_ORIENTATION_L#__</option>
-            </select>
-        </div>
-        <input type="hidden" id="orientation" name="orientation" /> 
         <div class="HPlaceholder5px"></div>
         <div class="HPlaceholder5px"></div>
         <div class="ButtonContainer FixWidth">

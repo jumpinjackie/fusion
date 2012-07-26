@@ -80,8 +80,7 @@ function restoreUI()
         var lastScale       = getParent().Cookie.read("QuickPlotLastUsedScaling");
         var lastDPI         = getParent().Cookie.read("QuickPlotLastUsedDPI");
         var lastOrientation = getParent().Cookie.read("QuickPlotLastUsedOrientation");
-        
-        
+
         if (lastPaperSize != null){
             document.getElementById("PaperList").value = lastPaperSize;
         }
@@ -118,10 +117,8 @@ function restoreUI()
 
 function setAdvancedOptionsUI(enabled)
 {
-    document.getElementById("PaperList").disabled       = !enabled;
     document.getElementById("ScalingList").disabled     = !enabled;
     document.getElementById("DPIList").disabled         = !enabled;
-    document.getElementById("OrientationList").disabled = !enabled;
     
     var mapCapturer = getParent().Fusion.getWidgetsByType("QuickPlot")[0].mapCapturer;
     
@@ -304,5 +301,5 @@ function getPrintDpi()
 function drawCaptureBox()
 {
     var mapCapturer = getParent().Fusion.getWidgetsByType("QuickPlot")[0].mapCapturer;
-    mapCapturer.setSize(getPrintSize(), getScale());
+    mapCapturer.setSize( getPrintSize() , getScale() );
 }
