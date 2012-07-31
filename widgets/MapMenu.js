@@ -145,10 +145,6 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
               for (var i=0; i<list.length; i++) {
                   var resource = list[i];
                   var mapId = resource.sResourceId;
-                  //kludge to get readable map name for pubilshed maps from mapReousrce value
-                  if (resource.sMapResource) {
-                      mapId = resource.sMapResource;
-                  }
                   mapId = mapId.replace(this.rootFolder, '');
                   var folders = mapId.split('/');
                   var label = folders.pop();
