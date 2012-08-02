@@ -2,7 +2,7 @@
     require_once("../../lib/tcpdf/config/lang/eng.php");
     require_once("../../lib/tcpdf/tcpdf.php");
 
-    $host = $_SERVER["HTTP_HOST"];
+    $host = $_SERVER["SERVER_NAME"];
     $protocol = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] != "off") ? "https://" : "http://"; 
     $path = $_SERVER["PHP_SELF"];
     $port = $_SERVER["SERVER_PORT"];
