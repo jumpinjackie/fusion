@@ -1136,7 +1136,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                 options.layers,
                                                                 layerAttributeFilter);
         var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
-        Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
+        Fusion.oBroker.dispatchRequest(r, callback);
     },
 
     showLayer: function( layer, noDraw ) {
@@ -1226,7 +1226,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                             maxFeatures, persist, selection, filter, layerNames,
                                                             layerAttributeFilter);
         var callback = OpenLayers.Function.bind(this.crtlClickDisplay, this);
-        Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(Fusion.xml2json, this, callback));
+        Fusion.oBroker.dispatchRequest(r, callback);
       }
     },
 
@@ -1346,9 +1346,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                         sGeometry,
                                         maxFeatures, persist, selection, filter, layerNames,
                                         layerAttributeFilter);
-        oBroker.dispatchRequest(r, 
-            OpenLayers.Function.bind(Fusion.xml2json, this, 
-                  OpenLayers.Function.bind(this.parseMapTip, this)));
+        oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.parseMapTip, this));
     },
     
     parseMapTip: function(xhr) {
