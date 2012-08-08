@@ -115,8 +115,7 @@ Fusion.Widget.SaveSession = OpenLayers.Class(Fusion.Widget, {
                     mapname: mapLayer.getMapName()
                 }),
                 onComplete: function(xhr) {
-                    var o;
-                    eval('o='+xhr.responseText);
+                    var o = Fusion.parseJSON(xhr.responseText);
                     that.saveCallBack(o);
                 }
         };

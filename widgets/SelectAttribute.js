@@ -96,7 +96,7 @@ Fusion.Widget.SelectAttribute = OpenLayers.Class(Fusion.Widget, {
     
     setAttributes: function(xhr) {
       if (xhr.status < 400) {
-          eval('this.attrs='+xhr.responseText);
+          this.attrs = Fusion.parseJSON(xhr.responseText);
       }
     },
     
