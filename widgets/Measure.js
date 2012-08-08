@@ -548,8 +548,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     remoteMeasureCompleted: function(from, to, marker, r) {
         if (r.status == 200) {
-            var o;
-            eval('o='+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             if (o.distance) {
               /* distance returned is always in meters*/
               //var mapUnits = Fusion.unitFromName(this.getMap().getUnits());

@@ -128,8 +128,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     
     processMSMapMenu: function(r) {
         if (r.status == 200) {
-            var o;
-            eval("o="+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             //var testData = '{"success":true,"errorMessages":[],"values":[{
             //  "sPath":"/ms4w/apps/gmap/cap/HamiltonLowIncome.map",
             //  "sPermissions":"2",
@@ -190,8 +189,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
     
     processMapMenu: function(r) {
         if (r.status == 200) {
-            var o;
-            eval("o="+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             this.menus = {};
             for (var i=0; i<o.maps.length; i++) {
                 var map = o.maps[i];

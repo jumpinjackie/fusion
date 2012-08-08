@@ -151,8 +151,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     createSessionCB: function(xhr) {
         if (xhr.status == 200) {
-            var o;
-            eval('o='+xhr.responseText);
+            var o = Fusion.parseJSON(xhr.responseText);
             if (o.success === false) {
                 Fusion.reportError(o.message);
             } else {
@@ -241,8 +240,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     mapLoaded: function(r) {
         if (r.status == 200) {
-            var o;
-            eval('o='+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             this._sResourceId = o.mapId;
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
@@ -485,8 +483,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     scaleRangesLoaded: function(r)
     {
         if (r.status == 200) {
-            var o;
-            eval('o='+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             if (o.layers && o.layers.length > 0) {
                 var iconOpt = {
                     url: o.icons_url || null,
@@ -512,8 +509,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 //TBD: this function not yet converted for OL
     mapReloaded: function(oldLayers,r) {
         if (r.status == 200) {
-            var o;
-            eval('o='+r.responseText);
+            var o = Fusion.parseJSON(r.responseText);
             this.parseMapLayersAndGroups(o);
             for (var i=0; i<this.aLayers.length; ++i) {
               var newLayer = this.aLayers[i];
@@ -549,8 +545,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     mapLayersReset: function(aLayerIndex,r) {
       if (r.status == 200) {
-        var o;
-        eval('o='+r.responseText);
+        var o = Fusion.parseJSON(r.responseText);
             if (o.success) {
                 var layerCopy = $A(this.aLayers);
                 this.aLayers = [];
@@ -823,8 +818,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
     getSelectionCB: function(userFunc, r) {
       if (r.status == 200) {
-          var o;
-          eval("o="+r.responseText);
+          var o = Fusion.parseJSON(r.responseText);
           var oSelection = new Fusion.SelectionObject(o);
           userFunc(oSelection);
       }
@@ -1040,8 +1034,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     processSelectedFeatureProperties: function(r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
-            var oNode;
-            eval('oNode='+r.responseText);
+            var oNode = Fusion.parseJSON(r.responseText);
 
             if (oNode.hasSelection) {
               this.newSelection();
@@ -1059,8 +1052,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     renderSelection: function(zoomTo, r) {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
-            var oNode;
-            eval('oNode='+r.responseText);
+            var oNode = Fusion.parseJSON(r.responseText);
 
             if (oNode.hasSelection) {
               if (this.selectionAsOverlay) {
@@ -1236,8 +1228,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     crtlClickDisplay: function(xhr) {
         //console.log('ctrlclcik  _display');
         if (xhr.status == 200) {
-            var o;
-            eval('o='+xhr.responseText);
+            var o = Fusion.parseJSON(xhr.responseText);
             var h = o['FeatureInformation']['Hyperlink'];
             if (h) {
                 window.open(h[0], "");
@@ -1272,8 +1263,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     
     checkPingResponse: function(xhr) {
       if (xhr.responseText) {
-        var o;
-        eval("o="+xhr.responseText);
+        var o = Fusion.parseJSON(xhr.responseText);
         if (!o.success) {
           Fusion.reportError(o.message);
           clearInterval(this.keepAliveTimer);
@@ -1351,7 +1341,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     
     parseMapTip: function(xhr) {
         var o;
-        eval("tooltip="+xhr.responseText);
+        var tooltip = Fusion.parseJSON(xhr.responseText);
         this.oMaptip = {t:"",h:""};
         var t = tooltip['FeatureInformation']['Tooltip'];
         if (t) {
@@ -1409,7 +1399,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     processSelectedFeatureInfo: function (r, mergeSelection) {
-        eval('o='+r.responseText);
+        var o = Fusion.parseJSON(r.responseText);
 
         var newSelection = new Fusion.SimpleSelectionObject(o);
         if(mergeSelection == true)

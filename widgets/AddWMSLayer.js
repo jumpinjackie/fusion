@@ -133,7 +133,7 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
       if (r.responseText) {
         var gCatalogLayersObj;
         try {
-          eval('gCatalogLayersObj='+r.responseText);
+          gCatalogLayersObj = Fusion.parseJSON(r.responseText);
         } catch (e) {
           gCatalogLayersObj = {'error': e.stack};
         }
@@ -217,8 +217,7 @@ function catalogListLayers - CB from catalogManagerInitialize() with object crea
                                  if o.addedLayer = true else something when wrong.
     */    
     addWMSLayerCB: function(r) {
-        var o = '';
-        eval('o='+r.responseText);    
+        var o = Fusion.parseJSON(r.responseText);    
 
         if(o.addedLayer == true){
           var map = this.oMap; 
