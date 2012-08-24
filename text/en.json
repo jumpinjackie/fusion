@@ -63,6 +63,8 @@ Fusion.Strings.en = {
 'printShowNorthArrow':'Show North Arrow?',
 
 'quickPlotResolutionWarning':'The current settings exceed the map resolution. Zooming out or increasing the scaling will help create a more legible plot',
+'googleSteetViewCSTransformError':'The CS of Current Map Cannot be transformed to EPSG:4326, which will result in Google Street View fail!',
+'googleSteetViewNotAvailableError':'The Service of Google Street View may not available in this specific location!',
 'noCommercialMapLayers':'NONE',
 'googleStreet':'Google Street',
 'googleSatellite':'Google Satellite',
