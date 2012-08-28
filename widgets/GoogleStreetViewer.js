@@ -173,18 +173,19 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
             lonlat.transform(mapProj, this.targetCs);
             targetLonLat.transform(mapProj, this.targetCs);
             
-            //this.hideMessage(); 
+            this.hideMessage(this.csTransformErrorMessage); 
+            
+            // Transform Z
+            var unitsPerMeter = this.getUnitsPerMeter(this.targetCs);
+            var unitsPerMeterInMap = this.getUnitsPerMeter(mapProj);
+        
+            this.GoogleSVPage.setView(lonlat.lon, lonlat.lat, position.z*unitsPerMeter/unitsPerMeterInMap,
+            targetLonLat.lon, targetLonLat.lat, position.targetZ*unitsPerMeter/unitsPerMeterInMap);
+            
         }catch(e)
         {
-            //this.showMessage(this.warningMessage);
-        }
-        
-        // Transform Z
-        var unitsPerMeter = this.getUnitsPerMeter(this.targetCs);
-        var unitsPerMeterInMap = this.getUnitsPerMeter(mapProj);
-        
-        this.GoogleSVPage.setView(lonlat.lon, lonlat.lat, position.z*unitsPerMeter/unitsPerMeterInMap,
-            targetLonLat.lon, targetLonLat.lat, position.targetZ*unitsPerMeter/unitsPerMeterInMap);
+            this.showMessage(this.csTransformErrorMessage);
+        } 
     },
     
     getUnitsPerMeter: function(cs) {
@@ -226,27 +227,28 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
             source.transform(this.targetCs, mapProj);
             target.transform(this.targetCs, mapProj);
             
-            //this.hideMessage(); 
+            this.hideMessage(this.csTransformErrorMessage); 
+            
+            x = source.lon;
+            y = source.lat;
+            targetX = target.lon;
+            targetY = target.lat;
+            // Transform Z
+            var unitsPerMeter = this.getUnitsPerMeter(this.targetCs);
+            var unitsPerMeterInMap = this.getUnitsPerMeter(mapProj);
+            z = z*unitsPerMeterInMap/unitsPerMeter;
+            targetZ = targetZ*unitsPerMeterInMap/unitsPerMeter;
+
+            if(!this.getMap().getCurrentExtents().contains(x, y)) {
+                this.getMap().zoom(x, y, 1);
+            }
+
+            this.symbolLayer.updateSymbolPosition(x, y, z, targetX, targetY, targetZ, this);
+            
         }catch(e)
         {
-            //this.showMessage(this.warningMessage);
+            this.showMessage(this.csTransformErrorMessage);
         }
-        
-        x = source.lon;
-        y = source.lat;
-        targetX = target.lon;
-        targetY = target.lat;
-        // Transform Z
-        var unitsPerMeter = this.getUnitsPerMeter(this.targetCs);
-        var unitsPerMeterInMap = this.getUnitsPerMeter(mapProj);
-        z = z*unitsPerMeterInMap/unitsPerMeter;
-        targetZ = targetZ*unitsPerMeterInMap/unitsPerMeter;
-        
-        if(!this.getMap().getCurrentExtents().contains(x, y)) {
-            this.getMap().zoom(x, y, 1);
-        }
-        
-        this.symbolLayer.updateSymbolPosition(x, y, z, targetX, targetY, targetZ, this);
     },
     
     setGoogleSVPage: function(GoogleSVWindow) {  
@@ -290,11 +292,16 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
     {
         this.getMap().message.warn(message);
     },
-    hideMessage: function()
+    hideMessage: function(message)
     {
         if(this.getMap().message){
-            this.getMap().message.hide();
+            this.getMap().message.hideDesignatedMessage(message);
         }
     }
 });
+
+Proj4js.reportError = function(msg) {
+                throw msg;
+                //console.log(msg);
+            };
 

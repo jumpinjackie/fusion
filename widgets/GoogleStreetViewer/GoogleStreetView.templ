@@ -177,7 +177,7 @@
                 
                 if (status == google.maps.StreetViewStatus.OK) {
                     if(typeof(widget.hideMessage) == "function") {
-                        widget.hideMessage();
+                        widget.hideMessage(widget.serviceUnavailableMessage);
                     }     
                 }
                 else
