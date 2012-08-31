@@ -40,8 +40,8 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
         hoverStrokeWidth: 0.2
     },
     directionLength: 22,
-    csTransformErrorMessage: OpenLayers.i18n("googleSteetViewCSTransformError"),
-    serviceUnavailableMessage: OpenLayers.i18n("googleSteetViewNotAvailableError"),
+    csTransformErrorMessage: null,
+    serviceUnavailableMessage: null,
 
 /*
  * Constructor: GoogleStreetViewer
@@ -52,7 +52,10 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
  *
  */
     initializeWidget: function(widgetTag) {
-        
+	
+        this.csTransformErrorMessage = OpenLayers.i18n("googleSteetViewCSTransformError");
+        this.serviceUnavailableMessage = OpenLayers.i18n("googleSteetViewNotAvailableError");
+		
         this.targetCs = new OpenLayers.Projection("EPSG:4326");
         var json = widgetTag.extension;
         this.targetWindow = json.Target ? json.Target[0] : "TaskPane";
