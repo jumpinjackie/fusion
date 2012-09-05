@@ -218,6 +218,16 @@
                 }
                 return null;
             }
+
+            function hidePage()
+            {
+                var pano = document.getElementById("pano");
+                pano.style.visibility = "hidden";
+            }
+
+            if(!window.hidePage) {
+                window.hidePage = hidePage;
+            }
             
             // Callback when body is loaded
             window.onBodyLoad = function() {
