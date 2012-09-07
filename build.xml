@@ -147,9 +147,13 @@ $Id$
     <mkdir dir="${build.home}/docs"/>
     <mkdir dir="${build.home}/docs/NaturalDocs"/>
 
+    <!-- Dirty hack to avoid NaturalDoc's penchant for completely disregarding our Menu.txt -->
+    <echo message="Prepareing Menu.txt" />
+    <replace file="${basedir}/docs_config/Menu.txt" token="%WORKING_COPY%" value="${basedir}" />
+
     <echo message="Generating documentation"/>
     <exec executable="cmd" os="Windows Vista, Windows XP, Windows 7" dir="${basedir}/utils/NaturalDocs-1.4">
-        <arg line="/c NaturalDocs -i ${build.home}/lib -i ${build.home}/widgets -xi ${build.home}/lib/OpenLayers/Lang -o html ${build.home}/docs/NaturalDocs -p ${basedir}/docs_config -ro" />
+        <arg line="/c NaturalDocs -i ${build.home}/lib -i ${build.home}/widgets -xi ${build.home}/lib/OpenLayers/Lang -o html ${build.home}/docs/NaturalDocs -p ${basedir}/docs_config -nag -r" />
     </exec>
   </target>
 
