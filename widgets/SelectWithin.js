@@ -28,6 +28,8 @@
  *
  * A widget to perform a selection within a currently selected set of features.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

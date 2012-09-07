@@ -29,6 +29,8 @@
  * The Measure widget allows the user to measure distances or areas on the map
  * in one or more segments. Area is positive if measured clockwise.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Constant.MEASURE_TYPE_DISTANCE = 1;

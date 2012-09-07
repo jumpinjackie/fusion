@@ -33,6 +33,8 @@
  * Otherwise if the target is an existing HTML elementt in the page it will be 
  * loaded there, otherwise it will open a new window with that name.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.InvokeURL = OpenLayers.Class(Fusion.Widget, {

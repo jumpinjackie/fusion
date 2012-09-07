@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.LinkToView
  *
  * A widget that displays a link to the currently displayedd map view.
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

@@ -28,6 +28,8 @@
  *
  * A dynamically generated cartographic scalebar that looks like the Google scalebar
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.ScalebarDual = OpenLayers.Class(Fusion.Widget, {

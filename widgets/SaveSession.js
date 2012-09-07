@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.SaveSession
  *
  * A Widget that saves the session folder and returns an unique id 
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  ****************************************************************************/
 Fusion.Event.SAVE_SESSION_FINISHED = Fusion.Event.lastEventId++;
 

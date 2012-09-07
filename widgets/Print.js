@@ -28,6 +28,8 @@
  *
  * Print the current map.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Print = OpenLayers.Class(Fusion.Widget, {

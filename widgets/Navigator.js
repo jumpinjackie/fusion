@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.Navigator
  *
  * A widget that immplements an in-map navigation control with zoom and pan.
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {

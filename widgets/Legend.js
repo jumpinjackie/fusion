@@ -27,7 +27,9 @@
  * Class: Fusion.Widget.Legend
  *
  * A widget to display a legend of all layers.
- *
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Legend = OpenLayers.Class(Fusion.Widget,  {

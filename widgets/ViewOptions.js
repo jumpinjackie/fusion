@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.ViewOptions
  *
  * A widget to allow selection of the display units for various widgets
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  ****************************************************************************/
 
 Fusion.Widget.ViewOptions = OpenLayers.Class(Fusion.Widget, {

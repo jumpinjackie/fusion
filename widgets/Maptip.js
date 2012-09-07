@@ -45,6 +45,8 @@
  * queried and the top-most one will be displayed.  Multiple Layer tags
  * can be added, allowing tooltips to come from different layers.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

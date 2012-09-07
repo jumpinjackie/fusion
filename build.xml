@@ -149,7 +149,7 @@ $Id$
 
     <echo message="Generating documentation"/>
     <exec executable="cmd" os="Windows Vista, Windows XP, Windows 7" dir="${basedir}/utils/NaturalDocs-1.4">
-        <arg line="/c NaturalDocs.bat -i ../../lib -i ../../widgets -o html ${build.home}/docs/NaturalDocs -p ${build.home}/docs/NaturalDocs -r" />
+        <arg line="/c NaturalDocs -i ${build.home}/lib -i ${build.home}/widgets -xi ${build.home}/lib/OpenLayers/Lang -o html ${build.home}/docs/NaturalDocs -p ${basedir}/docs_config -ro" />
     </exec>
   </target>
 
@@ -362,6 +362,8 @@ $Id$
     <echo message="Removing build directories"/>
     <delete dir="${build.home}"/>
     <delete dir="${dist.home}"/>
+    <delete file="${basedir}/lib/${sfName}.js" />
+    <delete file="${basedir}/lib/${sfName}-compressed.js" />
   </target>
 
 

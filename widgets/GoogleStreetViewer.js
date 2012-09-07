@@ -5,6 +5,9 @@ Fusion.require("lib/SymbolLayer.js");
 * Class: Fusion.Widget.GoogleStreetViewer
 *
 * GoogleStreetViewer widget to display google street.
+* 
+*  Inherits from:
+*  - <Fusion.Widget>
 * **********************************************************************/
 
 Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {

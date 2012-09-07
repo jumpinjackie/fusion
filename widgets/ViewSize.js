@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.ViewSize
  *
  * Display the size of the current view in user-definable units
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  ****************************************************************************/
 Fusion.Widget.ViewSize = OpenLayers.Class(Fusion.Widget, {
     defaultTemplate: 'x: {x}, y: {y}',

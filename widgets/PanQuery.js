@@ -28,7 +28,9 @@
  *
  * A widget that combines pan and query functionality.  If the mouse is moved
  * before being released, a pan is performedd, otherwise a query is executed.
- * 
+ *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 //Fusion.require('widgets/Pan.js');

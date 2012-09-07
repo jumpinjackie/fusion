@@ -28,6 +28,8 @@
  *
  * A widget to display information about the currently selected set of features.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget, {

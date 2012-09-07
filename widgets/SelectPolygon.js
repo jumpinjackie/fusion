@@ -28,6 +28,8 @@
  *
  * perform a selection using a polygon
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {

@@ -23,18 +23,18 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+// This event could be emitted by the Redline widget
+Fusion.Event.REDLINE_FEATURE_ADDED = Fusion.Event.lastEventId++;
+
 /* ********************************************************************
 * Class: Fusion.Widget.Redline
 *
 * Allows the user to create a temporary OpenLayers Vector layer and
 * draw POINT, LINE and POLYGON features on that layer.
 *
+* Inherits from:
+*  - <Fusion.Widget>
 **********************************************************************/
-
-
-// This event could be emitted by the Redline widget
-Fusion.Event.REDLINE_FEATURE_ADDED = Fusion.Event.lastEventId++;
-
 Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     isExclusive: true,
     uiClass: Jx.Button,

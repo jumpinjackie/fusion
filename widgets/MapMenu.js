@@ -28,6 +28,9 @@
  *
  * A widget that displays a selection of maps that can be loaded into the 
  * application.  The list of maps is configured in the ApplicationDefinition.
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {

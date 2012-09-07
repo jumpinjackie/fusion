@@ -28,6 +28,8 @@
  *
  * Restore the map to it's full extents determined when it was initially loaded.
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 Fusion.Widget.InitialMapView = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,

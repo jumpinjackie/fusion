@@ -3,13 +3,15 @@
  * Copyright (C) 2010 Autodesk, Inc. All rights reserved.
  */
 
- /*****************************************************************************
- * Class: Fusion.Widget.QuickPlot
- * This widget provides a quick way to print a certain region of map in a good quality
- * **********************************************************************/
-
 Fusion.require("widgets/QuickPlot/MapCapturer.js");
 
+/*****************************************************************************
+ * Class: Fusion.Widget.QuickPlot
+ * This widget provides a quick way to print a certain region of map in a good quality
+ *
+ * Inherits from:
+ *  - <Fusion.Widget>
+ * **********************************************************************/
 Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget, 
 {
     isExclusive: true,

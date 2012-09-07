@@ -28,6 +28,8 @@
  *
  * Pans the map a fixed amount in a particular direction
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

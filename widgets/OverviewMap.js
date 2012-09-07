@@ -28,6 +28,9 @@
  *
  * A widget that displays an overview map showing the current view of the
  * primary map.
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {

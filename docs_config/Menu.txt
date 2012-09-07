@@ -1,0 +1,152 @@
+Format: 1.4
+
+
+Title: Fusion
+SubTitle: API Reference
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# You can use this file on other computers even if they use different
+# directories.  As long as the command line points to the same source files,
+# Natural Docs will be able to correct the locations automatically.
+# 
+# --------------------------------------------------------------------------
+
+
+Group: Core  {
+
+   File: Fusion  (C:\Workspace\fusion-trunk\build\lib\fusion.js)
+   File: Fusion.Error  (C:\Workspace\fusion-trunk\build\lib\Error.js)
+   File: Fusion.Lib.ApplicationDefinition  (C:\Workspace\fusion-trunk\build\lib\ApplicationDefinition.js)
+   File: Fusion.Lib.EventMgr  (C:\Workspace\fusion-trunk\build\lib\EventMgr.js)
+   File: Fusion.Lib.MGBroker  (C:\Workspace\fusion-trunk\build\lib\MGBroker.js)
+   File: Fusion.MapMessage  (C:\Workspace\fusion-trunk\build\lib\MapMessage.js)
+   File: Fusion.Tool.Rectangle  (C:\Workspace\fusion-trunk\build\lib\RectTool.js)
+   File: Fusion.Tool.Search  (C:\Workspace\fusion-trunk\build\lib\Search.js)
+   File: Fusion.Widget  (C:\Workspace\fusion-trunk\build\lib\Widget.js)
+   File: Fusion.Widget.Map  (no auto-title, C:\Workspace\fusion-trunk\build\lib\Map.js)
+   }  # Group: Core
+
+Group: External  {
+
+   File: jxLib  (no auto-title, C:\Workspace\fusion-trunk\build\lib\jxLib\jxlib.uncompressed.js)
+   File: OpenLayers  (no auto-title, C:\Workspace\fusion-trunk\build\lib\OpenLayers\OpenLayers.js)
+   File: Proj4js  (C:\Workspace\fusion-trunk\build\lib\Proj4js\proj4js-combined.js)
+   File: isValidLonLat  (C:\Workspace\fusion-trunk\build\lib\OLpatch.js)
+   File: OpenLayers.Control.DragFeature  (C:\Workspace\fusion-trunk\build\lib\DragFeature.js)
+   }  # Group: External
+
+Group: Widgets  {
+
+   File: Fusion.Widget.About  (C:\Workspace\fusion-trunk\build\widgets\About.js)
+   File: Fusion.Widget.ActivityIndicator  (C:\Workspace\fusion-trunk\build\widgets\ActivityIndicator.js)
+   File: Fusion.Widget.AddWMSLayer  (C:\Workspace\fusion-trunk\build\widgets\AddWMSLayer.js)
+   File: Fusion.Widget.BasemapSwitcher  (C:\Workspace\fusion-trunk\build\widgets\BasemapSwitcher.js)
+   File: Fusion.Widget.Buffer  (C:\Workspace\fusion-trunk\build\widgets\Buffer.js)
+   File: Fusion.Widget.BufferPanel  (C:\Workspace\fusion-trunk\build\widgets\BufferPanel.js)
+   File: Fusion.Widget.CenterSelection  (C:\Workspace\fusion-trunk\build\widgets\CenterSelection.js)
+   File: Fusion.Widget.ClearSelection  (C:\Workspace\fusion-trunk\build\widgets\ClearSelection.js)
+   File: Fusion.Widget.ColorPicker  (C:\Workspace\fusion-trunk\build\widgets\ColorPicker.js)
+   File: Fusion.Widget.CursorPosition  (C:\Workspace\fusion-trunk\build\widgets\CursorPosition.js)
+   File: Fusion.Widget.EditableScale  (C:\Workspace\fusion-trunk\build\widgets\EditableScale.js)
+   File: Fusion.Widget.ExtentHistory  (C:\Workspace\fusion-trunk\build\widgets\ExtentHistory.js)
+   File: Fusion.Widget.FeatureInfo  (C:\Workspace\fusion-trunk\build\widgets\FeatureInfo.js)
+   File: Fusion.Widget.GetFeatureInfo  (C:\Workspace\fusion-trunk\build\widgets\GetFeatureInfo.js)
+   File: Fusion.Widget.GoogleStreetViewer  (C:\Workspace\fusion-trunk\build\widgets\GoogleStreetViewer.js)
+   File: Fusion.Widget.Help  (C:\Workspace\fusion-trunk\build\widgets\Help.js)
+   File: Fusion.Widget.InitialMapView  (C:\Workspace\fusion-trunk\build\widgets\InitialMapView.js)
+   File: Fusion.Widget.InvokeScript  (C:\Workspace\fusion-trunk\build\widgets\InvokeScript.js)
+   File: Fusion.Widget.InvokeURL  (C:\Workspace\fusion-trunk\build\widgets\InvokeURL.js)
+   File: Fusion.Widget.LayerManager  (C:\Workspace\fusion-trunk\build\widgets\LayerManager.js)
+   File: Fusion.Widget.Legend  (C:\Workspace\fusion-trunk\build\widgets\Legend.js)
+   File: Fusion.Widget.LinkToView  (C:\Workspace\fusion-trunk\build\widgets\LinkToView.js)
+   File: Fusion.Widget.MapMenu  (C:\Workspace\fusion-trunk\build\widgets\MapMenu.js)
+   File: Fusion.Widget.MapMetadata  (C:\Workspace\fusion-trunk\build\widgets\MapMetadata.js)
+   File: Fusion.Widget.Maptip  (C:\Workspace\fusion-trunk\build\widgets\Maptip.js)
+   File: Fusion.Widget.Measure  (C:\Workspace\fusion-trunk\build\widgets\Measure.js)
+   File: Fusion.Widget.Navigator  (C:\Workspace\fusion-trunk\build\widgets\Navigator.js)
+   File: Fusion.Widget.OverviewMap  (C:\Workspace\fusion-trunk\build\widgets\OverviewMap.js)
+   File: Fusion.Widget.Pan  (C:\Workspace\fusion-trunk\build\widgets\Pan.js)
+   File: Fusion.Widget.PanOnClick  (C:\Workspace\fusion-trunk\build\widgets\PanOnClick.js)
+   File: Fusion.Widget.PanQuery  (C:\Workspace\fusion-trunk\build\widgets\PanQuery.js)
+   File: Fusion.Widget.Print  (C:\Workspace\fusion-trunk\build\widgets\Print.js)
+   File: Fusion.Widget.Query  (C:\Workspace\fusion-trunk\build\widgets\Query.js)
+   File: Fusion.Widget.QuickPlot  (C:\Workspace\fusion-trunk\build\widgets\QuickPlot.js)
+   File: Fusion.Widget.Redline  (C:\Workspace\fusion-trunk\build\widgets\Redline.js)
+   File: Fusion.Widget.RefreshMap  (C:\Workspace\fusion-trunk\build\widgets\RefreshMap.js)
+   File: Fusion.Widget.SaveMap  (C:\Workspace\fusion-trunk\build\widgets\SaveMap.js)
+   File: Fusion.Widget.SaveMapImage  (C:\Workspace\fusion-trunk\build\widgets\SaveMapImage.js)
+   File: Fusion.Widget.SaveSession  (C:\Workspace\fusion-trunk\build\widgets\SaveSession.js)
+   File: Fusion.Widget.Scalebar  (C:\Workspace\fusion-trunk\build\widgets\Scalebar.js)
+   File: Fusion.Widget.ScalebarDual  (C:\Workspace\fusion-trunk\build\widgets\ScalebarDual.js)
+   File: Fusion.Widget.Search  (C:\Workspace\fusion-trunk\build\widgets\Search.js)
+   File: Fusion.Widget.Select  (C:\Workspace\fusion-trunk\build\widgets\Select.js)
+   File: Fusion.Widget.SelectionInfo  (C:\Workspace\fusion-trunk\build\widgets\SelectionInfo.js)
+   File: Fusion.Widget.SelectionPanel  (C:\Workspace\fusion-trunk\build\widgets\SelectionPanel.js)
+   File: Fusion.Widget.SelectPolygon  (C:\Workspace\fusion-trunk\build\widgets\SelectPolygon.js)
+   File: Fusion.Widget.SelectRadius  (C:\Workspace\fusion-trunk\build\widgets\SelectRadius.js)
+   File: Fusion.Widget.SelectRadius  (C:\Workspace\fusion-trunk\build\widgets\SelectAttribute.js)
+   File: Fusion.Widget.SelectRadiusValue  (C:\Workspace\fusion-trunk\build\widgets\SelectRadiusValue.js)
+   File: Fusion.Widget.SelectWithin  (C:\Workspace\fusion-trunk\build\widgets\SelectWithin.js)
+   File: Fusion.Widget.TaskPane  (C:\Workspace\fusion-trunk\build\widgets\TaskPane.js)
+   File: Fusion.Widget.Theme  (C:\Workspace\fusion-trunk\build\widgets\Theme.js)
+   File: Fusion.Widget.ViewOptions  (C:\Workspace\fusion-trunk\build\widgets\ViewOptions.js)
+   File: Fusion.Widget.ViewSize  (C:\Workspace\fusion-trunk\build\widgets\ViewSize.js)
+   File: Fusion.Widget.Zoom  (C:\Workspace\fusion-trunk\build\widgets\Zoom.js)
+   File: Fusion.Widget.ZoomOnClick  (C:\Workspace\fusion-trunk\build\widgets\ZoomOnClick.js)
+   File: Fusion.Widget.ZoomToSelection  (C:\Workspace\fusion-trunk\build\widgets\ZoomToSelection.js)
+   File: OpenLayers.Control.MapCapturer  (C:\Workspace\fusion-trunk\build\widgets\QuickPlot\MapCapturer.js)
+   }  # Group: Widgets
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   Constant Index: Constants
+   Event Index: Events
+   File Index: Files
+   Function Index: Functions
+   Property Index: Properties
+   }  # Group: Index
+
+
+
+##### Do not change or remove these lines. #####
+Data: 1(D3330wb_uHA6Ip9GbcN68u\ztHN\AbYN8ofbo8Y)
+Data: 1(h3330wb_uHA6Ip9GbcN68u\ztHN\AbYN8ofb78f`Gt6)

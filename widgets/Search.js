@@ -31,6 +31,9 @@
  *
  * uses JavaScript Scale Bar for MapServer
  * (http://mapserver.commenspace.org/tools/scalebar/
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {

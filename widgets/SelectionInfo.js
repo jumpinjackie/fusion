@@ -41,6 +41,9 @@
  * < is &lt;
  * > is &gt;
  * & is &amp;
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.SelectionInfo = OpenLayers.Class(Fusion.Widget, {

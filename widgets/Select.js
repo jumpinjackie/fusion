@@ -28,6 +28,8 @@
  *
  * perform a selection on map features
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

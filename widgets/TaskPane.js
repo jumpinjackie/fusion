@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.TaskPane
  *
  * A utility widget that holds output from other widgets.
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  ****************************************************************************/
  
 Fusion.Event.TASK_PANE_LOADED = Fusion.Event.lastEventId++;

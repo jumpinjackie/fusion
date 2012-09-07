@@ -28,6 +28,8 @@
  *
  * Display a user help page.
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Help = OpenLayers.Class(Fusion.Widget, {

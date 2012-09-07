@@ -29,6 +29,8 @@
 * About widget to display a pop-up window about the application.  The contents
 * of the page are come from an HTML page set as the AboutUrl extension property.
 *
+* Inherits from:
+*  - <Fusion.Widget>
 * **********************************************************************/
 
 Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
