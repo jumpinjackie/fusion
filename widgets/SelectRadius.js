@@ -117,6 +117,7 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
         map.setCursor(this.asCursor);
         /*map units for tool tip*/
         this.units = map.units;
+        map.message.info(OpenLayers.i18n("selectRadiusPrompt"))
         map.supressContextMenu(true);
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, true);
     },
@@ -128,8 +129,10 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
      **/
     deactivate: function() {
         this.handler.deactivate();
-        this.getMap().setCursor('auto');
-        this.getMap().supressContextMenu(false);
+        var map = this.getMap();
+        map.message.clear();
+        map.setCursor('auto');
+        map.supressContextMenu(false);
         /*icon button*/
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, false);
     },

@@ -83,10 +83,12 @@ function DigitizePolygon(handler) {
     mgApiStartDigitizing('polygon', handler)
 }
 
-function ClearDigitization() {
+function ClearDigitization(bCancelHandler) {
     if (mgApiDigitizingLayer) {
         mgApiDigitizingLayer.removeFeatures(mgApiDigitizingLayer.features);
     }
+    if (bCancelHandler)
+        mgApiDeactivate();
 }
 
 //Theses are the Geometry classes used in the MapGuide Viewer API

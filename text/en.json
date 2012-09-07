@@ -80,5 +80,6 @@ Fusion.Strings.en = {
 'openStreetMap':'Open Street Map',
 'openStreetMapTransportMap':'Open Street Map (TransportMap)',
 'openStreetMapCycleMap':'Open Street Map (CycleMap)',
-'end': ''
+'end': '',
+'measureInProgress':'Measurement is currently in progress'
 };
