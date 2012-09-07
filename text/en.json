@@ -81,5 +81,7 @@ Fusion.Strings.en = {
 'openStreetMapTransportMap':'Open Street Map (TransportMap)',
 'openStreetMapCycleMap':'Open Street Map (CycleMap)',
 'end': '',
-'measureInProgress':'Measurement is currently in progress'
+'measureInProgress':'Measurement is currently in progress',
+'selectPolygonPrompt':'Click to add a vertex to the selection polygon. Double click to complete the polygon and select all features with it',
+'selectRadiusPrompt':'Click and drag to the desired radius to select'
 };
