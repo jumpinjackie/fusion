@@ -1,0 +1,152 @@
+Format: 1.4
+
+
+Title: Fusion
+SubTitle: API Reference
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# You can use this file on other computers even if they use different
+# directories.  As long as the command line points to the same source files,
+# Natural Docs will be able to correct the locations automatically.
+# 
+# --------------------------------------------------------------------------
+
+
+Group: Core  {
+
+   File: Fusion  (no auto-title, %WORKING_COPY%\build\lib\fusion.js)
+   File: Fusion.Error  (no auto-title, %WORKING_COPY%\build\lib\Error.js)
+   File: Fusion.Lib.ApplicationDefinition  (no auto-title, %WORKING_COPY%\build\lib\ApplicationDefinition.js)
+   File: Fusion.Lib.EventMgr  (no auto-title, %WORKING_COPY%\build\lib\EventMgr.js)
+   File: Fusion.Lib.MGBroker  (no auto-title, %WORKING_COPY%\build\lib\MGBroker.js)
+   File: Fusion.MapMessage  (no auto-title, %WORKING_COPY%\build\lib\MapMessage.js)
+   File: Fusion.Tool.Rectangle  (no auto-title, %WORKING_COPY%\build\lib\RectTool.js)
+   File: Fusion.Tool.Search  (no auto-title, %WORKING_COPY%\build\lib\Search.js)
+   File: Fusion.Widget  (no auto-title, %WORKING_COPY%\build\lib\Widget.js)
+   File: Fusion.Widget.Map  (no auto-title, %WORKING_COPY%\build\lib\Map.js)
+   }  # Group: Core
+
+Group: Widgets  {
+
+   File: Fusion.Widget.About  (no auto-title, %WORKING_COPY%\build\widgets\About.js)
+   File: Fusion.Widget.ActivityIndicator  (no auto-title, %WORKING_COPY%\build\widgets\ActivityIndicator.js)
+   File: Fusion.Widget.AddWMSLayer  (no auto-title, %WORKING_COPY%\build\widgets\AddWMSLayer.js)
+   File: Fusion.Widget.BasemapSwitcher  (no auto-title, %WORKING_COPY%\build\widgets\BasemapSwitcher.js)
+   File: Fusion.Widget.Buffer  (no auto-title, %WORKING_COPY%\build\widgets\Buffer.js)
+   File: Fusion.Widget.BufferPanel  (no auto-title, %WORKING_COPY%\build\widgets\BufferPanel.js)
+   File: Fusion.Widget.CenterSelection  (no auto-title, %WORKING_COPY%\build\widgets\CenterSelection.js)
+   File: Fusion.Widget.ClearSelection  (no auto-title, %WORKING_COPY%\build\widgets\ClearSelection.js)
+   File: Fusion.Widget.ColorPicker  (no auto-title, %WORKING_COPY%\build\widgets\ColorPicker.js)
+   File: Fusion.Widget.CursorPosition  (no auto-title, %WORKING_COPY%\build\widgets\CursorPosition.js)
+   File: Fusion.Widget.EditableScale  (no auto-title, %WORKING_COPY%\build\widgets\EditableScale.js)
+   File: Fusion.Widget.ExtentHistory  (no auto-title, %WORKING_COPY%\build\widgets\ExtentHistory.js)
+   File: Fusion.Widget.FeatureInfo  (no auto-title, %WORKING_COPY%\build\widgets\FeatureInfo.js)
+   File: Fusion.Widget.GetFeatureInfo  (no auto-title, %WORKING_COPY%\build\widgets\GetFeatureInfo.js)
+   File: Fusion.Widget.GoogleStreetViewer  (no auto-title, %WORKING_COPY%\build\widgets\GoogleStreetViewer.js)
+   File: Fusion.Widget.Help  (no auto-title, %WORKING_COPY%\build\widgets\Help.js)
+   File: Fusion.Widget.InitialMapView  (no auto-title, %WORKING_COPY%\build\widgets\InitialMapView.js)
+   File: Fusion.Widget.InvokeScript  (no auto-title, %WORKING_COPY%\build\widgets\InvokeScript.js)
+   File: Fusion.Widget.InvokeURL  (no auto-title, %WORKING_COPY%\build\widgets\InvokeURL.js)
+   File: Fusion.Widget.LayerManager  (no auto-title, %WORKING_COPY%\build\widgets\LayerManager.js)
+   File: Fusion.Widget.Legend  (no auto-title, %WORKING_COPY%\build\widgets\Legend.js)
+   File: Fusion.Widget.LinkToView  (no auto-title, %WORKING_COPY%\build\widgets\LinkToView.js)
+   File: Fusion.Widget.MapMenu  (no auto-title, %WORKING_COPY%\build\widgets\MapMenu.js)
+   File: Fusion.Widget.MapMetadata  (no auto-title, %WORKING_COPY%\build\widgets\MapMetadata.js)
+   File: Fusion.Widget.Maptip  (no auto-title, %WORKING_COPY%\build\widgets\Maptip.js)
+   File: Fusion.Widget.Measure  (no auto-title, %WORKING_COPY%\build\widgets\Measure.js)
+   File: Fusion.Widget.Navigator  (no auto-title, %WORKING_COPY%\build\widgets\Navigator.js)
+   File: Fusion.Widget.OverviewMap  (no auto-title, %WORKING_COPY%\build\widgets\OverviewMap.js)
+   File: Fusion.Widget.Pan  (no auto-title, %WORKING_COPY%\build\widgets\Pan.js)
+   File: Fusion.Widget.PanOnClick  (no auto-title, %WORKING_COPY%\build\widgets\PanOnClick.js)
+   File: Fusion.Widget.PanQuery  (no auto-title, %WORKING_COPY%\build\widgets\PanQuery.js)
+   File: Fusion.Widget.Print  (no auto-title, %WORKING_COPY%\build\widgets\Print.js)
+   File: Fusion.Widget.Query  (no auto-title, %WORKING_COPY%\build\widgets\Query.js)
+   File: Fusion.Widget.QuickPlot  (no auto-title, %WORKING_COPY%\build\widgets\QuickPlot.js)
+   File: Fusion.Widget.Redline  (no auto-title, %WORKING_COPY%\build\widgets\Redline.js)
+   File: Fusion.Widget.RefreshMap  (no auto-title, %WORKING_COPY%\build\widgets\RefreshMap.js)
+   File: Fusion.Widget.SaveMap  (no auto-title, %WORKING_COPY%\build\widgets\SaveMap.js)
+   File: Fusion.Widget.SaveMapImage  (no auto-title, %WORKING_COPY%\build\widgets\SaveMapImage.js)
+   File: Fusion.Widget.SaveSession  (no auto-title, %WORKING_COPY%\build\widgets\SaveSession.js)
+   File: Fusion.Widget.Scalebar  (no auto-title, %WORKING_COPY%\build\widgets\Scalebar.js)
+   File: Fusion.Widget.ScalebarDual  (no auto-title, %WORKING_COPY%\build\widgets\ScalebarDual.js)
+   File: Fusion.Widget.Search  (no auto-title, %WORKING_COPY%\build\widgets\Search.js)
+   File: Fusion.Widget.Select  (no auto-title, %WORKING_COPY%\build\widgets\Select.js)
+   File: Fusion.Widget.SelectionInfo  (no auto-title, %WORKING_COPY%\build\widgets\SelectionInfo.js)
+   File: Fusion.Widget.SelectionPanel  (no auto-title, %WORKING_COPY%\build\widgets\SelectionPanel.js)
+   File: Fusion.Widget.SelectPolygon  (no auto-title, %WORKING_COPY%\build\widgets\SelectPolygon.js)
+   File: Fusion.Widget.SelectRadius  (no auto-title, %WORKING_COPY%\build\widgets\SelectAttribute.js)
+   File: Fusion.Widget.SelectRadius  (no auto-title, %WORKING_COPY%\build\widgets\SelectRadius.js)
+   File: Fusion.Widget.SelectRadiusValue  (no auto-title, %WORKING_COPY%\build\widgets\SelectRadiusValue.js)
+   File: Fusion.Widget.SelectWithin  (no auto-title, %WORKING_COPY%\build\widgets\SelectWithin.js)
+   File: Fusion.Widget.TaskPane  (no auto-title, %WORKING_COPY%\build\widgets\TaskPane.js)
+   File: Fusion.Widget.Theme  (no auto-title, %WORKING_COPY%\build\widgets\Theme.js)
+   File: Fusion.Widget.ViewOptions  (no auto-title, %WORKING_COPY%\build\widgets\ViewOptions.js)
+   File: Fusion.Widget.ViewSize  (no auto-title, %WORKING_COPY%\build\widgets\ViewSize.js)
+   File: Fusion.Widget.Zoom  (no auto-title, %WORKING_COPY%\build\widgets\Zoom.js)
+   File: Fusion.Widget.ZoomOnClick  (no auto-title, %WORKING_COPY%\build\widgets\ZoomOnClick.js)
+   File: Fusion.Widget.ZoomToSelection  (no auto-title, %WORKING_COPY%\build\widgets\ZoomToSelection.js)
+   File: OpenLayers.Control.MapCapturer  (no auto-title, %WORKING_COPY%\build\widgets\QuickPlot\MapCapturer.js)
+   }  # Group: Widgets
+
+Group: External  {
+
+   File: OpenLayers.Map.isValidLonLat  (no auto-title, %WORKING_COPY%\build\lib\OLpatch.js)
+   File: JxLib  (no auto-title, %WORKING_COPY%\build\lib\jxLib\jxlib.uncompressed.js)
+   File: OpenLayers.Control.DragFeature  (no auto-title, %WORKING_COPY%\build\lib\DragFeature.js)
+   File: OpenLayers  (no auto-title, %WORKING_COPY%\build\lib\OpenLayers\OpenLayers.js)
+   File: Proj4js  (no auto-title, %WORKING_COPY%\build\lib\Proj4js\proj4js-combined.js)
+   }  # Group: External
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   Constant Index: Constants
+   Event Index: Events
+   File Index: Files
+   Function Index: Functions
+   Property Index: Properties
+   }  # Group: Index
+
+
+
+##### Do not change or remove these lines. #####
+Data: 1(D3330wbgHu`HpEXm8oG6bFrWGubPpIWN8fGb_GYb777bcN68u\ztHN\AbYN8ofbo8Y)
+Data: 1(h3330wbgHu`HpEXm8oG6bFrWGubPpIWN8fGb_GYb777bcN68u\ztHN\AbYN8ofb78f`Gt6)
