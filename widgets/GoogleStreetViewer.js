@@ -90,7 +90,7 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
             }
         }
 
-        if (!Fusion.Widget.GoogleStreetViewer.prototype.enable) {
+        if (!Fusion.Widget.GoogleStreetViewer.prototype.enable)
             this.disable();
 
         this.getMap().oMapOL.events.register("changebaselayer",this, this.baseMapChanged);
