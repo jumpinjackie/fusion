@@ -148,17 +148,8 @@ $Id$
     <mkdir dir="${build.home}/docs/NaturalDocs"/>
 
     <echo message="Generating documentation"/>
-    <exec executable="cmd" os="Windows Vista, Windows XP" dir="${build.home}">
-    <!--
-        <arg value="/c"/>
-        <arg value="NaturalDocs.bat"/>
-        <arg value="-i ./"/>
-        <arg value="-o html ./docs"/>
-        <arg value="-p ./docs/NaturalDocs"/>
-         <arg value="-xi ./lib"/>
-        <arg value="-r"/>
-        -->
-        <arg line="/c perl C:\Progra~1\NaturalDocs\NaturalDocs -i ./lib -i ./widgets -o html ./docs/NaturalDocs -p ./docs/NaturalDocs -r"/>
+    <exec executable="cmd" os="Windows Vista, Windows XP, Windows 7" dir="${basedir}/utils/NaturalDocs-1.4">
+        <arg line="/c NaturalDocs.bat -i ../../lib -i ../../widgets -o html ${build.home}/docs/NaturalDocs -p ${build.home}/docs/NaturalDocs -r" />
     </exec>
   </target>
 
