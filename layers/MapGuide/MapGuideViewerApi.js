@@ -27,7 +27,7 @@
 * This is a simple API layer to mimick the MapGuide ajaxviewer API
 */
 var mgApiMapWidgetId = 'Map';
-var mgApimgApiActiveWidget = null;
+var mgApiActiveWidget = null;
 var mgApiActiveControl = null;
 var mgApiDrawControls;
 var mgApiDigitizingLayer = null;

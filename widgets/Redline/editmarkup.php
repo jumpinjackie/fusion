@@ -277,6 +277,9 @@
 		function CloseEditor()
 		{
 			ClearDigitization(true);
+			var map = Fusion.getMapByName(mapName).mapWidget;
+			map.message.clear();
+
 			var editForm = document.getElementById("editForm");
 			editForm.action = "markupmain.php";
 			
