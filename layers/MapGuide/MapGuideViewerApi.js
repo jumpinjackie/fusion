@@ -27,7 +27,7 @@
 * This is a simple API layer to mimick the MapGuide ajaxviewer API
 */
 var mgApiMapWidgetId = 'Map';
-var mgApimgApiActiveWidget = null;
+var mgApiActiveWidget = null;
 var mgApiActiveControl = null;
 var mgApiDrawControls;
 var mgApiDigitizingLayer = null;
@@ -83,10 +83,12 @@ function DigitizePolygon(handler) {
     mgApiStartDigitizing('polygon', handler)
 }
 
-function ClearDigitization() {
+function ClearDigitization(bCancelHandler) {
     if (mgApiDigitizingLayer) {
         mgApiDigitizingLayer.removeFeatures(mgApiDigitizingLayer.features);
     }
+    if (bCancelHandler)
+        mgApiDeactivate();
 }
 
 //Theses are the Geometry classes used in the MapGuide Viewer API

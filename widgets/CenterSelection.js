@@ -29,6 +29,8 @@
  * Center the current selection, if any, but maintain the current scale
  * if possible.  Zoom out if not.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 

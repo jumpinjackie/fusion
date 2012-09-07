@@ -47,7 +47,9 @@
  * DisabledLayerIcon: (string, optional)
  *
  * The url to an image to use for layers that are out of scale.
- *
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.LayerManager = OpenLayers.Class(Fusion.Widget,  {

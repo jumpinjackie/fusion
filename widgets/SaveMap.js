@@ -36,6 +36,9 @@
  *      <ResourceId></ResourceId>
  *      <Scale></Scale>
  *    </Extension>
+ *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.SaveMap = OpenLayers.Class(Fusion.Widget, {

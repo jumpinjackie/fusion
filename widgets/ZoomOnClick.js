@@ -28,6 +28,8 @@
  *
  * Zoom the map by a fixed amount when a button is clicked
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 Fusion.Widget.ZoomOnClick = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,

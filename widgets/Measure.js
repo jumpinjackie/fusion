@@ -29,6 +29,8 @@
  * The Measure widget allows the user to measure distances or areas on the map
  * in one or more segments. Area is positive if measured clockwise.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Constant.MEASURE_TYPE_DISTANCE = 1;
@@ -448,6 +450,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
 
     activate: function() {
         this.control.activate();
+        this.getMap().message.info(OpenLayers.i18n("measureInProgress"));
         this.resetMeasure();
         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.loadDisplayPanel();
@@ -505,6 +508,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);
         this.control.deactivate();
         this.control.cancel();
+        this.getMap().message.clear();
         this.getMap().supressContextMenu(false);
     },
 

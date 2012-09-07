@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.ClearSelection
  *
  * Clears the current selection, if any.
+ * 
+ *  Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.ClearSelection = OpenLayers.Class(Fusion.Widget, {

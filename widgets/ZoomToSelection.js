@@ -28,6 +28,8 @@
  *
  * Zoom to the current selection, if any
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, {
@@ -45,20 +47,31 @@ Fusion.Widget.ZoomToSelection = OpenLayers.Class(Fusion.Widget, {
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_OFF, OpenLayers.Function.bind(this.disable, this));
     },
 
-    /**
-     * get the selection from the map (which may not be loaded yet).
-     * zoomToSelection is called when the selection is ready.
-     */
+     /**
+      * Function: activate
+      * 
+      * get the selection from the map (which may not be loaded yet).
+      * zoomToSelection is called when the selection is ready.
+      * 
+      * Returns:
+      * 
+      *   return description
+      */
     activate: function() {
         this.getMap().getSelection(OpenLayers.Function.bind(this.zoomToSelection, this));
     },
 
-    /**
-     * set the extents of the map based on the pixel coordinates
-     * passed
-     * 
-     * @param selection the active selection, or null if there is none
-     */
+     /**
+      * Function: zoomToSelection
+      * 
+      * set the extents of the map based on the pixel coordinates
+      * passed
+      * 
+      * Parameters:
+      * 
+      *   selection - the active selection, or null if there is none
+      * 
+      */
     zoomToSelection: function(selection) {
         var aMaps = this.getMap().getAllMaps();
         var bounds = new OpenLayers.Bounds();

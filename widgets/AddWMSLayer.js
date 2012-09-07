@@ -29,6 +29,8 @@
  * Opens a dialog box with a list of layers from a WMS server that can be added
  * to the map.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.AddWMSLayer = OpenLayers.Class(Fusion.Widget, {

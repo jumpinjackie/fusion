@@ -52,6 +52,9 @@
  * So a two-line display would be:
  *
  * x: {x}&lt;br/&gt;y: {y}
+ * 
+ *  Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {

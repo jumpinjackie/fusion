@@ -32,6 +32,8 @@
  * NOTE: This version of the widget is not currently being used.  
  * Use BufferPanel instead. The 2 widgets will be merged eventually.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **************************************************************************/
 
 Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, {

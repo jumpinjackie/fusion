@@ -31,6 +31,8 @@
  * becomes busy when loading maps, reloading maps or redrawing
  * layers.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **************************************************************************/
 
 

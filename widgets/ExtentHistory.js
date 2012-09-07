@@ -28,6 +28,8 @@
  *
  * Maintain and navigate through a history of extents
  * 
+ *  Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Event.HISTORY_CHANGED = Fusion.Event.lastEventId++;

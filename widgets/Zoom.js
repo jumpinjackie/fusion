@@ -28,6 +28,8 @@
  *
  * A widget that will zoom the map in or out.
  * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {

@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.Pan
  *
  * A widget that allows for naviagtion by panning
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.Pan = OpenLayers.Class(Fusion.Widget, {

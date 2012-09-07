@@ -29,6 +29,8 @@
  * A widget to allow the user to specify the radius to use for a 
  * SelectRadius widget.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {

@@ -27,7 +27,9 @@
  * Class: Fusion.Widget.SelectRadius
  *
  * perform a selection by radius from a point
- * 
+ *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 Fusion.Event.RADIUS_WIDGET_ACTIVATED = Fusion.Event.lastEventId++;
 

@@ -29,6 +29,8 @@
  * The user can pick from a palette of web-safe colours or enter a hex value. 
  * The colour selected will be entered into the configured input element.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.ColorPicker = OpenLayers.Class(Fusion.Widget, {

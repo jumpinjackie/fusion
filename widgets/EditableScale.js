@@ -28,6 +28,8 @@
  *
  * The user can manually type in a new scale
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.EditableScale = OpenLayers.Class(Fusion.Widget, {

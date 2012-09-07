@@ -27,6 +27,9 @@
  * Class: Fusion.Widget.InvokeScript
  *
  * Executes an arbitrary piece of JavaScript code
+ * 
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 Fusion.Widget.InvokeScript = OpenLayers.Class(Fusion.Widget, {

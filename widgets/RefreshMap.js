@@ -28,6 +28,8 @@
  *
  * Refreshes the current map view without changing zoom or center.
  *
+ * Inherits from:
+ *  - <Fusion.Widget>
  * **********************************************************************/
 
 
