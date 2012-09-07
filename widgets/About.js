@@ -47,14 +47,6 @@ Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
      */
     _sDefaultUrl: 'widgets/About/About.html',
 
-/*
- * Constructor: About
- *
- * Parameters:
- *
- * widgetTag - JSON node for this widget from the Application definition
- *
- */
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this._sAboutUrl = (json.AboutURL) ? json.AboutURL[0] : this._sDefaultUrl;
@@ -67,7 +59,7 @@ Fusion.Widget.About = OpenLayers.Class(Fusion.Widget, {
     },
 
     /**
-     * Function: execute
+     * Function: activate
      *
      * opens a pop-up window with the about information when invoked
      * 
