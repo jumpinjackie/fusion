@@ -236,7 +236,7 @@
                 if(!widgetList) return;
                 for(var index = 0; index < widgetList.length; index++) {
                     var widget = widgetList[index];
-                    if(typeof(widget.setGoogleSVPage) == "function") {
+                    if(widget.setGoogleSVPage != null) {
                         widget.setGoogleSVPage(window);
                     }
                 }
