@@ -67,5 +67,5 @@ if ($document == null) {
     die ('/* invalid xml document:'.$xml.' */');
 }
 $root = $document->documentElement;
-echo '{"' . $root->tagName . '":' . xml2json($root) . '};';
+echo '{"' . $root->tagName . '":' . xml2json($root) . '}';
 ?>
