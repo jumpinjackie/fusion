@@ -77,6 +77,7 @@ $Id$
   <property name="app.version" value="2.0.x"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${basedir}/../${app.name}"/>
+  <property name="selfbuild.home" value="${basedir}/selfbuild"/>
   <property name="dist.home" value="${basedir}/dist"/>
   <property name="docs.home" value="${build.home}/docs"/>
 
@@ -321,7 +322,28 @@ $Id$
     </copy>
   </target>
 
-
+<!-- ==================== SelfBuild ========================================== -->
+<!--
+  The "selfbuild" copies this file and any supporting tools/utilities and creates a zip
+  file containing the required build tools to "re-compile" a new fusionSF.js and
+  fusionSF-compressed.js on a production fusion installation
+-->
+ <target name="selfbuild" description="Create zip file containing build tools">
+    <echo message="Deploying to web server"/>
+    <mkdir dir="${selfbuild.home}"/>
+    <delete file="${selfbuild.home}/${app.name}-buildtools.zip" />
+    <copy todir="${selfbuild.home}">
+      <fileset dir="${basedir}"
+            includes="build.xml
+                      config_dist.json
+                      docs_config/**
+                      utils/**" />
+    </copy>
+    <!-- Create source zip file -->
+    <zip destfile="${selfbuild.home}/${app.name}-buildtools.zip">
+      <zipfileset dir="${selfbuild.home}" />
+    </zip>
+  </target>
 
 <!-- ==================== Dist Target ===================================== -->
 <!--
@@ -366,6 +388,7 @@ $Id$
     <echo message="Removing build directories"/>
     <delete dir="${build.home}"/>
     <delete dir="${dist.home}"/>
+    <delete dir="${selfbuild.home}"/>
     <delete file="${basedir}/lib/${sfName}.js" />
     <delete file="${basedir}/lib/${sfName}-compressed.js" />
   </target>
