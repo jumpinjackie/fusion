@@ -244,8 +244,22 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             this._sResourceId = o.mapId;
             this._sMapname = o.mapName;
             this._sMapTitle = o.mapTitle;
-            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
-            this.mapWidget.setBackgroundColor(o.backgroundColor);
+            
+            // Fix defect that background color in overview map will affect background color in main map.
+            // We'll first check if the loaded map is the one shown in main map.
+            var currentMaps = this.mapWidget.mapGroup.maps;
+            var isInMapWidget = false;
+            for(var index = 0, len = currentMaps.length; index < len; index++) {
+                var mapInMaps = currentMaps[index];
+                if(mapInMaps.resourceId == this._sResourceId) {
+                    isInMapWidget = this;
+                    break;
+                }
+            }
+            if(isInMapWidget) {
+                this.mapWidget.setMetersPerUnit(o.metersPerUnit);
+                this.mapWidget.setBackgroundColor(o.backgroundColor);
+            }
 
             var version = o.siteVersion;
             var bits = version.split('.');
