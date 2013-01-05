@@ -1871,4 +1871,13 @@ class MgWebActions
    
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// <summary>
+/// The batch size to use when rendering a selection.
+/// </summary>
+class MgSelectionBatchSize
+{
+   const RenderSelectionBatchSize = 30000 ; 
+}
+
 ?>
