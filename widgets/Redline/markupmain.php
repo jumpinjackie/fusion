@@ -130,7 +130,7 @@
 			if (cmd == CMD_NEW) {
                 var widget = Fusion.getWidgetsByType("Redline")[0];
                 if (widget.autogenerateLayerNames) {
-                    Fusion.ajaxRequest("widgets/redline/newmarkup.php", {
+                    Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
                         onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
                         onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
                         parameters: {
@@ -140,7 +140,7 @@
                     });
                 } else {
                     var name = prompt("<?= $redlineLayerNameLocal ?>");
-                    Fusion.ajaxRequest("widgets/redline/newmarkup.php", {
+                    Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
                         onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
                         onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
                         parameters: {
