@@ -44,23 +44,23 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
     // a reference to a redline taskPane
     taskPane: null,
-    
+
     // Indicates whether to prompt for text labels on recorded redlines
     promptForRedlineLabels: false,
-    
+
     // Indicates whether to autogenerate redline layer names or to prompt the user for one.
     autogenerateLayerNames: true,
 
     // Indicates whether to use the MapMessage component to display digitization prompts
     mapMessagePrompt: true,
-    
+
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
         this.mapWidget = Fusion.getWidgetById('Map');
 
         if (json.PromptForRedlineLabels)
             this.promptForRedlineLabels = (json.PromptForRedlineLabels[0] == "true");
-            
+
         if (json.AutogenerateLayerNames)
             this.autogenerateLayerNames = (json.AutogenerateLayerNames[0] == "true");
 
@@ -74,15 +74,15 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
         if (this.sTarget)
             this.taskPane = new Fusion.Widget.Redline.DefaultTaskPane(this, widgetTag.location);
     },
-    
+
     getSessionID: function() {
         return this.getMapLayer().getSessionID();
     },
-    
+
     getMapName: function() {
         return this.getMapLayer().getMapName();
     },
-    
+
     // activate the redline widget
     activate: function() {
         if (this.taskPane) {
@@ -111,7 +111,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
 
     // the panel url
     panelUrl:  'widgets/Redline/markupmain.php',
-    
+
     initialize: function(widget,widgetLocation) {
         this.widget = widget;
         this.widget.registerForEvent(Fusion.Event.REDLINE_FEATURE_ADDED, OpenLayers.Function.bind(this.featureAdded, this));

@@ -8,48 +8,48 @@
     }
     require_once $fusionMGpath . 'Utilities.php';
     require_once $fusionMGpath . 'JSON.php';
-	require_once 'classes/defaultstyle.php';
+    require_once 'classes/defaultstyle.php';
     require_once 'classes/markupmanager.php';
-	require_once 'classes/markupcommand.php';
+    require_once 'classes/markupcommand.php';
 
-	$args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
-    
-	$refreshMap = false;
-	$errorMsg = null;
-	$errorDetail = null;
-	
+    $args = ($_SERVER['REQUEST_METHOD'] == "POST") ? $_POST : $_GET;
+
+    $refreshMap = false;
+    $errorMsg = null;
+    $errorDetail = null;
+
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
         $locale = $_REQUEST['LOCALE'];
     } else {
         $locale = GetDefaultLocale();
     }
-    
-	try
-	{
-		$markupManager = new MarkupManager($args);
-		
-		if (array_key_exists('MARKUPCOMMAND', $args))
-		{
-			$cmd = $args['MARKUPCOMMAND'];
-			switch ($cmd) {
-			case MarkupCommand::EditStyle:
-				$markupManager->CreateMarkup();
-				$refreshMap = true;
-				break;
-			case MarkupCommand::Open:
-				$markupManager->OpenMarkup();
-				$refreshMap = true;
-				break;
-			case MarkupCommand::Delete:
-				$markupManager->DeleteMarkup();
-				break;
-			case MarkupCommand::Refresh:
-				break;
-			case MarkupCommand::Close:
-				$markupManager->CloseMarkup();
-				$refreshMap = true;
-				break;
+
+    try
+    {
+        $markupManager = new MarkupManager($args);
+
+        if (array_key_exists('MARKUPCOMMAND', $args))
+        {
+            $cmd = $args['MARKUPCOMMAND'];
+            switch ($cmd) {
+            case MarkupCommand::EditStyle:
+                $markupManager->CreateMarkup();
+                $refreshMap = true;
+                break;
+            case MarkupCommand::Open:
+                $markupManager->OpenMarkup();
+                $refreshMap = true;
+                break;
+            case MarkupCommand::Delete:
+                $markupManager->DeleteMarkup();
+                break;
+            case MarkupCommand::Refresh:
+                break;
+            case MarkupCommand::Close:
+                $markupManager->CloseMarkup();
+                $refreshMap = true;
+                break;
             case MarkupCommand::Upload:
                 $markupManager->UploadMarkup();
                 $refreshMap = true;
@@ -62,16 +62,16 @@
                 $markupManager->SetArgument("MARKUPLAYER", $args["OPENMARKUP"]);
                 $markupManager->DownloadMarkup();
                 break;
-			}
-		}
-		
-		$availableMarkup = $markupManager->GetAvailableMarkup();
-		$openMarkup = $markupManager->GetOpenMarkup();
-		
-		// Remove open markup from the list of available markup.
-		
-		$availableMarkup = array_diff($availableMarkup, $openMarkup);
-        
+            }
+        }
+
+        $availableMarkup = $markupManager->GetAvailableMarkup();
+        $openMarkup = $markupManager->GetOpenMarkup();
+
+        // Remove open markup from the list of available markup.
+
+        $availableMarkup = array_diff($availableMarkup, $openMarkup);
+
         $manageLocal = GetLocalizedString('REDLINEMANAGE', $locale );
         $availableLayersLocal = GetLocalizedString('REDLINEAVAILABLELAYERS', $locale );
         $loadedLayersLocal = GetLocalizedString('REDLINELOADEDLAYERS', $locale );
@@ -86,48 +86,58 @@
         $editStyleLocal = GetLocalizedString('REDLINEEDITSTYLE', $locale );
         $redlineCreateFailureLocal = GetLocalizedString('REDLINECREATEFAILURE', $locale );
         $redlineLayerNameLocal = GetLocalizedString('REDLINENAME', $locale);
-	}
-	catch (MgException $mge)
-	{
-		$errorMsg = $mge->GetExceptionMessage();
-		$errorDetail = $mge->GetDetails();
+    }
+    catch (MgException $mge)
+    {
+        $errorMsg = $mge->GetExceptionMessage();
+        $errorDetail = $mge->GetDetails();
         //die("MG ERROR: " . $errorMsg.$errorDetail."\n".$mge->GetStackTrace());
-	}
-	catch (Exception $e)
-	{
-		$errorMsg = $e->GetMessage();
+    }
+    catch (Exception $e)
+    {
+        $errorMsg = $e->GetMessage();
         //die("PHP ERROR: " . $errorMsg);
-	}
+    }
 ?>
 <html>
 <head>
-	<title>Manage Markups</title>
+    <title>Manage Markups</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="Redline.css" type="text/css">
-	<script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
+    <script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
     <script language="javascript" src="../../common/browserdetect.js"></script>
-	<script language="javascript">
+    <script language="javascript">
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
-	
-		var CMD_NEW 	= <?= MarkupCommand::Create ?>;
-		var CMD_OPEN	= <?= MarkupCommand::Open ?>;
-		var CMD_DELETE	= <?= MarkupCommand::Delete ?>;
-		var CMD_REFRESH	= <?= MarkupCommand::Refresh ?>;
-		var CMD_EDIT	= <?= MarkupCommand::Edit ?>;
-		var CMD_CLOSE	= <?= MarkupCommand::Close ?>;
+
+        var CMD_NEW 	= <?= MarkupCommand::Create ?>;
+        var CMD_OPEN	= <?= MarkupCommand::Open ?>;
+        var CMD_DELETE	= <?= MarkupCommand::Delete ?>;
+        var CMD_REFRESH	= <?= MarkupCommand::Refresh ?>;
+        var CMD_EDIT	= <?= MarkupCommand::Edit ?>;
+        var CMD_CLOSE	= <?= MarkupCommand::Close ?>;
         var CMD_DOWNLOAD = <?= MarkupCommand::Download ?>;
         var CMD_UPLOAD = <?= MarkupCommand::Upload ?>;
         var CMD_EDITSTYLE = <?= MarkupCommand::EditStyle ?>;
         var CMD_DOWNLOAD_LAYER_DATA = <?= MarkupCommand::DownloadDataFromLayer ?>;
-			
-		function SubmitCommand(cmd)
-		{
+
+        function GetGeometryTypes()
+        {
+            return -1;
+        }
+
+        function GetFdoProvider()
+        {
+            return "OSGeo.SDF";
+        }
+
+        function SubmitCommand(cmd)
+        {
             var commandInput = document.getElementById("commandInput");
-			commandInput.value = cmd;
+            commandInput.value = cmd;
 
             var markupForm = document.getElementById("markupForm");
-			if (cmd == CMD_NEW) {
+            if (cmd == CMD_NEW) {
                 var widget = Fusion.getWidgetsByType("Redline")[0];
                 if (widget.autogenerateLayerNames) {
                     Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
@@ -135,7 +145,9 @@
                         onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
                         parameters: {
                             SESSION: session,
-                            MAPNAME: mapName
+                            MAPNAME: mapName,
+                            MARKUPFDOPROVIDER: GetFdoProvider(),
+                            MARKUPGEOMTYPE: GetGeometryTypes()
                         }
                     });
                 } else {
@@ -146,7 +158,9 @@
                         parameters: {
                             SESSION: session,
                             MAPNAME: mapName,
-                            NEWLAYERNAME: name
+                            NEWLAYERNAME: name,
+                            MARKUPFDOPROVIDER: GetFdoProvider(),
+                            MARKUPGEOMTYPE: GetGeometryTypes()
                         }
                     });
                 }
@@ -163,8 +177,8 @@
                 }
                 markupForm.submit();
             }
-		}
-        
+        }
+
         function OnMarkupCreated(response)
         {
             eval("var o = " + response.responseText);
@@ -186,58 +200,58 @@
                 SubmitCommand(CMD_EDIT);
             }
         }
-        
+
         function OnMarkupCreateFailure()
         {
             alert("Failed to create redline");
         }
-		
-		function OnAvailableMarkupChange()
-		{
-            var availableSelect = document.getElementById("availableMarkup");
-			var openBtn = document.getElementById("openBtn");
-			var deleteBtn = document.getElementById("deleteBtn");
-            var downloadBtn = document.getElementById("downloadBtn");
-			
-			if (availableSelect.selectedIndex >= 0)
-			{
-				openBtn.disabled = false;
-				deleteBtn.disabled = false;
-                downloadBtn.disabled = false;
-                
-                document.getElementById("markupLayerName").value = availableSelect.options[availableSelect.selectedIndex].text;
-			}
-			else
-			{
-				openBtn.disabled = true;
-				deleteBtn.disabled = true;
-                downloadBtn.disabled = true;
-			}
-		} 
 
-		function OnOpenMarkupChange()
-		{
+        function OnAvailableMarkupChange()
+        {
+            var availableSelect = document.getElementById("availableMarkup");
+            var openBtn = document.getElementById("openBtn");
+            var deleteBtn = document.getElementById("deleteBtn");
+            var downloadBtn = document.getElementById("downloadBtn");
+
+            if (availableSelect.selectedIndex >= 0)
+            {
+                openBtn.disabled = false;
+                deleteBtn.disabled = false;
+                downloadBtn.disabled = false;
+
+                document.getElementById("markupLayerName").value = availableSelect.options[availableSelect.selectedIndex].text;
+            }
+            else
+            {
+                openBtn.disabled = true;
+                deleteBtn.disabled = true;
+                downloadBtn.disabled = true;
+            }
+        }
+
+        function OnOpenMarkupChange()
+        {
             var openSelect = document.getElementById("openMarkup");
-			var editBtn = document.getElementById("editBtn");
-			var closeBtn = document.getElementById("closeBtn");
+            var editBtn = document.getElementById("editBtn");
+            var closeBtn = document.getElementById("closeBtn");
             var editStyleBtn = document.getElementById("editStyleBtn");
             var downloadDataBtn = document.getElementById("downloadDataBtn");
-			
-			if (openSelect.options.length > 0 && openSelect.selectedIndex >= 0)
-			{
-				editBtn.disabled = false;
-				closeBtn.disabled = false;
+
+            if (openSelect.options.length > 0 && openSelect.selectedIndex >= 0)
+            {
+                editBtn.disabled = false;
+                closeBtn.disabled = false;
                 editStyleBtn.disabled = false;
                 downloadDataBtn.disabled = false;
-			}
-			else
-			{
-				editBtn.disabled = true;
-				closeBtn.disabled = true;
+            }
+            else
+            {
+                editBtn.disabled = true;
+                closeBtn.disabled = true;
                 editStyleBtn.disabled = true;
                 downloadDataBtn.disabled = true;
-			}
-            
+            }
+
             if (openSelect.options.length > 0) {
                 var selOpt = openSelect.options[openSelect.selectedIndex];
                 document.getElementById("editMarkupLayerId").value = selOpt.value;
@@ -245,20 +259,20 @@
             } else {
                 document.getElementById("editMarkupLayerId").value = "";
             }
-		} 
-		
-		function OnLoad()
-		{
-			OnAvailableMarkupChange();
-			OnOpenMarkupChange();
-		
-		<?php if ($refreshMap) { ?>
-			var map = parent.Fusion.getMapByName(mapName);
+        }
+
+        function OnLoad()
+        {
+            OnAvailableMarkupChange();
+            OnOpenMarkupChange();
+
+        <?php if ($refreshMap) { ?>
+            var map = parent.Fusion.getMapByName(mapName);
             map.reloadMap();
-		<?php } ?>
-		}
-	</script>
-	
+        <?php } ?>
+        }
+    </script>
+
 </head>
 
 <body onLoad="OnLoad()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
@@ -267,59 +281,59 @@
 
 <form action="" method="post" enctype="application/x-www-form-urlencoded" id="markupForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
-	<tr><td class="Title"><?=$manageLocal?><hr></td></tr>
-	<tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
-	<tr>
-		<td class="RegText">
-			<select name="MARKUPLAYER" size="15" class="Ctrl" id="availableMarkup" onChange="OnAvailableMarkupChange()" style="width: 100%">
-				<?php
-					$selected = 'selected';
-					foreach($availableMarkup as $markupResId => $markupName) {
-				?>
-				<option value="<?= $markupResId ?>" <?=$selected ?> ><?= $markupName ?></option> 
-				<?php
-						$selected = ''; 
-					} 
-				?>
-		  	</select>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<input class="Ctrl" type="button" id="newBtn" onClick="SubmitCommand(CMD_NEW)" value="<?=$newLocal?>" style="width:85px">
-			<input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
-			<input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
-			<input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
+    <tr><td class="Title"><?=$manageLocal?><hr></td></tr>
+    <tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
+    <tr>
+        <td class="RegText">
+            <select name="MARKUPLAYER" size="7" class="Ctrl" id="availableMarkup" onChange="OnAvailableMarkupChange()" style="width: 100%">
+                <?php
+                    $selected = 'selected';
+                    foreach($availableMarkup as $markupResId => $markupName) {
+                ?>
+                <option value="<?= $markupResId ?>" <?=$selected ?> ><?= $markupName ?></option>
+                <?php
+                        $selected = '';
+                    }
+                ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="newBtn" onClick="SubmitCommand(CMD_NEW)" value="<?=$newLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:85px">
-			<br><br>
-		</td>
-	</tr>
-	<tr><td class="SubTitle"><?=$loadedLayersLocal?></td></tr>
-	<tr>
-		<td class="RegText">
-			<select name="OPENMARKUP" size="10" class="Ctrl" id="openMarkup" onChange="OnOpenMarkupChange()" style="width: 100%">
-				<?php
-					$selected = 'selected';
-					foreach($openMarkup as $markupLayer => $markupName) {
-				?>
-				<option value="<?= $markupLayer ?>" <?=$selected ?> ><?= $markupName ?></option> 
-				<?php
-						$selected = ''; 
-					} 
-				?>
-		  	</select>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:125px">
-			<input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:125px">
+            <br><br>
+        </td>
+    </tr>
+    <tr><td class="SubTitle"><?=$loadedLayersLocal?></td></tr>
+    <tr>
+        <td class="RegText">
+            <select name="OPENMARKUP" size="7" class="Ctrl" id="openMarkup" onChange="OnOpenMarkupChange()" style="width: 100%">
+                <?php
+                    $selected = 'selected';
+                    foreach($openMarkup as $markupLayer => $markupName) {
+                ?>
+                <option value="<?= $markupLayer ?>" <?=$selected ?> ><?= $markupName ?></option>
+                <?php
+                        $selected = '';
+                    }
+                ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:125px">
+            <input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:125px">
             <input class="Ctrl" type="button" id="editStyleBtn" onClick="SubmitCommand(CMD_EDITSTYLE)" value="<?=$editStyleLocal?>" style="width:125px">
             <input class="Ctrl" type="button" id="downloadDataBtn" onClick="SubmitCommand(CMD_DOWNLOAD_LAYER_DATA)" value="<?=$downloadLocal?>" style="width:125px">
-			<br><br>
-		</td>
-	</tr>
+            <br><br>
+        </td>
+    </tr>
 </table>
 <input name="SESSION" type="hidden" value="<?= $args['SESSION'] ?>">
 <input name="MAPNAME" type="hidden" value="<?= $args['MAPNAME'] ?>">
@@ -331,9 +345,9 @@
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
-	<tr><td class="Title">Error<hr></td></tr>
-	<tr><td><?= $errorMsg ?></td></tr>
-	<tr><td><?= $errorDetail ?></td></tr>
+    <tr><td class="Title">Error<hr></td></tr>
+    <tr><td><?= $errorMsg ?></td></tr>
+    <tr><td><?= $errorDetail ?></td></tr>
 </table>
 
 <?php } ?>
