@@ -633,7 +633,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                             var iconY = -1 * style.iconY;
                             img.style.backgroundPosition = iconX + 'px ' + iconY + 'px';
                         }else{
-                            url = layer.oMap.getLegendImageURL(scale, layer, style);
+                            url = layer.oMap.getLegendImageURL(fScale, layer, style);
                         }
                         layer.legend.treeItem.setImage(url);
                         layer.legend.treeItem.enable(true);
