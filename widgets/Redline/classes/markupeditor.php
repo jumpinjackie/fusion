@@ -278,7 +278,7 @@ class MarkupEditor
         $markupLayer = $map->GetLayers()->GetItem('_' . $this->GetMarkupName());
 
         $selection = new MgSelection($map);
-        $selection->AddFeatureIdInt32($markupLayer, 'MarkupSchema:Markup', (int) $this->args['MARKUPFEATURE']);
+        $selection->AddFeatureIdInt32($markupLayer, $markupLayer->GetFeatureClassName(), (int) $this->args['MARKUPFEATURE']);
 
         return $selection->ToXML();
     }

@@ -330,6 +330,8 @@ REDLINEUPLOADNOTE       = Note: Data file must be a SDF, SQLite or SHP file and 
 REDLINEUPLOADREQUIRED   = Redline Data File not specified
 REDLINEUPLOADTEXT       = Upload
 REDLINEUPLOADCLOSE      = Close
+REDLINEUPLOADSHPZIPERROR = Error uploading zip file. File is either:<ul><li>Not a zip file</li><li>A corrupted zip file</li><li>Does not contain a .shp file</li></ul>
+REDLINEUPLOADINVALIDSCHEMA = The uploaded redline data file has an invalid schema. This widget expects the following properties in the class definition:<ul><li>The class definition is named 'Markup'</li><li>It has an auto-generated numeric identity property (ID or FeatId)</li><li>It has a geometry property (Geometry)</li><li>It has a string property (Text)</li></ul><br>Redline data files created by this widget satisfy this schema requirements.
 
 # HtmlViewerAbout
 HTMLABOUTTITLE          = About %s
