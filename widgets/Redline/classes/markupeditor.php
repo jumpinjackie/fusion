@@ -30,12 +30,31 @@ class MarkupEditor
         return $resId->GetName();
     }
 
+    function GetFeatureSource()
+    {
+        return new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+    }
+
+    function GetClassDefinition()
+    {
+        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
+        $featureSourceId = $this->GetFeatureSource();
+
+        $classNames = new MgStringCollection();
+        $classNames->Add("Markup");
+
+        $schemas = $featureService->DescribeSchema($featureSourceId, "", $classNames);
+        $schema = $schemas->GetItem(0);
+        $classes = $schema->GetClasses();
+        return $classes->GetItem(0);
+    }
+
     function GetMarkupFeatures()
     {
         $features = array();
 
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        $featureSourceId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+        $featureSourceId = $this->GetFeatureSource();
 
         $featureReader = $featureService->SelectFeatures($featureSourceId, 'Markup', null);
         while ($featureReader->ReadNext())
@@ -55,7 +74,7 @@ class MarkupEditor
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
-        $featureSourceId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+        $featureSourceId = $this->GetFeatureSource();
         $wkt = null;
 
         //Get the WKT from spatial context, because SDF only supports one spatial context it will be the first one
@@ -196,7 +215,7 @@ class MarkupEditor
     function InsertMarkupFeature($propertyValues)
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        $featureSourceId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+        $featureSourceId = $this->GetFeatureSource();
 
         $commands = new MgFeatureCommandCollection();
         $commands->Add(new MgInsertFeatures('Markup', $propertyValues));
@@ -208,7 +227,7 @@ class MarkupEditor
     function DeleteMarkup()
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        $featureSourceId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+        $featureSourceId = $this->GetFeatureSource();
 
         $commands = new MgFeatureCommandCollection();
         $commands->Add(new MgDeleteFeatures('Markup', 'ID = ' . $this->args['MARKUPFEATURE']));
@@ -220,7 +239,7 @@ class MarkupEditor
     function UpdateMarkup()
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        $featureSourceId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $this->GetMarkupName() . '.FeatureSource');
+        $featureSourceId = $this->GetFeatureSource();
 
         $propertyValues = new MgPropertyCollection();
         $propertyValues->Add(new MgStringProperty('Text', trim($this->args['UPDATETEXT'])));

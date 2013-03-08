@@ -16,6 +16,9 @@
     $refreshMap = false;
     $errorMsg = null;
     $errorDetail = null;
+    $allowPoint = false;
+    $allowLine = false;
+    $allowPoly = false;
 
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
@@ -27,7 +30,6 @@
     try
     {
         $markupEditor = new MarkupEditor($args);
-
         if (array_key_exists('EDITCOMMAND', $args))
         {
             $cmd = $args['EDITCOMMAND'];
@@ -59,6 +61,20 @@
         }
 
         $markupFeatures = $markupEditor->GetMarkupFeatures();
+        $clsDef = $markupEditor->GetClassDefinition();
+        $clsProps = $clsDef->GetProperties();
+        if ($clsProps->IndexOf($clsDef->GetDefaultGeometryPropertyName()) >= 0)
+        {
+            $geomProp = $clsProps->GetItem($clsDef->GetDefaultGeometryPropertyName());
+            $geomTypes = $geomProp->GetGeometryTypes();
+
+            if ($geomTypes & MgFeatureGeometricType::Point)
+                $allowPoint = true;
+            if ($geomTypes & MgFeatureGeometricType::Curve)
+                $allowLine = true;
+            if ($geomTypes & MgFeatureGeometricType::Surface)
+                $allowPoly = true;
+        }
 
         $editLocal = GetLocalizedString('REDLINEEDIT', $locale );
         $defaultHelpLocal = GetLocalizedString('REDLINEEDITDEFAULTHELP', $locale );
@@ -352,15 +368,15 @@
     <tr><td colspan="2" height="2px"></td></tr>
     <tr>
         <td colspan="2">
-            <input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:85px">
-            <input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:85px">
-            <input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:85px">
+            <input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:85px" <?= $allowPoint ? '' : 'disabled="disabled"' ?> />
+            <input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:85px" <?= $allowLine ? '' : 'disabled="disabled"'  ?> />
+            <input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:85px" <?= $allowLine ? '' : 'disabled="disabled"'  ?> />
         </td>
     </tr>
     <tr>
         <td colspan="2">
-            <input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:85px">
-            <input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:85px">
+            <input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:85px" <?= $allowPoly ? '' : 'disabled="disabled"'  ?> />
+            <input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:85px" <?= $allowPoly ? '' : 'disabled="disabled"'  ?> />
         </td>
     </tr>
     <tr><td colspan="2" height="2px"></td></tr>
@@ -416,7 +432,6 @@
 <input name="GEOMETRY" type="hidden" value="" id="geometryInput">
 <input name="TEXT" type="hidden" value="" id="textInput">
 </form>
-
 <?php } else { ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">

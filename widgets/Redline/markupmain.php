@@ -75,7 +75,9 @@
         $manageLocal = GetLocalizedString('REDLINEMANAGE', $locale );
         $availableLayersLocal = GetLocalizedString('REDLINEAVAILABLELAYERS', $locale );
         $loadedLayersLocal = GetLocalizedString('REDLINELOADEDLAYERS', $locale );
-        $newLocal = GetLocalizedString('REDLINENEW', $locale );
+        $newSdfLocal = GetLocalizedString('REDLINENEWSDF', $locale );
+        $newShpLocal = GetLocalizedString('REDLINENEWSHP', $locale );
+        $newSqliteLocal = GetLocalizedString('REDLINENEWSQLITE', $locale );
         $addToMapLocal = GetLocalizedString('REDLINEADDTOMAP', $locale );
         $deleteLocal = GetLocalizedString('REDLINEDELETE', $locale );
         $refreshLocal = GetLocalizedString('REDLINEREFRESH', $locale );
@@ -86,6 +88,12 @@
         $editStyleLocal = GetLocalizedString('REDLINEEDITSTYLE', $locale );
         $redlineCreateFailureLocal = GetLocalizedString('REDLINECREATEFAILURE', $locale );
         $redlineLayerNameLocal = GetLocalizedString('REDLINENAME', $locale);
+        $newRedlineLayerLocal = GetLocalizedString("REDLINECREATENEW", $locale);
+        $selectedRedlineSourceOptionsLocal = GetLocalizedString("REDLINESELECTED", $locale);
+        $pointLocal = GetLocalizedString("REDLINEPOINT", $locale);
+        $lineLocal = GetLocalizedString("REDLINELINE", $locale);
+        $polyLocal = GetLocalizedString("REDLINEPOLY", $locale);
+        $otherOptionsLocal = GetLocalizedString("REDLINEOTHEROPTIONS", $locale);
     }
     catch (MgException $mge)
     {
@@ -110,7 +118,13 @@
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
 
-        var CMD_NEW 	= <?= MarkupCommand::Create ?>;
+        var GEOM_POINT  = <?= MgFeatureGeometricType::Point ?>;
+        var GEOM_LINE  = <?= MgFeatureGeometricType::Curve ?>;
+        var GEOM_POLY  = <?= MgFeatureGeometricType::Surface ?>;
+
+        var CMD_NEW_SDF	= <?= MarkupCommand::CreateSdf ?>;
+        var CMD_NEW_SHP = <?= MarkupCommand::CreateShp ?>;
+        var CMD_NEW_SQLITE = <?= MarkupCommand::CreateSqlite ?>;
         var CMD_OPEN	= <?= MarkupCommand::Open ?>;
         var CMD_DELETE	= <?= MarkupCommand::Delete ?>;
         var CMD_REFRESH	= <?= MarkupCommand::Refresh ?>;
@@ -123,12 +137,29 @@
 
         function GetGeometryTypes()
         {
-            return -1;
+            var geomType = 0;
+            var bPoint = document.getElementById("chkPoint").checked;
+            var bLine = document.getElementById("chkLine").checked;
+            var bPoly = document.getElementById("chkPoly").checked;
+
+            if (bPoint)
+                geomType |= GEOM_POINT;
+            if (bLine)
+                geomType |= GEOM_LINE;
+            if (bPoly)
+                geomType |= GEOM_POLY;
+
+            return geomType;
         }
 
-        function GetFdoProvider()
+        function GetFdoProvider(cmd)
         {
-            return "OSGeo.SDF";
+            if (cmd == CMD_NEW_SHP)
+                return "OSGeo.SHP";
+            else if (cmd == CMD_NEW_SQLITE)
+                return "OSGeo.SQLite";
+            else
+                return "OSGeo.SDF";
         }
 
         function SubmitCommand(cmd)
@@ -137,7 +168,7 @@
             commandInput.value = cmd;
 
             var markupForm = document.getElementById("markupForm");
-            if (cmd == CMD_NEW) {
+            if (cmd == CMD_NEW_SDF || cmd == CMD_NEW_SHP || cmd == CMD_NEW_SQLITE) {
                 var widget = Fusion.getWidgetsByType("Redline")[0];
                 if (widget.autogenerateLayerNames) {
                     Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
@@ -146,7 +177,7 @@
                         parameters: {
                             SESSION: session,
                             MAPNAME: mapName,
-                            MARKUPFDOPROVIDER: GetFdoProvider(),
+                            MARKUPFDOPROVIDER: GetFdoProvider(cmd),
                             MARKUPGEOMTYPE: GetGeometryTypes()
                         }
                     });
@@ -159,7 +190,7 @@
                             SESSION: session,
                             MAPNAME: mapName,
                             NEWLAYERNAME: name,
-                            MARKUPFDOPROVIDER: GetFdoProvider(),
+                            MARKUPFDOPROVIDER: GetFdoProvider(cmd),
                             MARKUPGEOMTYPE: GetGeometryTypes()
                         }
                     });
@@ -220,6 +251,7 @@
                 downloadBtn.disabled = false;
 
                 document.getElementById("markupLayerName").value = availableSelect.options[availableSelect.selectedIndex].text;
+                document.getElementById("selectedMarkupSource").value = availableSelect.options[availableSelect.selectedIndex].text;
             }
             else
             {
@@ -261,10 +293,19 @@
             }
         }
 
+        function CheckApplicableProviders()
+        {
+            var gt = GetGeometryTypes();
+            document.getElementById("newShpBtn").disabled = (gt != GEOM_POINT && gt != GEOM_LINE && gt != GEOM_POLY);
+            document.getElementById("newSdfBtn").disabled = (gt == 0);
+            document.getElementById("newSqliteBtn").disabled = (gt == 0);
+        }
+
         function OnLoad()
         {
             OnAvailableMarkupChange();
             OnOpenMarkupChange();
+            CheckApplicableProviders();
 
         <?php if ($refreshMap) { ?>
             var map = parent.Fusion.getMapByName(mapName);
@@ -282,6 +323,21 @@
 <form action="" method="post" enctype="application/x-www-form-urlencoded" id="markupForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><?=$manageLocal?><hr></td></tr>
+    <tr><td class="SubTitle"><?=$newRedlineLayerLocal?></td></tr>
+    <tr>
+        <td>
+            <?=$pointLocal?> <input class="Ctrl" type="checkbox" id="chkPoint" onClick="CheckApplicableProviders()" checked="checked" />
+            <?=$lineLocal?> <input class="Ctrl" type="checkbox" id="chkLine" onClick="CheckApplicableProviders()" checked="checked" />
+            <?=$polyLocal?> <input class="Ctrl" type="checkbox" id="chkPoly" onClick="CheckApplicableProviders()" checked="checked" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="newSdfBtn" onClick="SubmitCommand(CMD_NEW_SDF)" value="<?=$newSdfLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="newShpBtn" onClick="SubmitCommand(CMD_NEW_SHP)" value="<?=$newShpLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:85px">
+        </td>
+    </tr>
     <tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
     <tr>
         <td class="RegText">
@@ -298,15 +354,20 @@
             </select>
         </td>
     </tr>
+    <tr><td class="SubTitle"><?=$selectedRedlineSourceOptionsLocal?> <span id="selectedMarkupSource"></span></td></tr>
     <tr>
         <td>
-            <input class="Ctrl" type="button" id="newBtn" onClick="SubmitCommand(CMD_NEW)" value="<?=$newLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
             <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:85px">
             <br><br>
+        </td>
+    </tr>
+    <tr><td class="SubTitle"><?=$otherOptionsLocal?></td></tr>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:85px">
         </td>
     </tr>
     <tr><td class="SubTitle"><?=$loadedLayersLocal?></td></tr>
