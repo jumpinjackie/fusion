@@ -131,6 +131,8 @@ class MarkupManager
             return ".sdf";
         else if (strcmp("OSGeo.SQLite", $fdoProvider) == 0)
             return ".sqlite";
+        else if (strcmp("OSGeo.SHP", $fdoProvider) == 0)
+            return ".zip"; //Need to zip up the SHP file and its associates
         else
             return "";
     }
@@ -486,25 +488,76 @@ class MarkupManager
     function DownloadMarkup()
     {
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
         $markupLayerResId = new MgResourceIdentifier($this->args['MARKUPLAYER']);
         $markupFsId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $markupLayerResId->GetName() . '.FeatureSource');
 
-        $dataName = $markupLayerResId->GetName().$this->GetFileExtension($markupLayerResId->ToString());
-        $byteReader = $resourceService->GetResourceData($markupFsId, $dataName);
-        $len = $byteReader->GetLength();
+        $extension = $this->GetFileExtension($markupLayerResId->ToString());
+        if (strcmp($extension, ".zip") == 0) {
+            $dataList = $resourceService->EnumerateResourceData($markupFsId);
+            $doc = DOMDocument::LoadXML($dataList->ToString());
+            $dataItems = $doc->getElementsByTagName("Name");
+            $tmpFiles = array();
+            //Copy out all data files to a temp location
+            for ($i = 0; $i < $dataItems->length; $i++) {
+                $dataName = $dataItems->item($i)->nodeValue;
+                $byteReader = $resourceService->GetResourceData($markupFsId, $dataName);
+                //Sink to temp file
+                $tmpSink = new MgByteSink($byteReader);
+                $fileName = tempnam(sys_get_temp_dir(), $dataName);
+                $tmpSink->ToFile($fileName);
+                $tmpFiles[$dataName] = $fileName;
+            }
+            //Zip them up.
+            $zipName = $markupLayerResId->GetName().$extension;
+            $zipPath = tempnam(sys_get_temp_dir(), $zipName);
+            $zip = new ZipArchive();
+            $zip->open($zipPath, ZIPARCHIVE::CREATE);
+            foreach ($tmpFiles as $dataName => $filePath) {
+                $zip->addFile($filePath, $dataName);
+            }
+            $zip->close();
 
-        $outputBuffer = '';
-        $buffer = '';
-        while ($byteReader->Read($buffer, 50000) != 0)
-        {
-            $outputBuffer .= $buffer;
+            //Serve it up for download
+            $bs = new MgByteSource($zipPath);
+            $br = $bs->GetReader();
+
+            $len = $br->GetLength();
+
+            $outputBuffer = '';
+            $buffer = '';
+            while ($br->Read($buffer, 50000) != 0)
+            {
+                $outputBuffer .= $buffer;
+            }
+
+            header("Content-Type: application/octet-stream");
+            header("Content-Disposition: attachment; filename=$zipName");
+            header("Content-Length: " . strlen($outputBuffer));
+            echo $outputBuffer;
+            //Let's be nice and clean up after ourselves
+            unlink($zipPath);
+            foreach ($tmpFiles as $dataName => $filePath) {
+                unlink($filePath);
+            }
+        } else { //Single file, make things easier!
+            $dataName = $markupLayerResId->GetName().$extension;
+            $byteReader = $resourceService->GetResourceData($markupFsId, $zipName);
+            $len = $byteReader->GetLength();
+
+            $outputBuffer = '';
+            $buffer = '';
+            while ($byteReader->Read($buffer, 50000) != 0)
+            {
+                $outputBuffer .= $buffer;
+            }
+
+            header("Content-Type: " . $byteReader->GetMimeType());
+            header("Content-Disposition: attachment; filename=$dataName");
+            header("Content-Length: " . strlen($outputBuffer));
+            echo $outputBuffer;
         }
-
-        header("Content-Type: " . $byteReader->GetMimeType());
-        header("Content-Disposition: attachment; filename=$dataName");
-        header("Content-Length: " . strlen($outputBuffer));
-        echo $outputBuffer;
     }
 
     function GetProviderFromExtension($ext)
