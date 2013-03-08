@@ -57,10 +57,16 @@ class MarkupEditor
         $featureSourceId = $this->GetFeatureSource();
 
         $featureReader = $featureService->SelectFeatures($featureSourceId, 'Markup', null);
+        //HACK: Another leaky abstraction. SHP will always choose FeatId, so once again
+        //use the class definition to determine the identity property name
+        $clsDef = $featureReader->GetClassDefinition();
+        $idProps = $clsDef->GetIdentityProperties();
+        $keyProp = $idProps->GetItem(0);
+        $idName = $keyProp->GetName();
         while ($featureReader->ReadNext())
         {
-            $id = $featureReader->GetInt32('ID');
-            $text = trim($featureReader->GetString('Text'));
+            $id = $featureReader->GetInt32($idName);
+            $text = $featureReader->IsNull('Text') ? '' : trim($featureReader->GetString('Text'));
             $features[$id] = $text;
         }
         $featureReader->Close();
@@ -228,9 +234,15 @@ class MarkupEditor
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $featureSourceId = $this->GetFeatureSource();
+        //HACK: Another leaky abstraction. SHP will always choose FeatId, so once again
+        //use the class definition to determine the identity property name
+        $clsDef = $this->GetClassDefinition();
+        $idProps = $clsDef->GetIdentityProperties();
+        $keyProp = $idProps->GetItem(0);
+        $idName = $keyProp->GetName();
 
         $commands = new MgFeatureCommandCollection();
-        $commands->Add(new MgDeleteFeatures('Markup', 'ID = ' . $this->args['MARKUPFEATURE']));
+        $commands->Add(new MgDeleteFeatures('Markup', $idName . ' = ' . $this->args['MARKUPFEATURE']));
 
         $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
         MarkupEditor::CleanupReaders($result);
@@ -240,12 +252,18 @@ class MarkupEditor
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $featureSourceId = $this->GetFeatureSource();
+        //HACK: Another leaky abstraction. SHP will always choose FeatId, so once again
+        //use the class definition to determine the identity property name
+        $clsDef = $this->GetClassDefinition();
+        $idProps = $clsDef->GetIdentityProperties();
+        $keyProp = $idProps->GetItem(0);
+        $idName = $keyProp->GetName();
 
         $propertyValues = new MgPropertyCollection();
         $propertyValues->Add(new MgStringProperty('Text', trim($this->args['UPDATETEXT'])));
 
         $commands = new MgFeatureCommandCollection();
-        $commands->Add(new MgUpdateFeatures('Markup', $propertyValues, 'ID = ' . $this->args['MARKUPFEATURE']));
+        $commands->Add(new MgUpdateFeatures('Markup', $propertyValues, $idName . ' = ' . $this->args['MARKUPFEATURE']));
 
         $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
         MarkupEditor::CleanupReaders($result);

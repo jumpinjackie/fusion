@@ -111,6 +111,7 @@
 <head>
     <title>Manage Markups</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<?php if ($errorMsg == null) { ?>
     <link rel="stylesheet" href="Redline.css" type="text/css">
     <script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
     <script language="javascript" src="../../common/browserdetect.js"></script>
@@ -318,8 +319,6 @@
 
 <body onLoad="OnLoad()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
 
-<?php if ($errorMsg == null) { ?>
-
 <form action="" method="post" enctype="application/x-www-form-urlencoded" id="markupForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><?=$manageLocal?><hr></td></tr>
@@ -404,7 +403,8 @@
 </form>
 
 <?php } else { ?>
-
+</head>
+<body>
 <table class="RegText" border="0" cellspacing="0" width="100%%">
     <tr><td class="Title">Error<hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>

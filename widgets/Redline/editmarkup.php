@@ -19,6 +19,7 @@
     $allowPoint = false;
     $allowLine = false;
     $allowPoly = false;
+    $markupFeatures = array();
 
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
@@ -99,7 +100,7 @@
     }
     catch (MgException $e)
     {
-        $errorMsg = $e->GetMessage();
+        $errorMsg = $e->GetExceptionMessage();
         $errorDetail = $e->GetDetails();
     }
     catch (Exception $e)
@@ -111,6 +112,7 @@
 <html>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<?php if ($errorMsg == null) { ?>
     <title><?=$editLocal?></title>
     <link rel="stylesheet" href="Redline.css" type="text/css">
     <script language="javascript" src="../../layers/MapGuide/MapGuideViewerApi.js"></script>
@@ -351,8 +353,6 @@
 
 <body onLoad="OnLoad()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
 
-<?php if ($errorMsg == null) { ?>
-
 <form action="editmarkup.php" method="post" enctype="application/x-www-form-urlencoded" id="editForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr>
@@ -433,7 +433,8 @@
 <input name="TEXT" type="hidden" value="" id="textInput">
 </form>
 <?php } else { ?>
-
+</head>
+<body>
 <table class="RegText" border="0" cellspacing="0" width="100%%">
     <tr><td class="Title">Error<hr></td></tr>
     <tr><td><?= $errorMsg ?></td></tr>
