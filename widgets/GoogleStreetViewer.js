@@ -56,6 +56,7 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
     *
     */
     initializeWidget: function (widgetTag) {
+        Fusion.Widget.GoogleStreetViewer.hasGSV = true;
         this.csTransformErrorMessage = OpenLayers.i18n("googleSteetViewCSTransformError");
         this.serviceUnavailableMessage = OpenLayers.i18n("googleSteetViewNotAvailableError");
         this.googleBaseMapErrorMessage = OpenLayers.i18n("googleBaseMapNotOnError");
@@ -342,7 +343,7 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
 });
 
 Proj4js.reportError = function (msg) {
-    throw msg;
+    if(Fusion.Widget.GoogleStreetViewer.hasGSV) throw msg;
     //console.log(msg);
 };
 
