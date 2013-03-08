@@ -526,7 +526,7 @@ class MarkupManager
     function UploadMarkup()
     {
         $locale = "en";
-        if (array_key_exists($this->args, "LOCALE"))
+        if (array_key_exists("LOCALE", $this->args))
             $locale = $this->args["LOCALE"];
         $uploadFileParts = pathinfo($_FILES["UPLOADFILE"]["name"]);
         $fdoProvider = $this->GetProviderFromExtension($uploadFileParts["extension"]);
@@ -547,8 +547,17 @@ class MarkupManager
         $markupLayerResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . ".LayerDefinition");
         $markupFsId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . '.FeatureSource');
 
+        //Set up feature source document
         $dataName = $baseName . "." . $ext;
-        $fsXml = sprintf(file_get_contents("templates/markupfeaturesource.xml"), $dataName);
+        $fileParam = "File";
+        if (strcmp($fdoProvider, "OSGeo.SHP") == 0) {
+            $fileParam = "DefaultFileLocation";
+        }
+        $extraXml = "";
+        if (strcmp($fdoProvider, "OSGeo.SDF") == 0) { //Need to set ReadOnly = false for SDF
+            $extraXml = "<Parameter><Name>ReadOnly</Name><Value>FALSE</Value></Parameter>";
+        }
+        $fsXml = sprintf(file_get_contents("templates/markupfeaturesource.xml"), $fdoProvider, $fileParam, $dataName, $extraXml);
         $bs2 = new MgByteSource($fsXml, strlen($fsXml));
         $resourceService->SetResource($markupFsId, $bs2->GetReader(), null);
         $resourceService->SetResourceData($markupFsId, $dataName, "File", $bs->GetReader());
@@ -560,6 +569,7 @@ class MarkupManager
         $klass = $classes->GetItem(0);
         $geomProp = $klass->GetDefaultGeometryPropertyName();
         $clsProps = $klass->GetProperties();
+        $className = $schema->GetName().":".$klass->GetName();
         $geomTypes = -1;
         if ($clsProps->IndexOf($geomProp) >= 0) {
             $geom = $clsProps->GetItem($geomProp);
@@ -601,7 +611,7 @@ class MarkupManager
         $this->args["LABELBACKCOLOR"] = DefaultStyle::LABEL_BACK_COLOR;
         $this->args["LABELBACKSTYLE"] = DefaultStyle::LABEL_BACK_STYLE;
 
-        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($markupFsId->ToString());
+        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($markupFsId->ToString(), $className);
 
         $layerBs = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
         //Save to new resource or overwrite existing

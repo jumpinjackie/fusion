@@ -318,7 +318,7 @@ REDLINEEDITCLOSE        = Close
 # Redline Upload
 REDLINEUPLOAD           = Upload Redline
 REDLINEDATAFILE         = Redline Data File
-REDLINEUPLOADNOTE       = Note: Data file must be a SDF file and you can only upload data files that have either been originally created by this widget or have an identical feature schema.
+REDLINEUPLOADNOTE       = Note: Data file must be a SDF, SQLite or SHP file and you can only upload data files that have either been originally created by this widget or have an identical feature schema.<br><br>For SHP files, you must upload a zip file containing the SHP file and its associated files (.dbf, .idx, .shx, etc)
 REDLINEUPLOADREQUIRED   = Redline Data File not specified
 REDLINEUPLOADTEXT       = Upload
 REDLINEUPLOADCLOSE      = Close
