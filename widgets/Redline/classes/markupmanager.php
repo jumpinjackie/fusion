@@ -153,31 +153,6 @@ class MarkupManager
         }
         $fr->Close();
 
-        /*
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-        $resourceID = new MgResourceIdentifier("Library://Markup/");
-
-        try
-        {
-            $byteReader = $resourceService->EnumerateResources($resourceID, 1, "LayerDefinition");
-            $resourceListXML = $byteReader->ToString();
-
-            $doc = DOMDocument::loadXML($resourceListXML);
-            $nodeList = $doc->getElementsByTagName('ResourceId');
-
-            foreach ($nodeList as $node)
-            {
-                $resourceId = new MgResourceIdentifier($node->nodeValue);
-                $markup[$resourceId->ToString()] = $resourceId->GetName();
-            }
-            asort($markup);
-        }
-        catch (MgResourceNotFoundException $mge)
-        {
-            // If the Library://Markup folder does not exist, create it.
-            $resourceService->SetResource($resourceID, null, null);
-        }*/
-
         return $markup;
     }
 
@@ -343,7 +318,7 @@ class MarkupManager
         }
     }
 
-    function CreateMarkupLayerDefinitionContent($featureSourceId)
+    function CreateMarkupLayerDefinitionContent($featureSourceId, $className)
     {
         // Create the Markup Layer Definition. Create or update, this code is the same.
 
@@ -356,6 +331,7 @@ class MarkupManager
         $markupLayerDefinition = file_get_contents("templates/markuplayerdefinition.xml");
         $markupLayerDefinition = sprintf($markupLayerDefinition,
             $featureSourceId,						            //<ResourceId> - Feature Source
+            $className,                                         //<FeatureName> - Class Name
             $this->args['LABELSIZEUNITS'],						//<Unit> - Mark Label
             $this->args['LABELFONTSIZE'],						//<SizeX> - Mark Label Size
             $this->args['LABELFONTSIZE'],						//<SizeY> - Mark Label Size
@@ -436,7 +412,16 @@ class MarkupManager
             $featureSourceId = $this->args["EDITFEATURESOURCE"];
         }
 
-        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($featureSourceId);
+        //HACK: SQLite leaky abstraction (hard-coded schema name), SHP probably has some leaks of its own, so we can't assume MarkupSchema:Markup
+        //as the class name interrogate our schema to figure it out
+        $fsId = new MgResourceIdentifier($featureSourceId);
+        $schemas = $featureService->DescribeSchema($fsId, "", null);
+        $schema = $schemas->GetItem(0);
+        $classes = $schema->GetClasses();
+        $cls = $classes->GetItem(0);
+        $className = $schema->GetName().":".$cls->GetName();
+
+        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($featureSourceId, $className);
         $byteSource = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
         //Save to new resource or overwrite existing
         $layerDefId = new MgResourceIdentifier($bUpdate ? $this->args["EDITMARKUPLAYER"] : ($this->GetResourceIdPrefix() . $markupName . '.LayerDefinition'));
@@ -522,27 +507,66 @@ class MarkupManager
         echo $outputBuffer;
     }
 
+    function GetProviderFromExtension($ext)
+    {
+        $extNorm = strtolower($ext);
+        if ( substr( $extNorm, strlen( $extNorm ) - strlen( "sdf" ) ) == "sdf" ) {
+            return "OSGeo.SDF";
+        } else if ( substr( $extNorm, strlen( $extNorm ) - strlen( "sqlite" ) ) == "sqlite" ) {
+            return "OSGeo.SQLite";
+        } else if ( substr( $extNorm, strlen( $extNorm ) - strlen( "db" ) ) == "db" ) {
+            return "OSGeo.SQLite";
+        //} else if ( substr( $extNorm, strlen( $extNorm ) - strlen( "zip" ) ) == "zip" ) { //SHP file uploads will be zipped
+        //    return "OSGeo.SHP";
+        } else {
+            return null;
+        }
+    }
+
     function UploadMarkup()
     {
+        $locale = "en";
+        if (array_key_exists($this->args, "LOCALE"))
+            $locale = $this->args["LOCALE"];
+        $uploadFileParts = pathinfo($_FILES["UPLOADFILE"]["name"]);
+        $fdoProvider = $this->GetProviderFromExtension($uploadFileParts["extension"]);
+        if ($fdoProvider == null) {
+            throw new Exception(GetLocalizedString("REDLINEUPLOADUNKNOWNPROVIDER", $locale));
+        }
+
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $bs = new MgByteSource($_FILES["UPLOADFILE"]["tmp_name"]);
         $br = $bs->GetReader();
 
-        $uploadFileParts = pathinfo($_FILES["UPLOADFILE"]["name"]);
         //Use file name to drive all parameters
         $baseName = $uploadFileParts["filename"];
         $this->UniqueMarkupName($baseName); //Guard against potential duplicates
         $ext = $uploadFileParts["extension"];
 
         $markupLayerResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . ".LayerDefinition");
-        $markupSdfResId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . '.FeatureSource');
+        $markupFsId = new MgResourceIdentifier($this->GetResourceIdPrefix() . $baseName . '.FeatureSource');
 
         $dataName = $baseName . "." . $ext;
         $fsXml = sprintf(file_get_contents("templates/markupfeaturesource.xml"), $dataName);
         $bs2 = new MgByteSource($fsXml, strlen($fsXml));
-        $resourceService->SetResource($markupSdfResId, $bs2->GetReader(), null);
-        $resourceService->SetResourceData($markupSdfResId, $dataName, "File", $bs->GetReader());
+        $resourceService->SetResource($markupFsId, $bs2->GetReader(), null);
+        $resourceService->SetResourceData($markupFsId, $dataName, "File", $bs->GetReader());
+
+        //Query the geometry types
+        $schemas = $featureService->DescribeSchema($markupFsId, "", null);
+        $schema = $schemas->GetItem(0);
+        $classes = $schema->GetClasses();
+        $klass = $classes->GetItem(0);
+        $geomProp = $klass->GetDefaultGeometryPropertyName();
+        $clsProps = $klass->GetProperties();
+        $geomTypes = -1;
+        if ($clsProps->IndexOf($geomProp) >= 0) {
+            $geom = $clsProps->GetItem($geomProp);
+            $geomTypes = $geom->GetGeometryTypes();
+        } else {
+            throw new Exception(GetLocalizedString("REDLINEUPLOADNOGEOMETRY", $locale));
+        }
 
         //Set up default style args
         $this->args["MARKUPNAME"] = $baseName;
@@ -577,7 +601,7 @@ class MarkupManager
         $this->args["LABELBACKCOLOR"] = DefaultStyle::LABEL_BACK_COLOR;
         $this->args["LABELBACKSTYLE"] = DefaultStyle::LABEL_BACK_STYLE;
 
-        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($markupSdfResId->ToString());
+        $markupLayerDefinition = $this->CreateMarkupLayerDefinitionContent($markupFsId->ToString());
 
         $layerBs = new MgByteSource($markupLayerDefinition, strlen($markupLayerDefinition));
         //Save to new resource or overwrite existing
@@ -586,9 +610,11 @@ class MarkupManager
         //Add to markup registry
         $cmds = new MgFeatureCommandCollection();
         $props = new MgPropertyCollection();
-        $props->Add(new MgStringProperty("ResourceId", $markupSdfResId->ToString()));
+        $props->Add(new MgStringProperty("ResourceId", $markupFsId->ToString()));
         $props->Add(new MgStringProperty("LayerDefinition", $markupLayerResId->ToString()));
         $props->Add(new MgStringProperty("Name", $markupLayerResId->GetName()));
+        $props->Add(new MgStringProperty("FdoProvider", $fdoProvider));
+        $props->Add(new MgInt32Property("GeometryTypes", $geomTypes));
         $insertCmd = new MgInsertFeatures("Default:MarkupRegistry", $props);
 
         $cmds->Add($insertCmd);

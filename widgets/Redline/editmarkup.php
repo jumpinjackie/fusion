@@ -27,7 +27,7 @@
     try
     {
         $markupEditor = new MarkupEditor($args);
-        
+
         if (array_key_exists('EDITCOMMAND', $args))
         {
             $cmd = $args['EDITCOMMAND'];
@@ -54,12 +54,12 @@
                 $markupEditor->UpdateMarkup();
                 $refreshMap = true;
                 break;
-                
+
             }
         }
-        
+
         $markupFeatures = $markupEditor->GetMarkupFeatures();
-        
+
         $editLocal = GetLocalizedString('REDLINEEDIT', $locale );
         $defaultHelpLocal = GetLocalizedString('REDLINEEDITDEFAULTHELP', $locale );
         $pointHelpLocal = GetLocalizedString('REDLINEEDITPOINTHELP', $locale );
@@ -86,6 +86,11 @@
         $errorMsg = $e->GetMessage();
         $errorDetail = $e->GetDetails();
     }
+    catch (Exception $e)
+    {
+        $errorMsg = $e->getMessage();
+        $errorDetail = $e->__toString();
+    }
 ?>
 <html>
 <head>
@@ -97,7 +102,7 @@
     <script language="javascript">
         var session = '<?= $args['SESSION'] ?>';
         var mapName = '<?= $args['MAPNAME'] ?>';
-    
+
         var CMD_ADD_POINT		= <?= EditCommand::AddPoint ?>;
         var CMD_ADD_LINE 		= <?= EditCommand::AddLine ?>;
         var CMD_ADD_LINESTRING 	= <?= EditCommand::AddLineString ?>;
@@ -105,14 +110,14 @@
         var CMD_ADD_POLYGON 	= <?= EditCommand::AddPolygon ?>;
         var CMD_DELETE 			= <?= EditCommand::Delete ?>;
         var CMD_UPDATE 			= <?= EditCommand::Update ?>;
-    
+
         var EDIT_DEFAULT_HELP = "<?=$defaultHelpLocal?>";
         var EDIT_POINT_HELP = "<?=$pointHelpLocal?>";
         var EDIT_LINE_HELP = "<?=$lineHelpLocal?>";
         var EDIT_LINESTRING_HELP = "<?=$lineStringHelpLocal?>";
         var EDIT_RECTANGLE_HELP = "<?=$rectangleHelpLocal?>";
         var EDIT_POLYGON_HELP = "<?=$polygonHelpLocal?>";
-    
+
         function SetDigitizeInfo(text)
         {
             var digitizeInfo = document.getElementById("digitizeInfo");
@@ -128,11 +133,11 @@
         {
             var commandInput = document.getElementById("commandInput");
             commandInput.value = cmd;
-            
+
             var editForm = document.getElementById("editForm");
             editForm.submit();
         }
-    
+
         function AddPoint()
         {
             SetDigitizeInfo(EDIT_POINT_HELP);
@@ -174,27 +179,27 @@
             }
             ClearDigitization(true);
         }
-    
+
         function OnPointDigitized(point)
         {
-            PromptAndSetMarkupText();			
+            PromptAndSetMarkupText();
 
             var geometryInput = document.getElementById("geometryInput");
             geometryInput.value = point.X + "," + point.Y;
-            
+
             SubmitCommand(CMD_ADD_POINT);
         }
 
         function OnLineStringDigitized(lineString)
         {
-            PromptAndSetMarkupText();			
+            PromptAndSetMarkupText();
 
             var geomText = lineString.Count;
             for (var i = 0; i < lineString.Count; i++)
             {
                 geomText += "," + lineString.Point(i).X + "," + lineString.Point(i).Y;
             }
-        
+
             var geometryInput = document.getElementById("geometryInput");
             geometryInput.value = geomText;
 
@@ -203,10 +208,10 @@
 
         function OnRectangleDigitized(rectangle)
         {
-            PromptAndSetMarkupText();			
+            PromptAndSetMarkupText();
 
             var geometryInput = document.getElementById("geometryInput");
-            geometryInput.value = "5," 
+            geometryInput.value = "5,"
                 + rectangle.Point1.X + "," + rectangle.Point1.Y + ","
                 + rectangle.Point2.X + "," + rectangle.Point1.Y + ","
                 + rectangle.Point2.X + "," + rectangle.Point2.Y + ","
@@ -215,45 +220,45 @@
 
             SubmitCommand(CMD_ADD_RECTANGLE);
         }
-    
+
         function OnPolyonDigitized(polygon)
         {
             if(polygon.Count < 3)
             {
                 // invalid polygon
                 ClearDigitization(true);
-                
-                return;  
+
+                return;
             }
-                
-            PromptAndSetMarkupText();			
+
+            PromptAndSetMarkupText();
 
             var geomText = polygon.Count;
             for (var i = 0; i < polygon.Count; i++)
             {
                 geomText += "," + polygon.Point(i).X + "," + polygon.Point(i).Y;
             }
-        
+
             var geometryInput = document.getElementById("geometryInput");
             geometryInput.value = geomText;
 
             SubmitCommand(CMD_ADD_POLYGON);
         }
-    
+
         function SelectMarkup()
-        {            
+        {
             markupFeatures = document.getElementById("markupFeatures");
-            
+
             reqParams = "MAPNAME=" + encodeURIComponent(mapName);
             reqParams += "&SESSION=" + encodeURIComponent(session);
             reqParams += "&OPENMARKUP=" + encodeURIComponent('<?= $args['OPENMARKUP']; ?>');
             reqParams += "&MARKUPFEATURE=" + markupFeatures.value;
-            
+
             if(msie)
                 reqHandler = new ActiveXObject("Microsoft.XMLHTTP");
             else
                 reqHandler = new XMLHttpRequest();
-                
+
             reqHandler.open("POST", "getselectionxml.php", false);
             reqHandler.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -263,17 +268,17 @@
                 SetSelectionXML(reqHandler.responseText);
             }
         }
-    
+
         function DeleteMarkup()
         {
             SubmitCommand(CMD_DELETE);
         }
-        
+
         function UpdateMarkup()
         {
             SubmitCommand(CMD_UPDATE);
         }
-    
+
         function CloseEditor()
         {
             ClearDigitization(true);
@@ -282,10 +287,10 @@
 
             var editForm = document.getElementById("editForm");
             editForm.action = "markupmain.php";
-            
+
             editForm.submit();
         }
-    
+
         function OnMarkupFeatureChange()
         {
             var markupFeatures = document.getElementById("markupFeatures");
@@ -293,7 +298,7 @@
             var selectBtn = document.getElementById("selectBtn");
             var deleteBtn = document.getElementById("deleteBtn");
             var updateBtn = document.getElementById("updateBtn");
-            
+
             if (markupFeatures.selectedIndex >= 0)
             {
                 value = markupFeatures.options[markupFeatures.selectedIndex].text;
@@ -301,7 +306,7 @@
                     updateTextInput.value = value;
                 else
                     updateTextInput.value = '';
-                    
+
                 selectBtn.disabled = false;
                 deleteBtn.disabled = false;
                 updateBtn.disabled = false;
@@ -313,12 +318,12 @@
                 deleteBtn.disabled = true;
                 updateBtn.disabled = true;
             }
-        } 
-    
+        }
+
         function OnLoad()
         {
             OnMarkupFeatureChange();
-                        
+
         <?php if ($refreshMap) { ?>
             var map = parent.Fusion.getMapByName(mapName);
             map.reloadMap();
@@ -378,10 +383,10 @@
                     $selected = 'selected';
                     foreach($markupFeatures as $markupId => $markupText) {
                 ?>
-                <option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? htmlentities($markupText) : '[no text]' ?></option> 
+                <option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? htmlentities($markupText) : '[no text]' ?></option>
                 <?php
-                        $selected = ''; 
-                    } 
+                        $selected = '';
+                    }
                 ?>
             </select>
         </td>

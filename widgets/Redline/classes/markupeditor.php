@@ -171,6 +171,28 @@ class MarkupEditor
         $this->InsertMarkupFeature($propertyValues);
     }
 
+    //Utility function to close all feature readers in a MgPropertyCollection
+    static function CleanupReaders($propCol)
+    {
+        $errMsg = "";
+        for ($i = 0; $i < $propCol->GetCount(); $i++)
+        {
+            $prop = $propCol->GetItem($i);
+            if ($prop->GetPropertyType() == MgPropertyType::Feature)
+            {
+                $fr = $prop->GetValue();
+                $fr->Close();
+            }
+            else if ($prop->GetPropertyType() == MgPropertyType::String)
+            {
+                $errMsg = $prop->GetValue();
+            }
+        }
+        if (strlen($errMsg) > 0) {
+            throw new Exception($errMsg);
+        }
+    }
+
     function InsertMarkupFeature($propertyValues)
     {
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
@@ -179,7 +201,8 @@ class MarkupEditor
         $commands = new MgFeatureCommandCollection();
         $commands->Add(new MgInsertFeatures('Markup', $propertyValues));
 
-        $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        MarkupEditor::CleanupReaders($result);
     }
 
     function DeleteMarkup()
@@ -190,7 +213,8 @@ class MarkupEditor
         $commands = new MgFeatureCommandCollection();
         $commands->Add(new MgDeleteFeatures('Markup', 'ID = ' . $this->args['MARKUPFEATURE']));
 
-        $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        MarkupEditor::CleanupReaders($result);
     }
 
     function UpdateMarkup()
@@ -204,7 +228,8 @@ class MarkupEditor
         $commands = new MgFeatureCommandCollection();
         $commands->Add(new MgUpdateFeatures('Markup', $propertyValues, 'ID = ' . $this->args['MARKUPFEATURE']));
 
-        $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
+        MarkupEditor::CleanupReaders($result);
     }
 
     function GetSelectionXML()
