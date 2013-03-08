@@ -220,7 +220,6 @@ REDLINENEWSDF           = SDF
 REDLINENEWSHP           = SHP
 REDLINENEWSQLITE        = SQLite
 REDLINECREATENEW        = Create New Redline
-REDLINESELECTED         = Selected Redline
 REDLINEADDTOMAP         = Add To Map
 REDLINEDELETE           = Delete
 REDLINEREFRESH          = Refresh List

@@ -89,7 +89,6 @@
         $redlineCreateFailureLocal = GetLocalizedString('REDLINECREATEFAILURE', $locale );
         $redlineLayerNameLocal = GetLocalizedString('REDLINENAME', $locale);
         $newRedlineLayerLocal = GetLocalizedString("REDLINECREATENEW", $locale);
-        $selectedRedlineSourceOptionsLocal = GetLocalizedString("REDLINESELECTED", $locale);
         $pointLocal = GetLocalizedString("REDLINEPOINT", $locale);
         $lineLocal = GetLocalizedString("REDLINELINE", $locale);
         $polyLocal = GetLocalizedString("REDLINEPOLY", $locale);
@@ -252,7 +251,6 @@
                 downloadBtn.disabled = false;
 
                 document.getElementById("markupLayerName").value = availableSelect.options[availableSelect.selectedIndex].text;
-                document.getElementById("selectedMarkupSource").value = availableSelect.options[availableSelect.selectedIndex].text;
             }
             else
             {
@@ -353,7 +351,6 @@
             </select>
         </td>
     </tr>
-    <tr><td class="SubTitle"><?=$selectedRedlineSourceOptionsLocal?> <span id="selectedMarkupSource"></span></td></tr>
     <tr>
         <td>
             <input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
