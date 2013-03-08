@@ -485,6 +485,70 @@ class MarkupManager
         $res = $featureService->UpdateFeatures($this->markupRegistryId, $cmds, false);
     }
 
+    function DownloadMarkupAsKml($kmz = false)
+    {
+        $kmlService = $this->site->CreateService(MgServiceType::KmlService);
+        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+
+        $map = new MgMap();
+        $map->Open($resourceService, $this->args['MAPNAME']);
+        $markupLayerResId = new MgResourceIdentifier($this->args['MARKUPLAYER']);
+        $downloadName = $markupLayerResId->GetName().".".($kmz ? "kmz" : "kml");
+
+        //Find layer under _Markup with this layer def id
+        $layerGroups = $map->GetLayerGroups();
+        if (!$layerGroups->Contains("_Markup")) {
+            throw new Exception(GetLocalizedString("REDLINENOOPENLAYERS", $locale));
+        }
+        $layers = $map->GetLayers();
+        $markupLayer = null;
+        for ($i = 0; $i < $layers->GetCount(); $i++) {
+            $layer = $layers->GetItem($i);
+            $ldfId = $layer->GetLayerDefinition();
+            if (strcmp($ldfId->ToString(), $markupLayerResId->ToString()) == 0) {
+                $markupLayer = $layer;
+                break;
+            }
+        }
+        if ($markupLayer == null)
+            throw new Exception(GetLocalizedString("REDLINEOPENLAYERNOTFOUND", $locale));
+
+        //View extent crunching time
+        $geomFact = new MgGeometryFactory();
+        $csFactory = new MgCoordinateSystemFactory();
+        $mapCs = $csFactory->Create($map->GetMapSRS());
+        $metersPerUnit = $mapCs->ConvertCoordinateSystemUnitsToMeters(1.0);
+        $mapScale = $map->GetViewScale();
+        $devW = $map->GetDisplayWidth();
+        $devH = $map->GetDisplayHeight();
+        $mapDpi = $map->GetDisplayDpi();
+        $metersPerPixel = 0.0254 / $mapDpi;
+        $mcsW = $mapScale * $devW * $metersPerPixel / $metersPerUnit;
+        $mcsH = $mapScale * $devH * $metersPerPixel / $metersPerUnit;
+
+        $center = $map->GetViewCenter();
+        $coord = $center->GetCoordinate();
+        $coord0 = $geomFact->CreateCoordinateXY($coord->GetX() - 0.5 * $mcsW, $coord->GetY() - 0.5 * $mcsH);
+        $coord1 = $geomFact->CreateCoordinateXY($coord->GetX() + 0.5 * $mcsW, $coord->GetY() + 0.5 * $mcsH);
+        $bbox = new MgEnvelope($coord0, $coord1);
+
+        //Call the service API
+        $br = $kmlService->GetFeaturesKml($markupLayer, $bbox, $devW, $devH, $mapDpi, 0, ($kmz ? "KMZ" : "KML"));
+        $len = $br->GetLength();
+
+        $outputBuffer = '';
+        $buffer = '';
+        while ($br->Read($buffer, 50000) != 0)
+        {
+            $outputBuffer .= $buffer;
+        }
+
+        header("Content-Type: application/octet-stream");
+        header("Content-Disposition: attachment; filename=$downloadName");
+        header("Content-Length: " . strlen($outputBuffer));
+        echo $outputBuffer;
+    }
+
     function DownloadMarkup()
     {
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);

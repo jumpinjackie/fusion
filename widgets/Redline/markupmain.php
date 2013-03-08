@@ -62,6 +62,16 @@
                 $markupManager->SetArgument("MARKUPLAYER", $args["OPENMARKUP"]);
                 $markupManager->DownloadMarkup();
                 break;
+            case MarkupCommand::DownloadLayerKml:
+                //The opened markup layer is the one we want to download
+                $markupManager->SetArgument("MARKUPLAYER", $args["OPENMARKUP"]);
+                $markupManager->DownloadMarkupAsKml(false);
+                break;
+            case MarkupCommand::DownloadLayerKmz:
+                //The opened markup layer is the one we want to download
+                $markupManager->SetArgument("MARKUPLAYER", $args["OPENMARKUP"]);
+                $markupManager->DownloadMarkupAsKml(true);
+                break;
             }
         }
 
@@ -83,8 +93,8 @@
         $refreshLocal = GetLocalizedString('REDLINEREFRESH', $locale );
         $addEditLocal = GetLocalizedString('REDLINEEDIT', $locale );
         $removeFromMapLocal = GetLocalizedString('REDLINEREMOVEFROMMAP', $locale );
-        $downloadLocal = GetLocalizedString('REDLINEDOWNLOADSDF', $locale );
-        $uploadLocal = GetLocalizedString('REDLINEUPLOADSDF', $locale );
+        $downloadLocal = GetLocalizedString('REDLINEDOWNLOAD', $locale );
+        $uploadLocal = GetLocalizedString('REDLINEUPLOAD', $locale );
         $editStyleLocal = GetLocalizedString('REDLINEEDITSTYLE', $locale );
         $redlineCreateFailureLocal = GetLocalizedString('REDLINECREATEFAILURE', $locale );
         $redlineLayerNameLocal = GetLocalizedString('REDLINENAME', $locale);
@@ -93,6 +103,9 @@
         $lineLocal = GetLocalizedString("REDLINELINE", $locale);
         $polyLocal = GetLocalizedString("REDLINEPOLY", $locale);
         $otherOptionsLocal = GetLocalizedString("REDLINEOTHEROPTIONS", $locale);
+        $downloadOptionsLocal = GetLocalizedString("REDLINEDOWNLOADOPTIONS", $locale);
+        $downloadKmlLocal = GetLocalizedString("REDLINEDOWNLOADKML", $locale);
+        $downloadKmzLocal = GetLocalizedString("REDLINEDOWNLOADKMZ", $locale);
     }
     catch (MgException $mge)
     {
@@ -134,6 +147,8 @@
         var CMD_UPLOAD = <?= MarkupCommand::Upload ?>;
         var CMD_EDITSTYLE = <?= MarkupCommand::EditStyle ?>;
         var CMD_DOWNLOAD_LAYER_DATA = <?= MarkupCommand::DownloadDataFromLayer ?>;
+        var CMD_DOWNLOAD_KML = <?= MarkupCommand::DownloadLayerKml ?>;
+        var CMD_DOWNLOAD_KMZ = <?= MarkupCommand::DownloadLayerKmz ?>;
 
         function GetGeometryTypes()
         {
@@ -267,6 +282,8 @@
             var closeBtn = document.getElementById("closeBtn");
             var editStyleBtn = document.getElementById("editStyleBtn");
             var downloadDataBtn = document.getElementById("downloadDataBtn");
+            var downloadKmlBtn = document.getElementById("downloadKmlBtn");
+            var downloadKmzBtn = document.getElementById("downloadKmzBtn");
 
             if (openSelect.options.length > 0 && openSelect.selectedIndex >= 0)
             {
@@ -274,6 +291,8 @@
                 closeBtn.disabled = false;
                 editStyleBtn.disabled = false;
                 downloadDataBtn.disabled = false;
+                downloadKmlBtn.disabled = false;
+                downloadKmzBtn.disabled = false;
             }
             else
             {
@@ -281,6 +300,8 @@
                 closeBtn.disabled = true;
                 editStyleBtn.disabled = true;
                 downloadDataBtn.disabled = true;
+                downloadKmlBtn.disabled = true;
+                downloadKmzBtn.disabled = true;
             }
 
             if (openSelect.options.length > 0) {
@@ -330,9 +351,9 @@
     </tr>
     <tr>
         <td>
-            <input class="Ctrl" type="button" id="newSdfBtn" onClick="SubmitCommand(CMD_NEW_SDF)" value="<?=$newSdfLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="newShpBtn" onClick="SubmitCommand(CMD_NEW_SHP)" value="<?=$newShpLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="newSdfBtn" onClick="SubmitCommand(CMD_NEW_SDF)" value="<?=$newSdfLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="newShpBtn" onClick="SubmitCommand(CMD_NEW_SHP)" value="<?=$newShpLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:95px">
         </td>
     </tr>
     <tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
@@ -353,17 +374,17 @@
     </tr>
     <tr>
         <td>
-            <input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="openBtn" onClick="SubmitCommand(CMD_OPEN)" value="<?=$addToMapLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="deleteBtn" onClick="SubmitCommand(CMD_DELETE)" value="<?=$deleteLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="downloadBtn" onClick="SubmitCommand(CMD_DOWNLOAD)" value="<?=$downloadLocal?>" style="width:95px">
             <br><br>
         </td>
     </tr>
     <tr><td class="SubTitle"><?=$otherOptionsLocal?></td></tr>
     <tr>
         <td>
-            <input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:85px">
-            <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:85px">
+            <input class="Ctrl" type="button" id="refreshBtn" onClick="SubmitCommand(CMD_REFRESH)" value="<?=$refreshLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="uploadBtn" onClick="SubmitCommand(CMD_UPLOAD)" value="<?=$uploadLocal?>" style="width:95px">
         </td>
     </tr>
     <tr><td class="SubTitle"><?=$loadedLayersLocal?></td></tr>
@@ -387,8 +408,15 @@
             <input class="Ctrl" type="button" id="editBtn" onClick="SubmitCommand(CMD_EDIT)" value="<?=$addEditLocal?>" style="width:125px">
             <input class="Ctrl" type="button" id="closeBtn" onClick="SubmitCommand(CMD_CLOSE)" value="<?=$removeFromMapLocal?>" style="width:125px">
             <input class="Ctrl" type="button" id="editStyleBtn" onClick="SubmitCommand(CMD_EDITSTYLE)" value="<?=$editStyleLocal?>" style="width:125px">
-            <input class="Ctrl" type="button" id="downloadDataBtn" onClick="SubmitCommand(CMD_DOWNLOAD_LAYER_DATA)" value="<?=$downloadLocal?>" style="width:125px">
             <br><br>
+        </td>
+    </tr>
+    <tr><td class="SubTitle"><?=$downloadOptionsLocal?></td></tr>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="downloadDataBtn" onClick="SubmitCommand(CMD_DOWNLOAD_LAYER_DATA)" value="<?=$downloadLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="downloadKmlBtn" onClick="SubmitCommand(CMD_DOWNLOAD_KML)" value="<?=$downloadKmlLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="downloadKmzBtn" onClick="SubmitCommand(CMD_DOWNLOAD_KMZ)" value="<?=$downloadKmzLocal?>" style="width:95px">
         </td>
     </tr>
 </table>
