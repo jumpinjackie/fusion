@@ -455,8 +455,14 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     
     startMeasurement: function() {
         this.control.activate();
-        this.getMap().message.info(OpenLayers.i18n("measureInProgress"));
-        this.resetMeasure();
+        //We add a stub "stop" link to the MapMessage, then wire it up to stopMeasurement() by fetching the
+        //anchor element through its DOM
+        var msg = this.getMap().message;
+        msg.info(OpenLayers.i18n("measureInProgress") + " <a id='measureMsgDismiss' href='javascript:void(0)'>" + OpenLayers.i18n("stop") + "</a>");
+        var link = msg.container.ownerDocument.getElementById("measureMsgDismiss");
+        //Wire the anchor click
+        link.onclick = OpenLayers.Function.bind(this.stopMeasurement, this);
+        
         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.getMap().supressContextMenu(true);
         this.updateButtonStates();

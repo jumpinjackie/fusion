@@ -21,6 +21,7 @@ Fusion.Strings.en = {
 'selectionInfo': '${features} feature(s) selected on ${layers} layer(s)',
 'attribute': 'Attribute',
 'value': 'Value',
+'stop': 'Stop',
 'taskHome': 'return to the task pane home',
 'prevTask': 'go to previous task executed',
 'nextTask': 'go to next task executed',
