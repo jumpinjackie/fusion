@@ -156,6 +156,7 @@ FEATUREINFOAREA         = Area:
 FEATUREINFOAREAUNDEFINE = areaIdx undefined
 FEATUREINFONOINFO       = no layer info
 FEATUREINFONOFEATUREIN  = no features in selected layer.
+FEATUREINFOREFRESH      = Refresh Layers
 
 # QueryUI
 QUERYTITLE              = Query Features

@@ -60,7 +60,8 @@
     $drawPointLocal = GetLocalizedString("REDLINEEDITPOINTHELP", $locale );
     $drawRectLocal = GetLocalizedString("REDLINEEDITRECTANGLEHELP", $locale );
     $drawPolyLocal = GetLocalizedString("REDLINEEDITPOLYGONHELP", $locale );
-
+    
+    $refreshLocal = GetLocalizedString("FEATUREINFOREFRESH", $locale);
     try
     {
         $featureInfo = new FeatureInfo($args);
@@ -309,7 +310,7 @@
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;<?php echo $titleLocal ?><hr></td></tr>
     <tr><td class="SubTitle"><?php echo $subtitleLocal ?></td></tr>
-    <tr><td><?php echo $layerLocal ?></td></tr>
+    <tr><td><?php echo $layerLocal ?> <a href="<?= $_SERVER['REQUEST_URI'] ?>">(<?= $refreshLocal ?>)</a></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="layerSelect" onChange="OnLayerChange()" style="width: 100%">
