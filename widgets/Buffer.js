@@ -38,7 +38,7 @@
 
 Fusion.Widget.Buffer = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
-    isExclusive: true,
+    isExclusive: false,
     layerName: null,
     layerNameInput: null,
     bufferDistance: null,

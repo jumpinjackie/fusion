@@ -41,7 +41,7 @@ Fusion.Event.MEASURE_CLEAR = Fusion.Event.lastEventId++;
 Fusion.Event.MEASURE_COMPLETE = Fusion.Event.lastEventId++;
 
 Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
-    isExclusive: true,
+    isExclusive: false,
     uiClass: Jx.Button,
 
     //distance of each segment

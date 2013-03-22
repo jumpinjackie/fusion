@@ -36,7 +36,7 @@ Fusion.Event.REDLINE_FEATURE_ADDED = Fusion.Event.lastEventId++;
 *  - <Fusion.Widget>
 **********************************************************************/
 Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
-    isExclusive: true,
+    isExclusive: false,
     uiClass: Jx.Button,
 
     // Fusion map widget
