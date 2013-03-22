@@ -449,12 +449,58 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     },
 
     activate: function() {
+        this.loadDisplayPanel();
+        this.startMeasurement();
+    },
+    
+    startMeasurement: function() {
         this.control.activate();
         this.getMap().message.info(OpenLayers.i18n("measureInProgress"));
         this.resetMeasure();
         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
-        this.loadDisplayPanel();
         this.getMap().supressContextMenu(true);
+        this.updateButtonStates();
+    },
+    
+    stopMeasurement: function() {
+        OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);
+        this.control.deactivate();
+        this.control.cancel();
+        this.getMap().message.clear();
+        this.getMap().supressContextMenu(false);
+        this.updateButtonStates();
+    },
+    
+    updateButtonStates: function() {
+        if (this.startButton != null && this.stopButton != null) {
+            this.stopButton.disabled = !this.control.active;
+            this.startButton.disabled = this.control.active;
+        }
+    },
+    
+    setButtons: function(stopBtn, startBtn) {
+        this.startButton = startBtn;
+        this.stopButton = stopBtn;
+        this.updateButtonStates();
+    },
+    
+    initManualControls: function(outputWin) {
+        this.startButton = null;
+        this.stopButton = null;
+        
+        var timer;
+        var that = this;
+        var watch = function() {
+            try {
+                if (outputWin.domInit) {
+                    doc = outputWin.document;
+                    clearInterval(timer);
+                    outputWin.SetWidget(that); //Hook the widget for auto-deactivation
+                }
+            } catch (e) {
+            }
+        };
+        timer = setInterval(watch, 200);
     },
 
     loadDisplayPanel: function() {
@@ -479,6 +525,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
             } else {
                 outputWin = window.open(url, this.sTarget, this.sWinFeatures);
             }
+            this.initManualControls(outputWin);
             this.registerForEvent(Fusion.Event.MEASURE_CLEAR, OpenLayers.Function.bind(this.clearDisplay, this, outputWin));
             this.registerForEvent(Fusion.Event.MEASURE_SEGMENT_UPDATE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
             this.registerForEvent(Fusion.Event.MEASURE_COMPLETE, OpenLayers.Function.bind(this.updateDisplay, this, outputWin));
@@ -505,11 +552,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
      * deactivate the ruler tool
      */
     deactivate: function() {
-        OpenLayers.Event.stopObserving(document, 'keypress', this.keyHandler);
-        this.control.deactivate();
-        this.control.cancel();
-        this.getMap().message.clear();
-        this.getMap().supressContextMenu(false);
+        this.stopMeasurement();
     },
 
     resetMeasure: function() {
@@ -573,7 +616,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     /*
      * updates the summary display if it is loaded in a window somewhere
      */
-     updateDisplay: function(outputWin) {
+    updateDisplay: function(outputWin) {
         var outputDoc = outputWin.document;
         var resolution = this.getMap().getResolution();
         this.clearDisplay(outputWin);
