@@ -97,7 +97,7 @@ Fusion.Widget.Scalebar = OpenLayers.Class(Fusion.Widget, {
         //debugging using firebug, the problem doesn't occur.
         //this.oScaleBar.place(widgetTag.name);
         //A parameter or an operation is not supported by the underlying object"  code: "15
-        window.setTimeout(OpenLayers.Function.bind(this.oScaleBar, widgetTag.name), 1);
+        window.setTimeout(OpenLayers.Function.bind(this.oScaleBar.place, this.oScaleBar, widgetTag.name), 1);
 
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.extentsChangedCB, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.extentsChangedCB, this));
