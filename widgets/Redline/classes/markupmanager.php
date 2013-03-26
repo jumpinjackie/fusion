@@ -579,6 +579,26 @@ class MarkupManager
             $zip = new ZipArchive();
             $zip->open($zipPath, ZIPARCHIVE::CREATE);
             foreach ($tmpFiles as $dataName => $filePath) {
+                $dataNorm = strtolower($dataName);
+                //HACK: There must be some defect in MgFeatureService::CreateFeatureSource() for SHP
+                //files or the FDO provider, because even if we plug in a coord sys WKT when we create
+                //it, we get a blank prj file (both Windows/Linux). Re-uploading this same zip file back into 
+                //the widget causes problems in Linux (markup features not rendered) because of the blank prj.
+                //
+                //So that's the problem. Here's the workaround: If we find a blank prj file as we're assembling
+                //the zip file for download, pump our current Map's WKT into the prj file before packaging it up
+                //
+                //That's what we were already doing when we called MgFeatureService::CreateFeatureSource(), but it
+                //or the provider didn't like it.
+                if ( substr( $dataNorm, strlen( $dataNorm ) - strlen( "prj" ) ) == "prj" ) {
+                    $content = file_get_contents($filePath);
+                    if (strlen($content) == 0) {
+                        $map = new MgMap();
+                        $map->Open($resourceService, $this->args['MAPNAME']);
+                        $content = $map->GetMapSRS();
+                        file_put_contents($filePath, $content);
+                    }
+                }
                 $zip->addFile($filePath, $dataName);
             }
             $zip->close();
