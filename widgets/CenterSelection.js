@@ -38,9 +38,8 @@ Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
     initializeWidget: function(widgetTag) {
         //console.log('CenterSelection.initialize');
-
-        Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        Fusion.Widget.prototype.initialize.apply(this, []);
+        //Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
+        //Fusion.Widget.prototype.initialize.apply(this, []);
         this.enable = Fusion.Widget.CenterSelection.prototype.enable;
         
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
@@ -67,23 +66,34 @@ Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, {
         var curWidth = extents[2] - extents[0];
         var curHeight = extents[3] - extents[1];
         
-        var ll = selection[map.getMapName()].getLowerLeftCoord();
-        var ur = selection[map.getMapName()].getUpperRightCoord();
+        var mapName = null;
+        var mlayers = map.getAllMaps();
+        for (var i = 0; i < mlayers.length; i++) {
+            if (mlayers[i].arch == "MapGuide") {
+                mapName = mlayers[i].getMapName();
+                break;
+            }
+        }
         
-        var newWidth = ur.x - ll.x;
-        var newHeight = ur.y - ll.y;
-        
-        if (newWidth < curWidth && newHeight < curHeight) {
-            var cx = (ur.x + ll.x) / 2;
-            var cy = (ur.y + ll.y) / 2;
-            map.zoom(cx,cy,1);
-        } else {
-            var buffer = 0.1;
-            var minx = ll.x-newWidth*buffer;
-            var miny = ll.y-newHeight*buffer;
-            var maxx = ur.x+newWidth*buffer;
-            var maxy = ur.y+newHeight*buffer;
-            map.setExtents(new OpenLayers.Bounds(minx,miny,maxx,maxy));
+        if (mapName != null) {
+            var ll = selection[mapName].getLowerLeftCoord();
+            var ur = selection[mapName].getUpperRightCoord();
+            
+            var newWidth = ur.x - ll.x;
+            var newHeight = ur.y - ll.y;
+            
+            if (newWidth < curWidth && newHeight < curHeight) {
+                var cx = (ur.x + ll.x) / 2;
+                var cy = (ur.y + ll.y) / 2;
+                map.zoom(cx,cy,1);
+            } else {
+                var buffer = 0.1;
+                var minx = ll.x-newWidth*buffer;
+                var miny = ll.y-newHeight*buffer;
+                var maxx = ur.x+newWidth*buffer;
+                var maxy = ur.y+newHeight*buffer;
+                map.setExtents(new OpenLayers.Bounds(minx,miny,maxx,maxy));
+            }
         }
     },
 
