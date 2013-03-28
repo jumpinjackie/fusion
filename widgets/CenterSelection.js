@@ -37,9 +37,6 @@
 Fusion.Widget.CenterSelection = OpenLayers.Class(Fusion.Widget, {
     uiClass: Jx.Button,
     initializeWidget: function(widgetTag) {
-        //console.log('CenterSelection.initialize');
-        //Fusion.Widget.prototype.initialize.apply(this, [widgetTag, false]);
-        //Fusion.Widget.prototype.initialize.apply(this, []);
         this.enable = Fusion.Widget.CenterSelection.prototype.enable;
         
         this.getMap().registerForEvent(Fusion.Event.MAP_SELECTION_ON, OpenLayers.Function.bind(this.enable, this));
