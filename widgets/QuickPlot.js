@@ -14,7 +14,7 @@ Fusion.require("widgets/QuickPlot/MapCapturer.js");
  * **********************************************************************/
 Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget, 
 {
-    isExclusive: true,
+    isExclusive: false,
     uiClass: Jx.Button,
     sFeatures : 'menubar=no,location=no,resizable=no,status=no',
     options : {},
