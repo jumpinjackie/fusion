@@ -206,11 +206,11 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
     },
     
     clearMeasure: function() {
-      this.control.cancel();
+        this.control.cancel();
     },
 
     toggleClearButton: function(enabled) {
-      this.clearButton.setEnabled(enabled);
+        this.clearButton.setEnabled(enabled);
     },
 
     extentsChangedCB: function() {
@@ -466,6 +466,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.getMap().supressContextMenu(true);
         this.updateButtonStates();
+        //This is digitization, so trigger the necessary event
+        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
     },
     
     stopMeasurement: function() {
@@ -475,6 +477,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.getMap().message.clear();
         this.getMap().supressContextMenu(false);
         this.updateButtonStates();
+        //This is digitization, so trigger the necessary event
+        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
     },
     
     updateButtonStates: function() {

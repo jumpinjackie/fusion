@@ -143,7 +143,19 @@
             var widget = Fusion.getWidgetsByType("Redline")[0];
             if (widget.mapMessagePrompt) {
                 var map = Fusion.getMapByName(mapName).mapWidget;
-                map.message.info(text);
+                var msg = map.message;
+                //It's a digitization prompt
+                if (text != EDIT_DEFAULT_HELP) {
+                    msg.info(text + ' <a id="abortDigitizationLink" href="javascript:void(0)">' + OpenLayers.i18n("stop") + '</a>');
+                    var link = msg.container.ownerDocument.getElementById("abortDigitizationLink");
+                    //Wire the anchor click
+                    link.onclick = function() {
+                        msg.clear();
+                        PromptAndSetMarkupText();
+                    };
+                } else {
+                    msg.info(text);
+                }
             }
         }
 
@@ -348,10 +360,17 @@
         <?php } ?>
             SetDigitizeInfo(EDIT_DEFAULT_HELP);
         }
+        
+        function OnUnload()
+        {
+            ClearDigitization(true);
+            var map = Fusion.getMapByName(mapName).mapWidget;
+            map.message.clear();
+        }
     </script>
 </head>
 
-<body onLoad="OnLoad()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
+<body onLoad="OnLoad()" onUnload="OnUnload()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
 
 <form action="editmarkup.php" method="post" enctype="application/x-www-form-urlencoded" id="editForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">

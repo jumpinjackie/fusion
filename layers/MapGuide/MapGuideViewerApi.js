@@ -152,6 +152,7 @@ function mgApiStartDigitizing(type, handler) {
       if (mgApiActiveWidget) {
         mapWidget.deactivateWidget(mgApiActiveWidget);
       }
+      mapWidget.triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
       
       var control = mgApiDrawControls[type];
       control.userHandler = handler;
@@ -201,12 +202,13 @@ function mgApiDeactivate() {
         mgApiActiveControl.deactivate();
         mgApiActiveControl = null;
     }
-  if (mgApiActiveWidget) {
-    //var Fusion = window.top.Fusion;
     var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
-    mapWidget.activateWidget(mgApiActiveWidget);
-    mgApiActiveWidget = null;
-  }
+    if (mgApiActiveWidget) {
+        //var Fusion = window.top.Fusion;
+        mapWidget.activateWidget(mgApiActiveWidget);
+        mgApiActiveWidget = null;
+    }
+    mapWidget.triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
 }
 
 // set the Stylemap for the MGAPI

@@ -122,6 +122,19 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.mapTipReqFinishedFunc = OpenLayers.Function.bind(this._display,this);
         this.mapBusyChangedFunc = this.busyChanged.bind(this);
         this.mapLoaded = this.startMapTips.bind(this);
+        
+        //Subscribe to digitizer events so we know when not to interfere
+        this.getMap().registerForEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED, OpenLayers.Function.bind(this.onDigitizerActivated, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED, OpenLayers.Function.bind(this.onDigitizerDeactivated, this));
+    },
+    
+    onDigitizerActivated: function() {
+        this.hideMaptip();
+        this.bDigitizerActive = true;
+    },
+    
+    onDigitizerDeactivated: function() {
+        this.bDigitizerActive = false;
     },
     
     setUiObject: function(uiObj) {
@@ -164,7 +177,7 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
                 }).bind(this)
         }).addTo(uiObj);
         if (this.widgetTag.tooltip) {
-          this.mapTipBtn.setTooltip(this.widgetTag.tooltip);
+            this.mapTipBtn.setTooltip(this.widgetTag.tooltip);
         }
         if (uiObj.options.active) {
             this.mapTipBtn.setActive(true);
@@ -271,12 +284,17 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
     },
     
     showMaptip: function() {
+        if (this.bDigitizerActive === true) {
+            //console.log("Abort maptip query");
+            return;
+        }
         this.getMapLayer().getMapTip(this);
         this.mapTipFired = true;
     },
     
     _display: function(eventID,oMapTip) {
-        if (typeof(oMapTip) == "undefined" || oMapTip.t == '') {
+        if (this.bDigitizerActive === true || typeof(oMapTip) == "undefined" || oMapTip.t == '') {
+            //console.log("Abort maptip display");
             return;
         }
         if(this.domObj.style.visibility != 'visible' || oMapTip.t != this.szTip ){

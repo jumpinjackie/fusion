@@ -56,6 +56,7 @@
     $areaUndefinedLocal = GetLocalizedString('FEATUREINFOAREAUNDEFINE', $locale );
     $noLayerInfoLocal = GetLocalizedString('FEATUREINFONOINFO', $locale );
     $noFeatureInLocal = GetLocalizedString('FEATUREINFONOFEATUREIN', $locale );
+    $featureInfoExtraHelpLocal = GetLocalizedString('FEATUREINFOEXTRAHELP', $locale );
 
     $drawPointLocal = GetLocalizedString("REDLINEEDITPOINTHELP", $locale );
     $drawRectLocal = GetLocalizedString("REDLINEEDITRECTANGLEHELP", $locale );
@@ -130,7 +131,17 @@
 
         function SetMessage(msg) {
             var map = GetFusionMapWidget();
-            map.message.info(msg);
+            if (msg == DRAW_POINT_HELP || msg == DRAW_RECT_HELP || DRAW_POLY_HELP) {
+                map.message.info(msg + " <a id='measureMsgDismiss' href='javascript:void(0)'>" + OpenLayers.i18n("stop") + "</a>");
+                var link = map.message.container.ownerDocument.getElementById("measureMsgDismiss");
+                //Wire the anchor click
+                link.onclick = function() {
+                    ClearMessage();
+                    ClearDigitization(true);
+                };
+            } else {
+                map.message.info(msg);
+            }
         }
 
         function ClearMessage() {
@@ -262,7 +273,7 @@
                         document.getElementById('totalArea').innerHTML = '<?php echo $noLayerInfoLocal ?>';
                     }
                 } else {
-                  document.getElementById('totalFeatures').innerHTML = '<?php echo $noFeatureInLocal ?>';
+                    document.getElementById('totalFeatures').innerHTML = '<?php echo $noFeatureInLocal ?>';
                 }
 
 
@@ -309,8 +320,8 @@
 
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><img id="busyImg" src="../../common/images/loader_inactive.gif" style="vertical-align:bottom">&nbsp;<?php echo $titleLocal ?><hr></td></tr>
-    <tr><td class="SubTitle"><?php echo $subtitleLocal ?></td></tr>
-    <tr><td><?php echo $layerLocal ?> <a href="<?= $_SERVER['REQUEST_URI'] ?>">(<?= $refreshLocal ?>)</a></td></tr>
+    <tr><td class="SubTitle"><?php echo $subtitleLocal ?> <a href="<?= $_SERVER['REQUEST_URI'] ?>">(<?= $refreshLocal ?>)</a></td></tr>
+    <tr><td><?php echo $layerLocal ?></td></tr>
     <tr>
         <td class="RegText">
             <select size="1" class="Ctrl" id="layerSelect" onChange="OnLayerChange()" style="width: 100%">
@@ -329,6 +340,7 @@
     <tr><td class="Spacer"></td></tr>
 
     <tr><td class="SubTitle"><?php echo $selectFeatureLocal ?></td></tr>
+    <tr><td class="InfoText"><?php echo $featureInfoExtraHelpLocal ?></td></tr>
     <tr><td><?php echo $digitizeLocal ?></td></tr>
     <tr>
         <td align="center">

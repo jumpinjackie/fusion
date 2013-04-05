@@ -33,7 +33,7 @@
  * **********************************************************************/
 
 Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
-    isExclusive: true,
+    isExclusive: false,
     uiClass: Jx.Button,
     bActiveOnly: false, //only select feature(s) on the active layer?
     selectionType: 'INTERSECTS',
@@ -63,12 +63,20 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         this.handlerOptions = {};
         this.handler = new OpenLayers.Handler.Polygon(this, {done: this.execute}, this.handlerOptions);
         mapWidget.handlers.push(this.handler);
+        
+        this.keyHandler = OpenLayers.Function.bind(this.onKeyPress, this);
+    },
+    
+    onKeyPress: function(e) {
+        var charCode = (e.charCode ) ? e.charCode : ((e.keyCode) ? e.keyCode : e.which);
+        if (charCode == OpenLayers.Event.KEY_ESC) {
+            this.deactivate();
+        }
     },
     
     shouldActivateWith: function(widget) {
         return (widget instanceof Fusion.Widget.SelectPolygon &&
                 widget.widgetUniqueId == this.widgetUniqueId);
-        
     },
     
     /**
@@ -77,11 +85,17 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
      * as a widget in the map
      */
     activate: function() {
+        OpenLayers.Event.observe(document,"keypress",this.keyHandler);
         this.handler.activate();
         var map = this.getMap();
-        map.message.info(OpenLayers.i18n("selectPolygonPrompt"))
+        var msg = map.message;
+        msg.info(OpenLayers.i18n("selectPolygonPrompt") + ' <a id="abortSelectPolygonLink" href="javascript:void(0)">' + OpenLayers.i18n("stop") + '</a>');
+        var link = msg.container.ownerDocument.getElementById("abortSelectPolygonLink");
+        //Wire the anchor click
+        link.onclick = OpenLayers.Function.bind(this.deactivate, this);
         map.setCursor(this.asCursor);
         map.supressContextMenu(true);
+        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
     },
 
     /**
@@ -89,13 +103,14 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
      * This function should be defined for all functions that register
      * as a widget in the map
      **/
-    deactivate: function()
-    {
+    deactivate: function() {
+        OpenLayers.Event.stopObserving(document,"keypress",this.keyHandler);
         this.handler.deactivate();
         var map = this.getMap();
         map.message.clear();
         map.setCursor('auto');
         map.supressContextMenu(false);
+        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
     },
     
     /**
@@ -109,7 +124,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         options.computed = this.bComputeMetadata;
         
         if (this.handler.evt.ctrlKey) {
-          options.extendSelection = true;
+            options.extendSelection = true;
         }
 
         if (this.bActiveOnly) {
@@ -122,6 +137,7 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         }
         
         this.getMap().query(options);
+        this.deactivate();
         return false;
     },
     

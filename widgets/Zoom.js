@@ -65,6 +65,26 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
                                         {keyMask:OpenLayers.Handler.MOD_SHIFT});
         mapWidget.handlers.push(this.handler);
         mapWidget.handlers.push(this.shiftHandler);
+        
+        //We're interested in these events, because this widget could get in the way
+        this.getMap().registerForEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED, OpenLayers.Function.bind(this.onDigitizerActivated, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED, OpenLayers.Function.bind(this.onDigitizerDeactivated, this));
+    },
+    
+    onDigitizerActivated: function() {
+        //Do not allow this widget to interfere with active digitization, but do record the active state
+        //so we can restore it afterwards
+        this.bRestoreActiveState = this.isActive;
+        //NOTE: This only deactivates zoom by mouse click and box drag. Mouse wheel zoom is still active, which
+        //is a *good* thing.
+        this.deactivate();
+    },
+    
+    onDigitizerDeactivated: function() {
+        if (this.bRestoreActiveState === true) {
+            this.activate();
+            this.bRestoreActiveState = false;
+        }
     },
     
     shouldActivateWith: function(widget) {
@@ -79,6 +99,8 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
      * as a widget in the map
      */
     activate : function() {
+        //TODO: Why Fusion.Widget has no active state flag? Probably should have one
+        this.isActive = true;
         //console.log('Zoom.activate');
         this.handler.activate();
         this.shiftHandler.activate();
@@ -97,6 +119,7 @@ Fusion.Widget.Zoom = OpenLayers.Class(Fusion.Widget, {
      * as a widget in the map
      **/
     deactivate : function() {
+        this.isActive = false;
         //console.log('Zoom.deactivate');
         this.handler.deactivate();
         this.shiftHandler.deactivate();
