@@ -333,12 +333,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var wktProj;
             if (o.wkt && o.wkt.length > 0){
               wktProj = new OpenLayers.Projection(o.wkt);
-            } else if (o.epsg != 0) {
-              this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
-            } else {
-              //default to the local non-projected system if not otherwise specified
-              o.wkt = "LOCAL_CS[\"Non-Earth (Meter)\",LOCAL_DATUM[\"Local Datum\",0],UNIT[\"Meter\", 1],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH]]";
-              wktProj = new OpenLayers.Projection(o.wkt);
+            } 
+            if (!wktProj || (wktProj && wktProj.proj && !wktProj.proj.readyToUse)) {
+              if (o.epsg != 0) {
+                this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
+              } else {
+                //default to the local non-projected system if not otherwise specified
+                o.wkt = "LOCAL_CS[\"Non-Earth (Meter)\",LOCAL_DATUM[\"Local Datum\",0],UNIT[\"Meter\", 1],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH]]";
+                wktProj = new OpenLayers.Projection(o.wkt);
+              }
             }
             //TODO: consider passing the metersPerUnit value into the framework
             //to allow for scaling that doesn't match any of the pre-canned units
@@ -383,7 +386,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile, 2, false, "");
             }
             
-            if (wktProj) {
+            if (wktProj && wktProj.proj && wktProj.proj.readyToUse) {
               this.oLayerOL.projection = wktProj;
               this.oLayerOL.projection.proj.units = this.mapTag.layerOptions.units;
             }
