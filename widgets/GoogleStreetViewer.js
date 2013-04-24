@@ -1,4 +1,3 @@
-Fusion.require("lib/DragFeature.js");
 Fusion.require("lib/SymbolLayer.js");
 
 /********************************************************************

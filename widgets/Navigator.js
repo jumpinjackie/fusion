@@ -27,7 +27,7 @@
  * Class: Fusion.Widget.Navigator
  *
  * A widget that immplements an in-map navigation control with zoom and pan.
- * 
+ *
  * Inherits from:
  *  - <Fusion.Widget>
  * **********************************************************************/
@@ -39,7 +39,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
     panAmount: 50,
     initializeWidget: function(widgetTag) {
         this.activeControls = [];
-        
+
         var m = document.createElement('map');
         m.name = 'Navigator_ImageMap';
         m.id = 'Navigator_ImageMap';
@@ -136,7 +136,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         sliderHandle.style.left = '11px';
         sliderHandle.style.top = '49px';
         sliderDiv.appendChild(sliderHandle);
-        
+
         this.activityIndicator = document.createElement('img');
         this.activityIndicator.src = Fusion.getFusionURL() + widgetTag.location + 'Navigator/spinner.gif';
         this.activityIndicator.width = 18;
@@ -174,7 +174,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         });
         // precompute this for efficiency
         this.LN9 = Math.log(9);
-        
+
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.updateSlider, this));
         this.getMap().registerForEvent(Fusion.Event.MAP_RESIZED, checkPosition);
         this.getMap().registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.updateSlider, this));
@@ -191,18 +191,20 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         if (!this.bInternalChange) {
             var olMap = this.getMap().oMapOL;
             var baseLayer = olMap.baseLayer;
-            if (baseLayer.singleTile) {
-                var scale = Math.pow(9,value/9);
-                var resolution = OpenLayers.Util.getResolutionFromScale(scale, baseLayer.units);
-                resolution += baseLayer.minResolution;
-                this.bInternalChange = true;
-                olMap.zoomTo(olMap.getZoomForResolution(resolution));
-                this.bInternalChange = false;
-            } else {
-                var zoom = olMap.baseLayer.resolutions.length - value - 1;
-                this.bInternalChange = true;
-                olMap.zoomTo(zoom);
-                this.bInternalChange = false;
+            if (baseLayer != null) {
+                if (baseLayer.singleTile) {
+                    var scale = Math.pow(9,value/9);
+                    var resolution = OpenLayers.Util.getResolutionFromScale(scale, baseLayer.units);
+                    resolution += baseLayer.minResolution;
+                    this.bInternalChange = true;
+                    olMap.zoomTo(olMap.getZoomForResolution(resolution));
+                    this.bInternalChange = false;
+                } else {
+                    var zoom = olMap.baseLayer.resolutions.length - value - 1;
+                    this.bInternalChange = true;
+                    olMap.zoomTo(zoom);
+                    this.bInternalChange = false;
+                }
             }
         }
 
@@ -274,7 +276,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
         OpenLayers.Event.stop(e);
         return false;
     },
-    
+
     mouseEnter: function() {
         var mapWidget = this.getMap();
         var mapOL = mapWidget.oMapOL;
@@ -296,7 +298,7 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
           }
         }
     },
-    
+
     mouseLeave: function() {
         var mapOL = this.getMap().oMapOL;
         while (this.activeControls.length>0) {
@@ -304,10 +306,10 @@ Fusion.Widget.Navigator = OpenLayers.Class(Fusion.Widget, {
           control.activate();
         }
     },
-    
+
     busyChanged: function() {
         this.activityIndicator.style.visibility = this.getMap().isBusy() ? 'visible' : 'hidden';
     }
-    
+
 
 });
