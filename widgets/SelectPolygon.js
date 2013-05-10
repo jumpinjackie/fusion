@@ -117,8 +117,11 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
      *  
      **/
     execute: function(geom) {
-        
         var options = {};
+        var points = geom.getVertices();
+        if (points.length < 3) {
+            return;
+        }
         options.geometry = geom.toString();
         options.selectionType = this.selectionType;
         options.computed = this.bComputeMetadata;
