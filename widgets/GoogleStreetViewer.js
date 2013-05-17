@@ -341,8 +341,10 @@ Fusion.Widget.GoogleStreetViewer = OpenLayers.Class(Fusion.Widget, {
     }
 });
 
-Proj4js.reportError = function (msg) {
-    if(Fusion.Widget.GoogleStreetViewer.hasGSV) throw msg;
-    //console.log(msg);
-};
+if (typeof(Proj4js) != 'undefined') {
+    Proj4js.reportError = function (msg) {
+        if(Fusion.Widget.GoogleStreetViewer.hasGSV) throw msg;
+        //console.log(msg);
+    };
+}
 
