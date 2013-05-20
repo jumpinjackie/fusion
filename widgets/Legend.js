@@ -260,7 +260,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.imgDisabledLayerIcon = json.DisabledLayerIcon ? json.DisabledLayerIcon[0] : this.oLegend.defaultDisabledLayerIcon;
         this.imgLayerInfoIcon = json.LayerInfoIcon ? json.LayerInfoIcon[0] : this.oLegend.defaultLayerInfoIcon;
         this.imgGroupInfoIcon = json.GroupInfoIcon ? json.GroupInfoIcon[0] : this.oLegend.defaultGroupInfoIcon;
-       
+
         //not used?
         //this.layerInfoURL = json.LayerInfoURL ? json.LayerInfoURL[0] : '';
         this.selectedLayer = null;
@@ -417,25 +417,52 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     renderLegend: function(r) {
         this.bIsDrawn = false;
         this.clear();
-
         if (this.showRootFolder) {
-            this.oRoot.setLabel(this.oLegend.getMapLayer().getMapTitle());
+            this.oRoot.setLabel(this.getMap().mapGroup.mapId);
         }
+        
         var startGroup = this.layerRoot;
-        if (!this.showMapFolder) {
-          startGroup = this.layerRoot.groups[0];
-        }
+        if (!this.showMapFolder)
+            startGroup = this.layerRoot.groups[0];
+        
         if (!startGroup.legend) {
             startGroup.legend = {};
             startGroup.legend.treeItem = this.oRoot;
         }
-        for (var i=0; i<startGroup.groups.length; i++) {
-            //startGroup.groups[i].visible = true;
-            this.processMapGroup(startGroup.groups[i], this.oRoot);
+        
+        if (this.layerRoot.groups.length > 1) { //Multi-map
+            if (this.showMapFolder) {
+                for (var i = 0; i < this.layerRoot.groups.length; i++) {
+                    this.processMapGroup(this.layerRoot.groups[i], this.oRoot);
+                }
+            } else {
+                for (var i = 0; i < this.layerRoot.groups.length; i++) {
+                    var mapRoot = this.layerRoot.groups[i];
+                    if (!mapRoot.legend) {
+                        mapRoot.legend = {};
+                        mapRoot.legend.treeItem = this.oRoot;
+                    }
+                    for (var j = 0; j < mapRoot.groups.length; j++) {
+                        this.processMapGroup(mapRoot.groups[j], this.oRoot);
+                    }
+                    for (var j = 0; j < mapRoot.layers.length; j++) {
+                        this.processMapLayer(mapRoot.layers[j], this.oRoot);
+                    }
+                }
+            }
+        } else { //Single-map
+            if (!startGroup.legend) {
+                startGroup.legend = {};
+                startGroup.legend.treeItem = this.oRoot;
+            }
+            for (var i = 0; i < startGroup.groups.length; i++) {
+                this.processMapGroup(startGroup.groups[i], this.oRoot);
+            }
+            for (var i = 0; i < startGroup.layers.length; i++) {
+                this.processMapLayer(startGroup.layers[i], this.oRoot);
+            }
         }
-        for (var i=0; i<startGroup.layers.length; i++) {
-            this.processMapLayer(startGroup.layers[i], this.oRoot);
-        }
+        
         this.bIsDrawn = true;
         this.update();
     },
@@ -465,7 +492,6 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             // );
 
             folder.add(treeItem);
-
             var groupInfo = group.oMap.getGroupInfoUrl(group.groupName);
             if (groupInfo) {
                 treeItem.setGroupInfo(groupInfo, this.imgGroupInfoIcon);
@@ -1034,7 +1060,6 @@ Fusion.Widget.Legend.TreeFolder = new Class({
             this.layerInfoIcon.set('src', icon);
         }
     },
-    
     setGroupInfo: function(url, icon) {
         //change class to make fusionGroupInfo display block
         this.domObj.addClass('fusionShowGroupInfo');
