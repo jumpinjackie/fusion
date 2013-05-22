@@ -75,7 +75,7 @@ function getParent()
 <script language="javascript" type="text/javascript" src="%sQuickPlotPanel.js"></script>
 
 </head>
-<body onload="panelLoaded()">
+<body onload="panelLoaded()" onunload="panelUnloaded()">
     <form id="Form1" name="Form1" method="post" action="PlotAsPDF.php">
         <div class="Title FixWidth">__#QUICKPLOT_HEADER#__</div>
         <div class="Label ">__#QUICKPLOT_TITLE#__</div>

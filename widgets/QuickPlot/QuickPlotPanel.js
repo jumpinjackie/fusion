@@ -2,6 +2,12 @@
  * Copyright (C) 2010 Autodesk, Inc. All rights reserved.
  */
 
+function panelUnloaded()
+{
+    var mapCapturer = getParent().Fusion.getWidgetsByType("QuickPlot")[0].mapCapturer;
+    mapCapturer.disable();
+}
+
 function panelLoaded()
 {
     var widget = getParent().Fusion.getWidgetsByType("QuickPlot")[0];
