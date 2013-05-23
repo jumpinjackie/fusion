@@ -20,6 +20,22 @@
     $allowLine = false;
     $allowPoly = false;
     $markupFeatures = array();
+    
+    $defaultFormat = null;
+    $defaultGeomType = null;
+
+    if (array_key_exists("REDLINEFORMAT", $args) && array_key_exists("REDLINEGEOMTYPE", $args)) {
+        if (strcmp($args["REDLINEFORMAT"], "SDF") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SHP") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SQLite") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        }
+    }
 
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
@@ -450,6 +466,10 @@
 <input name="EDITCOMMAND" type="hidden" value="" id="commandInput">
 <input name="GEOMETRY" type="hidden" value="" id="geometryInput">
 <input name="TEXT" type="hidden" value="" id="textInput">
+<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
+<input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
+<? } ?>
 </form>
 <?php } else { ?>
 </head>

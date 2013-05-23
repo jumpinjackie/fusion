@@ -22,6 +22,22 @@
     $errorMsg = null;
     $errorDetail = null;
     
+    $defaultFormat = null;
+    $defaultGeomType = null;
+
+    if (array_key_exists("REDLINEFORMAT", $args) && array_key_exists("REDLINEGEOMTYPE", $args)) {
+        if (strcmp($args["REDLINEFORMAT"], "SDF") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SHP") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SQLite") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        }
+    }
+    
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
         $locale = $_REQUEST['LOCALE'];
@@ -117,18 +133,6 @@
         var labelForeColor = "<?= $style->LABEL_FORE_COLOR ?>";
         var labelBackColor = "<?= $style->LABEL_BACK_COLOR ?>";
         
-        function CheckName()
-        {
-            var el = document.getElementById("markupName");
-            var mkName = el.value.replace(/^\s+|\s+$/g,"");
-            if (mkName == "") {
-                alert("Please enter a name for this new markup layer");
-                el.focus();
-                return false;
-            }
-            return true;
-        }
-        
         function PickColor(whichColor, allowTransparency, transparent)
         {
             var clr;
@@ -223,7 +227,11 @@
         
         function Cancel()
         {
+        <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+            window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINEFORMAT=<?= $defaultFormat ?>&REDLINEGEOMTYPE=<?= $defaultGeomType ?>";
+        <? } else { ?>
             window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>";
+        <? } ?>
         }
     </script>
     
@@ -241,6 +249,11 @@
 <input name="EDITMARKUPLAYER" type="hidden" value="<?= $args['EDITMARKUPLAYER'] ?>">
 <input name="EDITFEATURESOURCE" type="hidden" value="<?= $editFeatureSource ?>">
 <input name="MARKUPLAYERNAME" type="hidden" value="<?= $args['MARKUPLAYERNAME'] ?>">
+
+<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
+<input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
+<? } ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
     <tr><td id="elTitle" colspan="2" class="Title"><?= $editLayerStyleLocal ?><hr></td></tr>
@@ -464,7 +477,7 @@
     <tr>
         <td colspan="2" align="right">
             <hr>
-            <input class="Ctrl" name="" type="submit" value="OK" onClick="return CheckName()" style="width:85px">
+            <input class="Ctrl" name="" type="submit" value="OK" style="width:85px">
             <input class="Ctrl" type="button" value="Cancel" style="width:85px" onClick="return Cancel()">
         </td>
     </tr>

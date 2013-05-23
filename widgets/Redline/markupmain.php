@@ -17,6 +17,26 @@
     $refreshMap = false;
     $errorMsg = null;
     $errorDetail = null;
+    
+    $defaultCmd = null;
+    $defaultFormat = null;
+    $defaultGeomType = null;
+
+    if (array_key_exists("REDLINEFORMAT", $args) && array_key_exists("REDLINEGEOMTYPE", $args)) {
+        if (strcmp($args["REDLINEFORMAT"], "SDF") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultCmd = MarkupCommand::CreateSdf;
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SHP") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultCmd = MarkupCommand::CreateShp;
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        } else if (strcmp($args["REDLINEFORMAT"], "SQLite") == 0) {
+            $defaultFormat = $args["REDLINEFORMAT"];
+            $defaultCmd = MarkupCommand::CreateSqlite;
+            $defaultGeomType = $args["REDLINEGEOMTYPE"];
+        }
+    }
 
     SetLocalizedFilesPath(GetLocalizationPath());
     if(isset($_REQUEST['LOCALE'])) {
@@ -153,6 +173,9 @@
 
         function GetGeometryTypes()
         {
+        <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+            return <?= $defaultGeomType ?>;
+        <? } else { ?>
             var geomType = 0;
             var bPoint = document.getElementById("chkPoint").checked;
             var bLine = document.getElementById("chkLine").checked;
@@ -166,6 +189,7 @@
                 geomType |= GEOM_POLY;
 
             return geomType;
+        <? } ?>
         }
 
         function GetFdoProvider(cmd)
@@ -178,52 +202,61 @@
                 return "OSGeo.SDF";
         }
 
+        function SubmitCreateCommand(cmd, geomTypes)
+        {
+            var commandInput = document.getElementById("commandInput");
+            commandInput.value = cmd;
+            
+            if (typeof(geomTypes) == 'undefined') {
+                geomTypes = GetGeometryTypes();
+            }
+
+            var markupForm = document.getElementById("markupForm");
+            
+            var widget = Fusion.getWidgetsByType("Redline")[0];
+            if (widget.autogenerateLayerNames) {
+                Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
+                    onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
+                    onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
+                    parameters: {
+                        SESSION: session,
+                        MAPNAME: mapName,
+                        MARKUPFDOPROVIDER: GetFdoProvider(cmd),
+                        MARKUPGEOMTYPE: geomTypes
+                    }
+                });
+            } else {
+                var name = prompt("<?= $redlineLayerNameLocal ?>");
+                Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
+                    onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
+                    onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
+                    parameters: {
+                        SESSION: session,
+                        MAPNAME: mapName,
+                        NEWLAYERNAME: name,
+                        MARKUPFDOPROVIDER: GetFdoProvider(cmd),
+                        MARKUPGEOMTYPE: geomTypes
+                    }
+                });
+            }
+        }
+        
         function SubmitCommand(cmd)
         {
             var commandInput = document.getElementById("commandInput");
             commandInput.value = cmd;
-
-            var markupForm = document.getElementById("markupForm");
-            if (cmd == CMD_NEW_SDF || cmd == CMD_NEW_SHP || cmd == CMD_NEW_SQLITE) {
-                var widget = Fusion.getWidgetsByType("Redline")[0];
-                if (widget.autogenerateLayerNames) {
-                    Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
-                        onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
-                        onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
-                        parameters: {
-                            SESSION: session,
-                            MAPNAME: mapName,
-                            MARKUPFDOPROVIDER: GetFdoProvider(cmd),
-                            MARKUPGEOMTYPE: GetGeometryTypes()
-                        }
-                    });
-                } else {
-                    var name = prompt("<?= $redlineLayerNameLocal ?>");
-                    Fusion.ajaxRequest("widgets/Redline/newmarkup.php", {
-                        onSuccess: OpenLayers.Function.bind(OnMarkupCreated, this),
-                        onFailure: OpenLayers.Function.bind(OnMarkupCreateFailure, this),
-                        parameters: {
-                            SESSION: session,
-                            MAPNAME: mapName,
-                            NEWLAYERNAME: name,
-                            MARKUPFDOPROVIDER: GetFdoProvider(cmd),
-                            MARKUPGEOMTYPE: GetGeometryTypes()
-                        }
-                    });
-                }
-            } else {
-                if (cmd == CMD_EDIT) {
-                    markupForm.action = "editmarkup.php";
-                } else if (cmd == CMD_UPLOAD) {
-                    markupForm.action = "uploadmarkup.php";
-                } else if (cmd == CMD_EDITSTYLE) {
-                    markupForm.action = "editmarkupstyle.php";
-                }
-                else {
-                    markupForm.action = "markupmain.php";
-                }
-                markupForm.submit();
+            
+            if (cmd == CMD_EDIT) {
+                markupForm.action = "editmarkup.php";
+            } else if (cmd == CMD_UPLOAD) {
+                markupForm.action = "uploadmarkup.php";
+            } else if (cmd == CMD_EDITSTYLE) {
+                markupForm.action = "editmarkupstyle.php";
             }
+            else {
+                markupForm.action = "markupmain.php";
+            }
+            markupForm.submit();
         }
 
         function OnMarkupCreated(response)
@@ -316,10 +349,12 @@
 
         function CheckApplicableProviders()
         {
+        <? if ($defaultFormat == null || $defaultGeomType == null) { ?>
             var gt = GetGeometryTypes();
             document.getElementById("newShpBtn").disabled = (gt != GEOM_POINT && gt != GEOM_LINE && gt != GEOM_POLY);
             document.getElementById("newSdfBtn").disabled = (gt == 0);
             document.getElementById("newSqliteBtn").disabled = (gt == 0);
+        <? } ?>
         }
 
         function OnLoad()
@@ -343,6 +378,13 @@
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><?=$manageLocal?><hr></td></tr>
     <tr><td class="SubTitle"><?=$newRedlineLayerLocal?></td></tr>
+    <? if ($defaultCmd != null && $defaultGeomType != null) { ?>
+    <tr>
+        <td>
+            <input class="Ctrl" type="button" id="newBtn" onClick="SubmitCreateCommand(<?= $defaultCmd ?>, <?= $defaultGeomType ?>)" value="<?= $newRedlineLayerLocal ?>" />
+        </td>
+    </tr>
+    <? } else { ?>
     <tr>
         <td>
             <?=$pointLocal?> <input class="Ctrl" type="checkbox" id="chkPoint" onClick="CheckApplicableProviders()" checked="checked" />
@@ -352,11 +394,12 @@
     </tr>
     <tr>
         <td>
-            <input class="Ctrl" type="button" id="newSdfBtn" onClick="SubmitCommand(CMD_NEW_SDF)" value="<?=$newSdfLocal?>" style="width:95px">
-            <input class="Ctrl" type="button" id="newShpBtn" onClick="SubmitCommand(CMD_NEW_SHP)" value="<?=$newShpLocal?>" style="width:95px">
-            <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="newSdfBtn" onClick="SubmitCreateCommand(CMD_NEW_SDF)" value="<?=$newSdfLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="newShpBtn" onClick="SubmitCreateCommand(CMD_NEW_SHP)" value="<?=$newShpLocal?>" style="width:95px">
+            <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCreateCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:95px">
         </td>
     </tr>
+    <? } ?>
     <tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
     <tr>
         <td class="RegText">
@@ -426,6 +469,10 @@
 <input name="MARKUPCOMMAND" type="hidden" value="" id="commandInput">
 <input name="EDITMARKUPLAYER" type="hidden" value="" id="editMarkupLayerId">
 <input name="MARKUPLAYERNAME" type="hidden" value="" id="markupLayerName">
+<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
+<input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
+<? } ?>
 </form>
 
 <?php } else { ?>

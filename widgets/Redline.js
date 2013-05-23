@@ -53,6 +53,12 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
     // Indicates whether to use the MapMessage component to display digitization prompts
     mapMessagePrompt: true,
+    
+    // Indicates the default redline data store to create
+    defaultDataStoreFormat: null,
+    
+    // Indicates the default geometry types the user can record
+    defaultRedlineGeometryTypes: 0,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -66,6 +72,25 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
         if (json.UseMapMessagePrompt)
             this.mapMessagePrompt = (json.UseMapMessagePrompt[0] == "true");
+            
+        if (json.DataStoreFormat && json.RedlineGeometryFormat) {
+            if (json.DataStoreFormat[0] == "SDF" ||
+                json.DataStoreFormat[0] == "SHP" ||
+                json.DataStoreFormat[0] == "SQLite") {
+                
+                var geomTypes = parseInt(json.RedlineGeometryFormat[0]);
+                if (json.DataStoreFormat[0] == "SHP") {
+                    //Only accept if geometry type is singular
+                    if (geomTypes == 1 || geomTypes == 2 || geomTypes == 4) {
+                        this.defaultDataStoreFormat = json.DataStoreFormat[0];
+                        this.defaultRedlineGeometryType = geomTypes;
+                    }
+                } else {
+                    this.defaultDataStoreFormat = json.DataStoreFormat[0];
+                    this.defaultRedlineGeometryType = geomTypes;
+                }
+            }
+        }
 
         // register Redline specific events
         this.registerEventID(Fusion.Event.REDLINE_FEATURE_ADDED);
@@ -125,6 +150,11 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         params.push('LOCALE='+Fusion.locale);
         params.push('MAPNAME='+this.widget.getMapName());
         params.push('SESSION='+this.widget.getSessionID());
+        
+        if (this.widget.defaultDataStoreFormat != null && this.widget.defaultRedlineGeometryType > 0) {
+            params.push('REDLINEFORMAT=' + this.widget.defaultDataStoreFormat);
+            params.push('REDLINEGEOMTYPE=' + this.widget.defaultRedlineGeometryType);
+        }
 
         if (url.indexOf('?') < 0) {
             url += '?';
