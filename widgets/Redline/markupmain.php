@@ -21,6 +21,11 @@
     $defaultCmd = null;
     $defaultFormat = null;
     $defaultGeomType = null;
+    $createOnStartup = false;
+
+    if (array_key_exists("AUTOCREATE", $args)) {
+        $createOnStartup = ($args["AUTOCREATE"] == "1");
+    }
 
     if (array_key_exists("REDLINEFORMAT", $args) && array_key_exists("REDLINEGEOMTYPE", $args)) {
         if (strcmp($args["REDLINEFORMAT"], "SDF") == 0) {
@@ -367,6 +372,10 @@
             var map = parent.Fusion.getMapByName(mapName);
             map.reloadMap();
         <?php } ?>
+        
+        <? if ($defaultFormat != null && $defaultGeomType != null && $createOnStartup == true) { ?>
+            SubmitCreateCommand(<?= $defaultCmd ?>, <?= $defaultGeomType ?>);
+        <? } ?>
         }
     </script>
 

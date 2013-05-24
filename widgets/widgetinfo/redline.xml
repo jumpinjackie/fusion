@@ -97,4 +97,12 @@
         <DefaultValue>7</DefaultValue>
         <IsMandatory>false</IsMandatory>
     </Parameter>
+    <Parameter>
+        <Name>AutoCreateOnStartup</Name>
+        <Description>If DataStoreFormat and RedlineGeometryFormat parameters are specified, determines if the redline data store is automatically created on widget invocation. If true, the widget starts off in the Redline editing page instead of the Redline Management page</Description>
+        <Type>boolean</Type>
+        <Label>AutoCreateOnStartup</Label>
+        <DefaultValue>true</DefaultValue>
+        <IsMandatory>false</IsMandatory>
+    </Parameter>
 </WidgetInfo>

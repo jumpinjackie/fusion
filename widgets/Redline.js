@@ -59,6 +59,10 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     
     // Indicates the default geometry types the user can record
     defaultRedlineGeometryTypes: 0,
+    
+    // If we have a redline data store and geom format specified, auto-create the data store and go to the
+    // edit redline page 
+    bCreateOnStartup: false,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -84,10 +88,14 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
                     if (geomTypes == 1 || geomTypes == 2 || geomTypes == 4) {
                         this.defaultDataStoreFormat = json.DataStoreFormat[0];
                         this.defaultRedlineGeometryType = geomTypes;
+                        if (json.AutoCreateOnStartup)
+                            this.bCreateOnStartup = (json.AutoCreateOnStartup[0] == "true");
                     }
                 } else {
                     this.defaultDataStoreFormat = json.DataStoreFormat[0];
                     this.defaultRedlineGeometryType = geomTypes;
+                    if (json.AutoCreateOnStartup)
+                        this.bCreateOnStartup = (json.AutoCreateOnStartup[0] == "true");
                 }
             }
         }
@@ -154,6 +162,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
         if (this.widget.defaultDataStoreFormat != null && this.widget.defaultRedlineGeometryType > 0) {
             params.push('REDLINEFORMAT=' + this.widget.defaultDataStoreFormat);
             params.push('REDLINEGEOMTYPE=' + this.widget.defaultRedlineGeometryType);
+            params.push('AUTOCREATE=' + (this.widget.bCreateOnStartup ? "1" : "0"));
         }
 
         if (url.indexOf('?') < 0) {
