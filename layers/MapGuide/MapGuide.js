@@ -666,11 +666,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         maxResolution: 'auto',
         useOverlay: this.selectionAsOverlay,
         useAsyncOverlay: this.useAsyncOverlay,
-        ratio: this.ratio
+        ratio: this.ratio,
+        transitionEffect: 'resize'
       };
-      if ((behavior & 1) == 0 && !/WebKit/.test(navigator.userAgent)) {
-        layerOptions.transitionEffect = 'resize';
-      }
 
       //add in scales array if supplied
       if (this.scales && this.scales.length>0) {
