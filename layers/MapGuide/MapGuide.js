@@ -332,10 +332,17 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //set projection units and code if supplied
             var wktProj;
             if (o.wkt && o.wkt.length > 0){
-              wktProj = new OpenLayers.Projection(o.wkt);
+              //Proj4js prefers EPSG codes over raw WKT. So if an EPSG code exists, use that over the WKT
+              if (o.epsg != 0) {
+                wktProj = new OpenLayers.Projection("EPSG:" + o.epsg);
+                this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
+              } else {
+                wktProj = new OpenLayers.Projection(o.wkt);
+              }
             } 
             if (!wktProj || (wktProj && wktProj.proj && !wktProj.proj.readyToUse)) {
               if (o.epsg != 0) {
+                wktProj = new OpenLayers.Projection("EPSG:" + o.epsg);
                 this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
               } else {
                 //default to the local non-projected system if not otherwise specified
