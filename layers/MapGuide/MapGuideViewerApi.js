@@ -248,6 +248,7 @@ function mgApiInit() {
       line: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
                   OpenLayers.Handler.Path, {
                     handlerOptions: {
+                      maxVertices: 2,
                       freehandToggle: null, 
                       freehand: false, 
                       persist: true,
@@ -255,9 +256,6 @@ function mgApiInit() {
                       layerOptions: {
                         styleMap: mgApiStyleMap
                       }
-                    },
-                    callbacks: {
-                      'point': mgApiCheckLine
                     }
                   }),
       linestr: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
@@ -303,16 +301,6 @@ function mgApiInit() {
       }
   }
 
-}
-
-//this callback method for the 'line' control to limit the number of points 
-//in the linestring to 2 - there is an extra point in the feature that gets
-//removed when the feature is finalized
-function mgApiCheckLine(point, geom) {
-  if (geom.components.length == 3) {
-    this.handler.dblclick();
-    //this.handler.finalize();
-  }
 }
 
 /* locate the Fusion window */
