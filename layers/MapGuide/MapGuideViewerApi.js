@@ -27,11 +27,6 @@
 * This is a simple API layer to mimick the MapGuide ajaxviewer API
 */
 var mgApiMapWidgetId = 'Map';
-var mgApiActiveWidget = null;
-var mgApiActiveControl = null;
-var mgApiDrawControls;
-var mgApiDigitizingLayer = null;
-var mgApiInitialized = false;
 var MainFusionWindow = GetFusionWindow();
 var OpenLayers = MainFusionWindow.OpenLayers;
 var Fusion = MainFusionWindow.Fusion;
@@ -40,7 +35,7 @@ var Object = MainFusionWindow.Object;
 
 function Refresh() {
     //var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
+    var mapWidget = GetFusionMapWidget();
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.redraw();
     }
@@ -48,7 +43,7 @@ function Refresh() {
 
 function SetSelectionXML(selectionXml) {
     //var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
+    var mapWidget = GetFusionMapWidget();
     if (mapWidget && mapWidget.isMapLoaded()) {
         mapWidget.setSelection(selectionXml, true);
     }
@@ -56,7 +51,7 @@ function SetSelectionXML(selectionXml) {
 
 function ZoomToView(x, y, scale, refresh) {
     //var Fusion = window.top.Fusion;
-    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
+    var mapWidget = GetFusionMapWidget();
     if (mapWidget && mapWidget.isMapLoaded()) {
         var extent = mapWidget.getExtentFromPoint(x, y, scale);
         mapWidget.setExtents(extent);
@@ -64,31 +59,37 @@ function ZoomToView(x, y, scale, refresh) {
 }
 
 function DigitizePoint(handler) {
-    mgApiStartDigitizing('point', handler)
+    GetFusionMapWidget().digitizePoint({}, function(olGeom) { 
+        mgApiCallHandler(olGeom, 'point', handler); 
+    });
 }
 
 function DigitizeLine(handler) {
-    mgApiStartDigitizing('line', handler)
+    GetFusionMapWidget().digitizeLine({}, function(olGeom) { 
+        mgApiCallHandler(olGeom, 'line', handler); 
+    });
 }
 
 function DigitizeLineString(handler) {
-    mgApiStartDigitizing('linestr', handler)
+    GetFusionMapWidget().digitizeLineString({}, function(olGeom) { 
+        mgApiCallHandler(olGeom, 'linestr', handler); 
+    });
 }
 
 function DigitizeRectangle(handler) {
-    mgApiStartDigitizing('rectangle', handler)
+    GetFusionMapWidget().digitizeRectangle({}, function(olGeom) { 
+        mgApiCallHandler(olGeom, 'rect', handler); 
+    });
 }
 
 function DigitizePolygon(handler) {
-    mgApiStartDigitizing('polygon', handler)
+    GetFusionMapWidget().digitizePolygon({}, function(olGeom) { 
+        mgApiCallHandler(olGeom, 'polygon', handler); 
+    });
 }
 
 function ClearDigitization(bCancelHandler) {
-    if (mgApiDigitizingLayer) {
-        mgApiDigitizingLayer.removeFeatures(mgApiDigitizingLayer.features);
-    }
-    if (bCancelHandler)
-        mgApiDeactivate();
+    GetFusionMapWidget().cancelDigitization();
 }
 
 //Theses are the Geometry classes used in the MapGuide Viewer API
@@ -141,166 +142,37 @@ function Polygon()
     this.LineStringInfo();
 }
 
-//The following methods are private and not intended for use by applications
-//
-function mgApiStartDigitizing(type, handler) {
-    mgApiInit();
-    if (handler) {
-      //var Fusion = window.top.Fusion;
-      var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
-      mgApiActiveWidget = mapWidget.oActiveWidget;
-      if (mgApiActiveWidget) {
-        mapWidget.deactivateWidget(mgApiActiveWidget);
-      }
-      mapWidget.triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
-      
-      var control = mgApiDrawControls[type];
-      control.userHandler = handler;
-      mgApiActiveControl = control;
-      control.activate();
-    }
-}
+//---------------------- Private API ------------------------ //
 
-function mgApiCallHandler(evt) {
-  var geom = evt.feature.geometry;
-  var apiGeom = null;
-  if (this.handler.CLASS_NAME == 'OpenLayers.Handler.RegularPolygon') {
-      var v = geom.getVertices();
-      apiGeom = new Rectangle(new Point(v[0].x, v[0].y), new Point(v[2].x, v[2].y));
-  } else {
-      switch (geom.CLASS_NAME) {
-        case 'OpenLayers.Geometry.Point':
-          apiGeom = new Point(geom.x, geom.y);
-          break;
-        case 'OpenLayers.Geometry.LineString':
-          apiGeom = new LineString();
-          var v = geom.getVertices();
-          for (var i=0; i<v.length; ++i) {
-            apiGeom.AddPoint(new Point(v[i].x, v[i].y));
-          }
-          break;
-        case 'OpenLayers.Geometry.Polygon':
-          apiGeom = new LineString();
-          var v = geom.getVertices();
-          for (var i=0; i<v.length; ++i) {
-            apiGeom.AddPoint(new Point(v[i].x, v[i].y));
-          }
-          break;
-      }      
-  }
-  this.userHandler(apiGeom);
-  
-  //deactivate the control in a separate thread so that the chain of event
-  //handlers has a chance to finish before the deactivation occurs
-  window.setTimeout(mgApiDeactivate, 100);
-  
-  return false;
-}
-
-function mgApiDeactivate() {
-    if (mgApiActiveControl) {
-        mgApiActiveControl.deactivate();
-        mgApiActiveControl = null;
-    }
-    var mapWidget = Fusion.getWidgetById(mgApiMapWidgetId);
-    if (mgApiActiveWidget) {
-        //var Fusion = window.top.Fusion;
-        mapWidget.activateWidget(mgApiActiveWidget);
-        mgApiActiveWidget = null;
-    }
-    mapWidget.triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
-}
-
-// set the Stylemap for the MGAPI
-var mgApiStyle = new OpenLayers.Style({
-            pointRadius: 4,
-            graphicName: "square",
-            fillColor: "white",
-            fillOpacity: 0.4,
-            strokeWidth: 2,
-            strokeOpacity: 1,
-            strokeColor: "#666666"
-        });
-var mgApiStyleMap = new OpenLayers.StyleMap(mgApiStyle);
-    
-Fusion.registerForEvent(Fusion.Event.FUSION_INITIALIZED, mgApiInit);
-
-//set up of digitizing tools once everything is initialized
-function mgApiInit() {
-    if (mgApiInitialized) {
-        return;
-    }
-    mgApiInitialized = true;
-  var map = Fusion.getWidgetById(mgApiMapWidgetId).oMapOL;
-  
-  mgApiDigitizingLayer = new OpenLayers.Layer.Vector("Digitizing Layer", {styleMap: mgApiStyleMap});
-  map.addLayers([mgApiDigitizingLayer]);
-
-  mgApiDrawControls = {
-      point: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
-              OpenLayers.Handler.Point, {
-                handlerOptions: {
-                  layerOptions: {
-                    styleMap: mgApiStyleMap
-                  }
+//This function converts the digitized OL geometry into the AJAX viewer geometry model
+function mgApiCallHandler(geom, geomType, handler) {
+    var apiGeom = null;
+    if (geomType == 'rect') {
+        var v = geom.getVertices();
+        apiGeom = new Rectangle(new Point(v[0].x, v[0].y), new Point(v[2].x, v[2].y));
+    } else {
+        switch (geom.CLASS_NAME) {
+            case 'OpenLayers.Geometry.Point':
+                apiGeom = new Point(geom.x, geom.y);
+                break;
+            case 'OpenLayers.Geometry.LineString':
+                apiGeom = new LineString();
+                var v = geom.getVertices();
+                for (var i=0; i<v.length; ++i) {
+                    apiGeom.AddPoint(new Point(v[i].x, v[i].y));
                 }
-              }),
-      line: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
-                  OpenLayers.Handler.Path, {
-                    handlerOptions: {
-                      maxVertices: 2,
-                      freehandToggle: null, 
-                      freehand: false, 
-                      persist: true,
-                      style: "default", // this forces default render intent
-                      layerOptions: {
-                        styleMap: mgApiStyleMap
-                      }
-                    }
-                  }),
-      linestr: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
-                  OpenLayers.Handler.Path, {
-                    handlerOptions: {
-                      freehand: false, 
-                      persist: true, 
-                      style: "default", // this forces default render intent
-                      layerOptions: {
-                        styleMap: mgApiStyleMap
-                      }
-                    }
-                  }),
-      rectangle: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
-                  OpenLayers.Handler.RegularPolygon, {
-                    handlerOptions: {
-                      persist: true, 
-                      sides: 4, 
-                      irregular: true,
-                      style: "default", // this forces default render intent
-                      layerOptions: {
-                        styleMap: mgApiStyleMap
-                      }
-                    }
-                  }),
-      polygon: new OpenLayers.Control.DrawFeature(mgApiDigitizingLayer,
-                  OpenLayers.Handler.Polygon, {
-                    handlerOptions: {
-                      freehand: false, 
-                      persist: true, 
-                      style: "default", // this forces default render intent
-                      layerOptions: {
-                        styleMap: mgApiStyleMap
-                      }
-                    }
-                  })
-  };
-
-  for(var key in mgApiDrawControls) {
-      if (mgApiDrawControls[key].events) {
-          mgApiDrawControls[key].events.register('featureadded', null, mgApiCallHandler);
-          map.addControl(mgApiDrawControls[key]);          
-      }
-  }
-
+                break;
+            case 'OpenLayers.Geometry.Polygon':
+                apiGeom = new LineString();
+                var v = geom.getVertices();
+                for (var i=0; i<v.length; ++i) {
+                    apiGeom.AddPoint(new Point(v[i].x, v[i].y));
+                }
+                break;
+        }      
+    }
+    handler(apiGeom);
+    return false;
 }
 
 /* locate the Fusion window */
