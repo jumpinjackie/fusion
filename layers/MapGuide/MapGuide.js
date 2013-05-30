@@ -971,26 +971,28 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      *        given, all the elemsnts will be returned.
      */
     getSelection: function(userFunc, layers, startcount) {
-
-      /*for now always go back to server to fetch selection */
-
-      if (userFunc)
-      {
-          //this.aSelectionCallbacks.push(userFunc);
-
-
-          //this.mapWidget._addWorker();
-          // this._bSelectionIsLoading = true;
-          var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
-          var options = {
-              parameters: {'session': this.getSessionID(),
-                          'mapname': this._sMapname,
-                          'layers': layers,
-                          'startcount': startcount},
-              onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc)
-          };
-          Fusion.ajaxRequest(s, options);
-      }
+        /*for now always go back to server to fetch selection */
+        if (userFunc)
+        {
+            if (this.previousAttributes) {
+                userFunc(new Fusion.SelectionObject(this.previousAttributes));
+            } else {
+                //this.aSelectionCallbacks.push(userFunc);
+                //this.mapWidget._addWorker();
+                // this._bSelectionIsLoading = true;
+                var s = 'layers/' + this.arch + '/' + Fusion.getScriptLanguage() + "/Selection." + Fusion.getScriptLanguage() ;
+                var options = {
+                    parameters: {
+                        'session': this.getSessionID(),
+                        'mapname': this._sMapname,
+                        'layers': layers,
+                        'startcount': startcount
+                    },
+                    onSuccess: OpenLayers.Function.bind(this.getSelectionCB, this, userFunc)
+                };
+                Fusion.ajaxRequest(s, options);
+            }
+        }
     },
 
     /**
@@ -1049,6 +1051,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.processSelectedFeatureProperties(r);
     },
 
+    processSelectedFeaturePropertiesNode: function(oNode) {
+        if (oNode.hasSelection) {
+            this.newSelection();
+        } else {
+            this.clearSelection();
+        }
+    },
+
     /**
        Call back function when select functions are called (eg queryRect)
        to handle feature attributes
@@ -1057,13 +1067,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.mapWidget._removeWorker();
         if (r.responseText) {   //TODO: make the equivalent change to MapServer.js
             var oNode = Fusion.parseJSON(r.responseText);
-
-            if (oNode.hasSelection) {
-              this.newSelection();
-            } else {
-              this.clearSelection();
-              return;
-            }
+            this.processSelectedFeaturePropertiesNode(oNode);
         }
     },
 
@@ -1117,6 +1121,25 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
         }
     },
+    /**
+     * Checks if we can perform a v2.6.0 QUERYMAPFEATURES request. A v2.6.0 QUERYMAPFEATURES request gives us
+     *  - All attributes of selected features if requested (bypassing several follow-up requests to PHP scripts to get this data)
+     *  - Slimmer maptip requests.
+     * A much better option, if it is available to us.
+     */
+    supportsExtendedQuery: function() {
+        var bSupportsExtended = false;
+        if (this.siteVersion[0] >= 2) { //2.x or higher
+            if (this.siteVersion[0] == 2) { //Major is 2
+                if (this.siteVersion[1] >= 6) { //2.6 or higher 2.x
+                    bSupportsExtended = true;
+                }
+            } else { //3.x, 4.x, etc
+                bSupportsExtended = true;
+            }
+        }
+        return bSupportsExtended;
+    },
 
     /**
        Do a query on the map
@@ -1140,7 +1163,28 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         {
             options.filter = '';
         }
-        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
+        
+        if (this.supportsExtendedQuery()) {
+            var reqData = 1; //attributes
+            //TODO: Can't use inline selection image yet as we'll have to modify OpenLayers to accept an inline selection
+            //over doing a GETDYNAMICMAPOVERLAYIMAGE request. When we can, or the value of 2 into the mask for inline 
+            //selection as well
+            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures2(this.getSessionID(),
+                                                                this._sMapname,
+                                                                options.geometry,
+                                                                maxFeatures,
+                                                                persist,
+                                                                options.selectionType || this.selectionType,
+                                                                options.filter,
+                                                                options.layers,
+                                                                layerAttributeFilter,
+                                                                reqData,
+                                                                this.selectionColor,
+                                                                this.selectionImageFormat);
+            var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeExtendedFeatureInfo, this) : OpenLayers.Function.bind(this.processExtendedFeatureInfo, this);
+            Fusion.oBroker.dispatchRequest(r, callback);
+        } else {
+            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                                 this._sMapname,
                                                                 options.geometry,
                                                                 maxFeatures,
@@ -1149,8 +1193,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                 options.filter,
                                                                 options.layers,
                                                                 layerAttributeFilter);
-        var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
-        Fusion.oBroker.dispatchRequest(r, callback);
+            var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
+            Fusion.oBroker.dispatchRequest(r, callback);
+        }
     },
 
     showLayer: function( layer, noDraw ) {
@@ -1210,7 +1255,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.drawMap();
     },
 
-  /**
+    /**
      * called when there is a click on the map holding the CTRL key: query features at that postion.
      **/
     mouseUpCRTLClick: function(evt) {
@@ -1353,12 +1398,25 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var layerAttributeFilter = 5;
         //TODO: possibly make the layer names configurable?
         var layerNames = mapTipWidget.aLayers.toString();
-        var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
-                                        this._sMapname,
-                                        sGeometry,
-                                        maxFeatures, persist, selection, filter, layerNames,
-                                        layerAttributeFilter);
-        oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.parseMapTip, this));
+        if (this.supportsExtendedQuery()) {
+            var reqData = (4 | 8); //Tooltips and hyperlinks
+            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures2(this.getSessionID(),
+                                            this._sMapname,
+                                            sGeometry,
+                                            maxFeatures, persist, selection, filter, layerNames,
+                                            layerAttributeFilter,
+                                            reqData,
+                                            this.selectionColor,
+                                            this.selectionImageFormat);
+            oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.parseMapTip, this));
+        } else {
+            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
+                                            this._sMapname,
+                                            sGeometry,
+                                            maxFeatures, persist, selection, filter, layerNames,
+                                            layerAttributeFilter);
+            oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.parseMapTip, this));
+        }
     },
     
     parseMapTip: function(xhr) {
@@ -1408,10 +1466,138 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
             return url;
         }
-
+    },
+    
+    typeNameToValue: function(name) {
+        switch(name) { //Values from MgPropertyType
+            case "byte":
+                return 2;
+            case "boolean":
+                return 1;
+            case "blob":
+                return 10;
+            case "clob":
+                return 11;
+            case "datetime":
+                return 3;
+            case "double":
+                return 5;
+            case "int16":
+                return 6;
+            case "int32":
+                return 7;
+            case "int64":
+                return 8;
+            case "single":
+                return 4;
+            case "string":
+                return 9;
+        }
+        return -1;
+    },
+    
+    convertExtendedFeatureInfo: function(efi) {
+        var bHasSelection = false;
+        var result = {};
+        var layerNames = [];
+        var featuresByLayer = {};
+        if (efi.FeatureInformation.SelectedFeatures) {
+            var selLayers = efi.FeatureInformation.SelectedFeatures[0].SelectedLayer;
+            bHasSelection = (selLayers.length > 0);
+            var box = new OpenLayers.Bounds();
+            
+            for (var i = 0; i < selLayers.length; i++) {
+                var selLayer = selLayers[i];
+                var layerName = selLayer["@name"];
+                if (!result[layerName]) {
+                    var layerMeta = selLayer.LayerMetadata[0];
+                    var pnames = [];
+                    var ptypes = [];
+                    var pvals = [];
+                    for (var j = 0; j < layerMeta.Property.length; j++) {
+                        var metaProp = layerMeta.Property[j];
+                        pnames.push(metaProp.Name[0]);
+                        ptypes.push(metaProp.Type[0]);
+                        pvals.push(metaProp.DisplayName[0]);
+                    }
+                    result[layerName] = {
+                        metadata: [],  //NOTE: Probably a defect, but regular code path is putting blank string arrays here too
+                        metadatanames: ["dimension", "bbox", "center", "area", "length"],
+                        numelements: selLayer.Feature.length,
+                        propertynames: pnames,
+                        propertytypes: ptypes,
+                        propertyvalues: pvals,
+                        values: []
+                    };
+                    layerNames.push(layerName);
+                }
+                
+                for (var j = 0; j < selLayer.Feature.length; j++) {
+                    var feat = selLayer.Feature[j];
+                    var featVals = [];
+                    for (var k = 0; k < feat.Property.length; k++) {
+                        //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
+                        //the old code path produces
+                        featVals.push(feat.Property[k].Value == null ? "" : feat.Property[k].Value[0]);
+                    }
+                    result[layerName].values.push(featVals);
+                    //NOTE: Probably a defect, but regular code path is putting blank string arrays here too, so let's do the same
+                    result[layerName].metadata.push(["","","","",""]);
+                    var bounds = feat.Bounds[0].split(" "); //minx miny maxx maxy
+                    box.extend(new OpenLayers.LonLat(parseFloat(bounds[0]), parseFloat(bounds[1])));
+                    box.extend(new OpenLayers.LonLat(parseFloat(bounds[2]), parseFloat(bounds[3])));
+                }
+            }
+            return OpenLayers.Util.extend(result, {
+                hasSelection: bHasSelection,
+                extents: {
+                    minx: box.left,
+                    miny: box.bottom,
+                    maxx: box.right,
+                    maxy: box.top
+                },
+                layers: layerNames
+            });
+        } else {
+            result.hasSelection = false;
+            return result;
+        }
     },
 
-
+    processAndMergeExtendedFeatureInfo: function(r) {
+        this.processSelectedExtendedFeatureInfo(r, true);
+        //this.processSelectedFeatureInfo(r, true);
+    },
+    
+    processExtendedFeatureInfo: function(r) {
+        this.processSelectedExtendedFeatureInfo(r, false);
+        //this.processSelectedFeatureInfo(r, false);
+    },
+    
+    processSelectedExtendedFeatureInfo: function(r, mergeSelection) {
+        var o = Fusion.parseJSON(r.responseText);
+        var sel = new Fusion.SimpleSelectionObject(o);
+        var attributes = this.convertExtendedFeatureInfo(o);
+        var selText = sel.getSelectionXml();
+        if (mergeSelection == true)
+        {
+            sel.merge(this.previousSelection);
+        }
+        this.previousSelection = sel;
+        //Because the QUERYMAPFEATURES 2.6.0 response contains mostly everything we need, we cut down
+        //on lots of async request ping-pong. So we can just update the selection image and notify any
+        //interested parties of the new selection attributes
+        if (selText != "" && selText != null) {
+            this.previousAttributes = attributes;
+            this.updateMapSelection(selText, false);
+            this.processSelectedFeaturePropertiesNode(attributes);
+        } else {
+            this.previousAttributes = null;
+            this.clearSelection();
+        }
+        this.mapWidget._removeWorker();
+    },
+    
     processAndMergeFeatureInfo: function (r) {
         this.processSelectedFeatureInfo(r, true);
     },
