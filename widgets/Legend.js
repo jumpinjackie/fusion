@@ -800,8 +800,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         var opt = {};
         opt.statusIsDefault = layer.statusDefault;
         
-        //set the label
-        if (style && style.legendLabel) {
+        //Set the label. Use style label IFF there are more than one style rule.
+        //Otherwise layer's legend label takes precedence
+        if (style && style.legendLabel && layer.legend.currentRange.styles.length > 1) {
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
         } else {
             opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
