@@ -9,6 +9,7 @@ class EditCommand
     const AddPolygon    = 5;
     const Delete        = 6;
     const Update        = 7;
+    const AddCircle     = 8;
 }
 
 ?>

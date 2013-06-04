@@ -33,6 +33,16 @@ var Fusion = MainFusionWindow.Fusion;
 var Class = MainFusionWindow.Class;
 var Object = MainFusionWindow.Object;
 
+//Polygon circle approximation borrowed from the AJAX viewer
+var simulateCirclePoints = [];
+var simulateCircleHalfPointNumber = 40;
+(function () {
+    for (var index = 0; index < 2 * simulateCircleHalfPointNumber + 1; index++) {
+        simulateCirclePoints[2 * index] = Math.cos(Math.PI * index / simulateCircleHalfPointNumber);
+        simulateCirclePoints[2 * index + 1] = Math.sin(Math.PI * index / simulateCircleHalfPointNumber);
+    }
+})();
+
 function Refresh() {
     //var Fusion = window.top.Fusion;
     var mapWidget = GetFusionMapWidget();
@@ -85,6 +95,12 @@ function DigitizeRectangle(handler) {
 function DigitizePolygon(handler) {
     GetFusionMapWidget().digitizePolygon({}, function(olGeom) { 
         mgApiCallHandler(olGeom, 'polygon', handler); 
+    });
+}
+
+function DigitizeCircle(handler) {
+    GetFusionMapWidget().digitizeCircle({}, function(circle) {
+        mgApiCallHandler(circle, 'circle', handler);
     });
 }
 
@@ -150,6 +166,10 @@ function mgApiCallHandler(geom, geomType, handler) {
     if (geomType == 'rect') {
         var v = geom.getVertices();
         apiGeom = new Rectangle(new Point(v[0].x, v[0].y), new Point(v[2].x, v[2].y));
+    } else if (geomType == 'circle') {
+        apiGeom = new Circle();
+        apiGeom.Center = new Point(geom.x, geom.y);
+        apiGeom.Radius = geom.r;
     } else {
         switch (geom.CLASS_NAME) {
             case 'OpenLayers.Geometry.Point':

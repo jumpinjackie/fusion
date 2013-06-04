@@ -60,6 +60,7 @@
                 $markupEditor->AddLineString();
                 $refreshMap = true;
                 break;
+            case EditCommand::AddCircle:
             case EditCommand::AddRectangle:
             case EditCommand::AddPolygon:
                 $markupEditor->AddPolygon();
@@ -100,9 +101,11 @@
         $lineStringHelpLocal = GetLocalizedString('REDLINEEDITLINESTRINGHELP', $locale );
         $rectangleHelpLocal = GetLocalizedString('REDLINEEDITRECTANGLEHELP', $locale );
         $polygonHelpLocal = GetLocalizedString('REDLINEEDITPOLYGONHELP', $locale );
+        $circleHelpLocal = GetLocalizedString('REDLINEEDITCIRCLEHELP', $locale );
         $addLocal = GetLocalizedString('REDLINEADD', $locale );
         $digitizeLocal = GetLocalizedString('REDLINEDIGITIZE', $locale );
         $pointLocal = GetLocalizedString('REDLINEOBJECTPOINT', $locale );
+        $circleLocal = GetLocalizedString('REDLINEOBJECTCIRCLE', $locale );
         $lineLocal = GetLocalizedString('REDLINEOBJECTLINE', $locale );
         $lineStringLocal = GetLocalizedString('REDLINEOBJECTLINESTRING', $locale );
         $rectangleLocal = GetLocalizedString('REDLINEOBJECTRECTANGLE', $locale );
@@ -142,6 +145,7 @@
         var CMD_ADD_LINESTRING 	= <?= EditCommand::AddLineString ?>;
         var CMD_ADD_RECTANGLE 	= <?= EditCommand::AddRectangle ?>;
         var CMD_ADD_POLYGON 	= <?= EditCommand::AddPolygon ?>;
+        var CMD_ADD_CIRCLE      = <?= EditCommand::AddCircle ?>;
         var CMD_DELETE 			= <?= EditCommand::Delete ?>;
         var CMD_UPDATE 			= <?= EditCommand::Update ?>;
 
@@ -151,6 +155,7 @@
         var EDIT_LINESTRING_HELP = "<?=$lineStringHelpLocal?>";
         var EDIT_RECTANGLE_HELP = "<?=$rectangleHelpLocal?>";
         var EDIT_POLYGON_HELP = "<?=$polygonHelpLocal?>";
+        var EDIT_CIRCLE_HELP = "<?=$circleHelpLocal?>";
 
         function SetDigitizeInfo(text)
         {
@@ -188,6 +193,12 @@
         {
             SetDigitizeInfo(EDIT_POINT_HELP);
             DigitizePoint(OnPointDigitized);
+        }
+        
+        function AddCircle()
+        {
+            SetDigitizeInfo(EDIT_CIRCLE_HELP);
+            DigitizeCircle(OnCircleDigitized);
         }
 
         function AddLine()
@@ -234,6 +245,23 @@
             geometryInput.value = point.X + "," + point.Y;
 
             SubmitCommand(CMD_ADD_POINT);
+        }
+        
+        function OnCircleDigitized(circle)
+        {
+            PromptAndSetMarkupText();
+            var geometryInput = document.getElementById("geometryInput");
+            var x = circle.Center.X;
+            var y = circle.Center.Y;
+            var r = circle.Radius;
+            
+            var coords = [];
+            for (var index = 0; index < 2 * simulateCircleHalfPointNumber + 1; index++) {
+                coords.push(x + r * simulateCirclePoints[2 * index]);
+                coords.push(y + r * simulateCirclePoints[2 * index + 1]);
+            }
+            geometryInput.value = (coords.length / 2) + "," + coords.join(",");
+            SubmitCommand(CMD_ADD_CIRCLE);
         }
 
         function OnLineStringDigitized(lineString)
@@ -404,6 +432,11 @@
     <tr>
         <td colspan="2">
             <input class="Ctrl" id="pointBtn" type="button" onClick="AddPoint()" value="<?=$pointLocal?>" style="width:85px" <?= $allowPoint ? '' : 'disabled="disabled"' ?> />
+            <input class="Ctrl" id="circleBtn" type="button" onClick="AddCircle()" value="<?=$circleLocal?>" style="width:85px" <?= $allowPoly ? '' : 'disabled="disabled"' ?> />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
             <input class="Ctrl" id="lineBtn" type="button" onClick="AddLine()" value="<?=$lineLocal?>" style="width:85px" <?= $allowLine ? '' : 'disabled="disabled"'  ?> />
             <input class="Ctrl" id="lineStringBtn" type="button" onClick="AddLineString()" value="<?=$lineStringLocal?>" style="width:85px" <?= $allowLine ? '' : 'disabled="disabled"'  ?> />
         </td>
