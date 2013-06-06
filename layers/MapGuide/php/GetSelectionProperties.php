@@ -76,25 +76,26 @@ include('Utilities.php');
                 /* the class that is used for this layer will be used to select  features */
                 $class = $oLayer->GetFeatureClassName();
 
-            /* select the features */
-            $queryOptions = new MgFeatureQueryOptions();
-            $geomName = $oLayer->GetFeatureGeometryName();
-            //TODO : seems that property mapping breaks the selection ????
-            //could it be that $selection->AddFeatures($layerObj, $featureReader, 0) is
-            //the one causing a problem when the properies are limited ?
-            if (isset($_SESSION['property_mappings']) && isset($_SESSION['property_mappings'][$oLayer->GetObjectId()])) {
-                $mappings = $_SESSION['property_mappings'][$oLayer->GetObjectId()];
-            } else {
-                //This is normally pre-stashed by LoadMap.php, but if the client is using the new
-                //CREATERUNTIMEMAP shortcut, this information does not exist yet, so fetch and stash
-                $mappings = GetLayerPropertyMappings($resourceService, $oLayer);
-                $_SESSION['property_mappings'][$oLayer->GetObjectId()] = $mappings;
-            }
-            if (count($mappings) > 0) {
-                foreach($mappings as $name => $value) {
-                    if ($geomName != $name) {
-                        $queryOptions->AddFeatureProperty($name);
-                        //echo "$name $value <br>\n";
+                /* select the features */
+                $queryOptions = new MgFeatureQueryOptions();
+                $geomName = $oLayer->GetFeatureGeometryName();
+                //TODO : seems that property mapping breaks the selection ????
+                //could it be that $selection->AddFeatures($layerObj, $featureReader, 0) is
+                //the one causing a problem when the properies are limited ?
+                if (isset($_SESSION['property_mappings']) && isset($_SESSION['property_mappings'][$oLayer->GetObjectId()])) {
+                    $mappings = $_SESSION['property_mappings'][$oLayer->GetObjectId()];
+                } else {
+                    //This is normally pre-stashed by LoadMap.php, but if the client is using the new
+                    //CREATERUNTIMEMAP shortcut, this information does not exist yet, so fetch and stash
+                    $mappings = GetLayerPropertyMappings($resourceService, $oLayer);
+                    $_SESSION['property_mappings'][$oLayer->GetObjectId()] = $mappings;
+                }
+                if (count($mappings) > 0) {
+                    foreach($mappings as $name => $value) {
+                        if ($geomName != $name) {
+                            $queryOptions->AddFeatureProperty($name);
+                            //echo "$name $value <br>\n";
+                        }
                     }
                 }
 
@@ -174,11 +175,11 @@ include('Utilities.php');
                 }
                 $result->layers = array();
                 for ($i=0; $i<$layers->GetCount(); $i++) {
-                  $layer = $layers->GetItem($i);
-                  $layerName = $layer->GetName();
-                  array_push($result->layers, $layerName);
-                  $layerClassName = $layer->GetFeatureClassName();
-                  $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
+                    $layer = $layers->GetItem($i);
+                    $layerName = $layer->GetName();
+                    array_push($result->layers, $layerName);
+                    $layerClassName = $layer->GetFeatureClassName();
+                    $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
                 }
 
                 /*save selection in the session*/
