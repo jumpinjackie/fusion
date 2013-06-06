@@ -50,6 +50,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         1155581.153, 2311162.307, 4622324.614, 9244649.227, 18489298.45, 
         36978596.91, 73957193.82, 147914387.6, 295828775.3, 591657550.5
     ],
+    bUseNativeServices: false,
     selectionAsOverlay: true,
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
@@ -123,6 +124,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.noCache = true;
         this.oLayersOLTile = [];
         
+        if (Fusion.siteVersion) {
+            this.siteVersion = Fusion.siteVersion;
+            this.checkNativeServiceSupport();
+        }
         var sid = Fusion.sessionId;
         if (sid) {
             this.session[0] = sid;
@@ -149,13 +154,45 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
+    checkNativeServiceSupport: function() {
+        //NOTE: Using native services may cause a slight (but not too much) delay in any requests to PHP scripts 
+        //that use layer property mappings as they will be lazy loaded due to us not calling LoadMap.php, which 
+        //would've pre-cached such information. but we get much better map init performance
+        this.bUseNativeServices = false;
+        var vMajor = this.siteVersion[0];
+        var vMinor = this.siteVersion[1];
+        if (vMajor > 2) { // 3.0 or higher
+            this.bUseNativeServices = true;
+        } else {
+            if (vMajor == 2) { // 2.x
+                if (vMinor >= 6) { // >= 2.6
+                    this.bUseNativeServices = true;
+                }
+            }
+        }
+    },
+
     createSessionCB: function(xhr) {
         if (xhr.status == 200) {
             var o = Fusion.parseJSON(xhr.responseText);
             if (o.success === false) {
                 Fusion.reportError(o.message);
             } else {
+                var version = o.siteVersion;
+                var bits = version.split('.');
+                this.siteVersion = new Array(parseInt(bits[0]),
+                                             parseInt(bits[1]),
+                                             parseInt(bits[2]),
+                                             parseInt(bits[3])
+                );
+                this.checkNativeServiceSupport();
                 this.session[0] = o.sessionId;
+                
+                if (!Fusion.siteVersion)
+                    Fusion.siteVersion = this.siteVersion;
+                if (!Fusion.sessionId)
+                    Fusion.sessionId = o.sessionId;
+                
                 var acceptLang = o.acceptLanguage.split(',');
                 //IE - en-ca,en-us;q=0.8,fr;q=0.5,fr-ca;q=0.3
                 for (var i=0; i<acceptLang.length; ++i) {
@@ -200,9 +237,18 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         return this.session[0];
     },
 
+    calcMapName: function(resourceId, bAppendUniqueId) {
+        var slIdx = resourceId.lastIndexOf("/") + 1;
+        var dIdx = resourceId.lastIndexOf(".");
+        var name = resourceId.substring(slIdx, dIdx);
+        if (bAppendUniqueId)
+            name += (new Date()).getTime();
+        return name;
+    },
+
     loadMap: function(resourceId, options) {
         this.bMapLoaded = false;
-
+        
         if (!this.sessionReady()) {
             this.sMapResourceId = resourceId;
             return;
@@ -212,7 +258,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.mapWidget._addWorker();
 
         this._fScale = -1;
-        //this._nDpi = 96;
 
         options = options || {};
 
@@ -226,228 +271,394 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.oSelection = null;
         this.aSelectionCallbacks = [];
         this._bSelectionIsLoading = false;
+        
+        if (this.bUseNativeServices) {
+            var features = (1 | 2 | 4); //We want the whole lot
+            var r = new Fusion.Lib.MGRequest.MGCreateRuntimeMap(resourceId, features, 25);
+            var mapName = this.calcMapName(resourceId, true);
+            r.setParams({ 
+                targetMapName: mapName,
+                iconFormat: "GIF"
+            });
+            if (this.session.length == 1)
+                r.setParams({ session: this.session[0] });
+            Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.onRuntimeMapCreated, this));
+        } else {
+            var sl = Fusion.getScriptLanguage();
+            var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
 
-        var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
+            var sessionid = this.getSessionID();
 
-        var sessionid = this.getSessionID();
-
-        var params = {'mapid': resourceId, "session": sessionid};
-        var options = {onSuccess: OpenLayers.Function.bind(this.mapLoaded,this),
-                       parameters:params};
-        Fusion.ajaxRequest(loadmapScript, options);
+            var params = {'mapid': resourceId, "session": sessionid};
+            var options = {onSuccess: OpenLayers.Function.bind(this.mapLoaded,this),
+                           parameters:params};
+            Fusion.ajaxRequest(loadmapScript, options);
+        }
     },
-
-    mapLoaded: function(r) {
-        if (r.status == 200) {
-            var o = Fusion.parseJSON(r.responseText);
-            this._sResourceId = o.mapId;
-            this._sMapname = o.mapName;
-            this._sMapTitle = o.mapTitle;
+    /**
+     * Re-shapes the CREATERUNTIMEMAP response to match the structure that our
+     * existing initialization code is expecting
+     */
+    convertResponse: function(o) {
+        var rt = o.RuntimeMap;
+        
+        //LoadMap.php response
+        var lm = {
+            backgroundColor: ("#" + rt.BackgroundColor[0].substring(2)),
+            siteVersion: rt.SiteVersion[0],
+            mapId: rt.MapDefinition[0],
+            mapName: rt.Name[0],
+            mapTitle: rt.Name[0],
+            backgroundColor: rt.BackgroundColor[0],
+            metersPerUnit: parseFloat(rt.CoordinateSystem[0].MetersPerUnit[0]),
+            wkt: rt.CoordinateSystem[0].Wkt[0],
+            epsg: parseInt(rt.CoordinateSystem[0].EpsgCode[0]),
+            extent: [
+                parseFloat(rt.Extents[0].LowerLeftCoordinate[0].X[0]),
+                parseFloat(rt.Extents[0].LowerLeftCoordinate[0].Y[0]),
+                parseFloat(rt.Extents[0].UpperRightCoordinate[0].X[0]),
+                parseFloat(rt.Extents[0].UpperRightCoordinate[0].Y[0])
+            ],
+            hasBaseMapLayers: false,
+            hasDynamicLayers: false,
+            FiniteDisplayScales: [],
+            groups: [],
+            layers: []
+        };
+        if (rt.FiniteDisplayScale) {
+            for (var i = 0; i < rt.FiniteDisplayScale.length; i++) {
+                lm.FiniteDisplayScales.push(parseFloat(rt.FiniteDisplayScale[i]));
+            }
+        }
+        
+        for (var i = 0; i < rt.Group.length; i++) {
+            var grp = rt.Group[i];
+            var cg = {
+                groupName: grp.Name[0],
+                legendLabel: (grp.LegendLabel ? grp.LegendLabel[0] : ""),
+                uniqueId: grp.ObjectId[0],
+                displayInLegend: (grp.DisplayInLegend[0] == "true"),
+                expandInLegend: (grp.ExpandInLegend[0] == "true"), 
+                parentUniqueId: grp.ParentId ? grp.ParentId[0] : "",
+                visible: (grp.Visible[0] == "true"),
+                actuallyVisible: (grp.ActuallyVisible[0] == "true"),
+                isBaseMapGroup: (grp.Type[0] == "2")
+            };
+            if (grp.Type[0] == "2")
+                lm.hasBaseMapLayers = true;
+            else
+                lm.hasDynamicLayers = true;
+            lm.groups.push(cg);
+        }
+        
+        //LoadScaleRanges.php response
+        var lsr = {
+            layers: []
+        };
+        for (var i = 0; i < rt.Layer.length; i++) {
+            var lyr = rt.Layer[i];
+            var cl = {
+                uniqueId: lyr.ObjectId[0],
+                layerName: lyr.Name[0],
+                layerTypes: [],
+                resourceId: lyr.LayerDefinition[0],
+                parentGroup: lyr.ParentId ? lyr.ParentId[0] : "",
+                selectable: (lyr.Selectable[0] == "true"),
+                visible: (lyr.Visible[0] == "true"),
+                actuallyVisible: (lyr.ActuallyVisible[0] == "true"),
+                editable: false,
+                isBaseMapLayer: (lyr.Type[0] == "2"),
+                legendLabel: (lyr.LegendLabel ? lyr.LegendLabel[0] : ""),
+                displayInLegend: (lyr.DisplayInLegend[0] == "true"),
+                expandInLegend: (lyr.ExpandInLegend[0] == "true")
+            };
             
-            // Fix defect that background color in overview map will affect background color in main map.
-            // We'll first check if the loaded map is the one shown in main map.
-            var currentMaps = this.mapWidget.mapGroup.maps;
-            var isInMapWidget = false;
-            for(var index = 0, len = currentMaps.length; index < len; index++) {
-                var mapInMaps = currentMaps[index];
-                if(mapInMaps.resourceId == this._sResourceId) {
-                    isInMapWidget = this;
-                    break;
+            lm.layers.push(cl);
+            
+            var clsr = {
+                uniqueId: cl.uniqueId,
+                scaleRanges: []
+            };
+            
+            var ltypes = {};
+            
+            var minScale = 1.0e10;
+            var maxScale = 0;
+            
+            if (lyr.ScaleRange) {
+                for (var j = 0; j < lyr.ScaleRange.length; j++) {
+                    var sr = lyr.ScaleRange[j];
+                    var csr = {
+                        isCompressed: false,
+                        maxScale: sr.MaxScale[0],
+                        minScale: sr.MinScale[0],
+                        styles: [],
+                    };
+                    
+                    minScale = Math.min(minScale, sr.MinScale[0]);
+                    maxScale = Math.max(maxScale, sr.MaxScale[0]);
+                    
+                    if (sr.FeatureStyle) {
+                        for (var f = 0; f < sr.FeatureStyle.length; f++) {
+                            var fts = sr.FeatureStyle[f];
+                            for (var k = 0; k < fts.Rule.length; k++) {
+                                var rule = fts.Rule[k];
+                                var cr = {
+                                    categoryIndex: k,
+                                    filter: rule.Filter ? rule.Filter[0] : "",
+                                    geometryType: parseInt(fts.Type[0]),
+                                    legendLabel: rule.LegendLabel ? rule.LegendLabel[0] : ""
+                                };
+                                if (typeof(ltypes[cr.geometryType]) == 'undefined')
+                                    ltypes[cr.geometryType] = cr.geometryType;
+                                //One single absence of an icon is enough to hint that it's compressed
+                                if (!rule.Icon) {
+                                    csr.isCompressed = true;
+                                } else {
+                                    cr.imageData = "data:" + rt.IconMimeType[0] + ";base64," + rule.Icon[0];
+                                }
+                                csr.styles.push(cr);
+                            }
+                        }
+                    }
+                    clsr.scaleRanges.push(csr);
                 }
             }
-            if(isInMapWidget) {
-                this.mapWidget.setMetersPerUnit(o.metersPerUnit);
-                this.mapWidget.setBackgroundColor(o.backgroundColor);
+            
+            for (var lt in ltypes)
+                cl.layerTypes.push(lt);
+            
+            cl.minScale = minScale;
+            cl.maxScale = maxScale;
+            
+            lsr.layers.push(clsr);
+        }
+        
+        return {
+            LoadMap: lm,
+            LoadScaleRanges: lsr
+        };
+    },
+    initLoadMapResponse: function(o) {
+        this._sResourceId = o.mapId;
+        this._sMapname = o.mapName;
+        this._sMapTitle = o.mapTitle;
+        
+        // Fix defect that background color in overview map will affect background color in main map.
+        // We'll first check if the loaded map is the one shown in main map.
+        var currentMaps = this.mapWidget.mapGroup.maps;
+        var isInMapWidget = false;
+        for(var index = 0, len = currentMaps.length; index < len; index++) {
+            var mapInMaps = currentMaps[index];
+            if(mapInMaps.resourceId == this._sResourceId) {
+                isInMapWidget = this;
+                break;
             }
+        }
+        if(isInMapWidget) {
+            this.mapWidget.setMetersPerUnit(o.metersPerUnit);
+            this.mapWidget.setBackgroundColor(o.backgroundColor);
+        }
 
-            var version = o.siteVersion;
-            var bits = version.split('.');
-            this.siteVersion = new Array(parseInt(bits[0]),
-                                          parseInt(bits[1]),
-                                          parseInt(bits[2]),
-                                          parseInt(bits[3])
-            );
+        this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
 
+        this.layerRoot.clear();
+        this.layerRoot.legendLabel = this._sMapTitle;
+        this.layerRoot.displayInLegend = true;
+        this.layerRoot.expandInLegend = true;
 
-            this.mapTag.layerOptions.maxExtent = OpenLayers.Bounds.fromArray(o.extent);
+        this.parseMapLayersAndGroups(o);
 
-            this.layerRoot.clear();
-            this.layerRoot.legendLabel = this._sMapTitle;
-            this.layerRoot.displayInLegend = true;
-            this.layerRoot.expandInLegend = true;
+        this.minScale = 1.0e10;
+        this.maxScale = 0;
+        for (var i=0; i<this.aLayers.length; i++) {
+          this.minScale = Math.min(this.minScale, this.aLayers[i].minScale);
+          this.maxScale = Math.max(this.maxScale, this.aLayers[i].maxScale);
+        }
+        //a scale value of 0 is undefined
+        if (this.minScale <= 0) {
+          this.minScale = 1.0;
+        }
 
-            this.parseMapLayersAndGroups(o);
-
-            this.minScale = 1.0e10;
-            this.maxScale = 0;
-            for (var i=0; i<this.aLayers.length; i++) {
-              this.minScale = Math.min(this.minScale, this.aLayers[i].minScale);
-              this.maxScale = Math.max(this.maxScale, this.aLayers[i].maxScale);
+        for (var i=0; i<this.aShowLayers.length; i++) {
+            var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]);
+            if (layer) {
+                this.aShowLayers[i] = layer.uniqueId;
+            } else {
+                this.aShowLayers[i] = '';
             }
-            //a scale value of 0 is undefined
-            if (this.minScale <= 0) {
-              this.minScale = 1.0;
+        }
+        for (var i=0; i<this.aHideLayers.length; i++) {
+            var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aHideLayers[i]);
+            if (layer) {
+                this.aHideLayers[i] = layer.uniqueId;
+            } else {
+                this.aHideLayers[i] = '';
             }
+        }
 
-            for (var i=0; i<this.aShowLayers.length; i++) {
-                var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aShowLayers[i]);
-                if (layer) {
-                    this.aShowLayers[i] = layer.uniqueId;
-                } else {
-                    this.aShowLayers[i] = '';
-                }
+        for (var i=0; i<this.aShowGroups.length; i++) {
+            var group =  this.layerRoot.findGroupByAttribute('groupName', this.aShowGroups[i]);
+            if (group) {
+                this.aShowGroups[i] = group.uniqueId;
+            } else {
+                this.aShowGroups[i] = '';
             }
-            for (var i=0; i<this.aHideLayers.length; i++) {
-                var layer =  this.layerRoot.findLayerByAttribute('layerName', this.aHideLayers[i]);
-                if (layer) {
-                    this.aHideLayers[i] = layer.uniqueId;
-                } else {
-                    this.aHideLayers[i] = '';
-                }
-            }
+        }
 
-            for (var i=0; i<this.aShowGroups.length; i++) {
-                var group =  this.layerRoot.findGroupByAttribute('groupName', this.aShowGroups[i]);
-                if (group) {
-                    this.aShowGroups[i] = group.uniqueId;
-                } else {
-                    this.aShowGroups[i] = '';
-                }
+        for (var i=0; i<this.aHideGroups.length; i++) {
+            var group =  this.layerRoot.findGroupByAttribute('groupName', this.aHideGroups[i]);
+            if (group) {
+                this.aHideGroups[i] = group.uniqueId;
+            } else {
+                this.aHideGroups[i] = '';
             }
+        }
 
-            for (var i=0; i<this.aHideGroups.length; i++) {
-                var group =  this.layerRoot.findGroupByAttribute('groupName', this.aHideGroups[i]);
-                if (group) {
-                    this.aHideGroups[i] = group.uniqueId;
-                } else {
-                    this.aHideGroups[i] = '';
-                }
-            }
+        if (o.hasBaseMapLayers && this.bIsMapWidgetLayer) {	//Use tile if there is base layer and in main map
+            this.bSingleTile = false;
+        }
 
-            if (o.hasBaseMapLayers && this.bIsMapWidgetLayer) {	//Use tile if there is base layer and in main map
-                this.bSingleTile = false;
-            }
-
-            //set projection units and code if supplied
-            var wktProj;
-            if (o.wkt && o.wkt.length > 0){
-              //Proj4js prefers EPSG codes over raw WKT. So if an EPSG code exists, use that over the WKT
-              if (o.epsg != 0) {
+        //set projection units and code if supplied
+        var wktProj;
+        if (o.wkt && o.wkt.length > 0){
+            //Proj4js prefers EPSG codes over raw WKT. So if an EPSG code exists, use that over the WKT
+            if (o.epsg != 0) {
                 wktProj = new OpenLayers.Projection("EPSG:" + o.epsg);
                 this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
-              } else {
+            } else {
                 wktProj = new OpenLayers.Projection(o.wkt);
-              }
-            } 
-            if (!wktProj || (wktProj && wktProj.proj && !wktProj.proj.readyToUse)) {
-              if (o.epsg != 0) {
+            }
+        } 
+        if (!wktProj || (wktProj && wktProj.proj && !wktProj.proj.readyToUse)) {
+            if (o.epsg != 0) {
                 wktProj = new OpenLayers.Projection("EPSG:" + o.epsg);
                 this.mapTag.layerOptions.projection = "EPSG:" + o.epsg;
-              } else {
+            } else {
                 //default to the local non-projected system if not otherwise specified
                 o.wkt = "LOCAL_CS[\"Non-Earth (Meter)\",LOCAL_DATUM[\"Local Datum\",0],UNIT[\"Meter\", 1],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH]]";
                 wktProj = new OpenLayers.Projection(o.wkt);
-              }
             }
-            //TODO: consider passing the metersPerUnit value into the framework
-            //to allow for scaling that doesn't match any of the pre-canned units
-            this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
+        }
+        //TODO: consider passing the metersPerUnit value into the framework
+        //to allow for scaling that doesn't match any of the pre-canned units
+        this.mapTag.layerOptions.units = Fusion.getClosestUnits(o.metersPerUnit);
 
-            //add in scales array if supplied
-            if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
-              this.scales = o.FiniteDisplayScales;
-              this.mapWidget.fractionalZoom = false;
-              this.mapWidget.oMapOL.fractionalZoom = false;
-            }
+        //add in scales array if supplied
+        if (o.FiniteDisplayScales && o.FiniteDisplayScales.length>0) {
+            this.scales = o.FiniteDisplayScales;
+            this.mapWidget.fractionalZoom = false;
+            this.mapWidget.oMapOL.fractionalZoom = false;
+        }
             
-            if (!this.bSingleTile) {
-                if (o.groups.length >0) {
-                    var tiledLayerIndex = 0;
-                    this.noCache = false;
-                    this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
-                    
-                    for (var i=0; i<o.groups.length; i++) {
-                        if(o.groups[i].isBaseMapGroup) {
-                            this.oLayersOLTile[tiledLayerIndex] = this.createOLLayer(this._sMapname + "_Tiled[" + tiledLayerIndex + "]", false, 2, false, o.groups[i].groupName);              
-                            tiledLayerIndex++;
-                         }
-                    }
+        if (!this.bSingleTile) {
+            if (o.groups.length >0) {
+                var tiledLayerIndex = 0;
+                this.noCache = false;
+                this.mapWidget.registerForEvent(Fusion.Event.MAP_EXTENTS_CHANGED, OpenLayers.Function.bind(this.mapExtentsChanged, this));
+                
+                for (var i=0; i<o.groups.length; i++) {
+                    if(o.groups[i].isBaseMapGroup) {
+                        this.oLayersOLTile[tiledLayerIndex] = this.createOLLayer(this._sMapname + "_Tiled[" + tiledLayerIndex + "]", false, 2, false, o.groups[i].groupName);              
+                        tiledLayerIndex++;
+                     }
                 }
-                else {
-                    this.bSingleTile = true;
-                }
-            }
-     
-            //remove this layer if it was already created
-            if (this.oLayerOL) {
-                this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
-                this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
-                this.oLayerOL.events.unregister("loadcancel", this, this.loadEnd);
-                this.oLayerOL.destroy();
-            }
-
-            if (this.oLayersOLTile.length != 0) {
-                this.oLayerOL = this.oLayersOLTile[this.oLayersOLTile.length-1]; // The last baselayer at the bottom.
             } else {
-                this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile, 2, false, "");
+                this.bSingleTile = true;
+            }
+        }
+ 
+        //remove this layer if it was already created
+        if (this.oLayerOL) {
+            this.oLayerOL.events.unregister("loadstart", this, this.loadStart);
+            this.oLayerOL.events.unregister("loadend", this, this.loadEnd);
+            this.oLayerOL.events.unregister("loadcancel", this, this.loadEnd);
+            this.oLayerOL.destroy();
+        }
+
+        if (this.oLayersOLTile.length != 0) {
+            this.oLayerOL = this.oLayersOLTile[this.oLayersOLTile.length-1]; // The last baselayer at the bottom.
+        } else {
+            this.oLayerOL = this.createOLLayer(this._sMapname, this.bSingleTile, 2, false, "");
+        }
+        
+        if (wktProj && wktProj.proj && wktProj.proj.readyToUse) {
+          this.oLayerOL.projection = wktProj;
+          this.oLayerOL.projection.proj.units = this.mapTag.layerOptions.units;
+        }
+        this.oLayerOL.events.register("loadstart", this, this.loadStart);
+        this.oLayerOL.events.register("loadend", this, this.loadEnd);
+        this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
+
+        
+        //remove the dynamic overlay layer if it was already created
+        if (this.oLayerOL2) {
+            this.oLayerOL2.destroy();
+        }
+
+        //this is to distinguish between a regular map and an overview map
+        this.bMapLoaded = true;
+        if (this.bIsMapWidgetLayer) {
+            this.mapWidget.addMap(this);
+            
+            if(this.oLayersOLTile.length > 1) {
+                for(var i=this.oLayersOLTile.length-2; i>=0; i--) {
+                    // Workaround to make multiple baselayers display. 
+                    // Openlayers only supports single baselayer.
+                    this.oLayersOLTile[i].isBaseLayer = false; 
+                    this.mapWidget.oMapOL.addLayer(this.oLayersOLTile[i]);
+                }                               
             }
             
-            if (wktProj && wktProj.proj && wktProj.proj.readyToUse) {
-              this.oLayerOL.projection = wktProj;
-              this.oLayerOL.projection.proj.units = this.mapTag.layerOptions.units;
+            //if we have a tiled map that also contains dynamic layers, we need to create
+            //an additional overlay layer to render them on top of the tiles
+            if(!this.bSingleTile && o.hasDynamicLayers) {
+                this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
+                this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
+                this.oLayerOL2.setVisibility(true);
             }
-            this.oLayerOL.events.register("loadstart", this, this.loadStart);
-            this.oLayerOL.events.register("loadend", this, this.loadEnd);
-            this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
+        }
 
-            
-            //remove the dynamic overlay layer if it was already created
-            if (this.oLayerOL2) {
-                this.oLayerOL2.destroy();
-            }
-
-            //this is to distinguish between a regular map and an overview map
-            this.bMapLoaded = true;
-            if (this.bIsMapWidgetLayer) {
-                this.mapWidget.addMap(this);
-                
-                if(this.oLayersOLTile.length > 1) {
-                    for(var i=this.oLayersOLTile.length-2; i>=0; i--) {
-                        // Workaround to make multiple baselayers display. 
-                        // Openlayers only supports single baselayer.
-                        this.oLayersOLTile[i].isBaseLayer = false; 
-                        this.mapWidget.oMapOL.addLayer(this.oLayersOLTile[i]);
-                    }                               
-                }
-                
-                //if we have a tiled map that also contains dynamic layers, we need to create
-                //an additional overlay layer to render them on top of the tiles
-                if(!this.bSingleTile && o.hasDynamicLayers) {
-                    this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
-                    this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
-                    this.oLayerOL2.setVisibility(true);
-                }
-            }
-
-            //Fix Defect: the Base Layer Group should be invisiable when the "initially visiable in map" is set to false
-            var i = 0;
-            var j = 0;
-            for(i = 0;i < this.layerRoot.groups.length; i++){  
-                if(this.layerRoot.groups[i].isBaseMapGroup && !this.layerRoot.groups[i].initiallyVisible){
-                    for(j = 0; j<this.oLayersOLTile.length; j++) {
-                        if(this.oLayersOLTile[j].params.basemaplayergroupname === this.layerRoot.groups[i].name) {
-                            this.oLayersOLTile[j].setVisibility(false);
-                        }
-                    }    
-                }   
-            }
+        //Fix Defect: the Base Layer Group should be invisiable when the "initially visiable in map" is set to false
+        var i = 0;
+        var j = 0;
+        for(i = 0;i < this.layerRoot.groups.length; i++){  
+            if(this.layerRoot.groups[i].isBaseMapGroup && !this.layerRoot.groups[i].initiallyVisible){
+                for(j = 0; j<this.oLayersOLTile.length; j++) {
+                    if(this.oLayersOLTile[j].params.basemaplayergroupname === this.layerRoot.groups[i].name) {
+                        this.oLayersOLTile[j].setVisibility(false);
+                    }
+                }    
+            }   
+        }
+    },
+    /**
+     * Callback function from a LoadMap.php request
+     */
+    mapLoaded: function(r) {
+        if (r.status == 200) {
+            var o = Fusion.parseJSON(r.responseText);
+            this.initLoadMapResponse(o);
         }
         this.mapWidget._removeWorker();
         this.triggerEvent(Fusion.Event.LAYER_LOADED);
 
     },
-
+    /**
+     * Callback function from a CREATERUNTIMEMAP request
+     */
+    onRuntimeMapCreated: function(r) {
+        if (r.status == 200) {
+            var o = Fusion.parseJSON(r.responseText);
+            var co = this.convertResponse(o);
+            this.initLoadMapResponse(co.LoadMap);
+            //Need to wait for the right event to trigger loadScaleRanges, so stash our
+            //prepared result for when it comes
+            this._initScaleRanges = co.LoadScaleRanges;
+        }
+        this.mapWidget._removeWorker();
+        this.triggerEvent(Fusion.Event.LAYER_LOADED);
+    },
 //TBD: this function not yet converted for OL
     reloadMap: function() {
 
@@ -490,43 +701,52 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
      */
 
     loadScaleRanges: function() {
-        var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
+        if (this.bUseNativeServices && this._initScaleRanges) {
+            this.initLoadScaleRangeResponse(this._initScaleRanges);
+            delete this._initScaleRanges;
+        } else {
+            var sl = Fusion.getScriptLanguage();
+            var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadScaleRanges.' + sl;
 
-        //IE7 or lower: No pre-caching for you!
-        var preCacheIcons = !(Browser.Engine.trident4 || Browser.Engine.trident5);
-        //console.log("Layer icon pre-caching enabled: " + preCacheIcons);
-        var sessionid = this.getSessionID();
+            //IE7 or lower: No pre-caching for you!
+            var preCacheIcons = !(Browser.Engine.trident4 || Browser.Engine.trident5);
+            //console.log("Layer icon pre-caching enabled: " + preCacheIcons);
+            var sessionid = this.getSessionID();
 
-        var params = {'mapname': this._sMapname, "session": sessionid, "preCacheIcons": preCacheIcons};
-        var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this),
-                       parameters:params};
-        Fusion.ajaxRequest(loadmapScript, options);
+            var params = {'mapname': this._sMapname, "session": sessionid, "preCacheIcons": preCacheIcons};
+            var options = {onSuccess: OpenLayers.Function.bind(this.scaleRangesLoaded,this),
+                           parameters:params};
+            Fusion.ajaxRequest(loadmapScript, options);
+        }
+    },
+
+    initLoadScaleRangeResponse: function(o) {
+        if (o.layers && o.layers.length > 0) {
+            var iconOpt = {
+                url: o.icons_url || null,
+                width: o.icons_width || 16,
+                height: o.icons_height || 16
+            };
+            for (var i=0; i<o.layers.length; i++)  {
+                var oLayer = this.getLayerById(o.layers[i].uniqueId);
+                if (oLayer) {
+                    oLayer.scaleRanges = [];
+                    for (var j=0; j<o.layers[i].scaleRanges.length; j++) {
+                        var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j],
+                                                                             oLayer.layerType, iconOpt);
+                        oLayer.scaleRanges.push(scaleRange);
+                    }
+                }
+            }
+        }
+        this.mapWidget.triggerEvent(Fusion.Event.MAP_SCALE_RANGE_LOADED);
     },
 
     scaleRangesLoaded: function(r)
     {
         if (r.status == 200) {
             var o = Fusion.parseJSON(r.responseText);
-            if (o.layers && o.layers.length > 0) {
-                var iconOpt = {
-                    url: o.icons_url || null,
-                    width: o.icons_width || 16,
-                    height: o.icons_height || 16
-                };
-                for (var i=0; i<o.layers.length; i++)  {
-                    var oLayer = this.getLayerById(o.layers[i].uniqueId);
-                    if (oLayer) {
-                        oLayer.scaleRanges = [];
-                        for (var j=0; j<o.layers[i].scaleRanges.length; j++) {
-                            var scaleRange = new Fusion.Layers.ScaleRange(o.layers[i].scaleRanges[j],
-                                                                                 oLayer.layerType, iconOpt);
-                            oLayer.scaleRanges.push(scaleRange);
-                        }
-                    }
-                }
-            }
-            this.mapWidget.triggerEvent(Fusion.Event.MAP_SCALE_RANGE_LOADED);
+            this.initLoadScaleRangeResponse(o);
         }
     },
     
@@ -1121,25 +1341,6 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
         }
     },
-    /**
-     * Checks if we can perform a v2.6.0 QUERYMAPFEATURES request. A v2.6.0 QUERYMAPFEATURES request gives us
-     *  - All attributes of selected features if requested (bypassing several follow-up requests to PHP scripts to get this data)
-     *  - Slimmer maptip requests.
-     * A much better option, if it is available to us.
-     */
-    supportsExtendedQuery: function() {
-        var bSupportsExtended = false;
-        if (this.siteVersion[0] >= 2) { //2.x or higher
-            if (this.siteVersion[0] == 2) { //Major is 2
-                if (this.siteVersion[1] >= 6) { //2.6 or higher 2.x
-                    bSupportsExtended = true;
-                }
-            } else { //3.x, 4.x, etc
-                bSupportsExtended = true;
-            }
-        }
-        return bSupportsExtended;
-    },
 
     /**
        Do a query on the map
@@ -1164,7 +1365,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             options.filter = '';
         }
         
-        if (this.supportsExtendedQuery()) {
+        if (this.bUseNativeServices) {
             var reqData = 1; //attributes
             //TODO: Can't use inline selection image yet as we'll have to modify OpenLayers to accept an inline selection
             //over doing a GETDYNAMICMAPOVERLAYIMAGE request. When we can, or the value of 2 into the mask for inline 
@@ -1398,7 +1599,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var layerAttributeFilter = 5;
         //TODO: possibly make the layer names configurable?
         var layerNames = mapTipWidget.aLayers.toString();
-        if (this.supportsExtendedQuery()) {
+        if (this.bUseNativeServices) {
             var reqData = (4 | 8); //Tooltips and hyperlinks
             var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures2(this.getSessionID(),
                                             this._sMapname,

@@ -114,7 +114,6 @@ try
     $mapObj->metersPerUnit = $metersPerUnit;
     $mapObj->wkt = $srs;
     $mapObj->epsg = $epsgCode;
-    $mapObj->siteVersion = GetSiteVersion();
 
     $mapObj->mapTitle=addslashes($mapTitle);
 

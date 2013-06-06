@@ -48,6 +48,7 @@ try {
     $result = null;
     $result->sessionId = $sessionId;
     $result->userName = $username;
+    $result->siteVersion = GetSiteVersion();
     $result->acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     echo var2json($result);
 
