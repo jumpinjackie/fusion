@@ -283,12 +283,33 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         this.mouseIsDown = false;
     },
     
+    _getMapTip: function(oMapTips) {
+        var iMgInstances = 0;
+        var mapWidget = this.getMap();
+        for (var i = mapWidget.aMaps.length - 1; i >= 0; i--) {
+            if (mapWidget.aMaps[i].arch == "MapGuide") {
+                iMgInstances++;
+            }
+        }
+        if (iMgInstances <= 1) {
+            this.getMapLayer().getMapTip(this);
+        } else {
+            var scale = mapWidget.getScale();
+            for (var i = mapWidget.aMaps.length - 1; i >= 0; i--) {
+                var mp = mapWidget.aMaps[i];
+                if (scale >= mp.minScale && scale <= mp.maxScale && mp.layerRoot.visible) {
+                    mp.getMapTip(oMapTips);
+                }
+            }
+        }
+    },
+    
     showMaptip: function() {
         if (this.bDigitizerActive === true) {
             //console.log("Abort maptip query");
             return;
         }
-        this.getMapLayer().getMapTip(this);
+        this._getMapTip(this);
         this.mapTipFired = true;
     },
     
