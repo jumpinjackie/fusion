@@ -25,7 +25,7 @@ function panelLoaded()
         var i;
         for (i = 0; i < widget.paperList.length; i++) {
             var elOpt = document.createElement("option");
-            var name= widget.paperList[i].name.trim();
+            var name = getParent().Fusion.trim(widget.paperList[i].name);
             
             //users may set the page size as 279.4,215.9 which make the height before width
             //we should always set width before height
