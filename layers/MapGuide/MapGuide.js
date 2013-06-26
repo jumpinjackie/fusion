@@ -1396,6 +1396,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                 layerAttributeFilter);
             var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeFeatureInfo, this) : OpenLayers.Function.bind(this.processFeatureInfo, this);
             Fusion.oBroker.dispatchRequest(r, callback);
+            //Uncomment below lines (and comment line above) if QUERYMAPFEATURES does not support JSON output (http://trac.osgeo.org/mapguide/ticket/2090)
+            //Fusion.oBroker.dispatchRequest(r, 
+            //    OpenLayers.Function.bind(Fusion.xml2json, this, 
+            //        callback));
         }
     },
 
@@ -1617,6 +1621,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                             maxFeatures, persist, selection, filter, layerNames,
                                             layerAttributeFilter);
             oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.parseMapTip, this));
+            //Uncomment below lines (and comment line above) if QUERYMAPFEATURES does not support JSON output (http://trac.osgeo.org/mapguide/ticket/2090)
+            //oBroker.dispatchRequest(r, 
+            //    OpenLayers.Function.bind(Fusion.xml2json, this, 
+            //        OpenLayers.Function.bind(this.parseMapTip, this)));
         }
     },
     
