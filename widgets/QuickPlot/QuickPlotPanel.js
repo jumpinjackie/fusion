@@ -119,8 +119,6 @@ function restoreUI()
         document.getElementById("SubTitleCtrl").style.display = "none";
         document.getElementById("SubTitleLabel").style.display = "none";
     }
-    
-    this.focus();
 }
 
 function setAdvancedOptionsUI(enabled)

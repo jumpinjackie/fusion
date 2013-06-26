@@ -188,7 +188,8 @@ Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget,
             } 
             else 
             {
-                window.open(url, this.sTarget, this.sFeatures);
+                var win = window.open(url, this.sTarget, this.sFeatures);
+                win.focus();
             }
         }
         
