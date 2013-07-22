@@ -89,6 +89,8 @@ try
         if($epsgCode == 3857)
         {
             $epsgCode = 900913;
+            // We need to set the srs code to null because OpenLayers doesn't know the srs code.
+            $srs = "";
         }
 
       } catch (MgException $e) {

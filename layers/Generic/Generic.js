@@ -247,7 +247,8 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
         if (this.layerRoot) {
           parentGroup = this.mapWidget.layerRoot;
           var oldLayer = parentGroup.findLayerByAttribute("layerName", this.layerRoot.layerName);
-          parentGroup.deleteLayer(oldLayer.uniqueId);
+          if (oldLayer)
+            parentGroup.deleteLayer(oldLayer.uniqueId);
         }
         this.layerRoot = new Fusion.Layers.Layer(rootOpts,this);
         if (parentGroup) {
