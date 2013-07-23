@@ -532,6 +532,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      * update the tree when the map scale changes
      */
     _update: function() {
+        this.oTree.freeze();
         this.updateTimer = null;
         var map = this.getMap();
         var currentScale = map.getScale();
@@ -542,6 +543,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         for (var i=map.layerRoot.layers.length-1; i>=0; i--) {
             this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
+        this.oTree.thaw();
     },
    
     /**
@@ -575,10 +577,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
       }
     },
     addLayerStyleTreeItems: function(treeItem, items) {
-        //TODO: (Perf) Batching opportunity for JxLib if such API exists.
-        for (var i = 0; i < items.length; i++) {
-            treeItem.add(items[i]);
-        }
+        treeItem.tree.freeze();
+        treeItem.add(items);
+        treeItem.tree.thaw();
     },
     addLayerTreeItem: function(treeItem, layerTreeItem) {
         //Here's the problem: The layers are being iterated in the correct draw order, but they are
