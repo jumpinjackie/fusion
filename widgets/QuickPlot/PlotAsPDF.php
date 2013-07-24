@@ -7,7 +7,10 @@
     $path = $_SERVER["PHP_SELF"];
     $port = $_SERVER["SERVER_PORT"];
     $generatePage = "/GeneratePicture.php?";
+    $generateLegend = "/GenerateLegend.php?";
     $pathString = implode('/',explode('/', $path,-1));
+    $showLegend = array_key_exists("ShowLegend", $_POST) && $_POST["ShowLegend"] === "on";
+    $legendWidth = 0;
 
     // POST params
     // Title
@@ -72,23 +75,41 @@
     {
         $printSize = new Size(0, 0);
     }
+    
+    // Shave off width if we have a legend
+    if ($showLegend) {
+        $legendWidth = PxToIn(250, $printDpi);
+        $printSize->width = $printSize->width - $legendWidth;
+    }
 
     // Construct the querysting which can be used to generate the Map image
-    $query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&print_size=".$_POST['printSize'].
+    $query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&print_size=".$printSize->width.",".$printSize->height.
                     "&print_dpi=".$_POST['dpi']."&box=".$_POST['box']."&normalized_box=".$_POST['normalizedBox'].
                     "&scale_denominator=".$_POST['scaleDenominator']."&rotation=".$_POST['rotation'];
 
+    // Construct the querystring which can be used to generate the legend
+    if ($showLegend) {
+        $legend_query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&width=".InToPx($legendWidth, $printDpi)."&height=".InToPx($printSize->height, $printDpi);
+    }
+
     $filelocation = "";
+    $legendfilelocation = "";
 
     if("80" === $port)
     {
         $filelocation = $protocol.$host.$pathString.$generatePage.$query_string;
+        $legendfilelocation = $protocol.$host.$pathString.$generateLegend.$legend_query_string;
     }
     else
     {
         $filelocation = $protocol.$host.":".$port.$pathString.$generatePage.$query_string;
+        $legendfilelocation = $protocol.$host.":".$port.$pathString.$generateLegend.$legend_query_string;
     }
-
+    
+    //Uncomment to see the legend image url
+    //var_dump($legendfilelocation);
+    //die;
+    
     // Create new PDF document, the default "PDF_UNIT" value is "mm"
     $pdf = new TCPDF($orientation, PDF_UNIT, $paperType, true, "UTF-8", false);
     $font = "dejavusans";
@@ -108,8 +129,13 @@
     // Add a page
     $pdf->AddPage();
     
+    // Draw legend if specified
+    if ($showLegend) {
+        $pdf->Image($legendfilelocation, $margin[2], $margin[0], $legendWidth, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
+    }
+    
     // Draw Map first, so if the margin is not enough for the Text, the Text will be displayed about the image
-    $pdf->Image($filelocation, $margin[2], $margin[0], $printSize->width, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
+    $pdf->Image($filelocation, ($margin[2] + $legendWidth), $margin[0], $printSize->width, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
 
     // Draw Title
     DrawTitle();
@@ -145,6 +171,14 @@
         $lc = localeconv();
         $result = str_replace(".", $lc["decimal_point"], $stringValue);
         return doubleval($result);
+    }
+
+    function InToPx($in, $dpi) {
+        return ($in * $dpi) / 25.4;
+    }
+    
+    function PxToIn($px, $dpi) {
+        return ($px * 25.4) / $dpi;
     }
 
     //This function try to get a more elegant number for the scale bar display.
@@ -314,7 +348,7 @@
     
     function DrawExtentCS()
     {
-        global $pdf, $font, $margin, $printSize;
+        global $pdf, $font, $margin, $printSize, $legendWidth;
         
         if( $_POST["normalizedBox"] && trim($_POST["normalizedBox"]) != "" )
         {
@@ -336,10 +370,10 @@
 
             $pdf->SetFillColor(255, 255, 255);
 
-            $pdf->SetXY($lefttop[0], $lefttop[1], false);
+            $pdf->SetXY($lefttop[0] + $legendWidth, $lefttop[1], false);
             $pdf->Cell($lt_cellwidth, 0, $lefttop_cs, 1, 0, '', true, '', 0, false, 'T', 'M');
 
-            $pdf->SetXY($rightbuttom[0], $rightbuttom[1], false);
+            $pdf->SetXY($rightbuttom[0] + $legendWidth, $rightbuttom[1], false);
             $pdf->Cell($rb_cellwidth, 0, $rightbuttom_cs, 1, 0, '', true, '', 0, false, 'T', 'M');
         }
     }
