@@ -246,14 +246,12 @@ function getPrintSize()
 {
     var value = document.getElementById("PaperList").value.split(",");
     var size;
-    if( getOrientation() === "P" ){
+    var orientation = getOrientation();
+    if (orientation  === "P" ){
         size = {w: parseFloat(value[0]), h: parseFloat(value[1])};
-    }else if (getOrientation() === "L"){
+    }else if (orientation === "L"){
         size = {w: parseFloat(value[1]), h: parseFloat(value[0])};
     }
-    var margins = getMargin();
-    size.h = size.h - margins.top - margins.buttom;
-    size.w = size.w - margins.left - margins.right;
     
     if (!advancedOptionsOn())
     {
@@ -261,7 +259,20 @@ function getPrintSize()
         var map        = getParent().Fusion.getWidgetById("Map");
         var paperRatio = size.w / size.h;
         var viewSize   = map.getSize();
-        var viewRatio  = viewSize.w / viewSize.h;
+        var vs;
+        if (orientation === "P") {
+            vs = {
+                w: viewSize.h,
+                h: viewSize.w
+            };
+        }
+        if (orientation === "L") {
+            vs = {
+                w: viewSize.w,
+                h: viewSize.h
+            };
+        }
+        var viewRatio  = vs.w / vs.h;
 
         if (paperRatio > viewRatio){
             size.w     = size.h * viewRatio;
@@ -269,6 +280,10 @@ function getPrintSize()
             size.h     = size.w / viewRatio;
         } 
     }
+    
+    var margins = getMargin();
+    size.h = size.h - margins.top - margins.buttom;
+    size.w = size.w - margins.left - margins.right;
     
     document.getElementById("paperSize").value = document.getElementById("PaperList").value;
     return size;

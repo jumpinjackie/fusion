@@ -10,7 +10,7 @@
     $generateLegend = "/GenerateLegend.php?";
     $pathString = implode('/',explode('/', $path,-1));
     $showLegend = array_key_exists("ShowLegend", $_POST) && $_POST["ShowLegend"] === "on";
-    $legendWidth = 0;
+    $legendWidth = 0; //Width of legend in inches
 
     // POST params
     // Title
@@ -98,12 +98,14 @@
     if("80" === $port)
     {
         $filelocation = $protocol.$host.$pathString.$generatePage.$query_string;
-        $legendfilelocation = $protocol.$host.$pathString.$generateLegend.$legend_query_string;
+        if ($showLegend)
+            $legendfilelocation = $protocol.$host.$pathString.$generateLegend.$legend_query_string;
     }
     else
     {
         $filelocation = $protocol.$host.":".$port.$pathString.$generatePage.$query_string;
-        $legendfilelocation = $protocol.$host.":".$port.$pathString.$generateLegend.$legend_query_string;
+        if ($showLegend)
+            $legendfilelocation = $protocol.$host.":".$port.$pathString.$generateLegend.$legend_query_string;
     }
     
     //Uncomment to see the legend image url
@@ -316,7 +318,7 @@
 
     function DrawDeclaration()
     {
-        global $pdf, $font, $margin, $printSize;
+        global $pdf, $font, $margin, $printSize, $legendWidth;
     
         $declaration= $_POST["legalNotice"];
         //$declaration_w = $pdf->GetStringWidth($declaration,$font,9);
@@ -326,7 +328,7 @@
         
         //Sometimes the declaration is too short, less than 100 unit, we could set the cell width as the string length
         //so it will align to the right
-        $SingleLineDeclarationWidth  = $pdf->GetStringWidth($declaration, $font, "", 9, false);
+        $SingleLineDeclarationWidth  = $pdf->GetStringWidth($declaration, $font, "", 9, false) + $legendWidth;
         $tolerance = 3;
         $w = 100;
         
@@ -339,7 +341,7 @@
         $border = 0; //no border
         $align = "L";//align left
         $tolerance = 2;
-        $x = ParseLocaleDouble($margin[2]) + $printSize->width - $w + $tolerance;
+        $x = ParseLocaleDouble($margin[2] + $legendWidth) + $printSize->width - $w + $tolerance;
         $cellTotalHeight = $pdf->getStringHeight($w,$declaration);
         $y = $pdf->getPageHeight() - $cellTotalHeight - $bottomPadding;
 
