@@ -10,6 +10,9 @@
     $generateLegend = "/GenerateLegend.php?";
     $pathString = implode('/',explode('/', $path,-1));
     $showLegend = array_key_exists("ShowLegend", $_POST) && $_POST["ShowLegend"] === "on";
+    $showNorthArrow = array_key_exists("ShowNorthArrow", $_POST) && $_POST["ShowNorthArrow"] === "on";
+    $showCoordinates = array_key_exists("ShowCoordinates", $_POST) && $_POST["ShowCoordinates"] === "on";
+    $showScaleBar = array_key_exists("ShowScaleBar", $_POST) && $_POST["ShowScaleBar"] === "on";
     $legendWidth = 0; //Width of legend in inches
 
     // POST params
@@ -85,7 +88,7 @@
     // Construct the querysting which can be used to generate the Map image
     $query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&print_size=".$printSize->width.",".$printSize->height.
                     "&print_dpi=".$_POST['dpi']."&box=".$_POST['box']."&normalized_box=".$_POST['normalizedBox'].
-                    "&scale_denominator=".$_POST['scaleDenominator']."&rotation=".$_POST['rotation'];
+                    "&scale_denominator=".$_POST['scaleDenominator']."&rotation=".$_POST['rotation']."&northarrow=".($showNorthArrow ? "1" : "0");
 
     // Construct the querystring which can be used to generate the legend
     if ($showLegend) {
@@ -108,7 +111,8 @@
             $legendfilelocation = $protocol.$host.":".$port.$pathString.$generateLegend.$legend_query_string;
     }
     
-    //Uncomment to see the legend image url
+    //Uncomment to see the legend and map image urls
+    //var_dump($filelocation);
     //var_dump($legendfilelocation);
     //die;
     
@@ -142,12 +146,16 @@
     // Draw Title
     DrawTitle();
     
-    // Draw Extent coordinates
-    DrawExtentCS();
+    if ($showCoordinates) {
+        // Draw Extent coordinates
+        DrawExtentCS();
+    }
 
-    // Draw Scale
-    DrawScale();
-    
+    if ($showScaleBar) {
+        // Draw Scale
+        DrawScale();
+    }
+
     // Draw declaration
     DrawDeclaration();
     

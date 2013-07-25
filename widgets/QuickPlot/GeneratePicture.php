@@ -14,6 +14,7 @@
     $normalizedCapture;
     $printSize_pixel;
     $printSize;
+    $drawNorthArrow = false;
     
     try
     {
@@ -37,7 +38,7 @@
 
     function GetParameters()
     {
-        global $sessionID, $mapName, $printDpi, $rotation, $printSize, $printSize_pixel, $captureBox, $scaleDenominator, $normalizedCapture;
+        global $sessionID, $mapName, $printDpi, $rotation, $printSize, $printSize_pixel, $captureBox, $scaleDenominator, $normalizedCapture, $drawNorthArrow;
         $args = $_GET;
         if ($_SERVER["REQUEST_METHOD"] == "POST")
         {
@@ -52,6 +53,11 @@
 
         $scaleDenominator = intval($args["scale_denominator"]);
 
+        $drawNorthArrow = array_key_exists("northarrow", $args) && 
+                         (strcmp($args["northarrow"], "1") == 0 ||
+                          strcmp($args["northarrow"], "true") == 0);
+                    
+        
         $array       = explode(",", $args["print_size"]);
         $printSize   = new Size(ParseLocaleDouble($array[0]), ParseLocaleDouble($array[1]));
         $printSize_pixel   = new Size($printSize->width / 25.4 * $printDpi, $printSize->height / 25.4 * $printDpi);
@@ -84,7 +90,7 @@
 
     function GenerateMap($size)//print_size
     {
-        global $sessionID, $mapName, $captureBox, $printSize, $normalizedCapture, $rotation, $scaleDenominator, $printDpi;
+        global $sessionID, $mapName, $captureBox, $printSize, $normalizedCapture, $rotation, $scaleDenominator, $printDpi, $drawNorthArrow;
         $userInfo         = new MgUserInformation($sessionID);
         $siteConnection   = new MgSiteConnection();
         $siteConnection->Open($userInfo);
@@ -135,11 +141,24 @@
         imagecopy($croppedImg, $normalizedImg, 0, 0, (imagesx($normalizedImg) - $size->width) / 2, (imagesy($normalizedImg) - $size->height) / 2, $size->width, $size->height);
         // Free the normalized image
         imagedestroy($normalizedImg);
-        // Draw the north arrow on the map
-        DrawNorthArrow($croppedImg);
-
+        if ($drawNorthArrow) {
+            // Draw the north arrow on the map
+            DrawNorthArrow($croppedImg);
+        }
         header ("Content-type: image/png"); 
         imagepng($croppedImg);
+        
+        //Uncomment to see what PHP-isms get spewed out that may be tripping up rendering
+        //Also replace instances of "////print_r" with "//print_r" to insta-uncomment all debugging calls
+        /*
+        ob_start();
+        imagepng($croppedImg);
+        $im = base64_encode(ob_get_contents());
+        ob_end_clean();
+        header("Content-type: text/html", true);
+        echo "<img src='data:image/png;base64,".$im."' alt='legend image'></img>";
+        */
+        
         imagedestroy($croppedImg);
     }
     
