@@ -23,6 +23,7 @@
     
     $defaultFormat = null;
     $defaultGeomType = null;
+    $checkState = "";
 
     if (array_key_exists("REDLINEFORMAT", $args) && array_key_exists("REDLINEGEOMTYPE", $args)) {
         if (strcmp($args["REDLINEFORMAT"], "SDF") == 0) {
@@ -116,6 +117,11 @@
         $updateLocal = GetLocalizedString('REDLINEUPDATETEXT', $locale );
         $closeLocal = GetLocalizedString('REDLINEEDITCLOSE', $locale );
         $promptLabelLocal = GetLocalizedString('REDLINEPROMPTLABEL', $locale);
+        $promptRedlineLabelsLocal = GetLocalizedString('REDLINEPROMPTFORLABELS', $locale);
+        
+        if (array_key_exists("REDLINEPROMPT", $args) && strcmp($args["REDLINEPROMPT"], "on") == 0) {
+            $checkState = " checked='checked'";
+        }
     }
     catch (MgException $e)
     {
@@ -224,11 +230,16 @@
             SetDigitizeInfo(EDIT_POLYGON_HELP);
             DigitizePolygon(OnPolyonDigitized);
         }
+        
+        function PromptForRedlineLabels()
+        {
+            return document.getElementById("chkPromptForRedlineLabels").checked;
+        }
 
         function PromptAndSetMarkupText()
         {
             var widget = Fusion.getWidgetsByType("Redline")[0];
-            if (widget.promptForRedlineLabels) {
+            if (PromptForRedlineLabels()) {
                 var textInput = document.getElementById("textInput");
 
                 textLabel = window.prompt("<?=$promptLabelLocal?>", "");
@@ -445,6 +456,12 @@
         <td colspan="2">
             <input class="Ctrl" id="rectangleBtn" type="button" onClick="AddRectangle()" value="<?=$rectangleLocal?>" style="width:85px" <?= $allowPoly ? '' : 'disabled="disabled"'  ?> />
             <input class="Ctrl" id="polygonBtn" type="button" onClick="AddPolygon()" value="<?=$polygonLocal?>" style="width:85px" <?= $allowPoly ? '' : 'disabled="disabled"'  ?> />
+        </td>
+    </tr>
+    <tr><td colspan="2" height="2px"></td></tr>
+    <tr>
+        <td colspan="2">
+            <input type="checkbox" class="Ctrl" id="chkPromptForRedlineLabels" name="REDLINEPROMPT" <?= $checkState ?> /> <?= $promptRedlineLabelsLocal ?>
         </td>
     </tr>
     <tr><td colspan="2" height="2px"></td></tr>

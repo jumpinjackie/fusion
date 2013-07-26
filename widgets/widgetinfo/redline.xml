@@ -18,14 +18,6 @@
         <DefaultValue>TaskPane</DefaultValue>
     </Parameter>
     <Parameter>
-        <Name>PromptForRedlineLabels</Name>
-        <Description>Indicates whether to prompt the user for label input when recording redlines. Default is false</Description>
-        <Type>boolean</Type>
-        <Label>PromptForRedlineLabels</Label>
-        <DefaultValue>false</DefaultValue>
-        <IsMandatory>false</IsMandatory>
-    </Parameter>
-    <Parameter>
         <Name>AutogenerateLayerNames</Name>
         <Description>Indicates whether to prompt the auto-generate redline layer names when creating a new redline layer or to prompt the user. Default is true (don't prompt)</Description>
         <Type>boolean</Type>
