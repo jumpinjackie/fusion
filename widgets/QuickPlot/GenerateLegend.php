@@ -24,9 +24,10 @@
     
     $xPad = 4;
     $yPad = 2;
-    $xIndent = 25;
+    $xIndent = $iconWidth + $xPad;
     $offsetX = $xPad + 10;
     $offsetY = $yPad + 10;
+    $textColor = NULL;
     
     try
     {
@@ -71,7 +72,7 @@
 
     function GenerateLegend()
     {
-        global $sessionID, $mapName, $width, $height, $offsetX, $offsetY, $xPad, $yPad, $iconWidth, $iconHeight, $xIndent, $groupIcon, $fontIndex;
+        global $sessionID, $mapName, $width, $height, $offsetX, $offsetY, $xPad, $yPad, $iconWidth, $iconHeight, $xIndent, $groupIcon, $fontIndex, $textColor;
         
         $userInfo         = new MgUserInformation($sessionID);
         $siteConnection   = new MgSiteConnection();
@@ -81,34 +82,16 @@
         
         $map = new MgMap();
         $map->Open($resourceService, $mapName);
-        $groups = $map->GetLayerGroups();
         $scale = $map->GetViewScale();
         
         $image = imagecreatetruecolor($width, $height);
         
         $white = imagecolorallocate($image, 255, 255, 255);
-        $black = imagecolorallocate($image, 0, 0, 0);
+        $textColor = imagecolorallocate($image, 0, 0, 0);
         
         imagefilledrectangle($image, 0, 0, $width, $height, $white);
         
-        ProcessLayersForLegend($mappingService, $resourceService, $map, $scale, NULL, $image);
-        for ($i = 0; $i < $groups->GetCount(); $i++) {
-            $group = $groups->GetItem($i);
-            if (!$group->GetDisplayInLegend())
-                continue;
-            //print_r("GROUP: ".$group->GetLegendLabel()." (".$group->GetName().") - ".$group->GetObjectId()."<br/>");
-            //Draw the image
-            imagecopy($image, $groupIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
-            imagestring($image, $fontIndex, ($offsetX + $xPad + 16), $offsetY, $group->GetLegendLabel(), $black);
-            $offsetX += $xIndent;
-            $offsetY += $iconHeight;
-            $offsetY += $yPad;
-            if ($offsetY > $height)
-                break;
-            ProcessLayersForLegend($mappingService, $resourceService, $map, $scale, $group, $image);
-            $offsetX -= $xIndent;
-        }
-        
+        ProcessGroupsForLegend($mappingService, $resourceService, $map, $scale, NULL, $image);
         header("Content-type: image/png");
         imagepng($image);
         
@@ -124,13 +107,46 @@
         */
         
         imagecolordeallocate($image, $white);
+        imagecolordeallocate($image, $textColor);
         imagedestroy($image);
+    }
+    
+    function ProcessGroupsForLegend($mappingService, $resourceService, $map, $scale, $parentGroup, $image) {
+        global $iconWidth, $iconHeight, $height, $fontIndex, $iconFormat, $offsetX, $offsetY, $font, $fontSizePt, $xPad, $yPad, $xIndent, $themeIcon, $groupIcon, $dwfIcon, $rasterIcon, $textColor;
+        $groups = $map->GetLayerGroups();
+        ProcessLayersForLegend($mappingService, $resourceService, $map, $scale, $parentGroup, $image);
+        for ($i = 0; $i < $groups->GetCount(); $i++) {
+            $group = $groups->GetItem($i);
+            $parentGroupOfGroup = $group->GetGroup();
+            //One has a parent and the other one doesn't
+            if (($parentGroupOfGroup != NULL && $parentGroup == NULL) ||
+                ($parentGroupOfGroup == NULL && $parentGroup != NULL)) {
+                continue;
+            }
+            //Parents aren't same
+            if (($parentGroupOfGroup != NULL && $parentGroup != NULL) &&
+                ($parentGroupOfGroup->GetObjectId() != $parentGroup->GetObjectId())) {
+                continue;
+            }
+            if (!$group->GetDisplayInLegend())
+                continue;
+            //print_r("GROUP: ".$group->GetLegendLabel()." (".$group->GetName().") - ".$group->GetObjectId()."<br/>");
+            //Draw the image
+            imagecopy($image, $groupIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
+            imagestring($image, $fontIndex, ($offsetX + $xPad + 16), $offsetY, $group->GetLegendLabel(), $textColor);
+            $offsetX += $xIndent;
+            $offsetY += $iconHeight;
+            $offsetY += $yPad;
+            if ($offsetY > $height)
+                break;
+            ProcessGroupsForLegend($mappingService, $resourceService, $map, $scale, $group, $image);
+            $offsetX -= $xIndent;
+        }
     }
 
     function ProcessLayersForLegend($mappingService, $resourceService, $map, $scale, $group, $image) {
-        global $iconWidth, $iconHeight, $height, $fontIndex, $iconFormat, $offsetX, $offsetY, $font, $fontSizePt, $xPad, $yPad, $xIndent, $themeIcon, $groupIcon, $dwfIcon, $rasterIcon;
+        global $iconWidth, $iconHeight, $height, $fontIndex, $iconFormat, $offsetX, $offsetY, $font, $fontSizePt, $xPad, $yPad, $xIndent, $themeIcon, $groupIcon, $dwfIcon, $rasterIcon, $textColor;
     
-        $black = imagecolorallocate($image, 0, 0, 0);
         $layers = $map->GetLayers();
         for ($i = 0; $i < $layers->GetCount(); $i++) {
             $layer = $layers->GetItem($i);
@@ -175,13 +191,12 @@
                     imagecopy($image, $rasterIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
                     
                     //Draw the label
-                    //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $black, $font, $layer->GetLegendLabel());
-                    imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $black);
+                    //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $textColor, $font, $layer->GetLegendLabel());
+                    imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $textColor);
                     
                     $offsetY += $yPad;
                     $offsetY += $iconHeight;
                     
-                    imagecolordeallocate($image, $black);
                     return;
                 } else {
                     $scaleRanges = $xmldoc->getElementsByTagName('DrawingLayerDefinition');
@@ -190,13 +205,12 @@
                         imagecopy($image, $dwfIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
                         
                         //Draw the label
-                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $black, $font, $layer->GetLegendLabel());
-                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $black);
+                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $textColor, $font, $layer->GetLegendLabel());
+                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $textColor);
                         
                         $offsetY += $yPad;
                         $offsetY += $iconHeight;
                         
-                        imagecolordeallocate($image, $black);
                         return;
                     }
                 }
@@ -238,8 +252,8 @@
                         unlink($tempImage);
                         
                         //Draw the label
-                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $black, $font, $layer->GetLegendLabel());
-                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $black);
+                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $textColor, $font, $layer->GetLegendLabel());
+                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $textColor);
                         
                         $offsetY += $yPad;
                         $offsetY += $iconHeight;
@@ -257,8 +271,8 @@
                         imagecopy($image, $themeIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
                     
                         //Draw the themed layer label
-                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $black, $font, $layer->GetLegendLabel());
-                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $black);
+                        //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $textColor, $font, $layer->GetLegendLabel());
+                        imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $layer->GetLegendLabel(), $textColor);
                         $offsetX += $xIndent;
                         $offsetY += $yPad;
                         $offsetY += $iconHeight;
@@ -299,8 +313,8 @@
                                     unlink($tempImage);
                                     
                                     //Draw the label
-                                    //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $black, $font, $layer->GetLegendLabel());
-                                    imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $labelText, $black);
+                                    //imagettftext($image, $fontSizePt, 0, ($offsetX + $xPad + $iconWidth), $offsetY, $textColor, $font, $layer->GetLegendLabel());
+                                    imagestring($image, $fontIndex, ($offsetX + $xPad + $iconWidth), $offsetY, $labelText, $textColor);
                                     
                                     $offsetY += $yPad;
                                     $offsetY += $iconHeight;
@@ -317,8 +331,6 @@
                 }
             }
         }
-        
-        imagecolordeallocate($image, $black);
     }
 
     function GetParameters()
