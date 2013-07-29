@@ -309,10 +309,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             mapId: rt.MapDefinition[0],
             mapName: rt.Name[0],
             mapTitle: rt.Name[0],
-            backgroundColor: rt.BackgroundColor[0],
-            metersPerUnit: parseFloat(rt.CoordinateSystem[0].MetersPerUnit[0]),
-            wkt: rt.CoordinateSystem[0].Wkt[0],
-            epsg: parseInt(rt.CoordinateSystem[0].EpsgCode[0]),
+            //backgroundColor: rt.BackgroundColor[0],
+            metersPerUnit: rt.CoordinateSystem[0].MetersPerUnit ? parseFloat(rt.CoordinateSystem[0].MetersPerUnit[0]) : 1,
+            wkt: rt.CoordinateSystem[0].Wkt ? rt.CoordinateSystem[0].Wkt[0] : "",
+            epsg: rt.CoordinateSystem[0].EpsgCode ? parseInt(rt.CoordinateSystem[0].EpsgCode[0]) : 4326,
             extent: [
                 parseFloat(rt.Extents[0].LowerLeftCoordinate[0].X[0]),
                 parseFloat(rt.Extents[0].LowerLeftCoordinate[0].Y[0]),
@@ -330,27 +330,27 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 lm.FiniteDisplayScales.push(parseFloat(rt.FiniteDisplayScale[i]));
             }
         }
-        
-        for (var i = 0; i < rt.Group.length; i++) {
-            var grp = rt.Group[i];
-            var cg = {
-                groupName: grp.Name[0],
-                legendLabel: (grp.LegendLabel ? grp.LegendLabel[0] : ""),
-                uniqueId: grp.ObjectId[0],
-                displayInLegend: (grp.DisplayInLegend[0] == "true"),
-                expandInLegend: (grp.ExpandInLegend[0] == "true"), 
-                parentUniqueId: grp.ParentId ? grp.ParentId[0] : "",
-                visible: (grp.Visible[0] == "true"),
-                actuallyVisible: (grp.ActuallyVisible[0] == "true"),
-                isBaseMapGroup: (grp.Type[0] == "2")
-            };
-            if (grp.Type[0] == "2")
-                lm.hasBaseMapLayers = true;
-            else
-                lm.hasDynamicLayers = true;
-            lm.groups.push(cg);
+        if (rt.Group) {
+            for (var i = 0; i < rt.Group.length; i++) {
+                var grp = rt.Group[i];
+                var cg = {
+                    groupName: grp.Name[0],
+                    legendLabel: (grp.LegendLabel ? grp.LegendLabel[0] : ""),
+                    uniqueId: grp.ObjectId[0],
+                    displayInLegend: (grp.DisplayInLegend[0] == "true"),
+                    expandInLegend: (grp.ExpandInLegend[0] == "true"), 
+                    parentUniqueId: grp.ParentId ? grp.ParentId[0] : "",
+                    visible: (grp.Visible[0] == "true"),
+                    actuallyVisible: (grp.ActuallyVisible[0] == "true"),
+                    isBaseMapGroup: (grp.Type[0] == "2")
+                };
+                if (grp.Type[0] == "2")
+                    lm.hasBaseMapLayers = true;
+                else
+                    lm.hasDynamicLayers = true;
+                lm.groups.push(cg);
+            }
         }
-        
         //LoadScaleRanges.php response
         var lsr = {
             layers: []
@@ -392,7 +392,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                         isCompressed: false,
                         maxScale: sr.MaxScale[0],
                         minScale: sr.MinScale[0],
-                        styles: [],
+                        styles: []
                     };
                     
                     minScale = Math.min(minScale, sr.MinScale[0]);
@@ -1706,15 +1706,17 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 var selLayer = selLayers[i];
                 var layerName = selLayer["@name"];
                 if (!result[layerName]) {
-                    var layerMeta = selLayer.LayerMetadata[0];
-                    var pnames = [];
-                    var ptypes = [];
-                    var pvals = [];
-                    for (var j = 0; j < layerMeta.Property.length; j++) {
-                        var metaProp = layerMeta.Property[j];
-                        pnames.push(metaProp.Name[0]);
-                        ptypes.push(metaProp.Type[0]);
-                        pvals.push(metaProp.DisplayName[0]);
+                    if (selLayer.LayerMetadata) {
+                        var layerMeta = selLayer.LayerMetadata[0];
+                        var pnames = [];
+                        var ptypes = [];
+                        var pvals = [];
+                        for (var j = 0; j < layerMeta.Property.length; j++) {
+                            var metaProp = layerMeta.Property[j];
+                            pnames.push(metaProp.Name[0]);
+                            ptypes.push(metaProp.Type[0]);
+                            pvals.push(metaProp.DisplayName[0]);
+                        }
                     }
                     result[layerName] = {
                         metadata: [],  //NOTE: Probably a defect, but regular code path is putting blank string arrays here too
@@ -1731,17 +1733,21 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 for (var j = 0; j < selLayer.Feature.length; j++) {
                     var feat = selLayer.Feature[j];
                     var featVals = [];
-                    for (var k = 0; k < feat.Property.length; k++) {
-                        //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
-                        //the old code path produces
-                        featVals.push(feat.Property[k].Value == null ? "" : feat.Property[k].Value[0]);
+                    if (feat.Property) {
+                        for (var k = 0; k < feat.Property.length; k++) {
+                            //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
+                            //the old code path produces
+                            featVals.push(feat.Property[k].Value == null ? "" : feat.Property[k].Value[0]);
+                        }
                     }
                     result[layerName].values.push(featVals);
                     //NOTE: Probably a defect, but regular code path is putting blank string arrays here too, so let's do the same
                     result[layerName].metadata.push(["","","","",""]);
-                    var bounds = feat.Bounds[0].split(" "); //minx miny maxx maxy
-                    box.extend(new OpenLayers.LonLat(parseFloat(bounds[0]), parseFloat(bounds[1])));
-                    box.extend(new OpenLayers.LonLat(parseFloat(bounds[2]), parseFloat(bounds[3])));
+                    if (feat.Bounds) {
+                        var bounds = feat.Bounds[0].split(" "); //minx miny maxx maxy
+                        box.extend(new OpenLayers.LonLat(parseFloat(bounds[0]), parseFloat(bounds[1])));
+                        box.extend(new OpenLayers.LonLat(parseFloat(bounds[2]), parseFloat(bounds[3])));
+                    }
                 }
             }
             return OpenLayers.Util.extend(result, {
