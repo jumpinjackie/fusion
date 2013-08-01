@@ -423,8 +423,17 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     }
                     clsr.scaleRanges.push(csr);
                 }
+            } else {
+                //For a drawing layer which doesn't have scale ranges, we need add a dummy scale range for it.
+                //Otherwise, the legend tree will not display correctly.
+                minScale = 0;
+                maxScale = 1.0e10;
+                clsr.scaleRanges.push(new Fusion.Layers.ScaleRange({
+                    minScale: 0,
+                    maxScale: 1.0e10}, 
+                    Fusion.Constant.LAYER_DWF_TYPE, {label:lyr.layerName}));
             }
-            
+
             for (var lt in ltypes)
                 cl.layerTypes.push(lt);
             
