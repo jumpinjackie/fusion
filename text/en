@@ -470,6 +470,7 @@ QUICKPLOT_ADVANCED_OPTIONS      = Advanced options
 QUICKPLOT_PREVIEW_ERROR         = The application resources required to generate the plot exceed the settings defined by the administrator
 QUICKPLOT_RESOLUTION_WARNING    = The current settings exceed the map resolution. Zooming out or increasing the scaling will help create a more legible plot
 QUICKPLOT_SCALE_LABEL           = Scale
+QUICKPLOT_COMMERCIAL_LAYER_WARNING = Quick Plot will NOT include any visible commercial map layers
 
 # Coordinate Tracker
 COORDINATETRACKERTITLE          = Coordinate Tracker
