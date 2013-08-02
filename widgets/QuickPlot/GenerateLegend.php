@@ -5,6 +5,14 @@
     $fusionMGpath = '../../layers/MapGuide/php/';
     include $fusionMGpath . 'Common.php';
 
+    //FIXME: 
+    //
+    //There are 2 major problems at the moment
+    // 1. This is not localizable (we're using imagestring() to draw text). Non-english text will probably be gibberish.
+    // 2. We're using imagestring() to draw text because imagettftext() requires knowing the actual font file path! And how exactly can we do that in a cross-platform manner!?
+    //
+    //The true fix is to make GETMAPLEGENDIMAGE not so terrible
+    
     $sessionID = "";
     $mapName   = "";
     $width = 0;

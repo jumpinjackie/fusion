@@ -9,10 +9,28 @@
     $generatePage = "/GeneratePicture.php?";
     $generateLegend = "/GenerateLegend.php?";
     $pathString = implode('/',explode('/', $path,-1));
+    $legendPathString = "";
     $showLegend = array_key_exists("ShowLegend", $_POST) && $_POST["ShowLegend"] === "on";
     $showNorthArrow = array_key_exists("ShowNorthArrow", $_POST) && $_POST["ShowNorthArrow"] === "on";
     $showCoordinates = array_key_exists("ShowCoordinates", $_POST) && $_POST["ShowCoordinates"] === "on";
     $showScaleBar = array_key_exists("ShowScaleBar", $_POST) && $_POST["ShowScaleBar"] === "on";
+    $legendType = array_key_exists("LegendType", $_POST) ? $_POST["LegendType"] : "original";
+    if (strcmp($legendType, "original") == 0) {
+        // /mapguide
+        $components = explode('/', $path, -1);
+        for ($i = 0; $i < count($components); $i++) {
+            if (strlen($components[$i]) == 0) {
+                continue;
+            } else {
+                $legendPathString = "/" . $components[$i];
+                break;
+            }
+        }
+        $legendPathString .= "/mapagent";
+        $generateLegend = "/mapagent.fcgi?";
+    } else {
+        $legendPathString = $pathString;
+    }
     $legendWidth = 0; //Width of legend in inches
 
     // POST params
@@ -92,7 +110,11 @@
 
     // Construct the querystring which can be used to generate the legend
     if ($showLegend) {
-        $legend_query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&width=".InToPx($legendWidth, $printDpi)."&height=".InToPx($printSize->height, $printDpi);
+        if (strcmp($legendType, "original") == 0) {
+            $legend_query_string = "OPERATION=GETMAPLEGENDIMAGE&VERSION=1.0.0&FORMAT=PNG&SESSION=".$_POST["sessionId"]."&MAPNAME=".$_POST["mapName"]."&WIDTH=".InToPx($legendWidth, $printDpi)."&HEIGHT=".InToPx($printSize->height, $printDpi);
+        } else {
+            $legend_query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&width=".InToPx($legendWidth, $printDpi)."&height=".InToPx($printSize->height, $printDpi);
+        }
     }
 
     $filelocation = "";
@@ -102,13 +124,13 @@
     {
         $filelocation = $protocol.$host.$pathString.$generatePage.$query_string;
         if ($showLegend)
-            $legendfilelocation = $protocol.$host.$pathString.$generateLegend.$legend_query_string;
+            $legendfilelocation = $protocol.$host.$legendPathString.$generateLegend.$legend_query_string;
     }
     else
     {
         $filelocation = $protocol.$host.":".$port.$pathString.$generatePage.$query_string;
         if ($showLegend)
-            $legendfilelocation = $protocol.$host.":".$port.$pathString.$generateLegend.$legend_query_string;
+            $legendfilelocation = $protocol.$host.":".$port.$legendPathString.$generateLegend.$legend_query_string;
     }
     
     //Uncomment to see the legend and map image urls
