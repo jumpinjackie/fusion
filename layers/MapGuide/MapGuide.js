@@ -1325,6 +1325,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                   }
                 }
               }
+              this.newSelection();
 
               if (zoomTo) {
                 var ext = oNode.extents;
