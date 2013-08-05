@@ -355,94 +355,95 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var lsr = {
             layers: []
         };
-        for (var i = 0; i < rt.Layer.length; i++) {
-            var lyr = rt.Layer[i];
-            var cl = {
-                uniqueId: lyr.ObjectId[0],
-                layerName: lyr.Name[0],
-                layerTypes: [],
-                resourceId: lyr.LayerDefinition[0],
-                parentGroup: lyr.ParentId ? lyr.ParentId[0] : "",
-                selectable: (lyr.Selectable[0] == "true"),
-                visible: (lyr.Visible[0] == "true"),
-                actuallyVisible: (lyr.ActuallyVisible[0] == "true"),
-                editable: false,
-                isBaseMapLayer: (lyr.Type[0] == "2"),
-                legendLabel: (lyr.LegendLabel ? lyr.LegendLabel[0] : ""),
-                displayInLegend: (lyr.DisplayInLegend[0] == "true"),
-                expandInLegend: (lyr.ExpandInLegend[0] == "true")
-            };
-            
-            lm.layers.push(cl);
-            
-            var clsr = {
-                uniqueId: cl.uniqueId,
-                scaleRanges: []
-            };
-            
-            var ltypes = {};
-            
-            var minScale = 1.0e10;
-            var maxScale = 0;
-            
-            if (lyr.ScaleRange) {
-                for (var j = 0; j < lyr.ScaleRange.length; j++) {
-                    var sr = lyr.ScaleRange[j];
-                    var csr = {
-                        isCompressed: false,
-                        maxScale: sr.MaxScale[0],
-                        minScale: sr.MinScale[0],
-                        styles: []
-                    };
-                    
-                    minScale = Math.min(minScale, sr.MinScale[0]);
-                    maxScale = Math.max(maxScale, sr.MaxScale[0]);
-                    
-                    if (sr.FeatureStyle) {
-                        for (var f = 0; f < sr.FeatureStyle.length; f++) {
-                            var fts = sr.FeatureStyle[f];
-                            for (var k = 0; k < fts.Rule.length; k++) {
-                                var rule = fts.Rule[k];
-                                var cr = {
-                                    categoryIndex: k,
-                                    filter: rule.Filter ? rule.Filter[0] : "",
-                                    geometryType: parseInt(fts.Type[0]),
-                                    legendLabel: rule.LegendLabel ? rule.LegendLabel[0] : ""
-                                };
-                                if (typeof(ltypes[cr.geometryType]) == 'undefined')
-                                    ltypes[cr.geometryType] = cr.geometryType;
-                                //One single absence of an icon is enough to hint that it's compressed
-                                if (!rule.Icon) {
-                                    csr.isCompressed = true;
-                                } else {
-                                    cr.imageData = "data:" + rt.IconMimeType[0] + ";base64," + rule.Icon[0];
+        if (rt.Layer) {
+            for (var i = 0; i < rt.Layer.length; i++) {
+                var lyr = rt.Layer[i];
+                var cl = {
+                    uniqueId: lyr.ObjectId[0],
+                    layerName: lyr.Name[0],
+                    layerTypes: [],
+                    resourceId: lyr.LayerDefinition[0],
+                    parentGroup: lyr.ParentId ? lyr.ParentId[0] : "",
+                    selectable: (lyr.Selectable[0] == "true"),
+                    visible: (lyr.Visible[0] == "true"),
+                    actuallyVisible: (lyr.ActuallyVisible[0] == "true"),
+                    editable: false,
+                    isBaseMapLayer: (lyr.Type[0] == "2"),
+                    legendLabel: (lyr.LegendLabel ? lyr.LegendLabel[0] : ""),
+                    displayInLegend: (lyr.DisplayInLegend[0] == "true"),
+                    expandInLegend: (lyr.ExpandInLegend[0] == "true")
+                };
+                
+                lm.layers.push(cl);
+                
+                var clsr = {
+                    uniqueId: cl.uniqueId,
+                    scaleRanges: []
+                };
+                
+                var ltypes = {};
+                
+                var minScale = 1.0e10;
+                var maxScale = 0;
+                
+                if (lyr.ScaleRange) {
+                    for (var j = 0; j < lyr.ScaleRange.length; j++) {
+                        var sr = lyr.ScaleRange[j];
+                        var csr = {
+                            isCompressed: false,
+                            maxScale: sr.MaxScale[0],
+                            minScale: sr.MinScale[0],
+                            styles: []
+                        };
+                        
+                        minScale = Math.min(minScale, sr.MinScale[0]);
+                        maxScale = Math.max(maxScale, sr.MaxScale[0]);
+                        
+                        if (sr.FeatureStyle) {
+                            for (var f = 0; f < sr.FeatureStyle.length; f++) {
+                                var fts = sr.FeatureStyle[f];
+                                for (var k = 0; k < fts.Rule.length; k++) {
+                                    var rule = fts.Rule[k];
+                                    var cr = {
+                                        categoryIndex: k,
+                                        filter: rule.Filter ? rule.Filter[0] : "",
+                                        geometryType: parseInt(fts.Type[0]),
+                                        legendLabel: rule.LegendLabel ? rule.LegendLabel[0] : ""
+                                    };
+                                    if (typeof(ltypes[cr.geometryType]) == 'undefined')
+                                        ltypes[cr.geometryType] = cr.geometryType;
+                                    //One single absence of an icon is enough to hint that it's compressed
+                                    if (!rule.Icon) {
+                                        csr.isCompressed = true;
+                                    } else {
+                                        cr.imageData = "data:" + rt.IconMimeType[0] + ";base64," + rule.Icon[0];
+                                    }
+                                    csr.styles.push(cr);
                                 }
-                                csr.styles.push(cr);
                             }
                         }
+                        clsr.scaleRanges.push(csr);
                     }
-                    clsr.scaleRanges.push(csr);
+                } else {
+                    //For a drawing layer which doesn't have scale ranges, we need add a dummy scale range for it.
+                    //Otherwise, the legend tree will not display correctly.
+                    minScale = 0;
+                    maxScale = 1.0e10;
+                    clsr.scaleRanges.push(new Fusion.Layers.ScaleRange({
+                        minScale: 0,
+                        maxScale: 1.0e10}, 
+                        Fusion.Constant.LAYER_DWF_TYPE, {label:lyr.layerName}));
                 }
-            } else {
-                //For a drawing layer which doesn't have scale ranges, we need add a dummy scale range for it.
-                //Otherwise, the legend tree will not display correctly.
-                minScale = 0;
-                maxScale = 1.0e10;
-                clsr.scaleRanges.push(new Fusion.Layers.ScaleRange({
-                    minScale: 0,
-                    maxScale: 1.0e10}, 
-                    Fusion.Constant.LAYER_DWF_TYPE, {label:lyr.layerName}));
-            }
 
-            for (var lt in ltypes)
-                cl.layerTypes.push(lt);
-            
-            cl.minScale = minScale;
-            cl.maxScale = maxScale;
-            
-            lsr.layers.push(clsr);
+                for (var lt in ltypes)
+                    cl.layerTypes.push(lt);
+                
+                cl.minScale = minScale;
+                cl.maxScale = maxScale;
+                
+                lsr.layers.push(clsr);
+            }
         }
-        
         return {
             LoadMap: lm,
             LoadScaleRanges: lsr
