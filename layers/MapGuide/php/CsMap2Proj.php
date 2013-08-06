@@ -77,7 +77,7 @@ for ($k = 0; $k < $csCategories->GetCount(); $k++) {
 						continue;
 					}
 
-					if ($epsg == 3785 || $epsg == 4269 || $epsg == 4326 || $epsg == 102113 || $epsg == 900913) {
+					if ($epsg == 3785 || $epsg == 4269 || $epsg == 4326 || $epsg == 102113 || $epsg == 900913 || $epsg == 3857) {
 						echo "Skipping $csCode: EPSG code already defined by Proj4js - $epsg\n";
 						continue;
 					}
