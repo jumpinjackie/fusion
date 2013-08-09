@@ -6,7 +6,7 @@
   <Label>Coordinate Tracker</Label>
   <Tooltip>Click to view mouse coordinates in various projections</Tooltip>
   <StatusText></StatusText>
-  <ImageUrl>images/coordinate-tracker.png</ImageUrl>
+  <ImageUrl>images/icons.png</ImageUrl>
   <ImageClass>coordinate-tracker</ImageClass>
   <StandardUi>true</StandardUi>
   <ContainableBy>Any</ContainableBy>

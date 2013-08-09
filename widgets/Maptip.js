@@ -142,7 +142,8 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
 
         this.mapTipBtn = new Jx.Button({
             id: 'maptipButton',
-            image: Fusion.getApplicationURL() + 'images/maptip.png',
+            image: Fusion.getApplicationURL() + 'images/icons.png',
+            imageClass: "maptip",
             label: this.label,
             toggle: true,
             onDown: (function() {
