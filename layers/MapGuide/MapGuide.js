@@ -670,17 +670,27 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var oldLayers = $A(this.aLayers);
         this.aLayers = [];
 
-        var sl = Fusion.getScriptLanguage();
-        var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
+        if (this.bUseNativeServices) {
+            var features = (1 | 2 | 4); //We want the whole lot
+            var r = new Fusion.Lib.MGRequest.MGDescribeRuntimeMap(this._sMapname, features, 25);
+            r.setParams({
+                iconFormat: "GIF",
+                session: this.getSessionID()
+            });
+            Fusion.oBroker.dispatchRequest(r, OpenLayers.Function.bind(this.onRuntimeMapReloaded, this, oldLayers));
+        } else {
+            var sl = Fusion.getScriptLanguage();
+            var loadmapScript = 'layers/' + this.arch + '/' + sl  + '/LoadMap.' + sl;
 
-        var sessionid = this.getSessionID();
+            var sessionid = this.getSessionID();
 
-        var params = {'mapname': this._sMapname, 'session': sessionid};
-        var options = {
-              onSuccess: OpenLayers.Function.bind(this.mapReloaded,this,oldLayers),
-              onException: OpenLayers.Function.bind(this.reloadFailed, this),
-              parameters: params};
-        Fusion.ajaxRequest(loadmapScript, options);
+            var params = {'mapname': this._sMapname, 'session': sessionid};
+            var options = {
+                  onSuccess: OpenLayers.Function.bind(this.mapReloaded,this,oldLayers),
+                  onException: OpenLayers.Function.bind(this.reloadFailed, this),
+                  parameters: params};
+            Fusion.ajaxRequest(loadmapScript, options);
+        }
     },
 
     reloadFailed: function(r) {
@@ -745,6 +755,31 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var o = Fusion.parseJSON(r.responseText);
             this.initLoadScaleRangeResponse(o);
         }
+    },
+    
+    onRuntimeMapReloaded: function(oldLayers, r) {
+        if (r.status == 200) {
+            var json = Fusion.parseJSON(r.responseText);
+            var co = this.convertResponse(json);
+            var o = co.LoadMap;
+            this.parseMapLayersAndGroups(o);
+            //Need to wait for the right event to trigger loadScaleRanges, so stash our
+            //prepared result for when it comes
+            this._initScaleRanges = co.LoadScaleRanges;
+            for (var i=0; i<this.aLayers.length; ++i) {
+              var newLayer = this.aLayers[i];
+              for (var j=0; j<oldLayers.length; ++j){
+                if (oldLayers[j].uniqueId == newLayer.uniqueId) {
+                  newLayer.selectedFeatureCount = oldLayers[j].selectedFeatureCount;
+                  newLayer.noCache = oldLayers[j].noCache;
+                  break;
+                }
+              }
+            }
+            this.mapWidget.triggerEvent(Fusion.Event.MAP_RELOADED);
+            this.drawMap();
+        }
+        this.mapWidget._removeWorker();
     },
     
 //TBD: this function not yet converted for OL
