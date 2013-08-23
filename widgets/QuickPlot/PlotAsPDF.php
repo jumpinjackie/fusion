@@ -97,17 +97,75 @@
         $printSize = new Size(0, 0);
     }
     
-    // Shave off width if we have a legend
     if ($showLegend) {
         $legendWidth = PxToIn(250, $printDpi);
-        $printSize->width = $printSize->width - $legendWidth;
+    }
+    
+    // Create new PDF document, the default "PDF_UNIT" value is "mm"
+    $pdf = new TCPDF($orientation, PDF_UNIT, $paperType, true, "UTF-8", false);
+    $font = "dejavusans";
+    // Set margins  
+    $pdf->SetMargins(0, 0, 0);
+    $pdf->SetHeaderMargin(0);
+    $pdf->SetFooterMargin(0);
+    // Prevent adding page automatically
+    $pdf->SetAutoPageBreak(false); 
+
+    // Remove default header/footer
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    // Set default font size
+    $pdf->SetFont($font, "", 16, "", true);
+
+    // Add a page
+    $pdf->AddPage();
+    
+    // The print size determines the size of the PDF, not the size of the map and legend images
+    // we want to request back to put into this PDF.
+    //
+    // What that means is that we should draw the surrounding print elements first (title, scale, disclaimer),
+    // then adjust the image request sizes to ensure they (and element drawn on top like coordinates) will fit
+    // correctly in the remaining space.
+    //
+    // Title, scale and disclaimer rendering will all return Metrics objects that will give us the information
+    // needed for the size adjustments
+    
+    // Draw Title
+    $mTitle = DrawTitle();
+    
+    $mScale = NULL;
+    if ($showScaleBar) {
+        // Draw Scale
+        $mScale = DrawScale();
     }
 
+    // Draw declaration
+    $mDec = DrawDeclaration(($mScale != NULL) ? ($mScale->x + $mScale->w) : 0);
+    
+    // Adjust width and height of the images we want to request to compensate for surrounding print elements that have been rendered
+    
+    // Check the size of the disclaimer and adjust height
+    $idealHeight = $pdf->getPageHeight() - ($mDec->h - ($mScale != NULL ? $mScale->h : 0)) - $margin[0] - $margin[1];
+    //var_dump($idealHeight);
+    //var_dump($printSize);
+    //die;
+    if ($idealHeight < $printSize->height);
+        $printSize->height = $idealHeight;
+        
+    $idealWidth = $pdf->getPageWidth() - $margin[2] - $margin[3];
+    if ($idealWidth < $printSize->width);
+        $printSize->width = $idealWidth;
+    
+    // Shave off width if we have a legend
+    if ($showLegend) {
+        $printSize->width = $printSize->width - $legendWidth;
+    }
+    
     // Construct the querysting which can be used to generate the Map image
     $query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&print_size=".$printSize->width.",".$printSize->height.
                     "&print_dpi=".$_POST['dpi']."&box=".$_POST['box']."&normalized_box=".$_POST['normalizedBox'].
                     "&scale_denominator=".$_POST['scaleDenominator']."&rotation=".$_POST['rotation']."&northarrow=".($showNorthArrow ? "1" : "0");
-
+    
     // Construct the querystring which can be used to generate the legend
     if ($showLegend) {
         if (strcmp($legendType, "original") == 0) {
@@ -116,7 +174,7 @@
             $legend_query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&width=".InToPx($legendWidth, $printDpi)."&height=".InToPx($printSize->height, $printDpi);
         }
     }
-
+    
     $filelocation = "";
     $legendfilelocation = "";
 
@@ -138,25 +196,6 @@
     //var_dump($legendfilelocation);
     //die;
     
-    // Create new PDF document, the default "PDF_UNIT" value is "mm"
-    $pdf = new TCPDF($orientation, PDF_UNIT, $paperType, true, "UTF-8", false);
-    $font = "dejavusans";
-    // Set margins  
-    $pdf->SetMargins(0, 0, 0);
-    $pdf->SetHeaderMargin(0);
-    $pdf->SetFooterMargin(0);
-    // Prevent adding page automatically
-    $pdf->SetAutoPageBreak(false); 
-
-    // Remove default header/footer
-    $pdf->setPrintHeader(false);
-    $pdf->setPrintFooter(false);
-    // Set default font size
-    $pdf->SetFont($font, "", 16, "", true);
-
-    // Add a page
-    $pdf->AddPage();
-    
     // Draw legend if specified
     if ($showLegend) {
         $pdf->Image($legendfilelocation, $margin[2], $margin[0], $legendWidth, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
@@ -164,28 +203,35 @@
     
     // Draw Map first, so if the margin is not enough for the Text, the Text will be displayed about the image
     $pdf->Image($filelocation, ($margin[2] + $legendWidth), $margin[0], $printSize->width, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
-
-    // Draw Title
-    DrawTitle();
     
+    // Draw coordiates if specified
+    $mExt = NULL;
     if ($showCoordinates) {
         // Draw Extent coordinates
-        DrawExtentCS();
+        $mExt = DrawExtentCS();
     }
-
-    if ($showScaleBar) {
-        // Draw Scale
-        DrawScale();
-    }
-
-    // Draw declaration
-    DrawDeclaration();
     
     // Close and output PDF document
     $pdf->Output($title.'.pdf', 'I');
 ?>
 
 <?php
+    class Metrics
+    {
+        public $x;
+        public $y;
+        public $w;
+        public $h;
+        
+        public function __construct($x, $y, $w, $h)
+        {
+            $this->x = $x;
+            $this->y = $y;
+            $this->w = $w;
+            $this->h = $h;
+        }
+    }
+
     class Size
     {
         public $width;
@@ -343,14 +389,20 @@
         $pdf->Text($textStart_x, $end_y + 0.2, $scaleText);
         //write the date
         $date = date("M/d/Y");
-        $pdf->Text($textStart_x + 0.3, $end_y - 3.8, $date);  
+        $pdf->Text($textStart_x + 0.3, $end_y - 3.8, $date);
+        
+        return new Metrics($margin[2],
+                           $start_y,
+                           $textStart_x,
+                           ($end_y + 0.2) - $start_y);
     }
 
-    function DrawDeclaration()
+    function DrawDeclaration($offX)
     {
         global $pdf, $font, $margin, $printSize, $legendWidth;
     
         $declaration= $_POST["legalNotice"];
+        
         //$declaration_w = $pdf->GetStringWidth($declaration,$font,9);
         $pdf->SetFont($font, "", 9, "", true);
         
@@ -360,7 +412,7 @@
         //so it will align to the right
         $SingleLineDeclarationWidth  = $pdf->GetStringWidth($declaration, $font, "", 9, false) + $legendWidth;
         $tolerance = 3;
-        $w = 100;
+        $w = $pdf->getPageWidth() - $margin[0] - $margin[1] - $offX;
         
         if( $SingleLineDeclarationWidth + $tolerance < $w )
         {
@@ -371,11 +423,15 @@
         $border = 0; //no border
         $align = "L";//align left
         $tolerance = 2;
-        $x = ParseLocaleDouble($margin[2] + $legendWidth) + $printSize->width - $w + $tolerance;
+        //$x = ParseLocaleDouble($margin[2] + $legendWidth) + $printSize->width - $w + $tolerance;
+        $x = ParseLocaleDouble($margin[2]) + $offX + $tolerance;
         $cellTotalHeight = $pdf->getStringHeight($w,$declaration);
         $y = $pdf->getPageHeight() - $cellTotalHeight - $bottomPadding;
+        if (strlen($declaration) == 0)
+            return new Metrics($x, $y, 0, 0);
 
         $pdf->MultiCell($w, $h, $declaration, $border, $align, false, 0, $x , $y , true);
+        return new Metrics($x, $y, $w, $pdf->getStringHeight($w, $declaration));
     }
     
     function DrawExtentCS()
@@ -433,5 +489,6 @@
         
         // Print text using writeHTMLCell()
         $pdf->writeHTMLCell(0, 0, $x, $y, $html, 0, 1, false, true, "C", true);
+        return new Metrics($x, $y, $titleWidth, $pdf->getStringHeight(0, $title));
     }
 ?>
