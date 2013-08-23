@@ -651,6 +651,9 @@ OpenLayers.Control.MapCapturer = OpenLayers.Class(OpenLayers.Control, {
         
         var factor = this.scaleDenominator / (this.wMap.getMetersPerUnit() * 1000 * 2);
         
+        //TODO: If legend is enabled, should draw another box on the LHS of the box to indicate the region that would be cropped
+        //out by the legend
+        
         var pointList = [];
         pointList.push(new OpenLayers.Geometry.Point(origin.x - this.paperSize.w * factor, origin.y - this.paperSize.h * factor));
         pointList.push(new OpenLayers.Geometry.Point(origin.x + this.paperSize.w * factor, origin.y - this.paperSize.h * factor));

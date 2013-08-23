@@ -158,7 +158,7 @@
     
     // Shave off width if we have a legend
     if ($showLegend) {
-        $printSize->width = $printSize->width - $legendWidth;
+        //$printSize->width = $printSize->width - $legendWidth;
     }
     
     // Construct the querysting which can be used to generate the Map image
@@ -196,13 +196,13 @@
     //var_dump($legendfilelocation);
     //die;
     
+    // Draw Map
+    $pdf->Image($filelocation, ($margin[2]), $margin[0], $printSize->width, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
+    
     // Draw legend if specified
     if ($showLegend) {
         $pdf->Image($legendfilelocation, $margin[2], $margin[0], $legendWidth, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
     }
-    
-    // Draw Map first, so if the margin is not enough for the Text, the Text will be displayed about the image
-    $pdf->Image($filelocation, ($margin[2] + $legendWidth), $margin[0], $printSize->width, $printSize->height, "PNG", "", "", false, $printDpi, "", false, false, 1, false, false, false);
     
     // Draw coordiates if specified
     $mExt = NULL;
@@ -461,7 +461,7 @@
             $pdf->SetXY($lefttop[0] + $legendWidth, $lefttop[1], false);
             $pdf->Cell($lt_cellwidth, 0, $lefttop_cs, 1, 0, '', true, '', 0, false, 'T', 'M');
 
-            $pdf->SetXY($rightbuttom[0] + $legendWidth, $rightbuttom[1], false);
+            $pdf->SetXY($rightbuttom[0], $rightbuttom[1], false);
             $pdf->Cell($rb_cellwidth, 0, $rightbuttom_cs, 1, 0, '', true, '', 0, false, 'T', 'M');
         }
     }
