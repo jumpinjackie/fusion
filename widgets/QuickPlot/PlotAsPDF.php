@@ -156,11 +156,6 @@
     if ($idealWidth < $printSize->width);
         $printSize->width = $idealWidth;
     
-    // Shave off width if we have a legend
-    if ($showLegend) {
-        //$printSize->width = $printSize->width - $legendWidth;
-    }
-    
     // Construct the querysting which can be used to generate the Map image
     $query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&print_size=".$printSize->width.",".$printSize->height.
                     "&print_dpi=".$_POST['dpi']."&box=".$_POST['box']."&normalized_box=".$_POST['normalizedBox'].
