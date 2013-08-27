@@ -39,6 +39,7 @@ Fusion.Widget.Geolocation = OpenLayers.Class(Fusion.Widget, {
     bEnableHighAccuracy: false,
     nTimeout: 5000,
     nMaximumAge: 0,
+    geoProj: null,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -62,11 +63,11 @@ Fusion.Widget.Geolocation = OpenLayers.Class(Fusion.Widget, {
         //Maybe use MapMessage for non-intrusive error display?
         switch(error.code) {
             case 1: //Permission denied
-                alert(error.message);
+                this.getMap().message.error(error.message);
             case 2: //Position unavailable
-                alert(error.message);
+                this.getMap().message.error(error.message);
             case 3: //Timeout
-                alert(error.message);
+                this.getMap().message.error(error.message);
             default:
                 console.error("Error with geolocation: (" + error.code + ") " + error.message);
         }
@@ -76,12 +77,25 @@ Fusion.Widget.Geolocation = OpenLayers.Class(Fusion.Widget, {
         var mapWidget = this.getMap();
         var olMap = mapWidget.oMapOL;
         
-        var geoProj = new OpenLayers.Projection("EPSG:4326");
+        if (this.geoProj == null)
+            this.geoProj = new OpenLayers.Projection("EPSG:4326");
         var mapProj = olMap.projection;
         
         var lonlat = new OpenLayers.LonLat(pos.coords.longitude, pos.coords.latitude);
-        lonlat.transform(geoProj, mapProj);
+        lonlat.transform(this.geoProj, mapProj);
         
+        var msg = null;
+        if (!mapWidget.initialExtents.contains(lonlat)) {
+            msg = OpenLayers.i18n("currentPositionOutsideInitialView");
+        } else if (!olMap.maxExtent.contains(lonlat)) {
+            msg = OpenLayers.i18n("currentPositionOutsideMaxExtent");
+        }
+        if (msg != null) {
+            var msgbar = this.getMap().message;
+            msgbar.warn(msg);
+            setTimeout(function() { msgbar.hideDesignatedMessage(msg); }, 5000);
+        }
+
         if (this.nZoom == null) {
             olMap.moveTo(lonlat);
         } else {
