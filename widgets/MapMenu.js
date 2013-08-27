@@ -80,6 +80,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         
         var mapGroups = Fusion.applicationDefinition.mapGroups;
         this.mapGroupData = {};
+        var buttonSet = new Jx.ButtonSet();
         for (var key in mapGroups) {
             if (mapGroups[key].mapId) {
                 var mapGroup = mapGroups[key];
@@ -89,8 +90,10 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
                     var data = mapGroup;
                     var menuItem = new Jx.Menu.Item({
                         label: mapGroup.mapId,
+                        toggle: true,
                         onClick: OpenLayers.Function.bind(this.switchMap, this, data)
                     });
+                    buttonSet.add(menuItem);
                     this.uiObj.add(menuItem);
                 }
             }
@@ -268,7 +271,15 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
           var dest = null;
           for (var i=0; i<data.maps.length; ++i) {
             if (data.maps[i].layerOptions && data.maps[i].layerOptions.projection) {
-              dest = new OpenLayers.Projection(data.maps[i].layerOptions.projection);
+              //This may not be an "EPSG:XXXX" string. It could already be an OpenLayers.Projection
+              //so re-use it if that's the case
+              var oProj = data.maps[i].layerOptions.projection;
+              var projCode = "";
+              if (oProj instanceof OpenLayers.Projection)
+                dest = oProj;
+              else
+                dest = new OpenLayers.Projection(oProj);
+                
               if (data.maps[i].layerOptions.isBaseLayer) {
                 break;
               }
