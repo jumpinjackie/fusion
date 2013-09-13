@@ -18,10 +18,11 @@
     //Get the layer style and feature source for this Layer Definition. The whole UI is initialized from the values found here
     $style = $markupManager->GetLayerStyle($args["EDITMARKUPLAYER"]);
     $editFeatureSource = $markupManager->GetFeatureSource($args["EDITMARKUPLAYER"]);
-    
+
+    $isAdvanced = (strcmp($args["REDLINESTYLIZATION"], "ADVANCED") == 0);
+
     $errorMsg = null;
     $errorDetail = null;
-    
     $defaultFormat = null;
     $defaultGeomType = null;
 
@@ -228,9 +229,9 @@
         function Cancel()
         {
         <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
-            window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINEFORMAT=<?= $defaultFormat ?>&REDLINEGEOMTYPE=<?= $defaultGeomType ?>";
+            window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINESTYLIZATION=<?= $args['REDLINESTYLIZATION'] ?>&REDLINEFORMAT=<?= $defaultFormat ?>&REDLINEGEOMTYPE=<?= $defaultGeomType ?>";
         <? } else { ?>
-            window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>";
+            window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINESTYLIZATION=<?= $args['REDLINESTYLIZATION'] ?>";
         <? } ?>
         }
     </script>
@@ -249,6 +250,7 @@
 <input name="EDITMARKUPLAYER" type="hidden" value="<?= $args['EDITMARKUPLAYER'] ?>">
 <input name="EDITFEATURESOURCE" type="hidden" value="<?= $editFeatureSource ?>">
 <input name="MARKUPLAYERNAME" type="hidden" value="<?= $args['MARKUPLAYERNAME'] ?>">
+<input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
 
 <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
@@ -463,6 +465,7 @@
             <br>
         </td>
     </tr>
+    <? if (!$isAdvanced) { ?>
     <tr>
         <td colspan="2">
             <?=$labelBackgroundStyleLocal?><br>
@@ -473,7 +476,9 @@
             </select>
         </td>
     </tr>
-
+    <? } else { ?>
+    <input name="LABELBACKSTYLE" size="1" style="display:none" />
+    <? } ?>
     <tr>
         <td colspan="2" align="right">
             <hr>

@@ -156,7 +156,8 @@ try {
 
             //get the layer filter value if supplied
             $layerReader = $resourceService->GetResourceContent($layerObj->GetLayerDefinition());
-            $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerReader));
+            $xmldoc = new DOMDocument();
+            $xmldoc->loadXML(ByteReaderToString($layerReader));
             $xpathObj = new domXPath($xmldoc);
             $xpathStr = "/LayerDefinition/VectorLayerDefinition/Filter"; //TODO: need this for DWF or Grid layers?
             $xpathQuery = $xpathObj->query($xpathStr);

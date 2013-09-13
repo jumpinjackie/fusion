@@ -612,7 +612,8 @@ function GetLayerPropertyMappings($resourceService, $layer, $xmldoc = NULL) {
     $mappings = array();
     if ($xmldoc == NULL) {
         $byteReader = $resourceService->GetResourceContent($layer->GetLayerDefinition());
-        $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+        $xmldoc = new DOMDocument();
+        $xmldoc->loadXML(ByteReaderToString($byteReader));
     }
     $mappingNodeList = $xmldoc->getElementsByTagName('PropertyMapping');
     for ($i=0; $i<$mappingNodeList->length; $i++) {
@@ -632,7 +633,8 @@ function IsLayerEditable($resourceService, $layer, $xmldoc = NULL) {
     $dataSourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
     if ($xmldoc == NULL) {
         $byteReader = $resourceService->GetResourceContent($dataSourceId);
-        $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+        $xmldoc = new DOMDocument();
+        $xmldoc->loadXML(ByteReaderToString($byteReader));
     }
     $parameterList = $xmldoc->getElementsByTagName('Parameter');
     for ($i=0; $i<$parameterList->length; $i++) {
@@ -775,6 +777,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
         $layerName = GetEncodedLayerName($layerName);    
     }
 
+    $properties->$layerName = new stdClass();
     $properties->$layerName->propertynames = array();
     $properties->$layerName->propertyvalues = array();
     $properties->$layerName->propertytypes = array();

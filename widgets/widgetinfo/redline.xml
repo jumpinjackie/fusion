@@ -97,4 +97,21 @@
         <DefaultValue>true</DefaultValue>
         <IsMandatory>false</IsMandatory>
     </Parameter>
+    <Parameter>
+        <Name>StylizationType</Name>
+        <Description>Determines which type of stylization to use for rendering redline features.</Description>
+        <Type>string</Type>
+        <Label>RedlineGeometryFormat</Label>
+        <AllowedValue>
+          <Name>basic</Name>
+          <Label>Basic Stylization</Label>
+        </AllowedValue>
+        <AllowedValue>
+          <Name>advanced</Name>
+          <Label>Advanced (Composite) Stylization</Label>
+        </AllowedValue>
+        <Label>StylizationType</Label>
+        <DefaultValue>basic</DefaultValue>
+        <IsMandatory>false</IsMandatory>
+    </Parameter>
 </WidgetInfo>

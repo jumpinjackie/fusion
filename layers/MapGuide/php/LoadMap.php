@@ -123,7 +123,8 @@ try
     
     //Any code that may need the map definition xml document can use $mdfDoc
     $mapContent = $resourceService->GetResourceContent(new MgResourceIdentifier($mapid));
-    $mdfDoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+    $mdfDoc = new DOMDocument();
+    $mdfDoc->loadXML(ByteReaderToString($mapContent));
     
     $mapObj->backgroundColor = getMapBackgroundColor($map, $mdfDoc);
 
@@ -151,10 +152,12 @@ try
     for($i=0;$i<$layers->GetCount();$i++)
     {
         $ldfContent = $layerDefinitionContents->GetItem($i);
-        $ldfdoc = DOMDocument::LoadXML($ldfContent);
+        $ldfdoc = new DOMDocument();
+        $ldfdoc->loadXML($ldfContent);
         array_push($layerDocs, $ldfdoc);
         $fsContent = $featureSourceContents->GetItem($i);
-        $fsDoc = DOMDocument::LoadXML($fsContent);
+        $fsDoc = new DOMDocument();
+        $fsDoc->loadXML($fsContent);
         array_push($fsDocs, $fsDoc);
     }
     
@@ -264,7 +267,8 @@ function GetLayerTypesFromResourceContent($layer, $xmldoc = NULL)
             if ($xmldoc == NULL) {
                 $resID = $layer->GetLayerDefinition();
                 $layerContent = $resourceService->GetResourceContent($resID);
-                $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+                $xmldoc = new DOMDocument();
+                $xmldoc->loadXML(ByteReaderToString($layerContent));
             }
             $gridlayers = $xmldoc->getElementsByTagName('GridLayerDefinition');
             if ($gridlayers->length > 0)
@@ -301,7 +305,8 @@ function getMapBackgroundColor($map, $xmldoc = NULL) {
     if ($xmldoc == NULL) {
         $resId = $map->GetMapDefinition();
         $mapContent = $resourceService->GetResourceContent($resId);
-        $xmldoc = DOMDocument::loadXML(ByteReaderToString($mapContent));
+        $xmldoc = new DOMDocument();
+        $xmldoc->loadXML(ByteReaderToString($mapContent));
     }
     $bgColor = $xmldoc->getElementsByTagName('BackgroundColor');
     if ($bgColor->length > 0) {
@@ -318,7 +323,8 @@ function buildScaleRanges($layer, $xmldoc = NULL)
     if ($xmldoc == NULL) {
         $resID = $layer->GetLayerDefinition();
         $layerContent = $resourceService->GetResourceContent($resID);
-        $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+        $xmldoc = new DOMDocument();
+        $xmldoc->loadXML(ByteReaderToString($layerContent));
     }
     $type = 0;
     $scaleRanges = $xmldoc->getElementsByTagName('VectorScaleRange');

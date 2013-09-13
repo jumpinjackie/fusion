@@ -296,7 +296,8 @@ Class MGUserManager {
             } else {
                 $byteReader = $site->EnumerateGroups();
             }
-            $xmldoc = DOMDocument::loadXML(ByteReaderToString($byteReader));
+            $xmldoc = new DOMDocument();
+            $xmldoc->loadXML(ByteReaderToString($byteReader));
             $groupNodeList = $xmldoc->getElementsByTagName('Group');
             for ($i=0; $i<$groupNodeList->length; $i++) {
                 $group = $groupNodeList->item($i);

@@ -190,7 +190,8 @@
             
             $ldfId = $layer->GetLayerDefinition();
             $layerContent = $resourceService->GetResourceContent($ldfId);
-            $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+            $xmldoc = new DOMDocument();
+            $xmldoc->loadXML(ByteReaderToString($layerContent));
             $scaleRanges = $xmldoc->getElementsByTagName('VectorScaleRange');
             if ($scaleRanges->length == 0) {
                 $scaleRanges = $xmldoc->getElementsByTagName('GridScaleRange');

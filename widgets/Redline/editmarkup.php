@@ -520,6 +520,7 @@
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
 <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
 <? } ?>
+<input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
 </form>
 <?php } else { ?>
 </head>

@@ -164,90 +164,178 @@ class MarkupManager
 
     function GetLayerStyle($layerDef)
     {
+        $basic = (strcmp($this->args["REDLINESTYLIZATION"], "BASIC") == 0);
         $style = new LayerStyle();
         $resId = new MgResourceIdentifier($layerDef);
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $br = $resourceService->GetResourceContent($resId);
 
-        $doc = DOMDocument::LoadXML($br->ToString());
-        $vsr = $doc->getElementsByTagName("VectorScaleRange")->item(0);
+        $doc = new DOMDocument();
+        $doc->loadXML($br->ToString());
+        
+        if ($basic) {
+            $vsr = $doc->getElementsByTagName("VectorScaleRange")->item(0);
 
-        $pts = $vsr->getElementsByTagName("PointTypeStyle");
-        $ats = $vsr->getElementsByTagName("AreaTypeStyle");
-        $lts = $vsr->getElementsByTagName("LineTypeStyle");
+            $pts = $vsr->getElementsByTagName("PointTypeStyle");
+            $ats = $vsr->getElementsByTagName("AreaTypeStyle");
+            $lts = $vsr->getElementsByTagName("LineTypeStyle");
 
-        if ($pts->length > 0) {
-            $pr = $pts->item(0);
-            $prLabel = $pr->getElementsByTagName("Label")->item(0);
-            $prMark = $pr->getElementsByTagName("PointSymbolization2D")->item(0)->getElementsByTagName("Mark")->item(0);
+            if ($pts->length > 0) {
+                $pr = $pts->item(0);
+                $prLabel = $pr->getElementsByTagName("Label")->item(0);
+                $prMark = $pr->getElementsByTagName("PointSymbolization2D")->item(0)->getElementsByTagName("Mark")->item(0);
 
-            $style->LABEL_SIZE_UNITS = $prLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
-            $style->LABEL_FONT_SIZE = $prLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
-            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_STYLE = $prLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
-            $style->LABEL_BOLD = $prLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
-            $style->LABEL_ITALIC = $prLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
-            $style->LABEL_UNDERLINE = $prLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+                $style->LABEL_SIZE_UNITS = $prLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+                $style->LABEL_FONT_SIZE = $prLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+                $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($prLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_STYLE = $prLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
+                $style->LABEL_BOLD = $prLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+                $style->LABEL_ITALIC = $prLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+                $style->LABEL_UNDERLINE = $prLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
 
-            $style->MARKER_SIZE_UNITS = $prMark->getElementsByTagName("Unit")->item(0)->nodeValue;
-            $style->MARKER_SIZE = $prMark->getElementsByTagName("SizeX")->item(0)->nodeValue;
-            $style->MARKER_TYPE = $prMark->getElementsByTagName("Shape")->item(0)->nodeValue;
+                $style->MARKER_SIZE_UNITS = $prMark->getElementsByTagName("Unit")->item(0)->nodeValue;
+                $style->MARKER_SIZE = $prMark->getElementsByTagName("SizeX")->item(0)->nodeValue;
+                $style->MARKER_TYPE = $prMark->getElementsByTagName("Shape")->item(0)->nodeValue;
 
-            $style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
-            //$style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->item(7)->childNodes->item(2)->nodeValue);
-        }
-        if ($lts->length > 0) {
-            $lr = $lts->item(0);
-            $lrLabel = $lr->getElementsByTagName("Label")->item(0);
-            $lrSym = $lr->getElementsByTagName("LineSymbolization2D")->item(0);
-
-            $style->LABEL_SIZE_UNITS = $lrLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
-            $style->LABEL_FONT_SIZE = $lrLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
-            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_STYLE = $lrLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
-
-            if ($pts->length == 0) {
-                $style->LABEL_BOLD = $lrLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
-                $style->LABEL_ITALIC = $lrLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
-                $style->LABEL_UNDERLINE = $lrLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+                $style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+                //$style->MARKER_COLOR = $this->StripAlphaFromColorString($prMark->item(7)->childNodes->item(2)->nodeValue);
             }
+            if ($lts->length > 0) {
+                $lr = $lts->item(0);
+                $lrLabel = $lr->getElementsByTagName("Label")->item(0);
+                $lrSym = $lr->getElementsByTagName("LineSymbolization2D")->item(0);
 
-            $style->LINE_PATTERN = $lrSym->getElementsByTagName("LineStyle")->item(0)->nodeValue;
-            $style->LINE_THICKNESS = $lrSym->getElementsByTagName("Thickness")->item(0)->nodeValue;
-            $style->LINE_COLOR = $this->StripAlphaFromColorString($lrSym->getElementsByTagName("Color")->item(0)->nodeValue);
-            $style->LINE_SIZE_UNITS = $lrSym->getElementsByTagName("Unit")->item(0)->nodeValue;
-        }
-        if ($ats->length > 0) {
-            $ar = $ats->item(0);
-            $arLabel = $ar->getElementsByTagName("Label")->item(0);
-            $arSym = $ar->getElementsByTagName("AreaSymbolization2D")->item(0);
+                $style->LABEL_SIZE_UNITS = $lrLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+                $style->LABEL_FONT_SIZE = $lrLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+                $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($lrLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_STYLE = $lrLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
 
-            $style->LABEL_SIZE_UNITS = $arLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
-            $style->LABEL_FONT_SIZE = $arLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
-            $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
-            $style->LABEL_BACK_STYLE = $arLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
+                if ($pts->length == 0) {
+                    $style->LABEL_BOLD = $lrLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+                    $style->LABEL_ITALIC = $lrLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+                    $style->LABEL_UNDERLINE = $lrLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+                }
 
-            if ($pts->length == 0 && $lts->length == 0)
-            {
-                $style->LABEL_BOLD = $arLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
-                $style->LABEL_ITALIC = $arLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
-                $style->LABEL_UNDERLINE = $arLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+                $style->LINE_PATTERN = $lrSym->getElementsByTagName("LineStyle")->item(0)->nodeValue;
+                $style->LINE_THICKNESS = $lrSym->getElementsByTagName("Thickness")->item(0)->nodeValue;
+                $style->LINE_COLOR = $this->StripAlphaFromColorString($lrSym->getElementsByTagName("Color")->item(0)->nodeValue);
+                $style->LINE_SIZE_UNITS = $lrSym->getElementsByTagName("Unit")->item(0)->nodeValue;
             }
+            if ($ats->length > 0) {
+                $ar = $ats->item(0);
+                $arLabel = $ar->getElementsByTagName("Label")->item(0);
+                $arSym = $ar->getElementsByTagName("AreaSymbolization2D")->item(0);
 
-            $arSymFill = $arSym->getElementsByTagName("Fill")->item(0);
-            $arSymStroke = $arSym->getElementsByTagName("Stroke")->item(0);
+                $style->LABEL_SIZE_UNITS = $arLabel->getElementsByTagName("Unit")->item(0)->nodeValue;
+                $style->LABEL_FONT_SIZE = $arLabel->getElementsByTagName("SizeX")->item(0)->nodeValue;
+                $style->LABEL_FORE_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_COLOR = $this->StripAlphaFromColorString($arLabel->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+                $style->LABEL_BACK_STYLE = $arLabel->getElementsByTagName("BackgroundStyle")->item(0)->nodeValue;
 
-            $style->FILL_PATTERN = $arSymFill->getElementsByTagName("FillPattern")->item(0)->nodeValue;
-            $style->FILL_FORE_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
-            $style->FILL_BACK_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+                if ($pts->length == 0 && $lts->length == 0)
+                {
+                    $style->LABEL_BOLD = $arLabel->getElementsByTagName("Bold")->item(0)->nodeValue;
+                    $style->LABEL_ITALIC = $arLabel->getElementsByTagName("Italic")->item(0)->nodeValue;
+                    $style->LABEL_UNDERLINE = $arLabel->getElementsByTagName("Underlined")->item(0)->nodeValue;
+                }
 
-            $style->BORDER_PATTERN = $arSymStroke->getElementsByTagName("LineStyle")->item(0)->nodeValue;
-            $style->BORDER_THICKNESS = $arSymStroke->getElementsByTagName("Thickness")->item(0)->nodeValue;
-            $style->BORDER_COLOR = $this->StripAlphaFromColorString($arSymStroke->getElementsByTagName("Color")->item(0)->nodeValue);
-            $style->BORDER_SIZE_UNITS = $arSymStroke->getElementsByTagName("Unit")->item(0)->nodeValue;
+                $arSymFill = $arSym->getElementsByTagName("Fill")->item(0);
+                $arSymStroke = $arSym->getElementsByTagName("Stroke")->item(0);
+
+                $style->FILL_PATTERN = $arSymFill->getElementsByTagName("FillPattern")->item(0)->nodeValue;
+                $style->FILL_FORE_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("ForegroundColor")->item(0)->nodeValue);
+                $style->FILL_BACK_COLOR = $this->StripAlphaFromColorString($arSymFill->getElementsByTagName("BackgroundColor")->item(0)->nodeValue);
+
+                $style->BORDER_PATTERN = $arSymStroke->getElementsByTagName("LineStyle")->item(0)->nodeValue;
+                $style->BORDER_THICKNESS = $arSymStroke->getElementsByTagName("Thickness")->item(0)->nodeValue;
+                $style->BORDER_COLOR = $this->StripAlphaFromColorString($arSymStroke->getElementsByTagName("Color")->item(0)->nodeValue);
+                $style->BORDER_SIZE_UNITS = $arSymStroke->getElementsByTagName("Unit")->item(0)->nodeValue;
+            }
+        } else {
+            //Ironically, Advanced Stylization is simpler here, because as part of creating the Layer Definition we've stuffed all the relevant settings under ExtendedData for easy retrieval
+            $extData = $doc->getElementsByTagName("ExtendedData1");
+            if ($extData->length == 1) {
+                $ext = $extData->item(0);
+                $nodes = $ext->getElementsByTagName("MG_MARKER_COLOR");
+                if ($nodes->length == 1)
+                    $style->MARKER_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_MARKER_TYPE");
+                if ($nodes->length == 1)
+                    $style->MARKER_TYPE = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_MARKER_UNITS");
+                if ($nodes->length == 1)
+                    $style->MARKER_SIZE_UNITS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_MARKER_SIZE");
+                if ($nodes->length == 1)
+                    $style->MARKER_SIZE = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LINE_COLOR");
+                if ($nodes->length == 1)
+                    $style->LINE_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LINE_PATTERN");
+                if ($nodes->length == 1)
+                    $style->LINE_PATTERN = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LINE_UNITS");
+                if ($nodes->length == 1)
+                    $style->LINE_SIZE_UNITS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LINE_THICKNESS");
+                if ($nodes->length == 1)
+                    $style->LINE_THICKNESS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_FILL_PATTERN");
+                if ($nodes->length == 1)
+                    $style->FILL_PATTERN = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_FILL_FORE_TRANSPARENCY");
+                if ($nodes->length == 1)
+                    $style->FILL_TRANSPARENCY = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_FILL_FORE_COLOR");
+                if ($nodes->length == 1)
+                    $style->FILL_FORE_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_FILL_BACK_COLOR");
+                if ($nodes->length == 1)
+                    $style->FILL_BACK_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_FILL_BACK_TRANSPARENCY");
+                if ($nodes->length == 1)
+                    $style->FILL_BACK_TRANS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_BORDER_PATTERN");
+                if ($nodes->length == 1)
+                    $style->BORDER_PATTERN = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_BORDER_UNITS");
+                if ($nodes->length == 1)
+                    $style->BORDER_SIZE_UNITS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_BORDER_COLOR");
+                if ($nodes->length == 1)
+                    $style->BORDER_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_BORDER_THICKNESS");
+                if ($nodes->length == 1)
+                    $style->BORDER_THICKNESS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LABEL_FONT_UNITS");
+                if ($nodes->length == 1)
+                    $style->LABEL_SIZE_UNITS = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LABEL_FONT_SIZE");
+                if ($nodes->length == 1)
+                    $style->LABEL_FONT_SIZE = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_BOLD");
+                if ($nodes->length == 1)
+                    $style->LABEL_BOLD = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_ITALIC");
+                if ($nodes->length == 1)
+                    $style->LABEL_ITALIC = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_UNDERLINE");
+                if ($nodes->length == 1)
+                    $style->LABEL_UNDERLINE = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LABEL_FORECOLOR");
+                if ($nodes->length == 1)
+                    $style->LABEL_FORE_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LABEL_BACKCOLOR");
+                if ($nodes->length == 1)
+                    $style->LABEL_BACK_COLOR = $nodes->item(0)->nodeValue;
+                $nodes = $ext->getElementsByTagName("MG_LABEL_STYLE");
+                if ($nodes->length == 1)
+                    $style->LABEL_BACK_STYLE = $nodes->item(0)->nodeValue;
+                
+                //Ignore back style, we can't figure this out yet for advanced stylization
+            }
         }
         return $style;
     }
@@ -319,9 +407,144 @@ class MarkupManager
             }
         }
     }
+    
+    static function SizeInMM($size, $units)
+    {
+        $dSize = floatval($size);
+        if (strcmp($units, "Points") == 0) {
+            return $dSize * 0.352777778;
+        } else if (strcmp($units, "Inches") == 0) {
+            return $dSize * 25.4;
+        } else if (strcmp($units, "Centimeters") == 0) {
+            return $dSize * 10;
+        } else if (strcmp($units, "Meters") == 0) {
+            return $dSize * 1000;
+        } else {
+            return $dSize;
+        }
+    }
+    
+    static function GetMarkerGeometry($markerType)
+    {
+        /*
+        Square:     M -1.0,-1.0 L 1.0,-1.0 L 1.0,1.0 L -1.0,1.0 L -1.0,-1.0
+        Circle:     M -1,0 A 1,1 0 1 1 1,0 A 1,1 0 1 1 -1,0
+        Triangle:   M -1.0,-1.0 h 2.0 l -1.0,2.0 z
+        Star:       M -0.618033988749895,-0.951056516295154 L 0,-0.502028539715568 L 0.618033988749895,-0.951056516295154 L 0.381966011250105,-0.273457471994639 L 1,0.175570504584946 L 0.23606797749979,0.175570504584946 L 0,0.951056516295154 L -0.23606797749979,0.175570504584946 L -1,0.175570504584946 L -0.381966011250105,-0.273457471994639 L -0.618033988749895,-0.951056516295154
+        Cross:      M -0.190983005625053,-1 L 0.190983005625053,-1 L 0.190983005625053,-0.190983005625053 L 1,-0.190983005625053 L 1,0.190983005625053 L 0.190983005625053,0.190983005625053 L 0.190983005625053,1 L -0.190983005625053,1 L -0.190983005625053,0.190983005625053 L -1,0.190983005625053 L -1,-0.190983005625053 L -0.190983005625053,-0.190983005625053 L -0.190983005625053,-1
+        X:          M -0.459818486524547,-1 L 0,-0.540181513475453 L 0.459818486524547,-1 L 1,-0.459818486524547 L 0.540181513475453,0 L 1,0.459818486524547 L 0.459818486524547,1 L 0,0.540181513475453 L -0.459818486524547,1 L -1,0.459818486524547 L -0.540181513475453,0 L -1,-0.459818486524547 L -0.459818486524547,-1
+        Star-Old:   M -0.707106781186548,0.707106781186548 L 0.707106781186548,-0.707106781186548 M -0.707106781186548,-0.707106781186548 L 0.707106781186548,0.707106781186548 M -1,0 L 1,0 M 0,-1 L 0,1
+        Cross-Old:  M -1,0 L 1,0 M 0,-1 L 0,1
+        X-Old:      M -0.707106781186548,0.707106781186548 L 0.707106781186548,-0.707106781186548 M -0.707106781186548,-0.707106781186548 L 0.707106781186548,0.707106781186548        
+        */
+        if (strcmp($markerType, "Square") == 0) {
+            return "M -1.0,-1.0 L 1.0,-1.0 L 1.0,1.0 L -1.0,1.0 L -1.0,-1.0";
+        } else if (strcmp($markerType, "Circle") == 0) {
+            return "M -1,0 A 1,1 0 1 1 1,0 A 1,1 0 1 1 -1,0";
+        } else if (strcmp($markerType, "Triangle") == 0) {
+            return "M -1.0,-1.0 h 2.0 l -1.0,2.0 z";
+        } else if (strcmp($markerType, "Star") == 0) {
+            return "M -0.618033988749895,-0.951056516295154 L 0,-0.502028539715568 L 0.618033988749895,-0.951056516295154 L 0.381966011250105,-0.273457471994639 L 1,0.175570504584946 L 0.23606797749979,0.175570504584946 L 0,0.951056516295154 L -0.23606797749979,0.175570504584946 L -1,0.175570504584946 L -0.381966011250105,-0.273457471994639 L -0.618033988749895,-0.951056516295154";
+        } else if (strcmp($markerType, "Cross") == 0) {
+            return "M -0.190983005625053,-1 L 0.190983005625053,-1 L 0.190983005625053,-0.190983005625053 L 1,-0.190983005625053 L 1,0.190983005625053 L 0.190983005625053,0.190983005625053 L 0.190983005625053,1 L -0.190983005625053,1 L -0.190983005625053,0.190983005625053 L -1,0.190983005625053 L -1,-0.190983005625053 L -0.190983005625053,-0.190983005625053 L -0.190983005625053,-1";
+        } else if (strcmp($markerType, "X") == 0) {
+            return "M -0.459818486524547,-1 L 0,-0.540181513475453 L 0.459818486524547,-1 L 1,-0.459818486524547 L 0.540181513475453,0 L 1,0.459818486524547 L 0.459818486524547,1 L 0,0.540181513475453 L -0.459818486524547,1 L -1,0.459818486524547 L -0.540181513475453,0 L -1,-0.459818486524547 L -0.459818486524547,-1";
+        } else {
+            throw new Exception("Unrecognized or unsupported marker type: $markerType");
+        }
+    }
+    
+    static function GetMarkerSize($markerSize, $markerUnits)
+    {
+        //Halve the resulting size to get approximate same size as it would look under basic stylization
+        return MarkupManager::GetLineThickness($markerSize, $markerUnits) / 2.0;
+    }
+    
+    static function GetLinePatternGeometry($pattern)
+    {
+        return MarkupManager::GetBorderPatternGeometry($pattern);
+    }
+    
+    static function GetLineThickness($thickness, $units)
+    {
+        if (strcmp($units, "Points") == 0) {
+            return floatval($thickness) * 0.352777778;
+        } else if (strcmp($units, "Inches") == 0) {
+            return floatval($thickness) * 25.4;
+        } else if (strcmp($units, "Millimeters") == 0) {
+            return floatval($thickness);
+        } else if (strcmp($units, "Centimeters") == 0) {
+            return floatval($thickness) * 10;
+        } else if (strcmp($units, "Meters") == 0) {
+            return floatval($thickness) * 1000;
+        } else {
+            throw new Exception("Unsupported or unrecognized unit: $units");
+        }
+    }
+    
+    static function GetFillPatternTemplate($pattern)
+    {
+        if (strcmp($pattern, "Solid") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_solid.templ");
+        } else if (strcmp($pattern, "Net") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_net.templ");
+        } else if (strcmp($pattern, "Line") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_line.templ");
+        } else if (strcmp($pattern, "Line_45") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_line_45.templ");
+        } else if (strcmp($pattern, "Line_90") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_line_90.templ");
+        } else if (strcmp($pattern, "Line_135") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_line_135.templ");
+        } else if (strcmp($pattern, "Square") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_square.templ");
+        } else if (strcmp($pattern, "Box") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_box.templ");
+        } else if (strcmp($pattern, "Cross") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_cross.templ");
+        } else if (strcmp($pattern, "Dash") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_dash.templ");
+        } else if (strcmp($pattern, "Dolmit") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_dolmit.templ");
+        } else if (strcmp($pattern, "Hex") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_hex.templ");
+        } else if (strcmp($pattern, "Sacncr") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_sacncr.templ");
+        } else if (strcmp($pattern, "Steel") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/area_steel.templ");
+        } else {
+            throw new Exception("Unsupported or unrecognized fill pattern: $pattern");
+        }
+    }
+    
+    static function GetBorderPatternGeometry($pattern)
+    {
+        if (strcmp($pattern, "Solid") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_solid.templ");
+        } else if (strcmp($pattern, "Dash") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_dash.templ");
+        } else if (strcmp($pattern, "Dot") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_dot.templ");
+        } else if (strcmp($pattern, "DashDot") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_dashdot.templ");
+        } else if (strcmp($pattern, "DashDotDot") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_dashdotdot.templ");
+        } else if (strcmp($pattern, "Rail") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_rail.templ");
+        } else if (strcmp($pattern, "BORDER") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_border.templ");
+        } else if (strcmp($pattern, "DIVIDE") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_divide.templ");
+        } else if (strcmp($pattern, "FENCELINE1") == 0) {
+            return file_get_contents(dirname(__FILE__)."/../templates/line_fenceline1.templ");
+        } else {
+            throw new Exception("Unsupported or unrecognized border pattern: $pattern");
+        }
+    }
 
     function CreateMarkupLayerDefinitionContent($featureSourceId, $className)
     {
+        $basic = (strcmp($this->args["REDLINESTYLIZATION"], "BASIC") == 0);
         // Create the Markup Layer Definition. Create or update, this code is the same.
 
         $hexFgTransparency = sprintf("%02x", 255 * (100 - $this->args['FILLTRANSPARENCY']) / 100); // Convert % to an alpha value
@@ -329,56 +552,120 @@ class MarkupManager
         $bold = array_key_exists('LABELBOLD', $this->args) ? "true" : "false";
         $italic = array_key_exists('LABELITALIC', $this->args) ? "true" : "false";
         $underline = array_key_exists('LABELUNDERLINE', $this->args) ? "true" : "false";
-
-        $markupLayerDefinition = file_get_contents("templates/markuplayerdefinition.xml");
-        $markupLayerDefinition = sprintf($markupLayerDefinition,
-            $featureSourceId,						            //<ResourceId> - Feature Source
-            $className,                                         //<FeatureName> - Class Name
-            $this->args['LABELSIZEUNITS'],						//<Unit> - Mark Label
-            $this->args['LABELFONTSIZE'],						//<SizeX> - Mark Label Size
-            $this->args['LABELFONTSIZE'],						//<SizeY> - Mark Label Size
-            'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Mark Label
-            'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Mark Label
-            $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Mark Label
-            $bold,												//<Bold> - Mark Label
-            $italic,											//<Bold> - Mark Label
-            $underline,											//<Underlined> - Mark Label
-            $this->args['MARKERSIZEUNITS'],						//<Unit> - Mark
-            $this->args['MARKERSIZE'],							//<SizeX> - Mark
-            $this->args['MARKERSIZE'],							//<SizeY> - Mark
-            $this->args['MARKERTYPE'],							//<Shape> - Mark
-            'FF' . $this->args['MARKERCOLOR'],					//<ForegroundColor> - Mark
-            'FF' . $this->args['MARKERCOLOR'],					//<Color> - Mark
-            $this->args['LABELSIZEUNITS'],						//<Unit> - Line Label
-            $this->args['LABELFONTSIZE'],						//<SizeX> - Line Label Size
-            $this->args['LABELFONTSIZE'],						//<SizeY> - Line Label Size
-            'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Line Label
-            'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Line Label
-            $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Line Label
-            $bold,												//<Bold> - Line Label
-            $italic,											//<Bold> - Line Label
-            $underline,											//<Underlined> - Line Label
-            $this->args['LINEPATTERN'],							//<LineStyle> - Line
-            $this->args['LINETHICKNESS'],						//<Thickness> - Line
-            'FF' . $this->args['LINECOLOR'],					//<Color> - Line
-            $this->args['LINESIZEUNITS'],						//<Unit> - Line
-            $this->args['LABELSIZEUNITS'],						//<Unit> - Polygon Label
-            $this->args['LABELFONTSIZE'],						//<SizeX> - Polygon Label Size
-            $this->args['LABELFONTSIZE'],						//<SizeY> - Polygon Label Size
-            'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Polygon Label
-            'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Polygon Label
-            $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Polygon Label
-            $bold,												//<Bold> - Polygon Label
-            $italic,											//<Bold> - Polygon Label
-            $underline,											//<Underlined> - Polygon Label
-            $this->args['FILLPATTERN'], 						//<FillPattern> - Fill
-            $hexFgTransparency . $this->args['FILLFORECOLOR'], 	//<ForegroundColor> - Fill
-            $hexBgTransparency . $this->args['FILLBACKCOLOR'], 	//<BackgroundColor> - Fill
-            $this->args['BORDERPATTERN'],						//<LineStyle> - Fill
-            $this->args['BORDERTHICKNESS'], 					//<Thickness> - Fill
-            'FF' . $this->args['BORDERCOLOR'], 					//<Color> - Fill
-            $this->args['BORDERSIZEUNITS']); 					//<Unit> - Fill
-
+        if ($basic) {
+            $markupLayerDefinition = file_get_contents("templates/markuplayerdefinition.xml");
+            $markupLayerDefinition = sprintf($markupLayerDefinition,
+                $featureSourceId,						            //<ResourceId> - Feature Source
+                $className,                                         //<FeatureName> - Class Name
+                $this->args['LABELSIZEUNITS'],						//<Unit> - Mark Label
+                $this->args['LABELFONTSIZE'],						//<SizeX> - Mark Label Size
+                $this->args['LABELFONTSIZE'],						//<SizeY> - Mark Label Size
+                'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Mark Label
+                'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Mark Label
+                $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Mark Label
+                $bold,												//<Bold> - Mark Label
+                $italic,											//<Bold> - Mark Label
+                $underline,											//<Underlined> - Mark Label
+                $this->args['MARKERSIZEUNITS'],						//<Unit> - Mark
+                $this->args['MARKERSIZE'],							//<SizeX> - Mark
+                $this->args['MARKERSIZE'],							//<SizeY> - Mark
+                $this->args['MARKERTYPE'],							//<Shape> - Mark
+                'FF' . $this->args['MARKERCOLOR'],					//<ForegroundColor> - Mark
+                'FF' . $this->args['MARKERCOLOR'],					//<Color> - Mark
+                $this->args['LABELSIZEUNITS'],						//<Unit> - Line Label
+                $this->args['LABELFONTSIZE'],						//<SizeX> - Line Label Size
+                $this->args['LABELFONTSIZE'],						//<SizeY> - Line Label Size
+                'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Line Label
+                'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Line Label
+                $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Line Label
+                $bold,												//<Bold> - Line Label
+                $italic,											//<Bold> - Line Label
+                $underline,											//<Underlined> - Line Label
+                $this->args['LINEPATTERN'],							//<LineStyle> - Line
+                $this->args['LINETHICKNESS'],						//<Thickness> - Line
+                'FF' . $this->args['LINECOLOR'],					//<Color> - Line
+                $this->args['LINESIZEUNITS'],						//<Unit> - Line
+                $this->args['LABELSIZEUNITS'],						//<Unit> - Polygon Label
+                $this->args['LABELFONTSIZE'],						//<SizeX> - Polygon Label Size
+                $this->args['LABELFONTSIZE'],						//<SizeY> - Polygon Label Size
+                'FF' . $this->args['LABELFORECOLOR'],				//<ForegroundColor> - Polygon Label
+                'FF' . $this->args['LABELBACKCOLOR'],				//<BackgroundColor> - Polygon Label
+                $this->args['LABELBACKSTYLE'],						//<BackgroundStyle> - Polygon Label
+                $bold,												//<Bold> - Polygon Label
+                $italic,											//<Bold> - Polygon Label
+                $underline,											//<Underlined> - Polygon Label
+                $this->args['FILLPATTERN'], 						//<FillPattern> - Fill
+                $hexFgTransparency . $this->args['FILLFORECOLOR'], 	//<ForegroundColor> - Fill
+                $hexBgTransparency . $this->args['FILLBACKCOLOR'], 	//<BackgroundColor> - Fill
+                $this->args['BORDERPATTERN'],						//<LineStyle> - Fill
+                $this->args['BORDERTHICKNESS'], 					//<Thickness> - Fill
+                'FF' . $this->args['BORDERCOLOR'], 					//<Color> - Fill
+                $this->args['BORDERSIZEUNITS']); 					//<Unit> - Fill
+        } else {
+            //Unlike other sprintf() based templates, we're using named placeholders for Advanced Stylization templates because there is 
+            //just way too many parameters to specify using a sprintf() approach with a high chance of parameter count mismatches as well.
+            $markupLayerDefinition = file_get_contents("templates/markuplayerdefinition_advanced.xml");
+            
+            $fontHeight = MarkupManager::SizeInMM($this->args['LABELFONTSIZE'], $this->args['LABELSIZEUNITS']);
+            $labelForeColor = 'FF' . $this->args['LABELFORECOLOR'];
+            $labelBackColor = 'FF' . $this->args['LABELBACKCOLOR'];
+            
+            //Substitute inner templates first, so their placeholders tokens are also brought in
+            $markupLayerDefinition = str_replace("#{FILL_PATTERN_TEMPLATE}", MarkupManager::GetFillPatternTemplate($this->args['FILLPATTERN']), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{BORDER_PATTERN_TEMPLATE}", MarkupManager::GetBorderPatternGeometry($this->args['BORDERPATTERN']), $markupLayerDefinition);
+            
+            //Then do a find/replace of all known tokens
+            $markupLayerDefinition = str_replace("#{RESOURCE_ID}", $featureSourceId, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{FEATURE_CLASS}", $className, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{FONT_HEIGHT}", $fontHeight, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{LABEL_FORE_COLOR}", $labelForeColor, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{LABEL_BACK_COLOR}", $labelBackColor, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{BOLD}", $bold, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{ITALIC}", $italic, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{UNDERLINE}", $underline, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MARKER_GEOMETRY}", MarkupManager::GetMarkerGeometry($this->args['MARKERTYPE']), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MARKER_SIZE_X}", MarkupManager::GetMarkerSize($this->args["MARKERSIZE"], $this->args["MARKERSIZEUNITS"]), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MARKER_SIZE_Y}", MarkupManager::GetMarkerSize($this->args["MARKERSIZE"], $this->args["MARKERSIZEUNITS"]), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MARKER_COLOR}", 'FF' . $this->args['MARKERCOLOR'], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{LINE_PATTERN_GEOMETRY}", MarkupManager::GetLinePatternGeometry($this->args['LINEPATTERN']), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{LINE_THICKNESS}", MarkupManager::GetLineThickness($this->args['LINETHICKNESS'], $this->args['LINESIZEUNITS']), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{LINE_COLOR}", 'FF' . $this->args['LINECOLOR'], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{FILL_BACK_COLOR}", $hexBgTransparency . $this->args['FILLBACKCOLOR'], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{FILL_FORE_COLOR}", $hexFgTransparency . $this->args['FILLFORECOLOR'], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{BORDER_THICKNESS}", MarkupManager::SizeInMM($this->args['BORDERTHICKNESS'], $this->args['BORDERSIZEUNITS']), $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{BORDER_COLOR}", 'FF' . $this->args['BORDERCOLOR'], $markupLayerDefinition);
+            
+            //Fill in the UI values under ExtendedData, so we can read from this element if we need to go back to Edit Style UI
+            $markupLayerDefinition = str_replace("#{MG_RESOURCE_ID}", $featureSourceId, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FEATURE_CLASS}", $className, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FILL_PATTERN}", $this->args["FILLPATTERN"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_BORDER_PATTERN}", $this->args["BORDERPATTERN"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LINE_PATTERN}", $this->args["LINEPATTERN"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LABEL_FONT_SIZE}", $this->args["LABELFONTSIZE"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LABEL_FONT_UNITS}", $this->args["LABELSIZEUNITS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LABEL_FORECOLOR}", $this->args["LABELFORECOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LABEL_BACKCOLOR}", $this->args["LABELBACKCOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_BOLD}", $bold, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_ITALIC}", $italic, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_UNDERLINE}", $underline, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_MARKER_TYPE}", $this->args["MARKERTYPE"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_MARKER_SIZE}", $this->args["MARKERSIZE"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_MARKER_UNITS}", $this->args["MARKERSIZEUNITS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_MARKER_COLOR}", $this->args["MARKERCOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LINE_THICKNESS}", $this->args["LINETHICKNESS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LINE_UNITS}", $this->args["LINESIZEUNITS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LINE_COLOR}", $this->args["LINECOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FILL_BACK_COLOR}", $this->args["FILLBACKCOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FILL_FORE_COLOR}", $this->args["FILLFORECOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FILL_FORE_TRANSPARENCY}", $hexFgTransparency, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_FILL_BACK_TRANSPARENCY}", $hexBgTransparency, $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_BORDER_THICKNESS}", $this->args["BORDERTHICKNESS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_BORDER_UNITS}", $this->args["BORDERSIZEUNITS"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_BORDER_COLOR}", $this->args["BORDERCOLOR"], $markupLayerDefinition);
+            $markupLayerDefinition = str_replace("#{MG_LABEL_STYLE}", $this->args["LABELBACKSTYLE"], $markupLayerDefinition);
+            
+            //print_r($markupLayerDefinition);
+        }
         return $markupLayerDefinition;
     }
 
@@ -560,7 +847,8 @@ class MarkupManager
         $extension = $this->GetFileExtension($markupLayerResId->ToString());
         if (strcmp($extension, ".zip") == 0) {
             $dataList = $resourceService->EnumerateResourceData($markupFsId);
-            $doc = DOMDocument::LoadXML($dataList->ToString());
+            $doc = new DOMDocument();
+            $doc->loadXML($dataList->ToString());
             $dataItems = $doc->getElementsByTagName("Name");
             $tmpFiles = array();
             //Copy out all data files to a temp location

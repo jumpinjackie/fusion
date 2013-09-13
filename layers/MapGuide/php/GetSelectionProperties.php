@@ -58,14 +58,14 @@ include('Utilities.php');
         $srsMap = $srsFactory->Create($srsDefMap);
 
         /*holds selection array*/
-        $properties = NULL;
+        $properties = new stdClass();
         $properties->layers = array();
 
         //process
         header('Content-type: application/json');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
-        $result = NULL;
+        $result = new stdClass();
         if ($layers != null)
         {
             $nLayers = $layers->GetCount();
@@ -160,14 +160,14 @@ include('Utilities.php');
                 {
                     $oMin = $oExtents->GetLowerLeftCoordinate();
                     $oMax = $oExtents->GetUpperRightCoordinate();
-                    $result->extents = NULL;
+                    $result->extents = new stdClass();
                     $result->extents->minx = $oMin->GetX();
                     $result->extents->miny = $oMin->GetY();
                     $result->extents->maxx = $oMax->GetX();
                     $result->extents->maxy = $oMax->GetY();
 
                     /*keep the full extents of the selection when saving the selection in the session*/
-                    $properties->extents = NULL;
+                    $properties->extents = new stdClass();
                     $properties->extents->minx = $oMin->GetX();
                     $properties->extents->miny = $oMin->GetY();
                     $properties->extents->maxx = $oMax->GetX();
@@ -179,6 +179,7 @@ include('Utilities.php');
                     $layerName = $layer->GetName();
                     array_push($result->layers, $layerName);
                     $layerClassName = $layer->GetFeatureClassName();
+                    $result->$layerName = new stdClass();
                     $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
                 }
 

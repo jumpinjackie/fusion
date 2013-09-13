@@ -60,6 +60,10 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
     // If we have a redline data store and geom format specified, auto-create the data store and go to the
     // edit redline page 
     bCreateOnStartup: false,
+    
+    // Determines whether redline features will be rendered with basic or advanced stylization. Advanced Stylization
+    // allows for always visible labels for line/area redline features.
+    bUseAdvancedStylization: true,
 
     initializeWidget: function(widgetTag) {
         var json = widgetTag.extension;
@@ -70,7 +74,10 @@ Fusion.Widget.Redline = OpenLayers.Class(Fusion.Widget, {
 
         if (json.UseMapMessagePrompt)
             this.mapMessagePrompt = (json.UseMapMessagePrompt[0] == "true");
-            
+        
+        if (json.StylizationType)
+            this.bUseAdvancedStylization = (json.StylizationType[0] == "advanced");
+        
         if (json.DataStoreFormat && json.RedlineGeometryFormat) {
             if (json.DataStoreFormat[0] == "SDF" ||
                 json.DataStoreFormat[0] == "SHP" ||
@@ -158,6 +165,7 @@ Fusion.Widget.Redline.DefaultTaskPane = OpenLayers.Class(
             params.push('REDLINEGEOMTYPE=' + this.widget.defaultRedlineGeometryType);
             params.push('AUTOCREATE=' + (this.widget.bCreateOnStartup ? "1" : "0"));
         }
+        params.push("REDLINESTYLIZATION=" + (this.widget.bUseAdvancedStylization ? "ADVANCED" : "BASIC"));
 
         if (url.indexOf('?') < 0) {
             url += '?';

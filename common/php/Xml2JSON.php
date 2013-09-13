@@ -62,7 +62,8 @@ if (isset($_FILES['xml'])) {
 //echo "/*";
 //print_r($xml);
 //echo "*/";
-$document = DOMDocument::loadXML($xml);
+$document = new DOMDocument();
+$document->loadXML($xml);
 if ($document == null) {
     die ('/* invalid xml document:'.$xml.' */');
 }

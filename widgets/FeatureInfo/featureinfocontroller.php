@@ -52,7 +52,7 @@
         $selection = new MgSelection($map);
         $selection->Open($resourceService, $mapName);
 
-        $properties = NULL;
+        $properties = new stdClass();
 
         if ($selection->Contains($layer, $className)) {
             $featureReader = $selection->GetSelectedFeatures($layer, $className, new MgStringCollection());

@@ -227,7 +227,8 @@
                         SESSION: session,
                         MAPNAME: mapName,
                         MARKUPFDOPROVIDER: GetFdoProvider(cmd),
-                        MARKUPGEOMTYPE: geomTypes
+                        MARKUPGEOMTYPE: geomTypes,
+                        REDLINESTYLIZATION: "<?= $args['REDLINESTYLIZATION'] ?>"
                     }
                 });
             } else {
@@ -240,7 +241,8 @@
                         MAPNAME: mapName,
                         NEWLAYERNAME: name,
                         MARKUPFDOPROVIDER: GetFdoProvider(cmd),
-                        MARKUPGEOMTYPE: geomTypes
+                        MARKUPGEOMTYPE: geomTypes,
+                        REDLINESTYLIZATION: "<?= $args['REDLINESTYLIZATION'] ?>"
                     }
                 });
             }
@@ -482,6 +484,7 @@
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
 <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
 <? } ?>
+<input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
 </form>
 
 <?php } else { ?>

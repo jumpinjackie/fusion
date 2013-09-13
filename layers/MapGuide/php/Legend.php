@@ -118,7 +118,8 @@ function buildScaleRanges($layer) {
     $resID = $layer->GetLayerDefinition();
     $layerContent = $resourceService->GetResourceContent($resID);
 
-    $xmldoc = DOMDocument::loadXML(ByteReaderToString($layerContent));
+    $xmldoc = new DOMDocument();
+    $xmldoc->loadXML(ByteReaderToString($layerContent));
     $type = 0;
     $scaleRanges = $xmldoc->getElementsByTagName('VectorScaleRange');
     if($scaleRanges->length == 0) {

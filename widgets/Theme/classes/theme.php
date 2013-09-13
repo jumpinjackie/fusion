@@ -122,7 +122,8 @@ class Theme
         $layerDefResId = $layer->GetLayerDefinition();
         $byteReader = $resourceService->GetResourceContent($layerDefResId);
 
-        $doc = DOMDocument::loadXML($byteReader->ToString());
+        $doc = new DOMDocument();
+        $doc->loadXML($byteReader->ToString());
         $nodeList = $doc->getElementsByTagName('VectorScaleRange');
 
         foreach ($nodeList as $node)
@@ -240,7 +241,8 @@ class Theme
 
         // Load the Layer Definition and Navigate to the specified <VectorScaleRange>
 
-        $doc = DOMDocument::loadXML($byteReader->ToString());
+        $doc = new DOMDocument();
+        $doc->loadXML($byteReader->ToString());
         $version = $doc->documentElement->getAttribute('version');
         $template = 'templates/arearuletemplate-'.$version.'.xml';
         $layerDefList = $doc->getElementsByTagName('VectorLayerDefinition');
@@ -342,7 +344,8 @@ class Theme
                     $this->InterpolateColor($portion, $this->args['FILLFROM'], $this->args['FILLTO'], $this->args['FILLTRANS']),
                     $this->InterpolateColor($portion, $this->args['LINEFROM'], $this->args['LINETO'], 0));
 
-                $areaDoc = DOMDocument::loadXML($areaRuleXML);
+                $areaDoc = new DOMDocument();
+                $areaDoc->loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
                 if($areaTypeStyle != null)
                 {
@@ -396,7 +399,8 @@ class Theme
                     $this->InterpolateColor($portion, $this->args['FILLFROM'], $this->args['FILLTO'], $this->args['FILLTRANS']),
                     $this->InterpolateColor($portion, $this->args['LINEFROM'], $this->args['LINETO'], 0));
 
-                $areaDoc = DOMDocument::loadXML($areaRuleXML);
+                $areaDoc = new DOMDocument();
+                $areaDoc->loadXML($areaRuleXML);
                 $areaNode = $doc->importNode($areaDoc->documentElement, true);
                 if($areaTypeStyle != null)
                 {

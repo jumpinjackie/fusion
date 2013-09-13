@@ -63,7 +63,7 @@ $map = new MgMap();
 $map->Open($resourceService, $mapName);
 $layers=$map->GetLayers();
 
-$scaleObj = NULL;
+$scaleObj = new stdClass();
 $scaleObj->layers = array();
 
 for($i=0;$i<$layers->GetCount();$i++)
@@ -73,9 +73,7 @@ for($i=0;$i<$layers->GetCount();$i++)
         isset($_SESSION['scale_ranges'][$layer->GetObjectId()]))
     {
         $scaleranges = $_SESSION['scale_ranges'][$layer->GetObjectId()];
-        $layerObj = NULL;
-        $layerObj->uniqueId = $layer->GetObjectId();
-        $layerObj = NULL;
+        $layerObj = new stdClass();
         $layerObj->uniqueId = $layer->GetObjectId();
         
         $ldfId = $layer->GetLayerDefinition();

@@ -44,7 +44,8 @@ $rootId = new MgResourceIdentifier($root);
 $maps = $resourceService->EnumerateResources($rootId, -1, 'MapDefinition');
 
 //make a list of maps to query for names
-$mapListXml = DOMDocument::loadXML(ByteReaderToString($maps));
+$mapListXml = new DOMDocument();
+$mapListXml->loadXML(ByteReaderToString($maps));
 //$aMapAssoc = Array();
 $aMapIds = $mapListXml->getElementsByTagName('ResourceId');
 

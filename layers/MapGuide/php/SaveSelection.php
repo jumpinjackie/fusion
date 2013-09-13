@@ -58,12 +58,12 @@ include('Utilities.php');
         header('X-JSON: true');
         $layers = $selection->GetLayers();
 
-        $result = NULL;
+        $result = new stdClass();
         $result->hasSelection = false;
         if ($layers && $layers->GetCount() >= 0)
         {
             $result->hasSelection = true;
-            $result->extents = NULL;
+            $result->extents = new stdClass();
             if($getExtents)
             {
                 $featureService = $siteConnection->CreateService(MgServiceType::FeatureService);
@@ -81,11 +81,12 @@ include('Utilities.php');
             $result->layers = array();
             for ($i=0; $i<$layers->GetCount(); $i++)
             {
-              $layer = $layers->GetItem($i);
-              $layerName = $layer->GetName();
-              array_push($result->layers, $layerName);
-              $layerClassName = $layer->GetFeatureClassName();
-              $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
+                $layer = $layers->GetItem($i);
+                $layerName = $layer->GetName();
+                array_push($result->layers, $layerName);
+                $layerClassName = $layer->GetFeatureClassName();
+                $result->$layerName = new stdClass();
+                $result->$layerName->featureCount = $selection->GetSelectedFeaturesCount($layer, $layerClassName);
             }
         }
 
