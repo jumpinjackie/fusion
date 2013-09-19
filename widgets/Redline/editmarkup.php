@@ -118,6 +118,8 @@
         $closeLocal = GetLocalizedString('REDLINEEDITCLOSE', $locale );
         $promptLabelLocal = GetLocalizedString('REDLINEPROMPTLABEL', $locale);
         $promptRedlineLabelsLocal = GetLocalizedString('REDLINEPROMPTFORLABELS', $locale);
+        $noTextLocal = GetLocalizedString('REDLINENOTEXT', $locale);
+        $multiHelpLocal = GetLocalizedString('REDLINEMULTISELECTHELP', $locale);
         
         if (array_key_exists("REDLINEPROMPT", $args) && strcmp($args["REDLINEPROMPT"], "on") == 0) {
             $checkState = " checked='checked'";
@@ -330,14 +332,33 @@
             SubmitCommand(CMD_ADD_POLYGON);
         }
 
+        function TrimString(str)
+        {
+            return (typeof String.prototype.trim == 'undefined') ? str.replace(/^\s+|\s+$/g, '') : str.trim();
+        }
+
+        function GetSelectedMarkupIds(mkEl)
+        {
+            var ids = [];
+            for (var i = 0; i < mkEl.options.length; i++) {
+                if (mkEl.options[i].selected) {
+                    ids.push(mkEl.options[i].value);
+                }
+            }
+            return ids;
+        }
+
         function SelectMarkup()
         {
             markupFeatures = document.getElementById("markupFeatures");
-
+            var featIds = GetSelectedMarkupIds(markupFeatures);
             reqParams = "MAPNAME=" + encodeURIComponent(mapName);
             reqParams += "&SESSION=" + encodeURIComponent(session);
             reqParams += "&OPENMARKUP=" + encodeURIComponent('<?= $args['OPENMARKUP']; ?>');
-            reqParams += "&MARKUPFEATURE=" + markupFeatures.value;
+            //reqParams += "&MARKUPFEATURE=" + markupFeatures.value;
+            for (var i = 0; i < featIds.length; i++) {
+                reqParams += "&MARKUPFEATURE[]=" + featIds[i];
+            }
 
             if(msie)
                 reqHandler = new ActiveXObject("Microsoft.XMLHTTP");
@@ -350,7 +371,7 @@
             reqHandler.send(reqParams);
             if(reqHandler.responseXML)
             {
-                SetSelectionXML(reqHandler.responseText);
+                SetSelectionXML(reqHandler.responseText, true /*bDoNotZoom*/);
             }
         }
 
@@ -387,10 +408,16 @@
             if (markupFeatures.selectedIndex >= 0)
             {
                 value = markupFeatures.options[markupFeatures.selectedIndex].text;
-                if (value != '[no text]')
-                    updateTextInput.value = value;
-                else
+                if (value.indexOf('[<?= $noTextLocal ?>]') < 0) {
+                    var tokens = value.split(":");
+                    if (tokens.length == 2) {
+                        updateTextInput.value = TrimString(tokens[1]);
+                    } else {
+                        updateTextInput.value = value;
+                    }
+                } else {
                     updateTextInput.value = '';
+                }
 
                 selectBtn.disabled = false;
                 deleteBtn.disabled = false;
@@ -426,7 +453,6 @@
 </head>
 
 <body onLoad="OnLoad()" onUnload="OnUnload()" marginwidth=5 marginheight=5 leftmargin=5 topmargin=5 bottommargin=5 rightmargin=5>
-
 <form action="editmarkup.php" method="post" enctype="application/x-www-form-urlencoded" id="editForm" target="_self">
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr>
@@ -479,18 +505,22 @@
     </tr>
     <tr>
         <td class="RegText">
-            <select name="MARKUPFEATURE" size="15" class="Ctrl" id="markupFeatures" onChange="OnMarkupFeatureChange()" style="width: 100%">
+            <select name="MARKUPFEATURE[]" size="15" class="Ctrl" id="markupFeatures" onChange="OnMarkupFeatureChange()" multiple="multiple" style="width: 100%">
                 <?php
                     $selected = 'selected';
                     foreach($markupFeatures as $markupId => $markupText) {
                 ?>
-                <option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? htmlentities($markupText, ENT_COMPAT, 'UTF-8') : '[no text]' ?></option>
+                <option value="<?= $markupId ?>" <?=$selected ?> ><?= (strlen($markupText) > 0) ? "$markupId: ".htmlentities($markupText, ENT_COMPAT, 'UTF-8') : "$markupId: [$noTextLocal]" ?></option>
                 <?php
                         $selected = '';
                     }
                 ?>
             </select>
         </td>
+    </tr>
+    <tr><td colspan="2" height="2px"></td></tr>
+    <tr>
+        <td class="InfoText" colspan="2"><?= $multiHelpLocal ?></td>
     </tr>
     <tr><td colspan="2" height="2px"></td></tr>
     <tr>

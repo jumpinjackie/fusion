@@ -332,6 +332,8 @@ REDLINESELECTOBJECT     = Select
 REDLINEDELETEOBJECT     = Delete
 REDLINEUPDATETEXT       = Update Text
 REDLINEEDITCLOSE        = Close
+REDLINENOTEXT           = no text
+REDLINEMULTISELECTHELP  = To select multiple redline objects in the list above, hold down the CTRL key while selecting. To select a range of items, hold down the SHIFT key and select the first and last items.
 
 # Redline Upload
 REDLINEUPLOAD           = Upload Redline

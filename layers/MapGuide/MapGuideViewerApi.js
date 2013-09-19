@@ -51,11 +51,11 @@ function Refresh() {
     }
 }
 
-function SetSelectionXML(selectionXml) {
+function SetSelectionXML(selectionXml, bDoNotZoom) {
     //var Fusion = window.top.Fusion;
     var mapWidget = GetFusionMapWidget();
     if (mapWidget && mapWidget.isMapLoaded()) {
-        mapWidget.setSelection(selectionXml, true);
+        mapWidget.setSelection(selectionXml, !(bDoNotZoom || false));
     }
 }
 

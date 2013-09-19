@@ -229,6 +229,20 @@ class MarkupEditor
         $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
         MarkupEditor::CleanupReaders($result);
     }
+    
+    function BuildFeatureFilter($propName)
+    {
+        $ids = $this->args["MARKUPFEATURE"];
+        if (is_array($ids)) {
+            $filters = array();
+            foreach ($ids as $id) {
+                array_push($filters, "$propName = $id");
+            }
+            return join(" OR ", $filters);
+        } else {
+            return "$propName = $ids";
+        }
+    }
 
     function DeleteMarkup()
     {
@@ -242,7 +256,7 @@ class MarkupEditor
         $idName = $keyProp->GetName();
 
         $commands = new MgFeatureCommandCollection();
-        $commands->Add(new MgDeleteFeatures('Markup', $idName . ' = ' . $this->args['MARKUPFEATURE']));
+        $commands->Add(new MgDeleteFeatures('Markup', $this->BuildFeatureFilter($idName)));
 
         $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
         MarkupEditor::CleanupReaders($result);
@@ -263,7 +277,7 @@ class MarkupEditor
         $propertyValues->Add(new MgStringProperty('Text', trim($this->args['UPDATETEXT'])));
 
         $commands = new MgFeatureCommandCollection();
-        $commands->Add(new MgUpdateFeatures('Markup', $propertyValues, $idName . ' = ' . $this->args['MARKUPFEATURE']));
+        $commands->Add(new MgUpdateFeatures('Markup', $propertyValues, $this->BuildFeatureFilter($idName)));
 
         $result = $featureService->UpdateFeatures($featureSourceId, $commands, false);
         MarkupEditor::CleanupReaders($result);
@@ -278,8 +292,15 @@ class MarkupEditor
         $markupLayer = $map->GetLayers()->GetItem('_' . $this->GetMarkupName());
 
         $selection = new MgSelection($map);
-        $selection->AddFeatureIdInt32($markupLayer, $markupLayer->GetFeatureClassName(), (int) $this->args['MARKUPFEATURE']);
-
+        $className = $markupLayer->GetFeatureClassName();
+        $ids = $this->args['MARKUPFEATURE'];
+        if (is_array($ids)) {
+            foreach ($ids as $id) {
+                $selection->AddFeatureIdInt32($markupLayer, $className, (int) $id);
+            }
+        } else {
+            $selection->AddFeatureIdInt32($markupLayer, $className, (int) $ids);
+        }
         return $selection->ToXML();
     }
 }

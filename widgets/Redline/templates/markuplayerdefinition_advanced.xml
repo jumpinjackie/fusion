@@ -768,11 +768,11 @@
                     <Markup>'MTEXT'</Markup>
                   </Text>
                 </Graphics>
-                <LineUsage>
-                  <AngleControl>'FromAngle'</AngleControl>
+                <AreaUsage>
                   <Angle>%ROTATION%</Angle>
-                  <Repeat>1.0</Repeat>
-                </LineUsage>
+                  <RepeatX>100.0</RepeatX>
+                  <RepeatY>100.0</RepeatY>
+                </AreaUsage>
                 <ParameterDefinition>
                   <Parameter>
                     <Identifier>CONTENT</Identifier>
