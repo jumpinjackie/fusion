@@ -10,6 +10,9 @@
 	overflow: hidden;
 }
 
+/* In case the above selector doesn't match */
+#TaskPane { overflow: hidden; }
+
 .taskPaneHelp h1 {
 	font-family: Arial, sans-serif;
 	font-size: 18px;

@@ -129,7 +129,7 @@
         var lineColor = "<?= $style->LINE_COLOR ?>";
         var fillForeColor = "<?= $style->FILL_FORE_COLOR ?>";
         var fillBackColor = "<?= $style->FILL_BACK_COLOR ?>";
-        var fillBackTrans = <?= $style->FILL_BACK_TRANS ?>;
+        var fillBackTrans = "<?= $style->FILL_BACK_TRANS ?>";
         var borderColor = "<?= $style->BORDER_COLOR ?>";
         var labelForeColor = "<?= $style->LABEL_FORE_COLOR ?>";
         var labelBackColor = "<?= $style->LABEL_BACK_COLOR ?>";
@@ -156,8 +156,8 @@
            else
                 return;
                 
-            height = allowTransparency? 470: 445;
-            w = window.open("../../layers/MapGuide/php/ColorPicker.php?LOCALE=en&CLR=" + clr + "&ALLOWTRANS=" + (allowTransparency? "1":"0") + "&TRANS=" + (transparent.value == "true"? "1":"0"), "colorPicker", "toolbar=no,status=no,width=355,height=" + height);
+            height = allowTransparency? 480: 450;
+            w = window.open("../../layers/MapGuide/php/ColorPicker.php?LOCALE=en&CLR=" + clr + "&ALLOWTRANS=" + (allowTransparency? "1":"0") + "&TRANS=" + (transparent.value == "true"? "1":"0"), "colorPicker", "toolbar=no,scrollbars=no,status=no,width=355,height=" + height);
             w.focus();
         }
 
