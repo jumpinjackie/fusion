@@ -614,6 +614,7 @@ class MarkupManager
             $markupLayerDefinition = str_replace("#{FILL_PATTERN_TEMPLATE}", MarkupManager::GetFillPatternTemplate($this->args['FILLPATTERN']), $markupLayerDefinition);
             $markupLayerDefinition = str_replace("#{BORDER_PATTERN_TEMPLATE}", MarkupManager::GetBorderPatternGeometry($this->args['BORDERPATTERN']), $markupLayerDefinition);
             
+            //For non-opaque labels we need to empty the frame fill color
             if (strcmp($this->args["LABELBACKSTYLE"], "Opaque") == 0) {
                 $markupLayerDefinition = str_replace("#{FRAME_FILL_COLOR}", "0xffffffff", $markupLayerDefinition);
             } else {
@@ -621,6 +622,17 @@ class MarkupManager
                 if (strcmp($this->args["LABELBACKSTYLE"], "Transparent") == 0) {
                     $labelBackColor = "";
                 }
+            }
+            
+            //I don't think this is correct wrt to the UI, but this is to replicate the behaviour that we currently have under basic stylization
+            //If fill is solid and background color is fully transparent, comment that portion out of the composite type style as it will interfere
+            //with the area foreground symbol
+            if (strcmp($hexBgTransparency, "FF") == 0 && strcmp($this->args['FILLPATTERN'], "Solid") == 0) {
+                $markupLayerDefinition = str_replace("#{START_BACKGROUND_FILL}", "<!--", $markupLayerDefinition);
+                $markupLayerDefinition = str_replace("#{END_BACKGROUND_FILL}", "-->", $markupLayerDefinition);
+            } else {
+                $markupLayerDefinition = str_replace("#{START_BACKGROUND_FILL}", "", $markupLayerDefinition);
+                $markupLayerDefinition = str_replace("#{END_BACKGROUND_FILL}", "", $markupLayerDefinition);
             }
             
             //Then do a find/replace of all known tokens
