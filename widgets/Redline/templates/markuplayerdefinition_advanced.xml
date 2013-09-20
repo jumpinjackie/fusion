@@ -164,7 +164,7 @@
                     <Underlined>%UNDERLINED%</Underlined>
                     <Overlined>%OVERLINED%</Overlined>
                     <Height>%FONTHEIGHT%</Height>
-                    <PositionX>%TEXTPOSITIONX%</PositionX>
+                    <PositionX>7.5+%TEXTPOSITIONX%</PositionX>
                     <PositionY>%TEXTPOSITIONY%</PositionY>
                     <HorizontalAlignment>%HORIZONTALALIGNMENT%</HorizontalAlignment>
                     <VerticalAlignment>%VERTICALALIGNMENT%</VerticalAlignment>
@@ -408,7 +408,7 @@
               <DrawLast>true</DrawLast>
               <CheckExclusionRegion>false</CheckExclusionRegion>
               <AddToExclusionRegion>false</AddToExclusionRegion>
-              <PositioningAlgorithm>'EightSurrounding'</PositioningAlgorithm>
+              <PositioningAlgorithm>'Default'</PositioningAlgorithm>
               <UsageContext>Point</UsageContext>
               <GeometryContext>Point</GeometryContext>
             </SymbolInstance>
