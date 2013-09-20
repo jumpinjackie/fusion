@@ -614,6 +614,15 @@ class MarkupManager
             $markupLayerDefinition = str_replace("#{FILL_PATTERN_TEMPLATE}", MarkupManager::GetFillPatternTemplate($this->args['FILLPATTERN']), $markupLayerDefinition);
             $markupLayerDefinition = str_replace("#{BORDER_PATTERN_TEMPLATE}", MarkupManager::GetBorderPatternGeometry($this->args['BORDERPATTERN']), $markupLayerDefinition);
             
+            if (strcmp($this->args["LABELBACKSTYLE"], "Opaque") == 0) {
+                $markupLayerDefinition = str_replace("#{FRAME_FILL_COLOR}", "0xffffffff", $markupLayerDefinition);
+            } else {
+                $markupLayerDefinition = str_replace("#{FRAME_FILL_COLOR}", "", $markupLayerDefinition);
+                if (strcmp($this->args["LABELBACKSTYLE"], "Transparent") == 0) {
+                    $labelBackColor = "";
+                }
+            }
+            
             //Then do a find/replace of all known tokens
             $markupLayerDefinition = str_replace("#{RESOURCE_ID}", $featureSourceId, $markupLayerDefinition);
             $markupLayerDefinition = str_replace("#{FEATURE_CLASS}", $className, $markupLayerDefinition);

@@ -377,7 +377,7 @@
                 <Override>
                   <SymbolName>MTEXT</SymbolName>
                   <ParameterIdentifier>FRAMEFILLCOLOR</ParameterIdentifier>
-                  <ParameterValue>0xffffffff</ParameterValue>
+                  <ParameterValue>#{FRAME_FILL_COLOR}</ParameterValue>
                 </Override>
                 <Override>
                   <SymbolName>MTEXT</SymbolName>
@@ -656,7 +656,7 @@
                 <Override>
                   <SymbolName>MTEXT</SymbolName>
                   <ParameterIdentifier>FRAMEFILLCOLOR</ParameterIdentifier>
-                  <ParameterValue>0xffffffff</ParameterValue>
+                  <ParameterValue>#{FRAME_FILL_COLOR}</ParameterValue>
                 </Override>
                 <Override>
                   <SymbolName>MTEXT</SymbolName>
@@ -973,7 +973,7 @@
                 <Override>
                   <SymbolName>MTEXT</SymbolName>
                   <ParameterIdentifier>FRAMEFILLCOLOR</ParameterIdentifier>
-                  <ParameterValue>0xffffffff</ParameterValue>
+                  <ParameterValue>#{FRAME_FILL_COLOR}</ParameterValue>
                 </Override>
                 <Override>
                   <SymbolName>MTEXT</SymbolName>

@@ -465,7 +465,6 @@
             <br>
         </td>
     </tr>
-    <? if (!$isAdvanced) { ?>
     <tr>
         <td colspan="2">
             <?=$labelBackgroundStyleLocal?><br>
@@ -476,9 +475,6 @@
             </select>
         </td>
     </tr>
-    <? } else { ?>
-    <input name="LABELBACKSTYLE" size="1" style="display:none" />
-    <? } ?>
     <tr>
         <td colspan="2" align="right">
             <hr>
