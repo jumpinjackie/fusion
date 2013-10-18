@@ -35,7 +35,7 @@
     </Parameter>
     <Parameter>
         <Name>DataStoreFormat</Name>
-        <Description>The default data store format</Description>
+        <Description>The default data store format. Valid values include: SDF, SHP or SQLite</Description>
         <Type>String</Type>
         <Label>DataStoreFormat</Label>
         <AllowedValue>
@@ -55,7 +55,7 @@
     </Parameter>
     <Parameter>
         <Name>RedlineGeometryFormat</Name>
-        <Description>The types of redline geometry that the user can record. If the data store is SHP, only one geometry type can be specified</Description>
+        <Description>The types of redline geometry that the user can record. If the data store is SHP, only one geometry type can be specified. Value is a bitmask of any of the following values: (1=point, 2=line, 4=polygon)</Description>
         <Type>integer</Type>
         <Label>RedlineGeometryFormat</Label>
         <AllowedValue>
