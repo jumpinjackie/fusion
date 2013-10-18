@@ -74,7 +74,7 @@ $Id$
   <property environment="env"/>
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
-  <property name="app.version" value="2.0.x"/>
+  <property name="app.version" value="2.6.0"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${basedir}/../${app.name}"/>
   <property name="selfbuild.home" value="${basedir}/selfbuild"/>
@@ -88,8 +88,9 @@ $Id$
   Use property values to define the locations of external libraries on which
   your application will depend.
   -->
-
+  <!-- We're still keeping YUI compressor for CSS duties. JS is now closure's job -->
   <property name="YUIcompressor"  value="${basedir}/utils/yuicompressor-2.3.6.jar"/>
+  <property name="closure" value="${basedir}/utils/compiler.jar" />
   <property name="sfName"  value="fusionSF"/>
   <property name="buildOutput"  value="${build.home}/lib/${sfName}"/>
   <property name="cssOutput"  value="${build.home}/lib/${sfName}"/>
@@ -204,6 +205,11 @@ $Id$
         so replace the value to look for with the sfName used to create the file-->
 
     <!-- merge everything into a single file -->
+    <!-- 
+    NOTE: Closure's source map support means fusionSF.js becomes somewhat redundant, but 
+    we keep this around so that less-capable browsers can still debug a combined build by 
+    switching to fusionSF.js in the template
+    -->
     <concat destfile="${buildOutput}.js" encoding="UTF-8" outputencoding="UTF-8">
         <filelist dir="${build.home}/lib"
                   files=" SingleFile.js
@@ -258,12 +264,32 @@ $Id$
 
   <target description="Compress JS files" name="compress" depends="singleFile">
     <echo message="compressing..."/>
-    <java jar="${YUIcompressor}" fork="true"
-          output="${buildOutput}-compressed.js">
+    <java jar="${closure}" fork="true" dir="${build.home}/lib">
         <arg value="--charset"/>
         <arg value="utf-8"/>
-        <arg value="${buildOutput}.js"/>
+        <arg value="--compilation_level" />
+        <!-- 
+        TODO: We're sticking with SIMPLE_OPTIMIZATIONS for now
+        
+        Moving to ADVANCED_OPTIMIZATIONS will shave off 500kb from the final compressed file, but 
+        this requires a thorough review of the JS code to ensure it satisfies the requirements 
+        demanded by the closure compiler and not result in any undefined behaviour.
+        
+        Still as it currently stands, closure with SIMPLE_OPTIMIZATIONS is 50kb lighter than through
+        YUICompressor
+        -->
+        <arg value="SIMPLE_OPTIMIZATIONS" />
+        <arg value="--source_map_format" />
+        <arg value="DEFAULT" />
+        <arg value="--create_source_map" />
+        <arg value="${sfName}-compressed.js.map" />
+        <arg value="--js" />
+        <arg value="${sfName}.js" />
+        <arg value="--js_output_file" />
+        <arg value="${sfName}-compressed.js" />
     </java>
+    <!-- Huh? Closure doesn't tack this important line so we have to do it ourselves! -->
+    <concat destfile="${buildOutput}-compressed.js" append="true">//@ sourceMappingURL=${sfName}-compressed.js.map</concat>
     <copy file="${buildOutput}-compressed.js" todir="${basedir}/lib"/>
 
   </target>
@@ -328,7 +354,7 @@ $Id$
  <target name="selfbuild" description="Create zip file containing build tools">
     <echo message="Deploying to web server"/>
     <mkdir dir="${selfbuild.home}"/>
-    <delete file="${selfbuild.home}/${app.name}-buildtools.zip" />
+    <delete file="${selfbuild.home}/${app.name}-${app.version}-buildtools.zip" />
     <copy todir="${selfbuild.home}">
       <fileset dir="${basedir}"
             includes="build.xml
@@ -337,7 +363,7 @@ $Id$
                       utils/**" />
     </copy>
     <!-- Create source zip file -->
-    <zip destfile="${selfbuild.home}/${app.name}-buildtools.zip">
+    <zip destfile="${selfbuild.home}/${app.name}-${app.version}-buildtools.zip">
       <zipfileset dir="${selfbuild.home}" />
     </zip>
   </target>
