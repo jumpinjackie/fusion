@@ -31,6 +31,7 @@
     } else {
         $legendPathString = $pathString;
     }
+    $legendDpi = 96; //Legend is fixed at 96 dpi because (http://trac.osgeo.org/mapguide/ticket/71)
     $legendWidth = 0; //Width of legend in inches
 
     // POST params
@@ -98,7 +99,7 @@
     }
     
     if ($showLegend) {
-        $legendWidth = PxToIn(250, $printDpi);
+        $legendWidth = PxToIn(250, $legendDpi);
     }
     
     // Create new PDF document, the default "PDF_UNIT" value is "mm"
@@ -164,7 +165,7 @@
     // Construct the querystring which can be used to generate the legend
     if ($showLegend) {
         if (strcmp($legendType, "original") == 0) {
-            $legend_query_string = "OPERATION=GETMAPLEGENDIMAGE&VERSION=1.0.0&FORMAT=PNG&SESSION=".$_POST["sessionId"]."&MAPNAME=".$_POST["mapName"]."&WIDTH=".InToPx($legendWidth, $printDpi)."&HEIGHT=".InToPx($printSize->height, $printDpi);
+            $legend_query_string = "OPERATION=GETMAPLEGENDIMAGE&VERSION=1.0.0&FORMAT=PNG&SESSION=".$_POST["sessionId"]."&MAPNAME=".$_POST["mapName"]."&WIDTH=".InToPx($legendWidth, $legendDpi)."&HEIGHT=".InToPx($printSize->height, $legendDpi);
         } else {
             $legend_query_string = "session_id=".$_POST['sessionId']."&map_name=".$_POST['mapName']."&width=".InToPx($legendWidth, $printDpi)."&height=".InToPx($printSize->height, $printDpi);
         }
