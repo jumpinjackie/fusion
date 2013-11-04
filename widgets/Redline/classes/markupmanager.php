@@ -824,8 +824,12 @@ class MarkupManager
         //View extent crunching time
         $geomFact = new MgGeometryFactory();
         $csFactory = new MgCoordinateSystemFactory();
-        $mapCs = $csFactory->Create($map->GetMapSRS());
-        $metersPerUnit = $mapCs->ConvertCoordinateSystemUnitsToMeters(1.0);
+        $metersPerUnit = 1.0;
+        if ($map->GetMapSRS() != null)
+        {
+            $mapCs = $csFactory->Create($map->GetMapSRS());
+            $metersPerUnit = $mapCs->ConvertCoordinateSystemUnitsToMeters(1.0);
+        }
         $mapScale = $map->GetViewScale();
         $devW = $map->GetDisplayWidth();
         $devH = $map->GetDisplayHeight();

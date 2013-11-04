@@ -101,7 +101,7 @@
         <Name>StylizationType</Name>
         <Description>Determines which type of stylization to use for rendering redline features.</Description>
         <Type>string</Type>
-        <Label>RedlineGeometryFormat</Label>
+        <Label>StylizationType</Label>
         <AllowedValue>
           <Name>basic</Name>
           <Label>Basic Stylization</Label>
@@ -110,7 +110,6 @@
           <Name>advanced</Name>
           <Label>Advanced (Composite) Stylization</Label>
         </AllowedValue>
-        <Label>StylizationType</Label>
         <DefaultValue>basic</DefaultValue>
         <IsMandatory>false</IsMandatory>
     </Parameter>

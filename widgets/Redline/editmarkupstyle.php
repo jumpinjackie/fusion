@@ -228,11 +228,11 @@
         
         function Cancel()
         {
-        <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+        <?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
             window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINESTYLIZATION=<?= $args['REDLINESTYLIZATION'] ?>&REDLINEFORMAT=<?= $defaultFormat ?>&REDLINEGEOMTYPE=<?= $defaultGeomType ?>";
-        <? } else { ?>
+        <?php } else { ?>
             window.location.href="markupmain.php?SESSION=<?= $args['SESSION']?>&MAPNAME=<?= $args['MAPNAME']?>&REDLINESTYLIZATION=<?= $args['REDLINESTYLIZATION'] ?>";
-        <? } ?>
+        <?php } ?>
         }
     </script>
     
@@ -252,10 +252,10 @@
 <input name="MARKUPLAYERNAME" type="hidden" value="<?= $args['MARKUPLAYERNAME'] ?>">
 <input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
 
-<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
 <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
-<? } ?>
+<?php } ?>
 
 <table class="RegText" border="0" cellspacing="0" width="100%%">
     <tr><td id="elTitle" colspan="2" class="Title"><?= $editLayerStyleLocal ?><hr></td></tr>
@@ -368,7 +368,7 @@
         </td>
         <td width="50%">
             <?=$fillTransparencyLocal?><br>
-            <input class="Ctrl" name="FILLTRANSPARENCY" type="text"  maxlength="3" value="<? $style->FILL_TRANSPARENCY ?>" style="width:50px">%
+            <input class="Ctrl" name="FILLTRANSPARENCY" type="text"  maxlength="3" value="<?php $style->FILL_TRANSPARENCY ?>" style="width:50px">%
         </td>
     </tr>
     <tr>	

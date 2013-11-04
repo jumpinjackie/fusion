@@ -178,9 +178,9 @@
 
         function GetGeometryTypes()
         {
-        <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+        <?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
             return <?= $defaultGeomType ?>;
-        <? } else { ?>
+        <?php } else { ?>
             var geomType = 0;
             var bPoint = document.getElementById("chkPoint").checked;
             var bLine = document.getElementById("chkLine").checked;
@@ -194,7 +194,7 @@
                 geomType |= GEOM_POLY;
 
             return geomType;
-        <? } ?>
+        <?php } ?>
         }
 
         function GetFdoProvider(cmd)
@@ -356,12 +356,12 @@
 
         function CheckApplicableProviders()
         {
-        <? if ($defaultFormat == null || $defaultGeomType == null) { ?>
+        <?php if ($defaultFormat == null || $defaultGeomType == null) { ?>
             var gt = GetGeometryTypes();
             document.getElementById("newShpBtn").disabled = (gt != GEOM_POINT && gt != GEOM_LINE && gt != GEOM_POLY);
             document.getElementById("newSdfBtn").disabled = (gt == 0);
             document.getElementById("newSqliteBtn").disabled = (gt == 0);
-        <? } ?>
+        <?php } ?>
         }
 
         function OnLoad()
@@ -375,9 +375,9 @@
             map.reloadMap();
         <?php } ?>
         
-        <? if ($defaultFormat != null && $defaultGeomType != null && $createOnStartup == true) { ?>
+        <?php if ($defaultFormat != null && $defaultGeomType != null && $createOnStartup == true) { ?>
             SubmitCreateCommand(<?= $defaultCmd ?>, <?= $defaultGeomType ?>);
-        <? } ?>
+        <?php } ?>
         }
     </script>
 
@@ -389,13 +389,13 @@
 <table class="RegText" border="0" cellspacing="0" width="100%">
     <tr><td class="Title"><?=$manageLocal?><hr></td></tr>
     <tr><td class="SubTitle"><?=$newRedlineLayerLocal?></td></tr>
-    <? if ($defaultCmd != null && $defaultGeomType != null) { ?>
+    <?php if ($defaultCmd != null && $defaultGeomType != null) { ?>
     <tr>
         <td>
             <input class="Ctrl" type="button" id="newBtn" onClick="SubmitCreateCommand(<?= $defaultCmd ?>, <?= $defaultGeomType ?>)" value="<?= $newRedlineLayerLocal ?>" />
         </td>
     </tr>
-    <? } else { ?>
+    <?php } else { ?>
     <tr>
         <td>
             <?=$pointLocal?> <input class="Ctrl" type="checkbox" id="chkPoint" onClick="CheckApplicableProviders()" checked="checked" />
@@ -410,7 +410,7 @@
             <input class="Ctrl" type="button" id="newSqliteBtn" onClick="SubmitCreateCommand(CMD_NEW_SQLITE)" value="<?=$newSqliteLocal?>" style="width:95px">
         </td>
     </tr>
-    <? } ?>
+    <?php } ?>
     <tr><td class="SubTitle"><?=$availableLayersLocal?></td></tr>
     <tr>
         <td class="RegText">
@@ -480,11 +480,11 @@
 <input name="MARKUPCOMMAND" type="hidden" value="" id="commandInput">
 <input name="EDITMARKUPLAYER" type="hidden" value="" id="editMarkupLayerId">
 <input name="MARKUPLAYERNAME" type="hidden" value="" id="markupLayerName">
-<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
 <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
-<? } ?>
-<input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
+<?php } ?>
+<input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>" />
 </form>
 
 <?php } else { ?>

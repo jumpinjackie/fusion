@@ -546,10 +546,10 @@
 <input name="EDITCOMMAND" type="hidden" value="" id="commandInput">
 <input name="GEOMETRY" type="hidden" value="" id="geometryInput">
 <input name="TEXT" type="hidden" value="" id="textInput">
-<? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+<?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
 <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
 <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
-<? } ?>
+<?php } ?>
 <input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
 </form>
 <?php } else { ?>

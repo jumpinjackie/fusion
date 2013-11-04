@@ -110,10 +110,10 @@
             <input type="hidden" name="MARKUPCOMMAND" id="cmdType" value="<?= MarkupCommand::Upload ?>" />
             <input type="hidden" name="MAPNAME" id="MAPNAME" value="<?= $args["MAPNAME"] ?>" />
             <input type="hidden" name="SESSION" id="SESSION" value="<?= $args["SESSION"] ?>" />
-            <? if ($defaultFormat != null && $defaultGeomType != null) { ?>
+            <?php if ($defaultFormat != null && $defaultGeomType != null) { ?>
             <input name="REDLINEFORMAT" type="hidden" value="<?= $defaultFormat ?>" />
             <input name="REDLINEGEOMTYPE" type="hidden" value="<?= $defaultGeomType ?>" />
-            <? } ?>
+            <?php } ?>
             <input name="REDLINESTYLIZATION" type="hidden" value="<?= $args['REDLINESTYLIZATION'] ?>">
         </td>
     </tr>
