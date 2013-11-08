@@ -41,6 +41,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     selectionType: 'INTERSECTS',
     bSelectionOn: false,
     oSelection: null,
+    //Specifies how long to delay a map redraw (in ms) upon a layer/group toggle. 
+    //This allows for rapid layer/group toggling without having a redraw made for each individual toggle
+    //as long as each toggle is done within the time period defined here. If the delay is 0 or less, the
+    //draw is immediate like before.
+    drawDelay: 0,
     nCmsScaleTolerance: 2.0,  //When checking the scale list of a tiled map to determine if it is compatible with commercial layers, this value determines how much leeway a given scale can have to be considered equal
     bUsesCommercialLayerScaleList: false,
     //This is the CMS scale list as defined by MG Studio and interpreted by OpenLayers
@@ -85,6 +90,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
         if (!this.bIsMapWidgetLayer) {
           this.selectionAsOverlay = false;
+        }
+        
+        if (mapTag.extension.DrawDelay) {
+          this.drawDelay = parseInt(mapTag.extension.DrawDelay[0]);
+          //console.log("Draw delay set to: " + this.drawDelay + "ms");
         }
 
         //add in the handler for CTRL-click actions for the map, not an overviewmap
@@ -866,18 +876,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    drawMap: function() {
-        if (!this.bMapLoaded) {
-            return;
-        }
-
+    _drawMapInternal: function() {
         var params = {
-          ts : (new Date()).getTime(),  //add a timestamp to prevent caching on the server
-          showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
-          hideLayers : this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
-          showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
-          hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
-          refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
+            ts : (new Date()).getTime(),  //add a timestamp to prevent caching on the server
+            showLayers : this.aShowLayers.length > 0 ? this.aShowLayers.toString() : null,
+            hideLayers : this.aHideLayers.length > 0 ? this.aHideLayers.toString() : null,
+            showGroups : this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null,
+            hideGroups : this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null,
+            refreshLayers : this.aRefreshLayers.length > 0 ? this.aRefreshLayers.toString() : null
         };
 
         this.aShowLayers = [];
@@ -886,12 +892,32 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.aHideGroups = [];
         this.aRefreshLayers = [];
 
-        if(this.oLayerOL2) {
+        if (this.oLayerOL2) {
             this.oLayerOL2.mergeNewParams(params);
         } else {
             this.oLayerOL.mergeNewParams(params);
         }
-        
+        //console.log("Draw call completed");
+        this.drawTimeout = null;
+    },
+
+    drawMap: function() {
+        if (!this.bMapLoaded) {
+            return;
+        }
+        if (this.drawDelay <= 0) { //No delay, draw immediately
+            //console.log("Draw immediate");
+            this._drawMapInternal();
+        } else {
+            //Check if we have a pending draw call and re-schedule if there is one
+            if (this.drawTimeout) {
+                //console.log("Delay pending draw");
+                clearTimeout(this.drawTimeout);
+                this.drawTimeout = null;
+            }
+            this.drawTimeout = setTimeout(OpenLayers.Function.bind(this._drawMapInternal, this), this.drawDelay);
+            //console.log("Schedule draw in " + this.drawDelay + "ms");
+        }
     },
 
     drawSelection: function() {
@@ -1439,6 +1465,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     showLayer: function( layer, noDraw ) {
         this.processLayerEvents(layer, true);
         this.aShowLayers.push(layer.uniqueId);
+        //A layer cannot be both hidden and shown, which can be the case if there is a draw
+        //delay and the user has toggled on/off the same layer in quick succession before the
+        //delay has elapsed
+        if (this.drawDelay > 0) {
+            this.aHideLayers.erase(layer.uniqueId);
+        }
         if (!noDraw) {
             this.drawMap();
         }
@@ -1447,6 +1479,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     hideLayer: function( layer, noDraw ) {
         this.processLayerEvents(layer, false);
         this.aHideLayers.push(layer.uniqueId);
+        //A layer cannot be both hidden and shown, which can be the case if there is a draw
+        //delay and the user has toggled on/off the same layer in quick succession before the
+        //delay has elapsed
+        if (this.drawDelay > 0) {
+            this.aShowLayers.erase(layer.uniqueId);
+        }
         if (!noDraw) {
             this.drawMap();
         }
@@ -1465,6 +1503,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
         } else {
             this.aShowGroups.push(group.uniqueId);
+            //A group cannot be both hidden and shown, which can be the case if there is a draw
+            //delay and the user has toggled on/off the same group in quick succession before the
+            //delay has elapsed
+            if (this.drawDelay > 0) {
+                this.aHideGroups.erase(group.uniqueId);
+            }
             if (!noDraw) {
                 this.drawMap();
             }
@@ -1483,6 +1527,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             }
         } else {
             this.aHideGroups.push(group.uniqueId);
+            //A group cannot be both hidden and shown, which can be the case if there is a draw
+            //delay and the user has toggled on/off the same group in quick succession before the
+            //delay has elapsed
+            if (this.drawDelay > 0) {
+                this.aShowGroups.erase(group.uniqueId);
+            }
             if (!noDraw) {
                 this.drawMap();
             }
