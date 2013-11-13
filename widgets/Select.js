@@ -135,6 +135,11 @@ Fusion.Widget.Select = OpenLayers.Class(Fusion.Widget, {
         *   moved, or an OpenLayers.Pixel for click without dragging on the map
         **/
     execute : function(position, extend) {
+        if (this.getMap().isDigitizing) {
+            //console.log("Currently digitizing. Doing nothing");
+            return;
+        }
+    
         //ctrl click is used to launch a URL defined on the feature. See ClickCTRL widget
         if (this.keyModifiers & OpenLayers.Handler.MOD_CTRL) {
           //return;

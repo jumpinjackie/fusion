@@ -136,7 +136,8 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
         link.onclick = OpenLayers.Function.bind(this.deactivate, this);
         map.supressContextMenu(true);
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, true);
-        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
+        map.isDigitizing = true;
+        map.triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
     },
 
     /**
@@ -153,7 +154,8 @@ Fusion.Widget.SelectRadius = OpenLayers.Class(Fusion.Widget, {
         map.supressContextMenu(false);
         /*icon button*/
         this.triggerEvent(Fusion.Event.RADIUS_WIDGET_ACTIVATED, false);
-        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
+        map.isDigitizing = false;
+        map.triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
     },
     
     /**

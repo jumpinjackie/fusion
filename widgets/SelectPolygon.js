@@ -95,7 +95,8 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         link.onclick = OpenLayers.Function.bind(this.deactivate, this);
         map.setCursor(this.asCursor);
         map.supressContextMenu(true);
-        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
+        map.isDigitizing = true;
+        map.triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
     },
 
     /**
@@ -110,7 +111,8 @@ Fusion.Widget.SelectPolygon = OpenLayers.Class(Fusion.Widget, {
         map.message.clear();
         map.setCursor('auto');
         map.supressContextMenu(false);
-        this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
+        map.isDigitizing = false;
+        map.triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
     },
     
     /**
