@@ -63,19 +63,50 @@
 <?php    
 
     function IsThemed($scaleRange, &$gt) {
-        $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle", "CompositeTypeStyle");
-        $ruleNames = array("PointRule", "LineRule", "AreaRule", "CompositeRule");
+        $typeStyles = array("PointTypeStyle", "LineTypeStyle", "AreaTypeStyle");
+        $ruleNames = array("PointRule", "LineRule", "AreaRule");
         $totalRules = 0;
-        for ($i = 0; $i < count($typeStyles); $i++) {
-            $styleNodes = $scaleRange->getElementsByTagName($typeStyles[$i]);
-            for ($j = 0; $j < $styleNodes->length; $j++) {
-                $ruleNodes = $styleNodes->item($j)->getElementsByTagName($ruleNames[$i]);
+        $geomTypes = array();
+        //CompositeStyle is mutually exclusive to the others so check if this exists and take
+        //a separate code path if that's the case
+        $styleNodes = $scaleRange->getElementsByTagName("CompositeTypeStyle");
+        if ($styleNodes->length > 0) {
+            for ($i = 0; $i < $styleNodes->length; $i++) {
+                $showInLegend = $styleNodes->item($i)->getElementsByTagName("ShowInLegend");
+                if($showInLegend->length > 0) {
+                    if($showInLegend->item(0)->nodeValue == "false") {
+                        continue;   // This typestyle does not need to be shown in the legend
+                    }
+                }
+                $ruleNodes = $styleNodes->item($i)->getElementsByTagName("CompositeRule");
                 $totalRules += $ruleNodes->length;
                 if ($ruleNodes->length > 0)
                     $gt = ($i + 1);
             }
+            return $totalRules > 1;
+        } else {
+            for ($i = 0; $i < count($typeStyles); $i++) {
+                $styleNodes = $scaleRange->getElementsByTagName($typeStyles[$i]);
+                for ($j = 0; $j < $styleNodes->length; $j++) {
+                    $showInLegend = $styleNodes->item($j)->getElementsByTagName("ShowInLegend");
+                    if($showInLegend->length > 0) {
+                        if($showInLegend->item(0)->nodeValue == "false") {
+                            continue;   // This typestyle does not need to be shown in the legend
+                        }
+                    }
+                    $ruleNodes = $styleNodes->item($j)->getElementsByTagName($ruleNames[$i]);
+                    $totalRules += $ruleNodes->length;
+                    if ($ruleNodes->length > 0)
+                        array_push($geomTypes, ($i + 1));
+                }
+            }
+            //A themed layer has # rules > # style types, implying at least one or more style types
+            //has > 1 rule attached
+            if (count($geomTypes) == 1) { //Single type, need to set the geom type
+                $gt = $geomTypes[0];
+            }
+            return $totalRules > 1;
         }
-        return $totalRules > 1;
     }
 
     function GenerateLegend()
@@ -99,20 +130,31 @@
         
         imagefilledrectangle($image, 0, 0, $width, $height, $white);
         
+        //Uncomment regions marked with BEGIN DEBUG / END DEBUG and comment out regions marked with
+        //BEGIN COMMENT OUT IF DEBUGGING / END COMMENT OUT IF DEBUGGING to see what PHP-isms get spewed out 
+        //that may be tripping up rendering
+        //
+        //Also replace instances of "////print_r" with "//print_r" to insta-uncomment all debugging calls
+        
+        //==BEGIN DEBUG==
+        //header("Content-type: text/html", true);
+        //==END DEBUG==
         ProcessGroupsForLegend($mappingService, $resourceService, $map, $scale, NULL, $image);
+        
+        //==BEGIN COMMENT OUT IF DEBUGGING==
         header("Content-type: image/png");
         imagepng($image);
+        //==END COMMENT OUT IF DEBUGGING==
         
-        //Uncomment to see what PHP-isms get spewed out that may be tripping up rendering
-        //Also replace instances of "////print_r" with "//print_r" to insta-uncomment all debugging calls
+        //==BEGIN DEBUG==
         /*
         ob_start();
         imagepng($image);
         $im = base64_encode(ob_get_contents());
         ob_end_clean();
-        header("Content-type: text/html", true);
         echo "<img src='data:image/png;base64,".$im."' alt='legend image'></img>";
         */
+        //==END DEBUG==
         
         imagecolordeallocate($image, $white);
         imagecolordeallocate($image, $textColor);
@@ -298,10 +340,12 @@
                                 $styleObj = NULL;
                                 // We will check if this typestyle is going to be shown in the legend
                                 $showInLegend = $typeStyle->item($st)->getElementsByTagName("ShowInLegend");
-                                if($showInLegend->length > 0)
-                                    if($showInLegend->item(0)->nodeValue == "false")
+                                if($showInLegend->length > 0) {
+                                    if($showInLegend->item(0)->nodeValue == "false") {
+                                        //print_r("Skipping $styleName in (".$layer->GetLegendLabel().") because ShowInLegend is: ".$showInLegend->item(0)->nodeValue."<br/>");
                                         continue;   // This typestyle does not need to be shown in the legend
-
+                                    }
+                                }
                                 $rules = $typeStyle->item($st)->getElementsByTagName($ruleNames[$ts]);
                                 
                                 for($r = 0; $r < $rules->length; $r++) {
