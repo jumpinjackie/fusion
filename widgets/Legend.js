@@ -815,9 +815,24 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
           opt.selectable = false;
         }
 
+        var LAYER_RASTER = 4;
+        var LAYER_DWF = 5;
+
         if (!style) {
-            opt.image = this.imgDisabledLayerIcon;
-            opt.enabled = false;
+            //This could be a DWF or Raster layer
+            if (layer.layerTypes.length == 1) {
+                if (layer.layerTypes[0] == LAYER_RASTER) {
+                    opt.image = this.imgLayerRasterIcon;
+                } else if (layer.layerTypes[0] == LAYER_DWF) {
+                    opt.image = this.imgLayerDWFIcon;
+                } else {
+                    opt.image = this.imgDisabledLayerIcon;
+                    opt.enabled = false;
+                }
+            } else {
+                opt.image = this.imgDisabledLayerIcon;
+                opt.enabled = false;
+            }
         } else {
             if(style.iconOpt && style.iconOpt.url){
                 opt.image = style.iconOpt.url;
