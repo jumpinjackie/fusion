@@ -438,7 +438,7 @@
 
         <?php if ($refreshMap) { ?>
             var map = parent.Fusion.getMapByName(mapName);
-            map.reloadMap();
+            map.drawMap();
         <?php } ?>
             SetDigitizeInfo(EDIT_DEFAULT_HELP);
         }
