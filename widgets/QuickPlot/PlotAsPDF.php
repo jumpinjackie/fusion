@@ -208,7 +208,10 @@
     }
     
     // Close and output PDF document
-    $pdf->Output($title.'.pdf', 'I');
+    if (strlen($title) == 0)
+        $pdf->Output('Map.pdf', 'I');
+    else
+        $pdf->Output($title.'.pdf', 'I');
 ?>
 
 <?php
