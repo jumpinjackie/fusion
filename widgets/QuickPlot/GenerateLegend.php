@@ -21,6 +21,14 @@
     $iconHeight = 16;
     $iconFormat = "PNG"; //MgImageFormats::Png
     
+    //These are intermediate data structures containing information we can rapidly lookup
+    //without having to do repeated linear searches of the map's layer and group collections
+    //
+    //CompileVisibleLayerCount() will stash all the relevant information
+    $groupVisibleLayerCount = array();
+    $groupParents = array();
+    $groupChildren = array();
+    
     $groupIcon = imagecreatefromgif("lc_group.gif");
     $dwfIcon = imagecreatefrompng("legend-DWF.png");
     $rasterIcon = imagecreatefrompng("legend-raster.png");
@@ -108,6 +116,69 @@
             return $totalRules > 1;
         }
     }
+    
+    // HasVisibleLayers
+    //
+    // Returns true if the group has one or more visible or the group has no visible layers but one or more
+    // of its child groups has one or more visible layers.
+    function HasVisibleLayers($groupName)
+    {
+        global $groupVisibleLayerCount, $groupChildren;
+        $total = 0;
+        
+        if (array_key_exists($groupName, $groupVisibleLayerCount)) {
+            if ($groupVisibleLayerCount[$groupName] > 0) {
+                return true;
+            }
+        }
+        
+        if (array_key_exists($groupName, $groupChildren)) {
+            foreach ($groupChildren[$groupName] as $childGroupName) {
+                if (HasVisibleLayers($childGroupName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // CompileVisibleLayerCount
+    //
+    // Sets up the various temporary data structures for establishing visible layer count and group relationships
+    function CompileVisibleLayerCount($map)
+    {
+        global $groupVisibleLayerCount, $groupParents, $groupChildren;
+        $layers = $map->GetLayers();
+        $groups = $map->GetLayerGroups();
+        for ($i = 0; $i < $layers->GetCount(); $i++) {
+            $layer = $layers->GetItem($i);
+            if (!$layer->IsVisible()) //Not visible
+                continue;
+                
+            $parentGroup = $layer->GetGroup();
+            if ($parentGroup == NULL) //No parent
+                continue;
+
+            $groupName = $parentGroup->GetName();
+            if (!array_key_exists($groupName, $groupVisibleLayerCount)) {
+                $groupVisibleLayerCount[$groupName] = 0;
+            }
+            $groupVisibleLayerCount[$groupName]++;
+        }
+        for ($i = 0; $i < $groups->GetCount(); $i++) {
+            $group = $groups->GetItem($i);
+            $parentGroup = $group->GetGroup();
+            if ($parentGroup != NULL) {
+                $groupName = $group->GetName();
+                $parentGroupName = $parentGroup->GetName();
+                $groupParents[$groupName] = $parentGroupName;
+                if (!array_key_exists($parentGroupName, $groupChildren)) {
+                    $groupChildren[$parentGroupName] = array();
+                }
+                array_push($groupChildren, $groupName);
+            }
+        }
+    }
 
     function GenerateLegend()
     {
@@ -122,6 +193,8 @@
         $map = new MgMap();
         $map->Open($resourceService, $mapName);
         $scale = $map->GetViewScale();
+        
+        CompileVisibleLayerCount($map);
         
         $image = imagecreatetruecolor($width, $height);
         
@@ -180,6 +253,11 @@
             }
             if (!$group->GetDisplayInLegend())
                 continue;
+            
+            //There are no actual visible layers to render icons for.
+            if (!HasVisibleLayers($group->GetName()))
+                continue;
+
             //print_r("GROUP: ".$group->GetLegendLabel()." (".$group->GetName().") - ".$group->GetObjectId()."<br/>");
             //Draw the image
             imagecopy($image, $groupIcon, $offsetX, $offsetY, 0, 0, $iconWidth, $iconHeight);
