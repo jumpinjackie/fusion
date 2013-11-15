@@ -16,7 +16,7 @@ Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget,
 {
     isExclusive: false,
     uiClass: Jx.Button,
-    sFeatures : 'width=350,height=500,menubar=no,location=no,resizable=no,status=no',
+    sFeatures : 'width=350,height=650,menubar=no,location=no,resizable=no,status=no',
     options : {},
     //The legal disclaimer text to display in the preview and final printout
     disclaimer: "",
