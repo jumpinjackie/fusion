@@ -33,6 +33,18 @@ Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget,
     showSubTitle: true,
     //Indicates whether cookies will be used to persist QuickPlot UI options
     persistPlotOptions: false,
+    //Indicates whether the legend checkbox in the Quick Plot UI is initially checked
+    showLegend: true,
+    //Indicates whether the north arrow checkbox in the Quick Plot UI is initially checked
+    showNorthArrow: false,
+    //Indicates whether the coordinates checkbox in the Quick Plot UI is initially checked
+    showCoordinates: false,
+    //Indicates whether the scale bar checkbox in the Quick Plot UI is initially checked
+    showScaleBar: false,
+    //Indicates whether the disclaimer checkbox is visible. This can be set to false to remove the ability for the user to toggle this element.
+    allowDisclaimerToggle: true,
+    //Indicates whether the disclaimer checkbox in the Quick Plot UI is initially checked
+    showLegalDisclaimer: true,
     
     initializeWidget: function(widgetTag) 
     {
@@ -116,6 +128,30 @@ Fusion.Widget.QuickPlot = OpenLayers.Class(Fusion.Widget,
         
         if (json.ShowCoordinateLabels) {
             this.showCoordinatesInPreview = (json.ShowCoordinateLabels[0] == 'true');
+        }
+        
+        if (json.AllowDisclaimerToggle) {
+            this.allowDisclaimerToggle = (json.AllowDisclaimerToggle[0] == 'true');
+        }
+        
+        if (json.ShowLegend) {
+            this.showLegend = (json.ShowLegend[0] == 'true');
+        }
+        
+        if (json.ShowNorthArrow) {
+            this.showNorthArrow = (json.ShowNorthArrow[0] == 'true');
+        }
+        
+        if (json.ShowCoordinates) {
+            this.showCoordinates = (json.ShowCoordinates[0] == 'true');
+        }
+        
+        if (json.ShowScaleBar) {
+            this.showScaleBar = (json.ShowScaleBar[0] == 'true');
+        }
+        
+        if (json.ShowLegalDisclaimer) {
+            this.showLegalDisclaimer = (json.ShowLegalDisclaimer[0] == 'true');
         }
         
         if (json.RememberPlotOptions) {

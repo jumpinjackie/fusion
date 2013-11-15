@@ -14,6 +14,7 @@
     $showNorthArrow = array_key_exists("ShowNorthArrow", $_POST) && $_POST["ShowNorthArrow"] === "on";
     $showCoordinates = array_key_exists("ShowCoordinates", $_POST) && $_POST["ShowCoordinates"] === "on";
     $showScaleBar = array_key_exists("ShowScaleBar", $_POST) && $_POST["ShowScaleBar"] === "on";
+    $showDisclaimer = array_key_exists("ShowDisclaimer", $_POST) && $_POST["ShowDisclaimer"] === "on";
     $legendType = array_key_exists("LegendType", $_POST) ? $_POST["LegendType"] : "original";
     if (strcmp($legendType, "original") == 0) {
         // /mapguide
@@ -141,7 +142,10 @@
     }
 
     // Draw declaration
-    $mDec = DrawDeclaration(($mScale != NULL) ? ($mScale->x + $mScale->w) : 0);
+    if ($showDisclaimer)
+        $mDec = DrawDeclaration(($mScale != NULL) ? ($mScale->x + $mScale->w) : 0);
+    else
+        $mDec = new Metrics(0, 0, 0, 0);
     
     // Adjust width and height of the images we want to request to compensate for surrounding print elements that have been rendered
     

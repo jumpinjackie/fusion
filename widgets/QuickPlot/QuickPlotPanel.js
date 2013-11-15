@@ -16,6 +16,17 @@ function panelLoaded()
     var disclaimer = widget.disclaimer;
     document.getElementById("legalNotice").value = disclaimer;
     
+    //If there's no disclaimer, then this checkbox is useless, so hide it if that's the case
+    if (!disclaimer || disclaimer == "" || !widget.allowDisclaimerToggle)
+        document.getElementById("DisclaimerCtrl").style.display = "none";
+    
+    //Apply initial UI state    
+    document.getElementById("ShowLegendCheckBox").checked = widget.showLegend;
+    document.getElementById("ShowNorthArrowCheckBox").checked = widget.showNorthArrow;
+    document.getElementById("ShowCoordinatesCheckBox").checked = widget.showCoordinates;
+    document.getElementById("ShowScaleBarCheckBox").checked = widget.showScaleBar;
+    document.getElementById("ShowDisclaimerCheckBox").checked = widget.showLegalDisclaimer;
+    
     //set the paper list from the quick plot widget info
     if (widget.paperList.length > 0)
     {

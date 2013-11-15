@@ -9,7 +9,7 @@
     $sessionId = "";
     $us = "";
     $popup = "false";
-
+    
     GetRequestParameters();
 
     $templ = file_get_contents("QuickPlotPanel.templ");
