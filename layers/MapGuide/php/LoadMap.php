@@ -199,7 +199,7 @@ try
             $mapObj->hasDynamicLayers = true;
         }
 
-        $layerObj->legendLabel = addslashes($layer->GetLegendLabel());
+        $layerObj->legendLabel = $layer->GetLegendLabel();
         $layerObj->displayInLegend = $layer->GetDisplayInLegend();
         $layerObj->expandInLegend = $layer->GetExpandInLegend();
 
