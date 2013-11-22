@@ -117,9 +117,9 @@ try
     $mapObj->wkt = $srs;
     $mapObj->epsg = $epsgCode;
 
-    $mapObj->mapTitle=addslashes($mapTitle);
+    $mapObj->mapTitle = $mapTitle;
 
-    $mapObj->mapName=addslashes($mapName);
+    $mapObj->mapName = $mapName;
     
     //Any code that may need the map definition xml document can use $mdfDoc
     $mapContent = $resourceService->GetResourceContent(new MgResourceIdentifier($mapid));
@@ -174,7 +174,7 @@ try
         $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
 
         $layerObj->uniqueId = $layer->GetObjectId();
-        $layerObj->layerName = addslashes($layer->GetName());
+        $layerObj->layerName = $layer->GetName();
 
         //$aLayerTypes = GetLayerTypes($featureService, $layer);
         $aLayerTypes = GetLayerTypesFromResourceContent($layer, $layerContent);
@@ -419,8 +419,8 @@ function OutputGroupInfo($group)
 {
     $groupObj = NULL;
 
-    $groupObj->groupName = addslashes($group->GetName());
-    $groupObj->legendLabel = addslashes($group->GetLegendLabel());
+    $groupObj->groupName = $group->GetName();
+    $groupObj->legendLabel = $group->GetLegendLabel();
     $groupObj->uniqueId = $group->GetObjectId();
     $groupObj->displayInLegend = $group->GetDisplayInLegend();
     $groupObj->expandInLegend = $group->GetExpandInLegend();
