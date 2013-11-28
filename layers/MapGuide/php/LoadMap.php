@@ -38,7 +38,7 @@ if(InitializationErrorOccurred())
 include('Utilities.php');
 
 
-$mapObj = NULL;
+$mapObj = new stdClass();
 try
 {
     $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
@@ -169,7 +169,7 @@ try
         $layer=$layers->GetItem($i);
         $layerContent = $layerDocs[$i];
         $fsContent = $fsDocs[$i];
-        $layerObj = NULL;
+        $layerObj = new stdClass();
         $mappings = GetLayerPropertyMappings($resourceService, $layer, $layerContent);
         $_SESSION['property_mappings'][$layer->GetObjectId()] = $mappings;
 
@@ -344,7 +344,7 @@ function buildScaleRanges($layer, $xmldoc = NULL)
     $ruleNames = array("PointRule", "LineRule", "AreaRule", "CompositeRule");
     for($sc = 0; $sc < $scaleRanges->length; $sc++)
     {
-        $scaleRangeObj = NULL;
+        $scaleRangeObj = new stdClass();
         $scaleRangeObj->styles = array();
         $scaleRange = $scaleRanges->item($sc);
         $minElt = $scaleRange->getElementsByTagName('MinScale');
@@ -373,7 +373,6 @@ function buildScaleRanges($layer, $xmldoc = NULL)
             $catIndex = 0;
             for($st = 0; $st < $typeStyle->length; $st++) {
 
-                $styleObj = NULL;
                 // We will check if this typestyle is going to be shown in the legend
                 $showInLegend = $typeStyle->item($st)->getElementsByTagName("ShowInLegend");
                 if($showInLegend->length > 0)
@@ -388,7 +387,7 @@ function buildScaleRanges($layer, $xmldoc = NULL)
 
                     $labelText = $label->length==1? $label->item(0)->nodeValue: "";
                     $filterText = $filter->length==1? $filter->item(0)->nodeValue: "";
-                    $styleObj = NULL;
+                    $styleObj = new stdClass();
                     $styleObj->legendLabel = trim($labelText);
                     $styleObj->filter = trim($filterText);
                     $styleObj->geometryType = ($ts+1);
@@ -417,7 +416,7 @@ function buildScaleRanges($layer, $xmldoc = NULL)
 
 function OutputGroupInfo($group)
 {
-    $groupObj = NULL;
+    $groupObj = new stdClass();
 
     $groupObj->groupName = $group->GetName();
     $groupObj->legendLabel = $group->GetLegendLabel();
