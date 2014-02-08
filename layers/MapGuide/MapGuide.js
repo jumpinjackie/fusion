@@ -186,7 +186,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (xhr.status == 200) {
             var o = Fusion.parseJSON(xhr.responseText);
             if (o.success === false) {
-                Fusion.reportError(o.message);
+                Fusion.reportFatalError(o.message);
             } else {
                 var version = o.siteVersion;
                 var bits = version.split('.');
@@ -704,9 +704,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     reloadFailed: function(r) {
-      Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL,
-        OpenLayers.i18n('mapLoadError', {'error':r.transport.responseText})));
-      this.mapWidget._removeWorker();
+        this.mapWidget._removeWorker();
+        Fusion.reportFatalError(OpenLayers.i18n('mapLoadError', {'error':r.transport.responseText}));
     },
 
     /**
@@ -1616,13 +1615,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
     
     checkPingResponse: function(xhr) {
-      if (xhr.responseText) {
-        var o = Fusion.parseJSON(xhr.responseText);
-        if (!o.success) {
-          Fusion.reportError(o.message);
-          clearInterval(this.keepAliveTimer);
+        if (xhr.responseText) {
+            var o = Fusion.parseJSON(xhr.responseText);
+            if (!o.success) {
+                clearInterval(this.keepAliveTimer);
+                Fusion.reportFatalError(o.message);
+            }
         }
-      }
     },
 
     getLinkParams: function() {

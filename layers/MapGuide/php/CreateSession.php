@@ -45,7 +45,7 @@ try {
 
     header('Content-type: application/json');
     header('X-JSON: true');
-    $result = null;
+    $result = new stdClass();
     $result->sessionId = $sessionId;
     $result->userName = $username;
     $result->siteVersion = GetSiteVersion();

@@ -50,7 +50,7 @@ Fusion.Widget.MapMetadata = OpenLayers.Class(Fusion.Widget, {
         if (json.MetadataId) {
           this.metadataId =  json.MetadataId[0];
         } else {
-          Fusion.reportError( new Fusion.Error(Fusion.Error.FATAL,"MetadataId is a required parameter for mapMetadata widget"));
+          Fusion.reportFatalError( "MetadataId is a required parameter for mapMetadata widget");
         }
         if (json.Content) {
           this.content = json.Content[0];

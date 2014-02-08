@@ -214,6 +214,7 @@ $Id$
         <filelist dir="${build.home}/lib"
                   files=" SingleFile.js
                           fusion.js
+                          TraceKit/TraceKit.js
                           jxLib/jxlib.uncompressed.js
                           OpenLayers/OpenLayers.js
                           Proj4js/proj4js-compressed.js

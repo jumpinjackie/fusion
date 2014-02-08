@@ -4,7 +4,12 @@ Fusion.Strings.en = {
 'configLoadError': 'Error loading fusion configuration file, initialization aborted.' +
                   'Make sure that you have copied config_dist.json to config.json ' +
                   'and have configured the settings for your system',
+'pingFailure': 'Failed to keep session alive: ${message}',
+'sessionExpired': 'Your current MapGuide session has expired',
+'reload': 'Reload this application',
+'createSessionFailure': 'Failed to create session: ${message}',
 'ajaxError': 'Exception occurred in AJAX callback.\nMessage: ${exception}\nLocation: ${filename} (${line})\nResponse: ${response}',
+'detailedErrorTemplateHtml': '<h3>${name}</h3><br/>Error Details:<pre>${message}</pre><br/>Stack Trace:<br/><pre>${stacktrace}</pre><br/>Source: <pre>${source}</pre>',
 'importFailed': 'failed to import stylesheet: ${url}',
 'serverNotAvailable': '<h2>Server not available. Try to reload the application. If this problem persists, please contact the administrator</h2>',
 'invalidXMLDocument': 'xml2json: invalid XML document: ${msg} : ${url}',
