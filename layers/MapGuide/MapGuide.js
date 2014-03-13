@@ -383,7 +383,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     displayInLegend: (lyr.DisplayInLegend[0] == "true"),
                     expandInLegend: (lyr.ExpandInLegend[0] == "true")
                 };
-                
+                if (lyr.Type[0] != "2" && !lm.hasDynamicLayers)
+                    lm.hasDynamicLayers = true;
                 lm.layers.push(cl);
                 
                 var clsr = {
