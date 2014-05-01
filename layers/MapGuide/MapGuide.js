@@ -1799,6 +1799,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             
             for (var i = 0; i < selLayers.length; i++) {
                 var selLayer = selLayers[i];
+                var selFeatures = selLayer.Feature || [];
                 var layerName = selLayer["@name"];
                 if (!result[layerName]) {
                     if (selLayer.LayerMetadata) {
@@ -1816,7 +1817,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     result[layerName] = {
                         metadata: [],  //NOTE: Probably a defect, but regular code path is putting blank string arrays here too
                         metadatanames: ["dimension", "bbox", "center", "area", "length"],
-                        numelements: selLayer.Feature.length,
+                        numelements: selFeatures.length,
                         propertynames: pnames,
                         propertytypes: ptypes,
                         propertyvalues: pvals,
@@ -1825,8 +1826,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     layerNames.push(layerName);
                 }
                 
-                for (var j = 0; j < selLayer.Feature.length; j++) {
-                    var feat = selLayer.Feature[j];
+                for (var j = 0; j < selFeatures.length; j++) {
+                    var feat = selFeatures[j];
                     var featVals = [];
                     if (feat.Property) {
                         for (var k = 0; k < feat.Property.length; k++) {
