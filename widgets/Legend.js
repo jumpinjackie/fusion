@@ -800,10 +800,10 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
     createTreeItem: function(layer, style, scale, checkbox) {
         var opt = {};
         opt.statusIsDefault = layer.statusDefault;
-        
+        var range = layer.legend.currentRange;
         //Set the label. Use style label IFF there are more than one style rule.
         //Otherwise layer's legend label takes precedence
-        if (style && layer.legend.currentRange.styles.length > 1) {
+        if (style && range && range.styles.length > 1) {
             opt.label = style.legendLabel == '' ? '&nbsp;' : style.legendLabel;
         } else {
             opt.label = layer.legendLabel == '' ? '&nbsp;' : layer.legendLabel;
