@@ -217,7 +217,7 @@ $Id$
                           TraceKit/TraceKit.js
                           jxLib/jxlib.uncompressed.js
                           OpenLayers/OpenLayers.js
-                          Proj4js/proj4js-compressed.js
+                          Proj4js/proj4js-combined.js
                           Error.js
                           EventMgr.js
                           ApplicationDefinition.js
