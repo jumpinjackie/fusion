@@ -67,8 +67,8 @@
         $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
 
         //Create a temporary map runtime object, locate the layer
-        $map = new MgMap();
-        $map->Open($resourceService, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
         $layers = $map->GetLayers();
         $layer = null;
         //fwrite($logHandle,"found layers:".$layers->GetCount()."\n");

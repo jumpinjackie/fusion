@@ -38,8 +38,8 @@ class FeatureInfo
 
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $layers = $map->GetLayers();
 
         for ($i = 0; $i < $layers->GetCount(); $i++)

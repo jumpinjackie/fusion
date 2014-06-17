@@ -67,10 +67,8 @@ class Query
     {
         $layerNames = array();
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $layers = $map->GetLayers();
 
         for ($i = 0; $i < $layers->GetCount(); $i++)
@@ -93,17 +91,12 @@ class Query
     {
         $properties = array();
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
+        $layers = $map->GetLayers();
+        $layer = $layers->GetItem($this->args['LAYERNAME']);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
-        $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
-
-        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
-        $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
-        $schemaClass = explode(':', $layer->GetFeatureClassName());
-
-        $classDef = $featureService->GetClassDefinition($resId, $schemaClass[0], $schemaClass[1]);
+        $classDef = $layer->GetClassDefinition();
 
         for ($i = 0; $i < $classDef->GetProperties()->GetCount(); $i++)
         {
@@ -125,10 +118,8 @@ class Query
     {
         $result = true;
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         $layers = $map->GetLayers();
         if ($layers->Contains('_QuerySpatialFilter'))
@@ -139,7 +130,7 @@ class Query
             else
                 $layer->SetVisible(false);
 
-            $map->Save($resourceService);
+            $map->Save();
         }
 
         return $result;
@@ -156,8 +147,8 @@ class Query
 
         $updateCommands = new MgFeatureCommandCollection();
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         $layer = null;
         $layers = $map->GetLayers();
@@ -171,7 +162,7 @@ class Query
             // Create the Feature Source (SDF)
 
             $sdfSchema = $this->CreateFilterSchema();
-            $sdfParams = new MgCreateSdfParams('MAPCS', $map->GetMapSRS(), $sdfSchema);
+            $sdfParams = new MgFileFeatureSourceParams('OSGeo.SDF', 'MAPCS', $map->GetMapSRS(), $sdfSchema);
             $featureService->CreateFeatureSource($sdfResId, $sdfParams);
 
             // Create the Layer
@@ -197,7 +188,7 @@ class Query
         // Make the layer visible
 
         $layer->SetVisible(true);
-        $map->Save($resourceService);
+        $map->Save();
 
         // Add the geometry to the filter feature source
 
@@ -219,11 +210,10 @@ class Query
     {
         $result = array();
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
-        $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
+        $layers = $map->GetLayers();
+        $layer = $layers->GetItem($this->args['LAYERNAME']);
 
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
@@ -233,9 +223,9 @@ class Query
 
         // Initialize the coordinate system transform
 
-        $schemaAndClass = explode(":", $featureClass);
-        $classDef = $featureService->GetClassDefinition($resId, $schemaAndClass[0], $schemaAndClass[1]);
-        $geomProp = $classDef->GetProperties()->GetItem($featureGeometry);
+        $classDef = $layer->GetClassDefinition();
+        $clsProps = $classDef->GetProperties();
+        $geomProp = $clsProps->GetItem($featureGeometry);
         $spatialContext = $geomProp->GetSpatialContextAssociation();
 
         $csTransform = null;
@@ -296,7 +286,7 @@ class Query
 
         $count = 0;
         $geometryReaderWriter = new MgAgfReaderWriter();
-        $featureReader = $featureService->SelectFeatures($resId, $layer->GetFeatureClassName(), $queryOptions);
+        $featureReader = $layer->SelectFeatures($queryOptions);
         while ($featureReader->ReadNext() && ($queryMax <= 0 || $count < $queryMax))
         {
             $displayValue = $this->GetFeaturePropertyValue($featureReader, $this->args['OUTPUTPROPERTY']);
@@ -319,16 +309,14 @@ class Query
     function GetSelectionXML()
     {
         $json = new Services_JSON();
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
-        $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
-        $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
+        $layers = $map->GetLayers();
+        $layer = $layers->GetItem($this->args['LAYERNAME']);
         $featureClass = $layer->GetFeatureClassName();
-        $schemaAndClass = explode(":", $featureClass);
-        $classDef = $featureService->GetClassDefinition($resId, $schemaAndClass[0], $schemaAndClass[1]);
+        $classDef = $layer->GetClassDefinition();
 
         $properties = new MgPropertyCollection();
         $idList = $json->decode($this->args['IDLIST']);

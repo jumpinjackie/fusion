@@ -190,8 +190,8 @@
         $resourceService  = $siteConnection->CreateService(MgServiceType::ResourceService);
         $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
         
-        $map = new MgMap();
-        $map->Open($resourceService, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
         $scale = $map->GetViewScale();
         
         CompileVisibleLayerCount($map);

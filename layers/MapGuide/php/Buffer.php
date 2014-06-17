@@ -60,8 +60,8 @@ try {
 
     $schemaName = 'BufferSchema';
 
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
 
     /* Get the map SRS - we use this to convert distances */
     $srsFactory = new MgCoordinateSystemFactory();
@@ -268,7 +268,7 @@ try {
     }
     $result = $featureService->UpdateFeatures($featureSourceId, $oCommandsColl, false);
     $layer->ForceRefresh();
-    $map->Save($resourceService);
+    $map->Save();
     echo "<Buffer>";
     echo "<Layer>".$layerId->ToString();
     echo "</Layer>";

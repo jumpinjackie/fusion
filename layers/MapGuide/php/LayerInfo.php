@@ -49,8 +49,8 @@ function BooleanToString($boolean)
 }
 
 //Get a runtime map from a map definition
-$map = new MgMap();
-$map->Open($resourceService, $mapName);
+$map = new MgMap($siteConnection);
+$map->Open($mapName);
 
 //Get the layer
 $layerCollection=$map->GetLayers();
@@ -68,7 +68,7 @@ try {
         } else {
             $layer->SetSelectable(false);
         }
-        $map->Save($resourceService);
+        $map->Save();
     }
 
     //property mappings from the session

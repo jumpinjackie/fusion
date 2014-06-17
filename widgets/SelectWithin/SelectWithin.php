@@ -46,8 +46,8 @@
     $renderingSrvc = $siteConnection->CreateService(MgServiceType::RenderingService);
 
     //load the map runtime state
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
 
     //object to hold response
     $result = NULL;

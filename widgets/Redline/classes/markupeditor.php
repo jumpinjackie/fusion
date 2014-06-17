@@ -77,7 +77,6 @@ class MarkupEditor
     function GetTransform()
     {
         $coordSysFactory = new MgCoordinateSystemFactory();
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
         $featureSourceId = $this->GetFeatureSource();
@@ -89,8 +88,8 @@ class MarkupEditor
             $wkt = $scReader->GetCoordinateSystemWkt();
         $scReader->Close();
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         if (null == $wkt)
             return null; //It's bunk. Assume map SRS
@@ -285,10 +284,8 @@ class MarkupEditor
 
     function GetSelectionXML()
     {
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $markupLayer = $map->GetLayers()->GetItem('_' . $this->GetMarkupName());
 
         $selection = new MgSelection($map);

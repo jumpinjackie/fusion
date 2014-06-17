@@ -76,8 +76,8 @@ try {
 
     /* open the map from the session using the provided map name.  The map was
        previously created by calling LoadMap. */
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
 
     /* add the features to the map selection and save it*/
     $selection = new MgSelection($map);

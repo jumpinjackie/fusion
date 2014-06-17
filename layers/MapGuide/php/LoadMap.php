@@ -48,11 +48,11 @@ try
     if (isset($_REQUEST['mapid']))
     {
         $mapid = $_REQUEST['mapid'];
-        $resourceID = new  MgResourceIdentifier($mapid);
-        $map = new MgMap();
+        $resourceID = new MgResourceIdentifier($mapid);
+        $map = new MgMap($siteConnection);
         $mapTitle = $resourceID->GetName();
 
-        $map->Create($resourceService, $resourceID, $mapTitle);
+        $map->Create($resourceID, $mapTitle);
 
         $mapName = uniqid($mapTitle);
         $mapStateId = new MgResourceIdentifier("Session:" . $sessionID . "//" . $mapName . "." . MgResourceType::Map);
@@ -65,8 +65,8 @@ try
 
         $map->Save($resourceService, $mapStateId);
     } else {
-        $map = new MgMap();
-        $map->Open($resourceService, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
         $mapTitle = $map->GetName();
         $mapid = $map->GetMapDefinition()->ToString();
     }

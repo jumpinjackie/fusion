@@ -344,8 +344,8 @@ class MarkupManager
     {
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         // Create the Layer Groups
 
@@ -375,15 +375,13 @@ class MarkupManager
         $markupLayer->SetGroup($markupGroup);
         $map->GetLayers()->Insert(0, $markupLayer);
 
-        $map->Save($resourceService);
+        $map->Save();
     }
 
     function CloseMarkup()
     {
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         // Add the Markup Layer
 
@@ -391,7 +389,7 @@ class MarkupManager
         $index = $map->GetLayers()->IndexOf('_' . $markupLayerResId->GetName());
         $map->GetLayers()->RemoveAt($index);
 
-        $map->Save($resourceService);
+        $map->Save();
     }
 
     function UniqueMarkupName(&$markupName)
@@ -695,8 +693,8 @@ class MarkupManager
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         $featureSourceId = "";
         $bUpdate = array_key_exists("EDITMARKUPLAYER", $this->args) && array_key_exists("MARKUPLAYERNAME", $this->args) && array_key_exists("EDITFEATURESOURCE", $this->args);
@@ -1135,10 +1133,8 @@ class MarkupManager
     {
         $openMarkup = array();
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
-
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
 
         $layerGroups = $map->GetLayerGroups();
         if ($layerGroups->Contains('_Markup'))

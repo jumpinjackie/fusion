@@ -38,7 +38,7 @@ if(InitializationErrorOccurred())
 include('../../../common/php/Utilities.php');
 include('Utilities.php');
 
-$result = NULL;
+$result = new stdClass();
 $result->layers = array();
 
 if (isset($_SESSION['selection_array']))
@@ -69,7 +69,7 @@ if (isset($_SESSION['selection_array']))
     $aSelectedLayers = $properties->layers;
     if (count($aSelectedLayers) > 0)
     {
-        $result->extents = NULL;
+        $result->extents = new stdClass();
         $result->extents->minx = $properties->extents->minx;
         $result->extents->miny = $properties->extents->miny;
         $result->extents->maxx = $properties->extents->maxx;
@@ -84,6 +84,7 @@ if (isset($_SESSION['selection_array']))
                 $properties->$layerNameInProperties->numelements > 0)
             {
                 array_push($result->layers, $layerName);
+                $result->$layerName = new stdClass();
                 $result->$layerName->propertynames = $properties->$layerNameInProperties->propertynames;
                 $result->$layerName->propertyvalues = $properties->$layerNameInProperties->propertyvalues;
                 $result->$layerName->propertytypes = $properties->$layerNameInProperties->propertytypes;
