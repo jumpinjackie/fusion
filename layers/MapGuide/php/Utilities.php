@@ -56,7 +56,7 @@ function CreateFeatureSource($map, $dataSourceId, $featureName, $featureService,
     $schema->GetClasses()->Add($classDef);
 
     //finally, creation of the feature source
-    $params = new MgCreateSdfParams("LatLong", GetMapSRS($map), $schema);
+    $params = new MgFileFeatureSourceParams("OSGeo.SDF", "LatLong", GetMapSRS($map), $schema);
     $featureService->CreateFeatureSource($dataSourceId, $params);
 }
 

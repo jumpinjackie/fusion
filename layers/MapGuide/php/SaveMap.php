@@ -45,8 +45,8 @@ try
 {
     $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
     $renderingService = $siteConnection->CreateService(MgServiceType::RenderingService);
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
 
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);

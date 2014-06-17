@@ -59,8 +59,8 @@ if (isset($_REQUEST['preCacheIcons']) && ($_REQUEST['preCacheIcons'] == "1" || s
 
 $mappingService = $siteConnection->CreateService(MgServiceType::MappingService);
 
-$map = new MgMap();
-$map->Open($resourceService, $mapName);
+$map = new MgMap($siteConnection);
+$map->Open($mapName);
 $layers=$map->GetLayers();
 
 $scaleObj = new stdClass();

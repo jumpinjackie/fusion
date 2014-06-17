@@ -94,11 +94,10 @@
         $userInfo         = new MgUserInformation($sessionID);
         $siteConnection   = new MgSiteConnection();
         $siteConnection->Open($userInfo);
-        $resourceService  = $siteConnection->CreateService(MgServiceType::ResourceService);
         $renderingService = $siteConnection->CreateService(MgServiceType::RenderingService);
         
-        $map = new MgMap();
-        $map->Open($resourceService, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
         
         $selection        = new MgSelection($map);
     
@@ -117,14 +116,14 @@
         $color = new MgColor($colorString);
 
         $mgReader = $renderingService->RenderMap($map, 
-                                                $selection, 
-                                                $center,
-                                                $scaleDenominator, 
-                                                $toSize->width, 
-                                                $toSize->height,
-                                                $color,
-                                                "PNG",
-                                                false);
+                                                 $selection, 
+                                                 $center,
+                                                 $scaleDenominator, 
+                                                 $toSize->width, 
+                                                 $toSize->height,
+                                                 $color,
+                                                 "PNG",
+                                                 false);
         $tempImage = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "mgo" . uniqid();
 
         $mgReader->ToFile($tempImage);

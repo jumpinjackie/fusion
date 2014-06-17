@@ -80,8 +80,8 @@
 
         //load the map runtime state
         //
-        $map = new MgMap();
-        $map->Open($resourceSrvc, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
 
         //locate the buffer layer in the map. It might or might not already exist
         //
@@ -147,7 +147,7 @@
             $schema->GetClasses()->Add($classDef);
 
             //finally, creation of the feature source
-            $sdfParams = new MgCreateSdfParams("LatLong", $srsDefMap, $schema);
+            $sdfParams = new MgFileFeatureSourceParams("OSGeo.SDF", "LatLong", $srsDefMap, $schema);
             $featureSrvc->CreateFeatureSource($dataSourceId, $sdfParams);
 
             //Add layer to map
@@ -325,7 +325,7 @@
         // Save the new map state
         //
         $layer->ForceRefresh();
-        $map->Save($resourceSrvc);
+        $map->Save();
 
         //build report message
         $title = GetLocalizedString( "BUFFERREPORTTITLE", $locale );

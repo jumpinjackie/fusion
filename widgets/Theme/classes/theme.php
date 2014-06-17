@@ -40,11 +40,10 @@ class Theme
     {
         $layerNames = array();
 
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $layers = $map->GetLayers();
 
         for ($i = 0; $i < $layers->GetCount(); $i++)
@@ -89,9 +88,10 @@ class Theme
 
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
-        $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
+        $layers = $map->GetLayers();
+        $layer = $layers->GetItem($this->args['LAYERNAME']);
         
 
         // First get a list of all of the Feature Class properties that can be used for theming.
@@ -150,13 +150,11 @@ class Theme
 
     function GetPropertyMinMaxCount()
     {
-        $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
+        $layers = $map->GetLayers();
+        $layer = $layers->GetItem($this->args['LAYERNAME']);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
-        $layer = $map->GetLayers()->GetItem($this->args['LAYERNAME']);
-
-        $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $resId = new MgResourceIdentifier($layer->GetFeatureSourceId());
         
         $filter = $layer->GetFilter();
@@ -193,7 +191,7 @@ class Theme
         if($filter != '')
             $queryOptions->SetFilter($filter);
 
-        $featureReader = $featureService->SelectFeatures($resId, $layer->GetFeatureClassName(), $queryOptions);
+        $featureReader = $layer->SelectFeatures($queryOptions);
 
         while($featureReader->ReadNext())
         {
@@ -228,8 +226,8 @@ class Theme
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $layers = $map->GetLayers();
         $layer = $layers->GetItem($this->args['LAYERNAME']);
 
@@ -317,7 +315,7 @@ class Theme
             $aggregateOptions->AddComputedProperty('THEME_VALUE', 'UNIQUE("' . $this->args['PROPERTYNAME'] . '")');
             if($filter != '')
                 $aggregateOptions->SetFilter($filter);
-            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
+            $dataReader = $layer->SelectAggregate($aggregateOptions);
             while ($dataReader->ReadNext())
             {
                 $value = $this->GetFeaturePropertyValue($dataReader, 'THEME_VALUE');
@@ -377,7 +375,7 @@ class Theme
             if($filter != '')
                 $aggregateOptions->SetFilter($filter);
 
-            $dataReader = $featureService->SelectAggregate($resId, $layer->GetFeatureClassName(), $aggregateOptions);
+            $dataReader = $layer->SelectAggregate($aggregateOptions);
             while ($dataReader->ReadNext())
             {
                 $value = $this->GetFeaturePropertyValue($dataReader, 'THEME_VALUE');
@@ -446,7 +444,7 @@ class Theme
         $newLayer->SetSelectable($layer->GetLegendLabel());
         $layers->Insert($layers->IndexOf($layer), $newLayer);
 
-        $map->Save($resourceService);
+        $map->Save();
 
         return $uniqueName;
     }

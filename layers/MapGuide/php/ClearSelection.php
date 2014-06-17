@@ -39,8 +39,8 @@ try
 {
     $resourceSrvc = $siteConnection->CreateService(MgServiceType::ResourceService);
 
-    $map = new MgMap();
-    $map->Open($resourceSrvc, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
 
     $sel = new MgSelection($map);
 

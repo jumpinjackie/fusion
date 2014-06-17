@@ -40,8 +40,8 @@ include('Utilities.php');
     {
         //load the map runtime state
         //
-        $map = new MgMap();
-        $map->Open($resourceService, $mapName);
+        $map = new MgMap($siteConnection);
+        $map->Open($mapName);
         // Create the selection set
         $selection = new MgSelection($map);
         if($selText != "") {

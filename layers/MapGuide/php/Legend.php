@@ -46,9 +46,9 @@ function BooleanToString($boolean)
 }
 
 //Get a runtime map from a map definition
-$map = new MgMap();
+$map = new MgMap($siteConnection);
 
-$map->Open($resourceService, $mapName);
+$map->Open($mapName);
 
 //Get layer collection as xml
 header('content-type: text/xml');

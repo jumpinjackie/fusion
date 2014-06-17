@@ -50,8 +50,8 @@ try {
     $y1 = $_REQUEST['y1'];
     $x2 = $_REQUEST['x2'];
     $y2 = $_REQUEST['y2'];
-    $map = new MgMap();
-    $map->Open($resourceService, $mapName);
+    $map = new MgMap($siteConnection);
+    $map->Open($mapName);
     $srsFactory = new MgCoordinateSystemFactory();
     $srs = GetMapSRS($map);
     $srsMap = $srsFactory->Create($srs);
