@@ -28,6 +28,10 @@
  */
 include(dirname(__FILE__).'/Utilities.php');
 
+//Requests to this script can be made from anywhere, so disable XML entity loading to
+//guard against malicious XML
+libxml_disable_entity_loader(true);
+
 if (isset($_FILES['xml'])) {
     $xml = file_get_contents($_FILES['xml']['tmp_name']);
 } elseif (isset($_SERVER['HTTP_HOST'])) {
