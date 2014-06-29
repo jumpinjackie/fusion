@@ -206,6 +206,9 @@
                         $idPropType = $features->GetPropertyType($id);
                         switch($idPropType)
                         {
+                            case MgPropertyType::Int16:
+                                $idProps->Add(new MgInt16Property($id, $features->GetInt16($id)));
+                                break;
                             case MgPropertyType::Int32:
                                 $idProps->Add(new MgInt32Property($id, $features->GetInt32($id)));
                                 break;
