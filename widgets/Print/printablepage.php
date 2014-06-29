@@ -75,7 +75,7 @@ function GetParameters($params)
     $isTitle = $params['ISTITLE'];
     $isLegend = $params['ISLEGEND'];
     $isArrow = $params['ISARROW'];
-    $title = $params['TITLE'];
+    $title = array_key_exists('TITLE', $params) ? $params['TITLE'] : '';
     $scale = $params['SCALE'];
     $centerX = $params['CENTERX'];
     $centerY = $params['CENTERY'];
