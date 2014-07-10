@@ -1223,20 +1223,41 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       Fusion.ajaxRequest(getPropertiesScript, options);
     },
 
-    updateMapSelection: function (selText, zoomTo) {
-      this.mapWidget._addWorker();
-      var sl = Fusion.getScriptLanguage();
-      var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
-      var params = {
-          'mapname': this.getMapName(),
-          'session': this.getSessionID(),
-          'selection': selText,
-          'seq': Math.random(),
-          'getextents' : zoomTo ? 'true' : 'false'
-      };
-      var options = {onSuccess: OpenLayers.Function.bind(this.renderSelection, this, zoomTo),
-                     parameters:params};
-      Fusion.ajaxRequest(updateSelectionScript, options);
+    updateMapSelection: function (selText, zoomTo, mergeSelection) {
+        this.mapWidget._addWorker();
+        if (this.bUseNativeServices) {
+            //NOTE: 
+            // This code path assumes our "2.6" or above MapGuide Server is assumed to have this particular 
+            // issue fixed: http://trac.osgeo.org/mapguide/changeset/8288
+            // This will be true for MapGuide Open Source 2.6 Final. This may not be true for AIMS 2015.
+            var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures2(this.getSessionID(),
+                                                                 this._sMapname,
+                                                                 null, //geometry
+                                                                 -1, //max features
+                                                                 1, //persist
+                                                                 this.selectionType,
+                                                                 selText,
+                                                                 null,
+                                                                 0, //All layers
+                                                                 4, //hyperlinks only
+                                                                 this.selectionColor,
+                                                                 this.selectionImageFormat);
+            var callback = OpenLayers.Function.bind(this.onNativeSelectionUpdate, this, zoomTo);
+            Fusion.oBroker.dispatchRequest(r, callback);
+        } else {
+            var sl = Fusion.getScriptLanguage();
+            var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
+            var params = {
+              'mapname': this.getMapName(),
+              'session': this.getSessionID(),
+              'selection': selText,
+              'seq': Math.random(),
+              'getextents' : zoomTo ? 'true' : 'false'
+            };
+            var options = {onSuccess: OpenLayers.Function.bind(this.renderSelection, this, zoomTo),
+                         parameters:params};
+            Fusion.ajaxRequest(updateSelectionScript, options);
+        }
     },
 
 
@@ -1360,6 +1381,32 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var oNode = Fusion.parseJSON(r.responseText);
             this.processSelectedFeaturePropertiesNode(oNode);
         }
+    },
+
+    onNativeSelectionUpdate: function(zoomTo, r) {
+        //Set up the expected response text for renderSelection()
+        var sel = this.previousSelection;
+        var resp = {
+            hasSelection: false,
+            layers: [],
+            extents: null
+        };
+        for (var i = 0; i < sel.getNumLayers(); i++) {
+            var layer = sel.getLayer(i);
+            var nFeatures = layer.getNumFeatures();
+            if (nFeatures > 0) {
+                resp.hasSelection = true;
+                var layerId = layer.getName();
+                var oLayer = this.getLayerById(layerId);
+                resp.layers.push(oLayer.layerName);
+                resp[oLayer.layerName] = {
+                    featureCount: nFeatures
+                };
+            }
+        }
+        r.responseText = JSON.stringify(resp);
+        this.renderSelection(zoomTo, r);
+        this.processSelectedFeaturePropertiesNode(this.previousAttributes);
     },
 
     /**
@@ -1885,26 +1932,70 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         //this.processSelectedFeatureInfo(r, false);
     },
     
+    mergeAttributes: function(attributes, prevAttributes) {
+        //Start off with prevAttributes as the base
+        var merged = {};
+        merged.hasSelection = prevAttributes.hasSelection;
+        merged.extents = prevAttributes.extents;
+        merged.layers = prevAttributes.layers;
+        for (var i = 0; i < merged.layers.length; i++) {
+            var layerName = merged.layers[i][0];
+            merged[layerName] = prevAttributes[layerName];
+        }
+        //Expand extents
+        if (!merged.extents && attributes.extents) {
+            merged.extents = attributes.extents;
+        } else {
+            if (attributes.extents) {
+                if (attributes.extents.minx < merged.extents.minx)
+                    merged.extents.minx = attributes.extents.minx;
+                if (attributes.extents.miny < merged.extents.miny)
+                    merged.extents.miny = attributes.extents.miny;
+                if (attributes.extents.maxx > merged.extents.maxx)
+                    merged.extents.maxx = attributes.extents.maxx;
+                if (attributes.extents.maxy > merged.extents.maxy)
+                    merged.extents.maxy = attributes.extents.maxy;
+            }
+        }
+        //Bring in attributes
+        for (var i = 0; i < attributes.layers.length; i++) {
+            var layerName = attributes.layers[i][0];
+            if (typeof(merged[layerName]) == 'undefined') {
+                merged[layerName] = attributes[layerName];
+            } else {
+                var newValues = attributes[layerName].values;
+                for (var v = 0; v < newValues.length; v++) {
+                    merged[layerName].values.push(newValues[v]);
+                    merged[layerName].numelements++;
+                }
+            }
+        }
+        return merged;
+    },
+    
     processSelectedExtendedFeatureInfo: function(r, mergeSelection) {
         var o = Fusion.parseJSON(r.responseText);
         var sel = new Fusion.SimpleSelectionObject(o);
         var attributes = this.convertExtendedFeatureInfo(o);
-        var selText = sel.getSelectionXml();
         if (mergeSelection == true)
         {
             sel.merge(this.previousSelection);
+            attributes = this.mergeAttributes(attributes, this.previousAttributes);
         }
+        var selText = sel.getSelectionXml();
         this.previousSelection = sel;
         //Because the QUERYMAPFEATURES 2.6.0 response contains mostly everything we need, we cut down
         //on lots of async request ping-pong. So we can just update the selection image and notify any
         //interested parties of the new selection attributes
         if (selText != "" && selText != null) {
             this.previousAttributes = attributes;
-            this.updateMapSelection(selText, false);
-            this.processSelectedFeaturePropertiesNode(attributes);
+            this.updateMapSelection(selText, false, mergeSelection);
         } else {
-            this.previousAttributes = null;
-            this.clearSelection();
+            //Only clear if we're not merging an empty selection
+            if (mergeSelection == false) {
+                this.previousAttributes = null;
+                this.clearSelection();
+            }
         }
         this.mapWidget._removeWorker();
     },
