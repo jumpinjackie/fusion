@@ -8,7 +8,7 @@ Fusion.Strings.en = {
 'sessionExpired': 'Your current MapGuide session has expired',
 'reload': 'Reload this application',
 'createSessionFailure': 'Failed to create session: ${message}',
-'ajaxError': 'Exception occurred in AJAX callback.\nMessage: ${exception}\nLocation: ${filename} (${line})\nResponse: ${response}',
+'ajaxError': 'Exception occurred in AJAX callback.\nMessage: ${exception}\nLocation: ${filename} (${line})\nInner Stack: ${innerStack}\nResponse: ${response}',
 'detailedErrorTemplateHtml': '<h3>${name}</h3><br/>Error Details:<pre>${message}</pre><br/>Stack Trace:<br/><pre>${stacktrace}</pre><br/>Source: <pre>${source}</pre>',
 'importFailed': 'failed to import stylesheet: ${url}',
 'serverNotAvailable': '<h2>Server not available. Try to reload the application. If this problem persists, please contact the administrator</h2>',
