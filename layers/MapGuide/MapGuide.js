@@ -1195,7 +1195,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         //this API to allow the selection to be extended with a shift-click.
 
         if(selText != "" && selText != null) {
-            this.updateSelection(selText, zoomTo, false);
+            if (this.bUseNativeServices) {
+                this.updateMapSelection(selText, zoomTo, false, true);
+            } else {
+                this.updateSelection(selText, zoomTo, false);
+            }
         }
         else {
             this.clearSelection();
@@ -1223,9 +1227,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       Fusion.ajaxRequest(getPropertiesScript, options);
     },
 
-    updateMapSelection: function (selText, zoomTo, mergeSelection) {
+    updateMapSelection: function (selText, zoomTo, mergeSelection, returnAttributes) {
         this.mapWidget._addWorker();
         if (this.bUseNativeServices) {
+            var reqData = 4; //hyperlinks only
+            if (returnAttributes == true) {
+                reqData |= 1; //Attributes
+            }
             //NOTE: 
             // This code path assumes our "2.6" or above MapGuide Server is assumed to have this particular 
             // issue fixed: http://trac.osgeo.org/mapguide/changeset/8288
@@ -1239,10 +1247,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                  selText,
                                                                  null,
                                                                  0, //All layers
-                                                                 4, //hyperlinks only
+                                                                 reqData,
                                                                  this.selectionColor,
                                                                  this.selectionImageFormat);
-            var callback = OpenLayers.Function.bind(this.onNativeSelectionUpdate, this, zoomTo);
+            var callback = OpenLayers.Function.bind(this.onNativeSelectionUpdate, this, zoomTo, returnAttributes);
             Fusion.oBroker.dispatchRequest(r, callback);
         } else {
             var sl = Fusion.getScriptLanguage();
@@ -1383,8 +1391,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         }
     },
 
-    onNativeSelectionUpdate: function(zoomTo, r) {
+    onNativeSelectionUpdate: function(zoomTo, returnAttributes, r) {
         //Set up the expected response text for renderSelection()
+        if (returnAttributes) { //This update requires a client-side update of selection and attribute info
+            var o = Fusion.parseJSON(r.responseText);
+            var sel = new Fusion.SimpleSelectionObject(o);
+            var attributes = this.convertExtendedFeatureInfo(o);
+            this.previousSelection = sel;
+            this.previousAttributes = attributes;
+        }
         var sel = this.previousSelection;
         var resp = {
             hasSelection: false,
@@ -1403,6 +1418,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     featureCount: nFeatures
                 };
             }
+        }
+        if (this.previousAttributes) {
+            resp.extents = this.previousAttributes.extents;
         }
         r.responseText = JSON.stringify(resp);
         this.renderSelection(zoomTo, r);
@@ -1449,8 +1467,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
               if (zoomTo) {
                 var ext = oNode.extents;
-                var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
-                this.mapWidget.setExtents(extents);
+                if (ext != null) {
+                  var extents = new OpenLayers.Bounds(ext.minx, ext.miny, ext.maxx, ext.maxy);
+                  this.mapWidget.setExtents(extents);
+                }
               }
               this.drawSelection();
             } else {
@@ -1933,6 +1953,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
     
     mergeAttributes: function(attributes, prevAttributes) {
+        if (!prevAttributes) {
+            //Nothing to merge, return original
+            return attributes;
+        }
         //Start off with prevAttributes as the base
         var merged = {};
         merged.hasSelection = prevAttributes.hasSelection;
@@ -2242,6 +2266,3 @@ Array.prototype.find = function(searchStr) {
 Array.prototype.remove = function(indexToRemove) {
     this.splice(indexToRemove, 1);
 };
-
-
-
