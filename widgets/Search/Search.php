@@ -57,6 +57,7 @@
     $resNames = array();
     $resProps = array();
     $matchLimit = "";
+    $features = NULL;
 
     GetRequestParameters();
     SetLocalizedFilesPath(GetLocalizationPath());
