@@ -55,7 +55,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         1155581.153, 2311162.307, 4622324.614, 9244649.227, 18489298.45, 
         36978596.91, 73957193.82, 147914387.6, 295828775.3, 591657550.5
     ],
+    defaultTileSize: [300,300],
     bUseNativeServices: false,
+    bHasTileSetSupport: false,
     selectionAsOverlay: true,
     useAsyncOverlay: false,
     defaultFormat: 'PNG',
@@ -169,10 +171,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         //that use layer property mappings as they will be lazy loaded due to us not calling LoadMap.php, which 
         //would've pre-cached such information. but we get much better map init performance
         this.bUseNativeServices = false;
+        this.bHasTileSetSupport = false;
         var vMajor = this.siteVersion[0];
         var vMinor = this.siteVersion[1];
         if (vMajor > 2) { // 3.0 or higher
             this.bUseNativeServices = true;
+            this.bHasTileSetSupport = true;
         } else {
             if (vMajor == 2) { // 2.x
                 if (vMinor >= 6) { // >= 2.6
@@ -285,6 +289,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (this.bUseNativeServices) {
             var features = (1 | 2 | 4); //We want the whole lot
             var r = new Fusion.Lib.MGRequest.MGCreateRuntimeMap(resourceId, features, 25);
+            if (this.bHasTileSetSupport) {
+                r.setParams({ version: "3.0.0" });
+            }
             var mapName = this.calcMapName(resourceId, true);
             r.setParams({ 
                 targetMapName: mapName,
@@ -352,9 +359,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     parentUniqueId: grp.ParentId ? grp.ParentId[0] : "",
                     visible: (grp.Visible[0] == "true"),
                     actuallyVisible: (grp.ActuallyVisible[0] == "true"),
-                    isBaseMapGroup: (grp.Type[0] == "2")
+                    isBaseMapGroup: (grp.Type[0] == "2" || grp.Type[0] == "3")
                 };
-                if (grp.Type[0] == "2")
+                if (cg.isBaseMapGroup)
                     lm.hasBaseMapLayers = true;
                 else
                     lm.hasDynamicLayers = true;
@@ -665,14 +672,28 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         this.triggerEvent(Fusion.Event.LAYER_LOADED);
 
     },
+    convertAndLoadMapResponse: function(o) {
+        var co = this.convertResponse(o);
+        if (this.bHasTileSetSupport && o.RuntimeMap.TileSetDefinition) {
+            //Override default tile size based on what's in the 
+            if (o.RuntimeMap.TileWidth && o.RuntimeMap.TileHeight) {
+                this.defaultTileSize = [
+                    parseInt(o.RuntimeMap.TileWidth[0]),
+                    parseInt(o.RuntimeMap.TileHeight[0])
+                ];
+            }
+            this._tileSetId = o.RuntimeMap.TileSetDefinition[0];
+        }
+        this.initLoadMapResponse(co.LoadMap);
+        return co;
+    },
     /**
      * Callback function from a CREATERUNTIMEMAP request
      */
     onRuntimeMapCreated: function(r) {
         if (r.status == 200) {
             var o = Fusion.parseJSON(r.responseText);
-            var co = this.convertResponse(o);
-            this.initLoadMapResponse(co.LoadMap);
+            var co = this.convertAndLoadMapResponse(o);
             //Need to wait for the right event to trigger loadScaleRanges, so stash our
             //prepared result for when it comes
             this._initScaleRanges = co.LoadScaleRanges;
@@ -1008,7 +1029,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
       } else {
         params = {      //tiled version
-          mapdefinition: this._sResourceId,
+          mapdefinition: this._tileSetId || this._sResourceId,
           basemaplayergroupname: baselayerGroupName, 
           session: this.getSessionID(),
           clientagent: this.clientAgent
@@ -1045,6 +1066,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             layerOptions.alternateUrls.push(altUrl);
         }
       }
+      
+      if (!bSingleTile)
+        layerOptions.defaultSize = new OpenLayers.Size(this.defaultTileSize[0], this.defaultTileSize[1]);
       
       var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       if (!bSingleTile) {
