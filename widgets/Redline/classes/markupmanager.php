@@ -1026,6 +1026,9 @@ class MarkupManager
         if (strcmp($fdoProvider, "OSGeo.SDF") == 0) { //Need to set ReadOnly = false for SDF
             $extraXml = "<Parameter><Name>ReadOnly</Name><Value>FALSE</Value></Parameter>";
         }
+        else if (strcmp($fdoProvider, "OSGeo.SQLite") == 0) { //Need to set UseFdoMetadata = true for SQLite
+            $extraXml = "<Parameter><Name>UseFdoMetadata</Name><Value>TRUE</Value></Parameter>";
+        }
         $fsXml = sprintf(file_get_contents("templates/markupfeaturesource.xml"), $fdoProvider, $fileParam, $dataName, $extraXml);
         $bs2 = new MgByteSource($fsXml, strlen($fsXml));
         $resourceService->SetResource($markupFsId, $bs2->GetReader(), null);
