@@ -251,6 +251,41 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                         }
                     }
                     break;
+                case 'Stamen':
+                    switch (map.mapTag.extension.Options[0].type[0]) {
+                        case 'terrain':
+                            if (map.mapTag.extension.Options[0].name) {
+                                this.options['terrain'] = map.mapTag.extension.Options[0].name[0];
+                            }
+                            else {
+                                this.options['terrain'] = OpenLayers.i18n('stamenTerrain');
+                            }
+                            this.baseMaps['terrain'] = map;
+                            break;
+                        case 'watercolor':
+                            if (map.mapTag.extension.Options[0].name) {
+                                this.options['watercolor'] = map.mapTag.extension.Options[0].name[0];
+                            }
+                            else {
+                                this.options['watercolor'] =  OpenLayers.i18n('stamenWatercolor');
+                            }
+                            this.baseMaps['watercolor'] = map;
+                            break;
+                        default: //Default to toner tileset
+                            if (map.mapTag.extension.Options[0].name) {
+                                this.options['toner'] = map.mapTag.extension.Options[0].name[0];
+                            }
+                            else {
+                                this.options['toner'] =  OpenLayers.i18n('stamenToner');
+                            }
+                            this.baseMaps['toner'] = map;
+                            break;
+                    }
+                    // The first non-MapGuide basemap will be the default basemap
+                    if (!this.defaultBasemap) {
+                        this.defaultBasemap = map.mapTag.extension.Options[0].type[0];
+                    }
+                    break;
                 case 'OpenStreetMap':
                     // if user didn't indicate basemap types, use the default OSM Mapnik render
                     if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {

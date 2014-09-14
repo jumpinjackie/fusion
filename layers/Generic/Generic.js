@@ -180,6 +180,9 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 this.mapTag.layerOptions.type = 'Mapnik';
             }
             break;
+         case 'Stamen':
+            this.oLayerOL = new OpenLayers.Layer[this.layerType](this.mapTag.layerOptions.type);
+            break;
          case 'XYZ':
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
