@@ -713,6 +713,44 @@ class MarkupManager
             }
             $fsParams = new MgFileFeatureSourceParams($this->args["MARKUPFDOPROVIDER"], 'Default', $map->GetMapSRS(), $markupSchema);
             $featureService->CreateFeatureSource($markupFsId, $fsParams);
+            //HACK: There must be some defect in MgFeatureService::CreateFeatureSource() for SHP
+            //files or the FDO provider, because even if we plug in a coord sys WKT when we create
+            //it, we get a blank prj file.
+            //
+            //As a workaround, create the required prj file using the map's SRS if we encounter an empty prj file
+            //
+            //That's what we were already doing when we called MgFeatureService::CreateFeatureSource(), but it
+            //or the provider didn't like it.
+            if ($fsParams->GetProviderName() == "OSGeo.SHP")
+            {
+                $dataList = $resourceService->EnumerateResourceData($markupFsId);
+                $doc = new DOMDocument();
+                $doc->loadXML($dataList->ToString());
+                $dataItems = $doc->getElementsByTagName("Name");
+                //Copy out all data files to a temp location
+                for ($i = 0; $i < $dataItems->length; $i++) {
+                    $dataName = $dataItems->item($i)->nodeValue;
+                    $dataNorm = strtolower($dataName);
+                    if ( substr( $dataNorm, strlen( $dataNorm ) - strlen( "prj" ) ) == "prj" ) {
+                        $byteReader = $resourceService->GetResourceData($markupFsId, $dataName);
+                        //Sink to temp file
+                        $tmpSink = new MgByteSink($byteReader);
+                        $fileName = tempnam(sys_get_temp_dir(), $dataName);
+                        $tmpSink->ToFile($fileName);
+                        $content = file_get_contents($fileName);
+                        if (strlen($content) == 0) {
+                            $content = $map->GetMapSRS();
+                            file_put_contents($fileName, $content);
+                            //Put new prj file back into SHP Feature Source
+                            $prjBs = new MgByteSource($fileName);
+                            $prjBr = $prjBs->GetReader();
+                            $resourceService->SetResourceData($markupFsId, $dataName, MgResourceDataType::File, $prjBr);
+                        }
+                        @unlink($fileName);
+                        break;
+                    }
+                }
+            }
             $featureSourceId = $markupFsId->ToString();
         }
         else
@@ -796,8 +834,8 @@ class MarkupManager
         $kmlService = $this->site->CreateService(MgServiceType::KmlService);
         $resourceService = $this->site->CreateService(MgServiceType::ResourceService);
 
-        $map = new MgMap();
-        $map->Open($resourceService, $this->args['MAPNAME']);
+        $map = new MgMap($this->site);
+        $map->Open($this->args['MAPNAME']);
         $markupLayerResId = new MgResourceIdentifier($this->args['MARKUPLAYER']);
         $downloadName = $markupLayerResId->GetName().".".($kmz ? "kmz" : "kml");
 
@@ -823,10 +861,13 @@ class MarkupManager
         $geomFact = new MgGeometryFactory();
         $csFactory = new MgCoordinateSystemFactory();
         $metersPerUnit = 1.0;
+        $transform = null;
         if ($map->GetMapSRS() != null)
         {
             $mapCs = $csFactory->Create($map->GetMapSRS());
             $metersPerUnit = $mapCs->ConvertCoordinateSystemUnitsToMeters(1.0);
+            $llCs = $csFactory->CreateFromCode("LL84");
+            $transform = $csFactory->GetTransform($mapCs, $llCs);
         }
         $mapScale = $map->GetViewScale();
         $devW = $map->GetDisplayWidth();
@@ -841,6 +882,12 @@ class MarkupManager
         $coord0 = $geomFact->CreateCoordinateXY($coord->GetX() - 0.5 * $mcsW, $coord->GetY() - 0.5 * $mcsH);
         $coord1 = $geomFact->CreateCoordinateXY($coord->GetX() + 0.5 * $mcsW, $coord->GetY() + 0.5 * $mcsH);
         $bbox = new MgEnvelope($coord0, $coord1);
+        
+        //The bbox has to be in LL84
+        if ($transform != NULL)
+        {
+            $bbox = $bbox->Transform($transform);
+        }
 
         //Call the service API
         $br = $kmlService->GetFeaturesKml($markupLayer, $bbox, $devW, $devH, $mapDpi, 0, ($kmz ? "KMZ" : "KML"));
@@ -904,8 +951,8 @@ class MarkupManager
                 if ( substr( $dataNorm, strlen( $dataNorm ) - strlen( "prj" ) ) == "prj" ) {
                     $content = file_get_contents($filePath);
                     if (strlen($content) == 0) {
-                        $map = new MgMap();
-                        $map->Open($resourceService, $this->args['MAPNAME']);
+                        $map = new MgMap($this->site);
+                        $map->Open($this->args['MAPNAME']);
                         $content = $map->GetMapSRS();
                         file_put_contents($filePath, $content);
                     }
