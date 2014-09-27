@@ -333,14 +333,14 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
     setBasemap: function(baseMap) {
         if ("None" != baseMap && this.getMap().oMapOL.baseLayer.CLASS_NAME == "OpenLayers.Layer.MapGuide") {
             var visibility = this.baseMaps["None"].oLayerOL.visibility;
-            this.getMap().oMapOL.setBaseLayer(this.baseMaps[baseMap].oLayerOL, false);
+            this.getMap().setExternalBaseLayer(this.baseMaps[baseMap], false);
             this.applyZoomOffset(baseMap);
             // Keep the MapGuide layers visibility
             this.baseMaps["None"].oLayerOL.visibility = visibility;
             this.baseMaps["None"].oLayerOL.redraw();
         }
         else {
-            this.getMap().oMapOL.setBaseLayer(this.baseMaps[baseMap].oLayerOL, false);
+            this.getMap().setExternalBaseLayer(this.baseMaps[baseMap], false);
             this.applyZoomOffset(baseMap);
         }
         this.activeBasemap = baseMap;
