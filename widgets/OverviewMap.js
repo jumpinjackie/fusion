@@ -65,6 +65,7 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
         this.oMapOptions = {};  //TODO: allow setting some mapOptions in AppDef
 
         this.getMap().registerForEvent(Fusion.Event.MAP_LOADED, OpenLayers.Function.bind(this.mapWidgetLoaded, this));
+        this.getMap().registerForEvent(Fusion.Event.MAP_BASE_LAYER_CHANGED, OpenLayers.Function.bind(this.mapBaseLayerChanged, this));
     },
 
     mapWidgetLoaded: function()
@@ -128,6 +129,21 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
                 }
             }
             
+            // Check if we have any external layers, if so add them too.
+            var bHasOtherLayers = false;
+            var otherLayers = this.getMap().getAllMaps();
+            for (var i = 0; i < otherLayers.length; i++) {
+                if (otherLayers[i].arch != "MapGuide") {
+                    var olLayer = otherLayers[i].oLayerOL.clone();
+                    ovLayers.push(olLayer);
+                    bHasOtherLayers = true;
+                }
+            }
+            // If we found external layers, the MapGuide one is no longer a base layer but an overlay
+            if (bHasOtherLayers) {
+                layer.isBaseLayer = false;
+            }
+            
             var options = {
               div: this.domObj,
               size: this.oSize,
@@ -148,6 +164,26 @@ Fusion.Widget.OverviewMap = OpenLayers.Class(Fusion.Widget, {
                 this.bDisplayed = true;
             }
             //console.log('OverviewMap mapLoaded');
+        }
+    },
+    
+    mapBaseLayerChanged: function(evtId, newBaseLayer) {
+        //OverviewMap control not created yet. Come back later
+        if (!this.control) {
+            return;
+        }
+        var newOLLayer = newBaseLayer.oLayerOL;
+        //Update ov map's base layer to match
+        var layers = this.control.ovmap.layers;
+        var newOvLayer = null;
+        for (var i = 0; i < layers.length; i++) {
+            layers[i].isBaseLayer = false;
+            if (layers[i].name == newOLLayer.name) {
+                newOvLayer = layers[i];
+            }
+        }
+        if (newOvLayer != null) {
+            this.control.ovmap.setBaseLayer(newOvLayer);
         }
     },
 
