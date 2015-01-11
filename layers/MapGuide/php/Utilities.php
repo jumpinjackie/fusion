@@ -750,7 +750,7 @@ function GetPropertyValueFromFeatReader($featureReader, $propertyType, $property
         $val = "";
     }
 
-    if ( null == $val ) {
+    if ( null === $val ) {
       $val = "";
     }
     return $val;
