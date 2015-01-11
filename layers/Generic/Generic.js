@@ -213,8 +213,6 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             }
         }
         
-        
-        this.mapWidget.oMapOL.minPx = null;  //TODO: better fix here, this prevents a mapdraw before layer is ready
         this.oLayerOL.events.register("loadstart", this, this.loadStart);
         this.oLayerOL.events.register("loadend", this, this.loadEnd);
         this.oLayerOL.events.register("loadcancel", this, this.loadEnd);
