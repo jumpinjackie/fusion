@@ -68,6 +68,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       edit: true
     },
     alternateHostNames: null, //a comma-delimited list of alternate host names to use
+    jsonParser: null,
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -79,7 +80,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           //clear the query param after it has been used once 
           Fusion.queryParams['theme'] = null;
         }
-
+        this.jsonParser = new OpenLayers.Format.JSON();
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
         this.mapInfo = mapTag.mapInfo;
@@ -1446,7 +1447,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (this.previousAttributes) {
             resp.extents = this.previousAttributes.extents;
         }
-        r.responseText = JSON.stringify(resp);
+        r.responseText = jsonParser.write(resp);
         this.renderSelection(zoomTo, r);
         this.processSelectedFeaturePropertiesNode(this.previousAttributes);
     },
