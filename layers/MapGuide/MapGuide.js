@@ -1447,7 +1447,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (this.previousAttributes) {
             resp.extents = this.previousAttributes.extents;
         }
-        r.responseText = jsonParser.write(resp);
+        r.responseText = this.jsonParser.write(resp);
         this.renderSelection(zoomTo, r);
         this.processSelectedFeaturePropertiesNode(this.previousAttributes);
     },
