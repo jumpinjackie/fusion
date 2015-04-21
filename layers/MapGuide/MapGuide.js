@@ -68,6 +68,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       edit: true
     },
     alternateHostNames: null, //a comma-delimited list of alternate host names to use
+    jsonParser: null,
 
     initialize: function(map, mapTag, isMapWidgetLayer) {
         // console.log('MapGuide.initialize');
@@ -79,7 +80,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
           //clear the query param after it has been used once 
           Fusion.queryParams['theme'] = null;
         }
-
+        this.jsonParser = new OpenLayers.Format.JSON();
         this.registerEventID(Fusion.Event.MAP_SESSION_CREATED);
 
         this.mapInfo = mapTag.mapInfo;
@@ -638,13 +639,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 }                               
             }
             
-            //if we have a tiled map that also contains dynamic layers, we need to create
-            //an additional overlay layer to render them on top of the tiles
-            if(!this.bSingleTile && o.hasDynamicLayers) {
-                this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
-                this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
-                this.oLayerOL2.setVisibility(true);
-            }
+            // Whether this tiled map has untiled layers or not, create a dynamic overlay anyways
+            // so that buffer, redline and other tools whose changes will only be visible in a dynamic
+            // overlay will be visible
+            this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
+            this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
+            this.oLayerOL2.setVisibility(true);
         }
         
         //Fix Defect: the Base Layer Group should be invisible when the "initially visiable in map" is set to false
@@ -1446,7 +1446,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (this.previousAttributes) {
             resp.extents = this.previousAttributes.extents;
         }
-        r.responseText = JSON.stringify(resp);
+        r.responseText = this.jsonParser.write(resp);
         this.renderSelection(zoomTo, r);
         this.processSelectedFeaturePropertiesNode(this.previousAttributes);
     },
