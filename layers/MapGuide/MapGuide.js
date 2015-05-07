@@ -639,12 +639,13 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 }                               
             }
             
-            // Whether this tiled map has untiled layers or not, create a dynamic overlay anyways
-            // so that buffer, redline and other tools whose changes will only be visible in a dynamic
-            // overlay will be visible
-            this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
-            this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
-            this.oLayerOL2.setVisibility(true);
+            //if we have a tiled map that also contains dynamic layers, we need to create
+            //an additional overlay layer to render them on top of the tiles
+            if(!this.bSingleTile) {
+                this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
+                this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
+                this.oLayerOL2.setVisibility(true);
+            }
         }
         
         //Fix Defect: the Base Layer Group should be invisible when the "initially visiable in map" is set to false
