@@ -840,7 +840,15 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 opt.image = layer.oMap.getLegendImageURL(scale, layer, style);
             }
         }
-
+        // MapGuide DWF and Raster layer
+        // MapGuide Raster and DWF layer
+        if(layer.layerTypes[0] == 4){
+            opt.image = this.imgLayerRasterIcon;
+            opt.enabled = true;
+        } else if(layer.layerTypes[0] == 5){
+            opt.image = this.imgLayerDWFIcon;
+            opt.enabled = true;
+        }
         var item;
         if (!layer.isBaseMapLayer&&checkbox) {
             // opt.contextMenu = this.getContextMenu();
