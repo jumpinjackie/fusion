@@ -1276,7 +1276,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                  this.selectionColor,
                                                                  this.selectionImageFormat);
             var callback = OpenLayers.Function.bind(this.onNativeSelectionUpdate, this, zoomTo, returnAttributes);
+            // use 'post' when the length is too long that exceeds the URL length limit
+            var method = Fusion.oBroker.method;
+            if (selText.length > 2000) {
+                Fusion.oBroker.method = 'post';
+                r.options.contentType = 'application/x-www-form-urlencoded';
+            }
             Fusion.oBroker.dispatchRequest(r, callback);
+            Fusion.oBroker.method = method;
         } else {
             var sl = Fusion.getScriptLanguage();
             var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
