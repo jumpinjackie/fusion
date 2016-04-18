@@ -1252,7 +1252,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                                                  this.selectionColor,
                                                                  this.selectionImageFormat);
             var callback = OpenLayers.Function.bind(this.onNativeSelectionUpdate, this, zoomTo, returnAttributes);
+            // use 'post' because selText could be a long string.
+            var method = Fusion.oBroker.method;
+            Fusion.oBroker.method = 'post';
+            r.options.contentType = 'application/x-www-form-urlencoded';
             Fusion.oBroker.dispatchRequest(r, callback);
+            Fusion.oBroker.method = method;
         } else {
             var sl = Fusion.getScriptLanguage();
             var updateSelectionScript = 'layers/' + this.arch + '/' + sl  + '/SaveSelection.' + sl;
