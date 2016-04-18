@@ -636,7 +636,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 if (!layer.legend.treeItem) {
                     layer.legend.treeItem = this.createFolderItem(layer);
                     this.addLayerTreeItem(layer.parentGroup.legend.treeItem, layer.legend.treeItem);
-                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeItem) {
+                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeItem ||
+                           layer.legend.treeItem instanceof Jx.TreeItem) {
                     this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createFolderItem(layer);
                     this.addLayerTreeItem(layer.parentGroup.legend.treeItem, layer.legend.treeItem);
@@ -674,7 +675,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
                 if (!layer.legend.treeItem) {
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, !layer.isBaseMapLayer);
                     this.addLayerTreeItem(layer.parentGroup.legend.treeItem, layer.legend.treeItem);
-                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeFolder) {
+                } else if (layer.legend.treeItem instanceof Fusion.Widget.Legend.TreeFolder ||
+                           layer.legend.treeItem instanceof Jx.TreeFolder) {
                     this.clearTreeItem(layer);
                     layer.legend.treeItem = this.createTreeItem(layer, style, fScale, !layer.isBaseMapLayer);
                     this.addLayerTreeItem(layer.parentGroup.legend.treeItem, layer.legend.treeItem);
