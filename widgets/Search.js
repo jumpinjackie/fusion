@@ -50,6 +50,7 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
         this.limit = json.MatchLimit ? json.MatchLimit[0] : 100;
         this.resultColumns = json.ResultColumns ? json.ResultColumns[0].Column : [];
         this.title = json.Title ? json.Title[0] : widgetTag.label;
+        this.pointZoomLevel = json.PointZoomLevel ? json.PointZoomLevel[0] : 500.0;
     },
 
     activate: function() {
@@ -75,6 +76,7 @@ Fusion.Widget.Search = OpenLayers.Class(Fusion.Widget, {
         params.push('filter='+this.filter);
         params.push('layer='+this.layer);
         params.push('limit='+this.limit);
+        params.push('pointZoomLevel='+this.pointZoomLevel);
         var names = [];
         var props = [];
         for (var i=0; i<this.resultColumns.length; ++i) {

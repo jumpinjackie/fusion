@@ -27,6 +27,34 @@
       <Name>Degrees</Name>
       <Label>Degrees</Label>
     </AllowedValue>
+    <AllowedValue>
+      <Name>Kilometers</Name>
+      <Label>Kilometers</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Feet</Name>
+      <Label>Feet</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Inches</Name>
+      <Label>Inches</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Nautical Miles</Name>
+      <Label>Nautical Miles</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Millimeters</Name>
+      <Label>Millimeters</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Centimeters</Name>
+      <Label>Centimeters</Label>
+    </AllowedValue>
+    <AllowedValue>
+      <Name>Pixels</Name>
+      <Label>Pixels</Label>
+    </AllowedValue>
     <DefaultValue>none</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
