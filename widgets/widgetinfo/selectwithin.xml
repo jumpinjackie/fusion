@@ -26,4 +26,12 @@
     <DefaultValue>true</DefaultValue>
     <IsMandatory>false</IsMandatory>
   </Parameter>
+  <Parameter>
+    <Name>OmitInvisibleLayers</Name>
+    <Description>A flag to indicate if invisible layers that are in the current selection should be omitted from the list of layers to restrict</Description>
+    <Type>boolean</Type>
+    <Label>Omit invisible layers</Label>
+    <DefaultValue>false</DefaultValue>
+    <IsMandatory>false</IsMandatory>
+  </Parameter>
 </WidgetInfo>
