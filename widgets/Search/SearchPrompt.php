@@ -37,6 +37,7 @@
     $mapName = "";
     $sessionId = "";
     $widgetName = "";
+    $pointZoomLevel = 500.0;
 
     GetRequestParameters();
 
@@ -44,7 +45,7 @@
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
     $vpath = GetSurroundVirtualPath();
-    print sprintf($templ, $popup, $properties, $propNames, $title, $prompt, $target, $filter, $layer, $limit, $vpath."Search.php", $mapName, $sessionId, $locale);
+    print sprintf($templ, $popup, $properties, $propNames, $title, $prompt, $target, $filter, $layer, $limit, $vpath."Search.php", $mapName, $sessionId, $locale, $pointZoomLevel);
 
 
 
@@ -54,6 +55,7 @@ function GetParameters($params)
     global $mapName, $sessionId;
     global $title, $prompt, $target, $filter, $layer, $limit;
     global $propNames, $properties;
+    global $pointZoomLevel;
 
     if(isset($params['locale'])) {
         $locale = $params['locale'];
@@ -69,6 +71,9 @@ function GetParameters($params)
     $filter = $params['filter'];
     $layer = $params['layer'];
     $limit = $params['limit'];
+    if (isset($params['pointZoomLevel'])) {
+        $pointZoomLevel = $params['pointZoomLevel'];
+    }
 }
 
 function GetRequestParameters()

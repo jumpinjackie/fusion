@@ -36,24 +36,27 @@
     $popup = "";
     $mapName = "";
     $sessionId = "";
+    $bOmitInvisibleLayers = false;
 
     GetRequestParameters();
 
     $templ = file_get_contents("./SelectWithinPanel.templ");
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
-    print sprintf($templ, $popup, "./widgets/SelectWithin/SelectWithin.php", $mapName, $sessionId);
+    print sprintf($templ, $popup, "./widgets/SelectWithin/SelectWithin.php", $mapName, $sessionId, ($bOmitInvisibleLayers ? "true" : "false"));
 
 
 function GetParameters($params)
 {
-    global $mapName, $sessionId, $locale, $popup;
+    global $mapName, $sessionId, $locale, $popup, $bOmitInvisibleLayers;
 
-    if(isset($params['locale']))
+    if (isset($params['locale']))
         $locale = $params['locale'];
     $mapName = $params['mapname'];
     $sessionId = $params['session'];
     $popup = $params['popup'];
+    if (isset($params['omit_invisible_layers']))
+        $bOmitInvisibleLayers = ($params['omit_invisible_layers'] == "1");
 }
 
 function GetRequestParameters()

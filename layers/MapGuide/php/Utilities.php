@@ -791,7 +791,7 @@ function BuildSelectionArray($featureReader, $layerName, $properties, $bComputed
     array_push($properties->$layerName->metadatanames, 'area');
     array_push($properties->$layerName->metadatanames, 'length');
 
-    if (isset($_SESSION)) {
+    if (isset($_SESSION) && array_key_exists('property_mappings', $_SESSION)) {
         $mappings = $_SESSION['property_mappings'][$layerObj->GetObjectId()];    
         foreach((array)$mappings as $name => $value)
         {

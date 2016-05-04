@@ -45,7 +45,9 @@ Fusion.Widget.SelectWithin = OpenLayers.Class(Fusion.Widget, {
         this.bSelectionOnly = (json.DisableIfSelectionEmpty &&
                            (json.DisableIfSelectionEmpty[0] == 'true' ||
                             json.DisableIfSelectionEmpty[0] == '1')) ? true : false;
-                            
+        this.bOmitInvisibleLayers = (json.OmitInvisibleLayers &&
+                           (json.OmitInvisibleLayers[0] == 'true' ||
+                            json.OmitInvisibleLayers[0] == '1')) ? true : false;
         this.additionalParameters = [];
         if (json.AdditionalParameter) {
             for (var i=0; i<json.AdditionalParameter.length; i++) {
@@ -104,6 +106,7 @@ Fusion.Widget.SelectWithin = OpenLayers.Class(Fusion.Widget, {
         } else {
           params.push('popup=true');
         }
+        params.push('omit_invisible_layers=' + (this.bOmitInvisibleLayers ? "1" : "0"));
         params = params.concat(this.additionalParameters);
 
         if (url.indexOf('?') < 0) {
