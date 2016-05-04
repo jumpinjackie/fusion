@@ -35,7 +35,7 @@
   </Parameter>
   <Parameter>
     <Name>Filter</Name>
-    <Description>The search expression template to return features</Description>
+    <Description>The search expression template to return features. The filter must include a $USER_VARIABLE placeholder (that will contain the search term)</Description>
     <Type>String</Type>
     <Label>Filter</Label>
     <DefaultValue>String</DefaultValue>
