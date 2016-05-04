@@ -42,6 +42,7 @@
   GetRequestParameters();
 
   try {
+    ob_start();
     $featureSrvc = $siteConnection->CreateService(MgServiceType::FeatureService);
     $renderingSrvc = $siteConnection->CreateService(MgServiceType::RenderingService);
 
@@ -132,10 +133,13 @@
 
     //return XML
     header("Content-type: text/xml");
+    ob_end_flush();
   } catch(MgException $e) {
+    ob_end_clean();
     echo "\nException: " . $e->GetDetails();
     return;
   } catch(Exception $ne) {
+    ob_end_clean();
     return;
   }
 
