@@ -58,6 +58,7 @@
     $resProps = array();
     $matchLimit = "";
     $features = NULL;
+    $pointZoom = 500.0;
 
     GetRequestParameters();
     SetLocalizedFilesPath(GetLocalizationPath());
@@ -132,6 +133,36 @@
             print sprintf($templ, $colCount, $target, $popup, $mapName);
 
             $classDef = $features->GetClassDefinition();
+            $clsProps = $classDef->GetProperties();
+            $geomName = $classDef->GetDefaultGeometryPropertyName();
+            $bHasPoint = false;
+            $xform = NULL; // layer -> map transform
+            $agfRw = new MgAgfReaderWriter();
+            if ($geomName != NULL && $geomName != "") {
+                $gidx = $clsProps->IndexOf($geomName);
+                if ($gidx >= 0) {
+                    $geomProp = $clsProps->GetItem($gidx);
+                    if ($geomProp->GetGeometryTypes() & MgFeatureGeometricType::Point == MgFeatureGeometricType::Point) {
+                        $bHasPoint = true;
+                        // Set layer -> map transform if required
+                        $scReader = $featureSrvc->GetSpatialContexts($srcId, false);
+                        while ($scReader->ReadNext()) {
+                            if ($scReader->GetName() == $geomProp->GetSpatialContextAssociation()) {
+                                $csFactory = new MgCoordinateSystemFactory();
+                                try {
+                                    $mapCs = $csFactory->Create($map->GetMapSRS());
+                                    $layerCs = $csFactory->Create($scReader->GetCoordinateSystemWkt());
+                                    $xform = $csFactory->GetTransform($layerCs, $mapCs);
+                                } catch (MgException $ex) {
+                                    
+                                }
+                            }
+                        }
+                        $scReader->Close();
+                    }
+                }
+            }
+            
             $idProps = $classDef->GetIdentityProperties();
             $idPropNames = array();
             for($j = 0; $j < $idProps->GetCount(); $j++)
@@ -235,7 +266,23 @@
                     $sel->AddFeatureIds($layer, $featureClassName, $idProps);
                     $selText = EscapeForHtml($sel->ToXml(), true);
 
-                    echo sprintf("<td class=\"%s\" id=\"%d:%d\" onmousemove=\"SelectRow(%d)\" onclick=\"CellClicked('%s')\">&nbsp;%s</td>\n", !($row%2)? "Search" : "Search2", $row, $i, $row, $selText, $val);
+                    //For points, we want to wire up a different cell click handler
+                    if ($bHasPoint) {
+                        try {
+                            $agf = $features->GetGeometry($geomName);
+                            $geom = $agfRw->Read($agf, $xform);
+                            if ($geom->GetGeometryType() == MgGeometryType::Point) {
+                                $coord = $geom->GetCoordinate();
+                                $x = $coord->GetX();
+                                $y = $coord->GetY();
+                            }
+                            echo sprintf("<td class=\"%s\" id=\"%d:%d\" onmousemove=\"SelectRow(%d)\" onclick=\"PointCellClicked('%s', %g, %g, %g)\">&nbsp;%s</td>\n", !($row%2)? "Search" : "Search2", $row, $i, $row, $selText, $x, $y, $pointZoom, $val);
+                        } catch (MgException $ex) {
+                            echo sprintf("<td class=\"%s\" id=\"%d:%d\" onmousemove=\"SelectRow(%d)\" onclick=\"CellClicked('%s')\">&nbsp;%s</td>\n", !($row%2)? "Search" : "Search2", $row, $i, $row, $selText, $val);
+                        }
+                    } else {
+                        echo sprintf("<td class=\"%s\" id=\"%d:%d\" onmousemove=\"SelectRow(%d)\" onclick=\"CellClicked('%s')\">&nbsp;%s</td>\n", !($row%2)? "Search" : "Search2", $row, $i, $row, $selText, $val);
+                    }
                 }
                 echo "</tr>";
                 if (++ $row == $matchLimit)
@@ -290,6 +337,7 @@ function GetParameters($params)
 {
     global $userInput, $target, $layerName, $popup, $locale;
     global $mapName, $sessionId, $filter, $resNames, $resProps, $matchLimit;
+    global $pointZoom;
 
     if(isset($params['locale']))
         $locale = $params['locale'];
@@ -309,6 +357,9 @@ function GetParameters($params)
             array_push($resNames, $params['CN' . $i]);
             array_push($resProps, $params['CP' . $i]);
         }
+    }
+    if (isset($params['pointZoom'])) {
+        $pointZoom = $params['pointZoom'];
     }
 }
 

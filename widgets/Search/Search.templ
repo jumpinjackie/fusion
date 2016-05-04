@@ -86,6 +86,14 @@ function CellClicked(sel)
     map.setSelection(sel, true);
 }
 
+function PointCellClicked(sel, x, y, zoom)
+{
+    var map = GetParent().Fusion.getMapByName(mapName);
+    map.setSelection(sel, true);
+    var extents = map.mapWidget.getExtentFromPoint(x, y, zoom);
+    map.mapWidget.setExtents(extents);
+}
+
 function highlightRow(index, mode)
 {
     for(var i=0; i < colCount; i++)
