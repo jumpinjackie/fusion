@@ -16,9 +16,20 @@
  * Class: Fusion.Widget.BasemapSwitcher
  *
  * A widget to allow selection of the basemaps display under the overlay MapGuide layer
- * Currently, Google Street, Google Satellite, Google Hybrid, Yahoo Street, Yahoo Satellite,
- * Yahoo Hybrid, OpenStreetMap Mapnik, OpenStreetMap Cycle, OpenStreetMap Transport,
- * Bing Street, Bing Satellite and Bing Hybrid is supported. 
+ * Currently the following basemaps are supported:
+ * 
+ *  - Google Street
+ *  - Google Satellite
+ *  - Google Hybrid
+ *  - OpenStreetMap Mapnik
+ *  - OpenStreetMap CycleMap
+ *  - OpenStreetMap Transport
+ *  - Bing Street
+ *  - Bing Satellite
+ *  - Bing Hybrid
+ *  - Stamen Toner
+ *  - Stamen Watercolor
+ *  - Stamen Terrain
  * 
  *  Inherits from:
  *  - <Fusion.Widget>
@@ -42,9 +53,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
         'G_SATELLITE_MAP': 0,
         'G_HYBRID_MAP': 0,
         'G_PHYSICAL_MAP': 0,
-        'YAHOO_MAP_REG': 0,
-        'YAHOO_MAP_SAT': 0,
-        'YAHOO_MAP_HYB': 0,
         'Road': -1,
         'Aerial': -1,
         'Hybrid': -1,
@@ -68,9 +76,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             'G_SATELLITE_MAP': null,
             'G_HYBRID_MAP': null,
             'G_PHYSICAL_MAP': null,
-            'YAHOO_MAP_REG': null,
-            'YAHOO_MAP_SAT': null,
-            'YAHOO_MAP_HYB': null,
             'Road': null,
             'Aerial': null,
             'Hybrid': null,
@@ -146,56 +151,6 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 break;
                         }
 
-                        // The first non-MapGuide basemap will be the default basemap
-                        if (!this.defaultBasemap) {
-                            this.defaultBasemap = map.mapTag.extension.Options[0].type[0];
-                        }
-                    }
-                    break;
-
-                case 'Yahoo':
-                    // if user didn't indicate basemap types, use the default Yahoo Street
-                    if (!map.mapTag.extension.Options || !map.mapTag.extension.Options[0].type) {
-                        this.options['YAHOO_MAP_REG'] = OpenLayers.i18n('yahooStreet');
-                        this.baseMaps['YAHOO_MAP_REG'] = map;
-
-                        // The first non-MapGuide basemap will be the default basemap
-                        if (!this.defaultBasemap) {
-                            this.defaultBasemap = "YAHOO_MAP_REG";
-                        }
-                    }
-                    else {
-                        switch (map.mapTag.extension.Options[0].type[0]) {
-                            case 'YAHOO_MAP_REG':
-                                if (map.mapTag.extension.Options[0].name) {
-                                    this.options['YAHOO_MAP_REG'] = map.mapTag.extension.Options[0].name[0];
-                                }
-                                else {
-                                    this.options['YAHOO_MAP_REG'] = "Yahoo Street";
-                                }
-                                this.baseMaps['YAHOO_MAP_REG'] = map;
-                                break;
-                            case 'YAHOO_MAP_SAT':
-                                if (map.mapTag.extension.Options[0].name) {
-                                    this.options['YAHOO_MAP_SAT'] = map.mapTag.extension.Options[0].name[0];
-                                }
-                                else {
-                                    this.options['YAHOO_MAP_SAT'] = OpenLayers.i18n('yahooStreet');
-                                }
-                                this.baseMaps['YAHOO_MAP_SAT'] = map;
-                                break;
-                            case 'YAHOO_MAP_HYB':
-                                if (map.mapTag.extension.Options[0].name) {
-                                    this.options['YAHOO_MAP_HYB'] = map.mapTag.extension.Options[0].name[0];
-                                }
-                                else {
-                                    this.options['YAHOO_MAP_HYB'] = OpenLayers.i18n('yahooHybrid');
-                                }
-                                this.baseMaps['YAHOO_MAP_HYB'] = map;
-                                break;
-                            default:
-                                break;
-                        }
                         // The first non-MapGuide basemap will be the default basemap
                         if (!this.defaultBasemap) {
                             this.defaultBasemap = map.mapTag.extension.Options[0].type[0];
