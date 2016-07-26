@@ -258,7 +258,7 @@ class Query
         $propertyFilter = '';
         if ($this->args['USEPROPERTYFILTER'] == 'true')
         {
-            $propertyFilter = $this->args['PROPERTYNAME'];
+            $propertyFilter = '"' . $this->args['PROPERTYNAME'] . '"';
             if ($this->args['ISSTRING'] == 'true')
                 $propertyFilter .= sprintf($this->strExpressions[$this->args['OPERATOR']], $this->args['VALUE']);
             else
