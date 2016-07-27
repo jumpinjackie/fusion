@@ -74,7 +74,7 @@ $Id$
   <property environment="env"/>
   <property name="app.name" value="fusion"/>
   <property name="app.path" value="/${app.name}"/>
-  <property name="app.version" value="3.0.0"/>
+  <property name="app.version" value="3.1.0"/>
   <property name="build.home" value="${basedir}/build"/>
   <property name="deploy.home" value="${basedir}/../${app.name}"/>
   <property name="selfbuild.home" value="${basedir}/selfbuild"/>
