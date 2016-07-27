@@ -56,7 +56,13 @@ class MarkupEditor
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $featureSourceId = $this->GetFeatureSource();
 
+        //NOTE: Normally we'd always pass in a MgFeatureQueryOptions with an explicit property
+        //list, but we're dealing with a series of FDO providers (SDF,SHP,SQLite) that are known
+        //to *not* have the issue of potentially leaking out column types in the query result that
+        //the underlying FDO provider doesn't know how to translate to FDO logical properties, so
+        //passing null is acceptable here
         $featureReader = $featureService->SelectFeatures($featureSourceId, 'Markup', null);
+
         //HACK: Another leaky abstraction. SHP will always choose FeatId, so once again
         //use the class definition to determine the identity property name
         $clsDef = $featureReader->GetClassDefinition();
