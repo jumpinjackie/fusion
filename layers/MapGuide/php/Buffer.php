@@ -123,7 +123,6 @@ try {
     }
 
     //loop through the selection of the input layer. If no selection, select all features
-    $queryOptions = new MgFeatureQueryOptions();
     $selection = new MgSelection($map);
     $selection->Open($resourceService, $mapName);
     $selLayers = $selection->GetLayers();
@@ -143,6 +142,8 @@ try {
         if ($filter == '') {
             continue;
         }
+        $clsDef = $selLayer->GetClassDefinition();
+        $queryOptions = BuildFeatureQueryOptions($clsDef);
         $queryOptions->SetFilter($filter);
         $featureSource = new MgResourceIdentifier($selLayer->GetFeatureSourceId());
         $featureReader = $featureService->SelectFeatures($featureSource, $featureClassName, $queryOptions);

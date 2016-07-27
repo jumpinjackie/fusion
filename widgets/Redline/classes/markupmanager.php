@@ -103,6 +103,11 @@ class MarkupManager
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $query = new MgFeatureQueryOptions();
         $query->SetFilter("LayerDefinition = '$layerDefinitionId'");
+        //NOTE: Normally we'd always pass in a MgFeatureQueryOptions with an explicit property
+        //list, but we're dealing an FDO provider (SDF) that is known to *not* have the issue of 
+        //potentially leaking out column types in the query result that the underlying FDO provider 
+        //doesn't know how to translate to FDO logical properties, so passing the MgFeatureQueryOptions 
+        //as-is is fine here.
         $fr = $featureService->SelectFeatures($this->markupRegistryId, "Default:MarkupRegistry", $query);
 
         $fsId = "";
@@ -118,6 +123,11 @@ class MarkupManager
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $query = new MgFeatureQueryOptions();
         $query->SetFilter("LayerDefinition = '$markupLayerResId'");
+        //NOTE: Normally we'd always pass in a MgFeatureQueryOptions with an explicit property
+        //list, but we're dealing an FDO provider (SDF) that is known to *not* have the issue of 
+        //potentially leaking out column types in the query result that the underlying FDO provider 
+        //doesn't know how to translate to FDO logical properties, so passing the MgFeatureQueryOptions 
+        //as-is is fine here.
         $fr = $featureService->SelectFeatures($this->markupRegistryId, "Default:MarkupRegistry", $query);
 
         $fdoProvider = "";
@@ -144,6 +154,11 @@ class MarkupManager
         //Query the markup registry
         $featureService = $this->site->CreateService(MgServiceType::FeatureService);
         $query = new MgFeatureQueryOptions();
+        //NOTE: Normally we'd always pass in a MgFeatureQueryOptions with an explicit property
+        //list, but we're dealing an FDO provider (SDF) that is known to *not* have the issue of 
+        //potentially leaking out column types in the query result that the underlying FDO provider 
+        //doesn't know how to translate to FDO logical properties, so passing the MgFeatureQueryOptions 
+        //as-is is fine here.
         $fr = $featureService->SelectFeatures($this->markupRegistryId, "Default:MarkupRegistry", $query);
         while($fr->ReadNext())
         {
