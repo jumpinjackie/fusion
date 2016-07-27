@@ -288,16 +288,18 @@ try {
 
     if ($bExtendSelection) {
         $selection = new MgSelection($map);
-        $queryOptions = new MgFeatureQueryOptions();
         $layers = $map->GetLayers();
         foreach($aLayers as $szLayer => $aLayer) {
             $oLayer = $layers->GetItem($szLayer);
             foreach($aLayer as $szClass => $aFilter) {
+                $clsDef = $oLayer->GetClassDefinition();
+                $queryOptions = BuildFeatureQueryOptions($clsDef);
+
                 /* get the feature source from the layer */
                 $featureResId = new MgResourceIdentifier($oLayer->GetFeatureSourceId());
                 $featureGeometryName = $oLayer->GetFeatureGeometryName();
                 $szFilter = implode(' OR ', $aFilter);
-                $queryOptions->setFilter($szFilter);
+                $queryOptions->SetFilter($szFilter);
                 /* the class that is used for this layer will be used to select
                    features */
                 $class = $oLayer->GetFeatureClassName();
