@@ -253,7 +253,8 @@ class Query
         // Execute the query
 
         $queryMax = (int) $this->args['QUERYMAX'];
-        $queryOptions = new MgFeatureQueryOptions();
+        $clsDef = $layer->GetClassDefinition();
+        $queryOptions = BuildFeatureQueryOptions($clsDef);
 
         $propertyFilter = '';
         if ($this->args['USEPROPERTYFILTER'] == 'true')

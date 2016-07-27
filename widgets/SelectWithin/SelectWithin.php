@@ -108,8 +108,9 @@
               for ($i=0; $i<$layers->GetCount(); $i++) {
                 $layer = $layers->GetItem($i);
                 $layerName = $layer->GetName();
+                $clsDef = $layer->GetClassDefinition();
                 $layerClassName = $layer->GetFeatureClassName();
-                $options = new MgFeatureQueryOptions();
+                $options = BuildFeatureQueryOptions($clsDef);
                 $options->SetFilter($resultSel->GenerateFilter($layer, $layerClassName));
                 $resourceId = new MgResourceIdentifier($layer->GetFeatureSourceId());
                 $featureReader = $featureSrvc->SelectFeatures($resourceId, $layerClassName, $options);
@@ -159,7 +160,8 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
     {
         $layer = $selLayers->GetItem($i);
         $filter = $sel->GenerateFilter($layer, $layer->GetFeatureClassName());
-        $query = new MgFeatureQueryOptions();
+        $clsDef = $layer->GetClassDefinition();
+        $query = BuildFeatureQueryOptions($clsDef);
         $query->SetFilter($filter);
         $featureSource = new MgResourceIdentifier($layer->GetFeatureSourceId());
         $features = $featureSrvc->SelectFeatures($featureSource, $layer->GetFeatureClassName(), $query);
