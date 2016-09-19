@@ -86,6 +86,8 @@
         {
             trigger_error(FormatMessage("SEARCHLAYERNOTFOUND", $locale, array($layerName)));
         }
+        
+        $userInput = str_replace("'", "''", $userInput);
 
         //unescape strings
         //
