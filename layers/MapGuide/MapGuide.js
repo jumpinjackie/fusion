@@ -1940,10 +1940,27 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     var feat = selFeatures[j];
                     var featVals = [];
                     if (feat.Property) {
-                        for (var k = 0; k < feat.Property.length; k++) {
-                            //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
-                            //the old code path produces
-                            featVals.push(feat.Property[k].Value == null ? "" : feat.Property[k].Value[0]);
+                        //If we have layer metadata, its order of properties we must follow
+                        if (selLayer.LayerMetadata) {
+                            for (var p = 0; p < selLayer.LayerMetadata[0].Property.length; p++) {
+                                var name = selLayer.LayerMetadata[0].Property[p].DisplayName[0];
+                                //Find matching property value
+                                for (var fp = 0; fp < feat.Property.length; fp++) {
+                                    var featProp = feat.Property[fp];
+                                    if (featProp.Name[0] == name) {
+                                        //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
+                                        //the old code path produces
+                                        featVals.push(featProp.Value == null ? "" : featProp.Value[0]);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            for (var k = 0; k < feat.Property.length; k++) {
+                                //Fusion represents null as empty string. Don't think that's right but we'll run with whatever
+                                //the old code path produces
+                                featVals.push(feat.Property[k].Value == null ? "" : feat.Property[k].Value[0]);
+                            }
                         }
                     }
                     result[layerName].values.push(featVals);
