@@ -440,6 +440,16 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                                     csr.styles.push(cr);
                                 }
                             }
+                        } else { 
+                            //A vector layer without a feature style is technically illegal. Therefore, this has 
+                            //to be a raster or drawing (both do not have feature styles)
+                            var fsId = lyr.FeatureSource[0].ResourceId[0];
+                            var DRAWING_SOURCE = "DrawingSource";
+                            if (fsId.indexOf(DRAWING_SOURCE, fsId.length - DRAWING_SOURCE.length) !== -1) {
+                                ltypes[Fusion.Constant.LAYER_DWF_TYPE] = Fusion.Constant.LAYER_DWF_TYPE;
+                            } else {
+                                ltypes[Fusion.Constant.LAYER_RASTER_TYPE] = Fusion.Constant.LAYER_RASTER_TYPE;
+                            }
                         }
                         clsr.scaleRanges.push(csr);
                     }
