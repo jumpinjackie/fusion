@@ -817,15 +817,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
           opt.selectable = false;
         }
 
-        var LAYER_RASTER = 4;
-        var LAYER_DWF = 5;
-
         if (!style) {
             //This could be a DWF or Raster layer
             if (layer.layerTypes.length == 1) {
-                if (layer.layerTypes[0] == LAYER_RASTER) {
+                if (layer.layerTypes[0] == Fusion.Constant.LAYER_RASTER_TYPE) {
                     opt.image = this.imgLayerRasterIcon;
-                } else if (layer.layerTypes[0] == LAYER_DWF) {
+                } else if (layer.layerTypes[0] == Fusion.Constant.LAYER_DWF_TYPE) {
                     opt.image = this.imgLayerDWFIcon;
                 } else {
                     opt.image = this.imgDisabledLayerIcon;
