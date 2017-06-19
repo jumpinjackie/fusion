@@ -109,30 +109,32 @@ Fusion.Widget.CursorPosition = OpenLayers.Class(Fusion.Widget, {
     formatHTML: function(p) {
         if (!this.displayProjection) {
             var mapProj = this.getMap().projection;
-            var mapUnit = mapProj.getUnits();
+            if (mapProj) {
+                var mapUnit = mapProj.getUnits();
 
-            // convertion from linear units to degree unit.
-            if(this.units == Fusion.DEGREES && mapUnit != 'dd' && mapUnit != 'degrees' ) {
-                // coordinate transformation from map CS to EPSG:4326.
-                var dest = new OpenLayers.Projection("GEOGCS[\"LL84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137.000,298.25722293]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.01745329251994]]");
-                p = p.transform(this.getMap().projection, dest);
-            }
-            //else
-            //{
-                // TODO: convertion from degree unit to linear units
-            //}
-            
-            /* old code for converting between units */
-            else if (this.units != Fusion.UNKNOWN) {
-                var convFactor = this.getMap().getMetersPerUnit();
-                p.lon = Fusion.fromMeter(this.units, p.lon * convFactor);
-                p.lat = Fusion.fromMeter(this.units, p.lat * convFactor);
-            }
-            
-            if (this.precision >= 0) {
-                var factor = Math.pow(10,this.precision);
-                p.lon = Math.round(p.lon * factor)/factor;
-                p.lat = Math.round(p.lat * factor)/factor;
+                // convertion from linear units to degree unit.
+                if(this.units == Fusion.DEGREES && mapUnit != 'dd' && mapUnit != 'degrees' ) {
+                    // coordinate transformation from map CS to EPSG:4326.
+                    var dest = new OpenLayers.Projection("GEOGCS[\"LL84\",DATUM[\"WGS84\",SPHEROID[\"WGS84\",6378137.000,298.25722293]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.01745329251994]]");
+                    p = p.transform(this.getMap().projection, dest);
+                }
+                //else
+                //{
+                    // TODO: convertion from degree unit to linear units
+                //}
+                
+                /* old code for converting between units */
+                else if (this.units != Fusion.UNKNOWN) {
+                    var convFactor = this.getMap().getMetersPerUnit();
+                    p.lon = Fusion.fromMeter(this.units, p.lon * convFactor);
+                    p.lat = Fusion.fromMeter(this.units, p.lat * convFactor);
+                }
+                
+                if (this.precision >= 0) {
+                    var factor = Math.pow(10,this.precision);
+                    p.lon = Math.round(p.lon * factor)/factor;
+                    p.lat = Math.round(p.lat * factor)/factor;
+                }
             }
         }
         var unitAbbr = Fusion.unitAbbr(this.units);
