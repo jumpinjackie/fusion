@@ -71,7 +71,11 @@ class MarkupEditor
         $idName = $keyProp->GetName();
         while ($featureReader->ReadNext())
         {
-            $id = $featureReader->GetInt32($idName);
+            $propType = $featureReader->GetPropertyType($idName);
+            if ($propType == MgPropertyType::Int64)
+                $id = $featureReader->GetInt64($idName);
+            else
+                $id = $featureReader->GetInt32($idName);
             $text = $featureReader->IsNull('Text') ? '' : trim($featureReader->GetString('Text'));
             $features[$id] = $text;
         }
