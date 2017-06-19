@@ -813,6 +813,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //an additional overlay layer to render them on top of the tiles
             if(!this.bSingleTile) {
                 this.oLayerOL2 = this.createOLLayer(this._sMapname + "_DynamicOverlay",true,2,true, "");
+                if (wktProj && wktProj.proj && wktProj.proj.readyToUse) {
+                  this.oLayerOL2.projection = wktProj;
+                  this.oLayerOL2.projection.proj.units = this.mapTag.layerOptions.units;
+                }
                 this.mapWidget.oMapOL.addLayer(this.oLayerOL2);
                 this.oLayerOL2.setVisibility(true);
             }
