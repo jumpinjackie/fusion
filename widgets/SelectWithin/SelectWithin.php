@@ -180,8 +180,13 @@ function MultiGeometryFromSelection($featureSrvc, $resourceSrvc, $map, $mapName)
                 }
                 else if($type != MgGeometryType::Polygon)
                     continue;
-                $trans = GetLayerToMapCSTrans($classDef, $geomPropName, $featureSrvc, $featureSource, $map);
-                $geomColl->Add($geom->Transform($trans));
+                if ($map->GetMapSRS())
+                {
+                    $trans = GetLayerToMapCSTrans($classDef, $geomPropName, $featureSrvc, $featureSource, $map);
+                    $geomColl->Add($geom->Transform($trans));
+                }
+                else
+                    $geomColl->Add($geom);
             }
             $features->Close();
         }

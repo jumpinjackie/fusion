@@ -139,20 +139,16 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
              switch (this.mapTag.layerOptions.type) {   //VE layer types are enumerated values
                case 'Aerial':              //defined in VEMapStyle from the VE api
                case 'a':
-                 this.mapTag.layerOptions.type = VEMapStyle.Aerial;
-                 break;
-               case 'Shaded':
-               case 's':
-                 this.mapTag.layerOptions.type = VEMapStyle.Shaded;
-                 break;
-               case 'Hybrid':
-               case 'h':
-                 this.mapTag.layerOptions.type = VEMapStyle.Hybrid;
+                 this.mapTag.layerOptions.type = 'Aerial';
                  break;
                default:
-                 this.mapTag.layerOptions.type = VEMapStyle.Road;
+                 this.mapTag.layerOptions.type = 'Road';
                  break;
              }
+             this.oLayerOL = new OpenLayers.Layer.Bing({
+                key: Fusion.bingMapKey,
+                type: this.mapTag.layerOptions.type
+             });
              break;
          case 'Yahoo':
             switch (this.mapTag.layerOptions.type) {   //Yahoo is similar to google
