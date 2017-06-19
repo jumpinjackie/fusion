@@ -1243,7 +1243,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 
       var oNewLayerOL = new OpenLayers.Layer.MapGuide( layerName, url, params, layerOptions );
       if (!bSingleTile) {
-        if (oNewLayerOL.scales.length == this.aCmsScales.length) {
+        if (oNewLayerOL.scales != null && oNewLayerOL.scales.length == this.aCmsScales.length) { 
             //NOTE: This is not a property of OpenLayers.Layer.MapGuide, it is something we've bolted on
             oNewLayerOL.bUsesCommercialLayerScaleList = false;
             for (var i = 0; i < this.aCmsScales.length; i++) {
@@ -1616,10 +1616,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 resp.hasSelection = true;
                 var layerId = layer.getName();
                 var oLayer = this.getLayerById(layerId);
-                resp.layers.push(oLayer.layerName);
-                resp[oLayer.layerName] = {
-                    featureCount: nFeatures
-                };
+                if (oLayer) {
+                    resp.layers.push(oLayer.layerName);
+                    resp[oLayer.layerName] = {
+                        featureCount: nFeatures
+                    };
+                }
             }
         }
         if (this.previousAttributes) {
@@ -1727,7 +1729,12 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 r.setParams({ version: "3.3.0", clean: 1 });
             }
             var callback = (options.extendSelection == true) ? OpenLayers.Function.bind(this.processAndMergeExtendedFeatureInfo, this) : OpenLayers.Function.bind(this.processExtendedFeatureInfo, this);
+            // use 'post' because filter could be a long string.
+            var method = Fusion.oBroker.method;
+            Fusion.oBroker.method = 'post';
+            r.options.contentType = 'application/x-www-form-urlencoded';
             Fusion.oBroker.dispatchRequest(r, callback);
+            Fusion.oBroker.method = method;
         } else {
             var r = new Fusion.Lib.MGRequest.MGQueryMapFeatures(this.getSessionID(),
                                                                 this._sMapname,
