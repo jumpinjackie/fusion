@@ -45,7 +45,7 @@
     SetLocalizedFilesPath(GetLocalizationPath());
     $templ = Localize($templ, $locale, GetClientOS());
     $vpath = GetSurroundVirtualPath();
-    print sprintf($templ, $popup, $properties, $propNames, $title, $prompt, $target, $filter, $layer, $limit, $vpath."Search.php", $mapName, $sessionId, $locale, $pointZoomLevel);
+    print sprintf($templ, $popup, $properties, $propNames, $title, $prompt, $target, str_replace("\"", "\\\"", $filter), $layer, $limit, $vpath."Search.php", $mapName, $sessionId, $locale, $pointZoomLevel);
 
 
 
