@@ -141,6 +141,9 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                case 'a':
                  this.mapTag.layerOptions.type = 'Aerial';
                  break;
+               case 'AerialWithLabels':
+                 this.mapTag.layerOptions.type = 'AerialWithLabels';
+                 break;
                default:
                  this.mapTag.layerOptions.type = 'Road';
                  break;
