@@ -25,8 +25,8 @@
  *  - OpenStreetMap CycleMap
  *  - OpenStreetMap Transport
  *  - Bing Street
- *  - Bing Satellite
- *  - Bing Hybrid
+ *  - Bing Aerials
+ *  - Bing Aerials (with labels)
  *  - Stamen Toner
  *  - Stamen Watercolor
  *  - Stamen Terrain
@@ -55,7 +55,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
         'G_PHYSICAL_MAP': 0,
         'Road': -1,
         'Aerial': -1,
-        'Hybrid': -1,
+        'AerialWithLabels': -1,
         'Mapnik': 0,
         'TransportMap': 0,
         'CycleMap': 0,
@@ -78,7 +78,7 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
             'G_PHYSICAL_MAP': null,
             'Road': null,
             'Aerial': null,
-            'Hybrid': null,
+            'AerialWithLabels': null,
             'Mapnik': null,
             'TransportMap': null,
             'CycleMap': null,
@@ -188,14 +188,14 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                                 }
                                 this.baseMaps['Aerial'] = map;
                                 break;
-                            case 'Hybrid':
+                            case 'AerialWithLabels':
                                 if (map.mapTag.extension.Options[0].name) {
-                                    this.options['Hybrid'] = map.mapTag.extension.Options[0].name[0];
+                                    this.options['AerialWithLabels'] = map.mapTag.extension.Options[0].name[0];
                                 }
                                 else {
-                                    this.options['Hybrid'] = OpenLayers.i18n('bingHybrid');
+                                    this.options['AerialWithLabels'] = OpenLayers.i18n('bingAerialsWithLabels');
                                 }
-                                this.baseMaps['Hybrid'] = map;
+                                this.baseMaps['AerialWithLabels'] = map;
                                 break;
                             default:
                                 break;

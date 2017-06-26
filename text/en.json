@@ -82,7 +82,7 @@ Fusion.Strings.en = {
 'yahooHybrid':'Yahoo Hybrid',
 'bingStreet':'Bing Street',
 'bingSatellite':'Bing Satellite',
-'bingHybrid':'Bing Hybrid',
+'bingAerialsWithLabels':'Bing Satellite (with labels)',
 'openStreetMap':'Open Street Map',
 'openStreetMapTransportMap':'Open Street Map (TransportMap)',
 'openStreetMapCycleMap':'Open Street Map (CycleMap)',
