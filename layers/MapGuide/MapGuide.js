@@ -1556,6 +1556,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       }
       if (this.previousSelection != null)
       {
+          this.previousAttributes = null;
           this.previousSelection.clear();
       }
     },
@@ -2264,6 +2265,9 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             //Nothing to merge, return original
             return attributes;
         }
+        if (!attributes.hasSelection) {
+            return prevAttributes;
+        }
         //Start off with prevAttributes as the base
         var merged = {};
         merged.hasSelection = prevAttributes.hasSelection;
@@ -2312,16 +2316,20 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         if (mergeSelection == true)
         {
             sel.merge(this.previousSelection);
-            attributes = this.mergeAttributes(attributes, this.previousAttributes);
+            if (sel.nLayers > 0)
+                attributes = this.mergeAttributes(attributes, this.previousAttributes);
         }
         var selText = sel.getSelectionXml();
-        this.previousSelection = sel;
         //Because the QUERYMAPFEATURES 2.6.0 response contains mostly everything we need, we cut down
         //on lots of async request ping-pong. So we can just update the selection image and notify any
         //interested parties of the new selection attributes
         if (selText != "" && selText != null) {
+            this.previousSelection = sel;
             this.previousAttributes = attributes;
-            this.updateMapSelection(selText, false, mergeSelection);
+            if (sel.isDeselect)
+                this.updateMapSelection(selText, false, false, true);
+            else
+                this.updateMapSelection(selText, false, mergeSelection);
         } else {
             //Only clear if we're not merging an empty selection
             if (mergeSelection == false) {
@@ -2360,6 +2368,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
 Fusion.SimpleSelectionObject = OpenLayers.Class({
     aLayers : null,
     nLayers : 0,
+    isDeselect: false,
 
     initialize: function(featureInfoResponse, bClean)
     {
@@ -2481,6 +2490,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
     {
         if (previousSelection != null && previousSelection.nLayers > 0)
         {
+            this.isDeselect = false;
             for (var prevSelIndex = 0; prevSelIndex < previousSelection.nLayers; prevSelIndex++)
             {
                 var prevSelLayer = previousSelection.aLayers[prevSelIndex];
@@ -2501,11 +2511,12 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                         {
                             // the feature was previously selected, so toggle it off when selected again
                             currentLayer.removeFeatures(prevSelFeatureIndexes);
+                            this.isDeselect = true;
                         }
                     }
                     if (currentLayer.featIds.length == 0)
                     {
-                        this.clear();
+                        this.removeLayer(currentLayer);
                     }
                 }
                 else
@@ -2522,6 +2533,30 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                 }
             }
         }
+    },
+
+    getLayerIndex : function(layer)
+    {
+        var index = -1;
+        for (var i=0; i<this.nLayers; i++)
+        {
+            if (this.aLayers[i] == layer)
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    },
+
+    removeLayer: function(layer)
+    {
+        var index = this.getLayerIndex(layer);
+        if (index >=0 && index < this.nLayers)
+        {
+            this.aLayers.remove(index);
+            this.nLayers--;
+        } 
     },
 
     clear: function()
