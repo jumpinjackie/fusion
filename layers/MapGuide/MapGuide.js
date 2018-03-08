@@ -2053,6 +2053,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         for (var i = 0; i < attributes.layers.length; i++) {
             var layerName = attributes.layers[i][0];
             if (typeof(merged[layerName]) == 'undefined') {
+                merged.layers.push(attributes.layers[i]);
                 merged[layerName] = attributes[layerName];
             } else {
                 var newValues = attributes[layerName].values;
