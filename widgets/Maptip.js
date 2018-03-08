@@ -180,11 +180,10 @@ Fusion.Widget.Maptip = OpenLayers.Class(Fusion.Widget, {
         if (this.widgetTag.tooltip) {
             this.mapTipBtn.setTooltip(this.widgetTag.tooltip);
         }
-        if (uiObj.options.active) {
-            this.mapTipBtn.setActive(true);
-        }
+        // turn off map tip by default
+        this.mapTipBtn.setActive(false);
 
-        this.uiObj = uiObj;	
+        this.uiObj = uiObj;
     },
     
     activate : function() {

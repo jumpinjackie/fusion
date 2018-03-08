@@ -357,6 +357,8 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         var at = null;
         var pixQuantity = 0;
         if (geom.CLASS_NAME.indexOf('LineString') != -1) {
+            if(v.length < 2)
+                return;
             from = this.getMap().geoToPix(v[0].x,v[0].y);
             to = this.getMap().geoToPix(v[1].x,v[1].y);
             at = {x: (from.x + to.x) / 2, y: (from.y + to.y) / 2};
@@ -467,6 +469,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.getMap().supressContextMenu(true);
         this.updateButtonStates();
         //This is digitization, so trigger the necessary event
+        this.getMap().isDigitizing = true;
         this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_ACTIVATED);
     },
     
@@ -478,6 +481,7 @@ Fusion.Widget.Measure = OpenLayers.Class(Fusion.Widget, {
         this.getMap().supressContextMenu(false);
         this.updateButtonStates();
         //This is digitization, so trigger the necessary event
+        this.getMap().isDigitizing = false;
         this.getMap().triggerEvent(Fusion.Event.MAP_DIGITIZER_DEACTIVATED);
     },
     

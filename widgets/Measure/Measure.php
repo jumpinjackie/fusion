@@ -83,11 +83,13 @@
         }
         
         function OnUnload() {
-            _widget.deactivate();
+            if (_widget)
+                _widget.deactivate();
         }
         
         function SetWidget(widget) {
             _widget = widget;
+            _widget.getMap().isDigitizing = true;
             _widget.setButtons(document.getElementById("measureStopBtn"), document.getElementById("measureStartBtn"));
         }
         
@@ -101,7 +103,7 @@
     
     </script>
 </head>
-<body id="MeasurementWidgetResults" onload="OnLoad()" onunload="OnUnload()">
+<body id="MeasurementWidgetResults" onload="OnLoad()" onbeforeunload="OnUnload()">
     <h1><?php echo $title ?></h1>
     <hr />
     <p><?php echo $hint ?></p>

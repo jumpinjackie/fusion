@@ -1798,6 +1798,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     this.oLayersOLTile[i].setVisibility(true);
                 }
             }
+            this.aShowGroups.push(group.uniqueId);
+            if (this.drawDelay > 0) {
+                this.aHideGroups.erase(group.uniqueId);
+            }
+            this.mapExtentsChanged();
         } else {
             this.aShowGroups.push(group.uniqueId);
             //A group cannot be both hidden and shown, which can be the case if there is a draw
@@ -1822,6 +1827,11 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                     this.oLayersOLTile[i].setVisibility(false);
                 }
             }
+            this.aHideGroups.push(group.uniqueId);
+            if (this.drawDelay > 0) {
+                this.aShowGroups.erase(group.uniqueId);
+            }
+            this.mapExtentsChanged();
         } else {
             this.aHideGroups.push(group.uniqueId);
             //A group cannot be both hidden and shown, which can be the case if there is a draw
@@ -1894,14 +1904,27 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       if (!this.singleTile) {
           var center = this.mapWidget.oMapOL.getCenter();
           var display = this.mapWidget.oMapOL.getSize();
+<<<<<<< .working
 
+||||||| .merge-left.r3007
+          
+=======
+          var showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
+          var hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
+          this.aShowGroups = [];
+          this.aHideGroups = [];
+>>>>>>> .merge-right.r3012
           var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.getSessionID(),
                                                               this._sMapname,
                                                               center.lon, center.lat,
                                                               this.mapWidget.oMapOL.getScale(),
                                                               null,
                                                               this._nDpi,
-                                                              display.w, display.h);
+                                                              display.w, display.h,
+                                                              null,
+                                                              null,
+                                                              showGroups,
+                                                              hideGroups);
           Fusion.oBroker.dispatchRequest(r);
       }
     },
@@ -2012,8 +2035,14 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     parseMapTip: function(xhr) {
-        var o;
-        var tooltip = Fusion.parseJSON(xhr.responseText);
+        var tooltip;
+        // Don't show error window, just return if the response is invalid.
+        try {
+            tooltip = Fusion.parseJSON(xhr.responseText);
+        }
+        catch (err) {
+            return;
+        }
         this.oMaptip = {t:"",h:""};
         var t = tooltip['FeatureInformation']['Tooltip'];
         if (t) {
@@ -2310,7 +2339,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     processSelectedExtendedFeatureInfo: function(r, mergeSelection) {
-        var o = Fusion.parseJSON(r.responseText);
+        var o;
+        // Don't show error window, just return if the response is invalid.
+        try {
+            o = Fusion.parseJSON(r.responseText);
+        }
+        catch (err) {
+            this.mapWidget._removeWorker();
+            return;
+        }
         var sel = new Fusion.SimpleSelectionObject(o, this.bHasCleanJsonSupport);
         var attributes = this.convertExtendedFeatureInfo(o);
         if (mergeSelection == true)
@@ -2349,7 +2386,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
     },
 
     processSelectedFeatureInfo: function (r, mergeSelection) {
-        var o = Fusion.parseJSON(r.responseText);
+        var o;
+        // Don't show error window, just return if the response is invalid.
+        try {
+            o = Fusion.parseJSON(r.responseText);
+        }
+        catch (err) {
+            this.mapWidget._removeWorker();
+            return;
+        }
 
         var newSelection = new Fusion.SimpleSelectionObject(o, this.bHasCleanJsonSupport);
         if(mergeSelection == true)

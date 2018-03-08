@@ -249,7 +249,13 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
      */
     bIncludeVisToggle: true,
     offsetsCalculated: false,
-   
+
+    /**
+     * Property: bHideEmptyGroups
+     * {Boolean} Determine if a group which has non-visible layer must be draw in the legend.
+     */
+    bHideEmptyGroups: true,
+
     initialize: function(legend, widgetTag) {   
         Fusion.Widget.Legend.LegendRenderer.prototype.initialize.apply(this, [legend]);
 
@@ -287,7 +293,8 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         this.showRootFolder = (json.ShowRootFolder && json.ShowRootFolder[0] == 'true') ? true:false;
         //do show the map folder by default
         this.showMapFolder = (json.ShowMapFolder && json.ShowMapFolder[0] == 'false') ? false:true;
-        
+        this.bHideEmptyGroups = true;
+
         if (!this.showRootFolder) {
             //console.log('supressing root folder');
             this.oRoot = this.oTree;
@@ -543,7 +550,25 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         for (var i=map.layerRoot.layers.length-1; i>=0; i--) {
             this.updateLayer(map.layerRoot.layers[i], currentScale);
         }
+        if (this.bHideEmptyGroups) {
+            for (var i=0; i<map.layerRoot.groups.length; i++) {
+                this.hideEmptyGroup(map.layerRoot.groups[i]);
+            }
+        }
         this.oTree.thaw();
+    },
+   
+    hideEmptyGroup: function(group) {
+        if (group.hasVisibleLayers) {
+            if (group.legend.treeItem) {
+                group.legend.treeItem.domObj.style.display = 'block';
+            }
+            for (var i=0; i<group.groups.length; i++) {
+                this.hideEmptyGroup(group.groups[i])
+            }
+        } else {
+            group.legend.treeItem.domObj.style.display = 'none';
+        }
     },
    
     /**
@@ -576,6 +601,7 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         }
       }
     },
+
     addLayerStyleTreeItems: function(treeItem, items) {
         treeItem.tree.freeze();
         treeItem.add(items);
@@ -601,7 +627,9 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         //above are still valid.
         treeItem.add(layerTreeItem, 0);
     },
+
     updateGroupLayers: function(group, fScale) {
+        group.hasVisibleLayers = false;
         for (var i=0; i<group.groups.length; i++) {
             this.updateGroupLayers(group.groups[i], fScale);
         }
@@ -609,10 +637,30 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
         for (var i=group.layers.length-1 ; i >= 0; i--) {
             this.updateLayer(group.layers[i], fScale);
         }
+
+        // Hide empty groups if necessary.
+        if (!this.bHideEmptyGroups)
+            return;
+        // Check if the group has visible layers
+        for (var i=0; i<group.layers.length; i++) {
+            if (group.layers[i].visibleInGroupLegend) {
+                group.hasVisibleLayers = true;
+                break;
+            }
+        }
+        if (group.hasVisibleLayers)
+            return;
+        for (var i=0; i<group.groups.length; i++) {
+            if (group.groups[i].hasVisibleLayers) {
+                group.hasVisibleLayers = true;
+                break;
+            }
+        }
     },
     updateLayer: function(layer, fScale) {
         /* no need to do anything if we are hiding the layer */
         if (!layer.displayInLegend || !layer.legend) {
+            layer.visibleInGroupLegend = false;
             return;
         }
         /* check the layer's current scale range against the previous one
@@ -721,9 +769,12 @@ Fusion.Widget.Legend.LegendRendererDefault = OpenLayers.Class(Fusion.Widget.Lege
             }
         }
         if (layer.legend.treeItem) {
+            layer.visibleInGroupLegend = true;
             layer.legend.treeItem.options.data = layer;
             if (!layer.isBaseMapLayer) //Tiled layers don't have a checkbox so there's nothing to check
                 layer.legend.treeItem.check(layer.visible);
+        } else {
+            layer.visibleInGroupLegend = false;
         }
     },
     getThemeExpandContextMenu: function(node) {

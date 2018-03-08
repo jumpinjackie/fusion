@@ -80,6 +80,7 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
         
         var mapGroups = Fusion.applicationDefinition.mapGroups;
         this.mapGroupData = {};
+        var oMap = this.getMap();
         var buttonSet = new Jx.ButtonSet();
         for (var key in mapGroups) {
             if (mapGroups[key].mapId) {
@@ -95,6 +96,8 @@ Fusion.Widget.MapMenu = OpenLayers.Class(Fusion.Widget,  {
                     });
                     buttonSet.add(menuItem);
                     this.uiObj.add(menuItem);
+                    if (oMap && oMap.mapGroup.mapId == mapGroup.mapId)
+                        menuItem.setActive(true);
                 }
             }
         }
