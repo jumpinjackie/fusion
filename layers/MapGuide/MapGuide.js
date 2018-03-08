@@ -1932,6 +1932,16 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                 var selLayer = selLayers[i];
                 var selFeatures = selLayer.Feature || [];
                 var layerName = selLayer["@name"];
+                var layerId = selLayer["@id"];
+                var featids = [];
+                for (var l = 0; l < efi.FeatureInformation.FeatureSet[0].Layer.length; l++) {
+                    var selClass = efi.FeatureInformation.FeatureSet[0].Layer[l];
+                    if (selClass["@id"][0] == layerId[0]) {
+                        for (var j = 0; j < selClass.Class[0].ID.length; j++) {
+                            featids.push(selClass.Class[0].ID[j]);
+                        }
+                    }
+                }
                 if (!result[layerName]) {
                     if (selLayer.LayerMetadata) {
                         var layerMeta = selLayer.LayerMetadata[0];
@@ -1946,13 +1956,15 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
                         }
                     }
                     result[layerName] = {
+                        layerId: layerId,
                         metadata: [],  //NOTE: Probably a defect, but regular code path is putting blank string arrays here too
                         metadatanames: ["dimension", "bbox", "center", "area", "length"],
                         numelements: selFeatures.length,
                         propertynames: pnames,
                         propertytypes: ptypes,
                         propertyvalues: pvals,
-                        values: []
+                        values: [],
+                        featids: featids
                     };
                     layerNames.push(layerName);
                 }
@@ -2020,7 +2032,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         //this.processSelectedFeatureInfo(r, false);
     },
     
-    mergeAttributes: function(attributes, prevAttributes) {
+    mergeAttributes: function(attributes, prevAttributes, prevRemovals) {
         if (!prevAttributes) {
             //Nothing to merge, return original
             return attributes;
@@ -2052,13 +2064,42 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         //Bring in attributes
         for (var i = 0; i < attributes.layers.length; i++) {
             var layerName = attributes.layers[i][0];
+            var layerId = merged[layerName].layerId[0];
             if (typeof(merged[layerName]) == 'undefined') {
                 merged[layerName] = attributes[layerName];
             } else {
+                var newFeatIds = attributes[layerName].featids;
                 var newValues = attributes[layerName].values;
                 for (var v = 0; v < newValues.length; v++) {
-                    merged[layerName].values.push(newValues[v]);
-                    merged[layerName].numelements++;
+                    var bAddThis = true;
+                    //Only add if these ids are not on the removal list
+                    if (prevRemovals[layerId]) {
+                        if (prevRemovals[layerId].removed.indexOf(newFeatIds[v]) >= 0) {
+                            bAddThis = false;
+                        }
+                    }
+                    if (bAddThis) {
+                        merged[layerName].featids.push(newFeatIds[v]);
+                        merged[layerName].values.push(newValues[v]);
+                        merged[layerName].numelements++;
+                    }
+                }
+            }
+            //Trim off attributes at indices indicated by the previous feature key merge
+            if (prevRemovals[layerId]) {
+                var removeIndices = [];
+                for (var j = 0; j < prevRemovals[layerId].removed.length; j++) {
+                    var fid = prevRemovals[layerId].removed[j];
+                    var idx = merged[layerName].featids.indexOf(fid);
+                    if (idx >= 0) {
+                        removeIndices.push(idx);
+                    }
+                }
+                removeIndices.reverse();
+                for (var j = 0; j < removeIndices.length; j++) {
+                    var removeIndex = removeIndices[j];
+                    merged[layerName].numelements--;
+                    merged[layerName].values.splice(removeIndex, 1);
                 }
             }
         }
@@ -2071,8 +2112,8 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
         var attributes = this.convertExtendedFeatureInfo(o);
         if (mergeSelection == true)
         {
-            sel.merge(this.previousSelection);
-            attributes = this.mergeAttributes(attributes, this.previousAttributes);
+            var removals = sel.merge(this.previousSelection);
+            attributes = this.mergeAttributes(attributes, this.previousAttributes, removals);
         }
         var selText = sel.getSelectionXml();
         this.previousSelection = sel;
@@ -2215,14 +2256,21 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
 
     merge : function(previousSelection)
     {
+        var removals = {};
         if (previousSelection != null && previousSelection.nLayers > 0)
         {
             for (var prevSelIndex = 0; prevSelIndex < previousSelection.nLayers; prevSelIndex++)
             {
                 var prevSelLayer = previousSelection.aLayers[prevSelIndex];
 
+                var layerName = prevSelLayer.getName();
+                if (!removals[layerName]) {
+                    removals[layerName] = {
+                        removed: []
+                    }
+                }
                 // find the previously selected layer name in the current selection
-                var currentLayer = this.getLayerByName(prevSelLayer.getName());
+                var currentLayer = this.getLayerByName(layerName);
                 if (currentLayer != null)
                 {
                     // add the previously selected features for this layer
@@ -2237,6 +2285,14 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                         {
                             // the feature was previously selected, so toggle it off when selected again
                             currentLayer.removeFeatures(prevSelFeatureIndexes);
+                        }
+                    }
+                    // Any feat ids in the prev selection not in the new one, record their indices so we
+                    // can trim off attributes at those indices
+                    for (var k = 0; k < prevSelLayer.featIds.length; k++) {
+                        var fid = prevSelLayer.featIds[k];
+                        if (currentLayer.featIds.indexOf(fid) < 0) {
+                            removals[layerName].removed.push(fid);
                         }
                     }
                     if (currentLayer.featIds.length == 0)
@@ -2258,6 +2314,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                 }
             }
         }
+        return removals;
     },
 
     clear: function()
