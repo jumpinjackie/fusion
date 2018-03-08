@@ -2317,6 +2317,7 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
             var layerName = attributes.layers[i][0];
             var layerId = merged[layerName].layerId[0];
             if (typeof(merged[layerName]) == 'undefined') {
+                merged.layers.push(attributes.layers[i]);
                 merged[layerName] = attributes[layerName];
             } else {
                 var newFeatIds = attributes[layerName].featids;
