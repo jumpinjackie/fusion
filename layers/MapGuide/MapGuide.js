@@ -1904,16 +1904,10 @@ Fusion.Layers.MapGuide = OpenLayers.Class(Fusion.Layers, {
       if (!this.singleTile) {
           var center = this.mapWidget.oMapOL.getCenter();
           var display = this.mapWidget.oMapOL.getSize();
-<<<<<<< .working
-
-||||||| .merge-left.r3007
-          
-=======
           var showGroups = this.aShowGroups.length > 0 ? this.aShowGroups.toString() : null;
           var hideGroups = this.aHideGroups.length > 0 ? this.aHideGroups.toString() : null;
           this.aShowGroups = [];
           this.aHideGroups = [];
->>>>>>> .merge-right.r3012
           var r = new Fusion.Lib.MGRequest.MGGetVisibleMapExtent(this.getSessionID(),
                                                               this._sMapname,
                                                               center.lon, center.lat,
