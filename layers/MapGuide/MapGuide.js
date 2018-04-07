@@ -2654,7 +2654,7 @@ Fusion.SimpleSelectionObject.Layer = OpenLayers.Class({
 Array.prototype.find = function(searchStr) {
   var returnArray = null;
   for (i=0; i<this.length; i++) {
-    if (typeof(searchStr) == 'function') {
+    if (typeof(searchStr) == 'function' && typeof(searchStr.test) == 'function') {
       if (searchStr.test(this[i])) {
         if (!returnArray) { returnArray = [] }
         returnArray.push(i);
