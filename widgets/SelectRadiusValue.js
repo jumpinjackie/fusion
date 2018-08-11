@@ -110,7 +110,7 @@ Fusion.Widget.SelectRadiusValue = OpenLayers.Class(Fusion.Widget, {
     
     updateWidgetValue: function() {
         if (this.widget) {
-            var radius = this.input.getValue();
+            var radius = this.input.value;
             this.widget.setRadius(radius);
         }
     },
