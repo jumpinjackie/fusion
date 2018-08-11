@@ -153,23 +153,6 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
                 type: this.mapTag.layerOptions.type
              });
              break;
-         case 'Yahoo':
-            switch (this.mapTag.layerOptions.type) {   //Yahoo is similar to google
-              case 'YAHOO_MAP_SAT':              //defined by YMap, not a string
-              case 'YAHOO_SAT':
-                this.mapTag.layerOptions.type = YAHOO_MAP_SAT;
-                break;
-              case 'YAHOO_MAP_HYB':
-              case 'YAHOO_HYB':
-                this.mapTag.layerOptions.type = YAHOO_MAP_HYB;
-                break;
-              case 'YAHOO_MAP_REG':
-              case "YAHOO_REG":
-              default:
-                this.mapTag.layerOptions.type = YAHOO_MAP_REG;
-                break;
-            }
-            break;
          case 'OpenStreetMap':
          case 'OSM':
             if (this.mapTag.layerOptions.type) {
@@ -180,31 +163,68 @@ Fusion.Layers.Generic = OpenLayers.Class(Fusion.Layers, {
             }
             break;
          case 'Stamen':
-            this.oLayerOL = new OpenLayers.Layer[this.layerType](this.mapTag.layerOptions.type);
+            var stt = this.mapTag.layerOptions.type;
+            var url = "http://tile.stamen.com/" + stt + "/${z}/${x}/${y}.png";
+            this.oLayerOL = new OpenLayers.Layer.XYZ("Stamen (" + stt + ")", url, this.mapTag.layerOptions);
             break;
          case 'XYZ':
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
-                                  this.sMapResourceId, 
-                                  this.mapTag.layerOptions );
+                                  this.mapTag.layerOptions.urls, 
+                                  this.mapTag.layerOptions);
             break;
           default:
             this.oLayerOL = new OpenLayers.Layer[this.layerType](
                                   this.getMapName(), 
                                   this.sMapResourceId, 
                                   this.mapTag.layerParams, 
-                                  this.mapTag.layerOptions );
+                                  this.mapTag.layerOptions);
 
             break;
         }
        
         if (!this.oLayerOL) {
             if(this.layerType == 'OpenStreetMap' || this.layerType == 'OSM') {
+                var layerOpts = this.mapTag.layerOptions;
+                var osmLayerType = this.mapTag.layerOptions.type;
+                var urls = this.mapTag.layerOptions.urls;
                 //Test OSM sub-type before falling back to OpenLayers.Layer.OSM
-                if (typeof(OpenLayers.Layer.OSM[this.mapTag.layerOptions.type]) != 'undefined') { 
-                    this.oLayerOL = new OpenLayers.Layer.OSM[this.mapTag.layerOptions.type](this.getMapName(), null, this.mapTag.layerOptions );
+                if (osmLayerType != "Mapnik") {
+                    switch (osmLayerType) {
+                        case "CycleMap":
+                            if (!urls) {
+                                urls = [
+                                    "http://a.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
+                                    "http://b.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png",
+                                    "http://c.tile.opencyclemap.org/cycle/${z}/${x}/${y}.png"
+                                ];
+                            }
+                            layerOpts = OpenLayers.Util.extend({
+                                numZoomLevels: 19,
+                                attribution: "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors, Tiles courtesy of <a href='http://www.opencyclemap.org'>Andy Allan</a>",
+                                buffer: 0,
+                                transitionEffect: "resize"
+                            }, layerOpts);
+                            break;
+                        case "TransportMap":
+                            if (!urls) {
+                                urls = [
+                                    "http://a.tile2.opencyclemap.org/transport/${z}/${x}/${y}.png",
+                                    "http://b.tile2.opencyclemap.org/transport/${z}/${x}/${y}.png",
+                                    "http://c.tile2.opencyclemap.org/transport/${z}/${x}/${y}.png"
+                                ];
+                            }
+                            layerOpts = OpenLayers.Util.extend({
+                                numZoomLevels: 19,
+                                attribution: "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors, Tiles courtesy of <a href='http://www.opencyclemap.org'>Andy Allan</a>",
+                                buffer: 0,
+                                transitionEffect: "resize"
+                            }, layerOpts);
+                            break;
+                    }
+                    this.oLayerOL = new OpenLayers.Layer.OSM("OpenStreetMap - " + osmLayerType, urls, layerOpts);
                 } else {
-                    this.oLayerOL = new OpenLayers.Layer.OSM(this.getMapName(), null, this.mapTag.layerOptions );
+                    this.oLayerOL = new OpenLayers.Layer.OSM(this.getMapName(), urls, layerOpts);
                 }
             }
             else {

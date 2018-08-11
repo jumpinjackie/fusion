@@ -288,6 +288,16 @@ Fusion.Widget.BasemapSwitcher = OpenLayers.Class(Fusion.Widget, {
                         }
                     }
                     break;
+                case "XYZ":
+                    {
+                        var xyzName = map.mapTag.extension.Options[0].name[0];
+                        this.options[xyzName] = xyzName;
+                        this.baseMaps[xyzName] = map;
+                        // The first non-MapGuide basemap will be the default basemap
+                        if (!this.defaultBasemap) {
+                            this.defaultBasemap = xyzName;
+                        }
+                    }
                 default:
                     break;
             }
