@@ -54,8 +54,7 @@ Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget, {
         if (isNaN(this.iResultsPerPage) || (this.iResultsPerPage < 0))
             this.iResultsPerPage = 0;
 
-        if (json.SelectionRenderer)
-        {
+        if (json.SelectionRenderer) {
             var renderer = eval(json.SelectionRenderer[0]);
             if (renderer && renderer.prototype.CLASS_NAME && renderer.prototype.CLASS_NAME == "Fusion.Widget.SelectionPanel.SelectionRenderer") {
                 this.renderer = new renderer(this);
@@ -86,6 +85,24 @@ Fusion.Widget.SelectionPanel = OpenLayers.Class(Fusion.Widget, {
         }
     }
 });
+
+var PROP_TYPE_DATETIME = 3;
+
+//The date formatter function
+var _formatter = function(dateStr) { return dateStr; }
+
+/**
+ * Sets the date/time formatter function for the SelectionPanel widget.
+ * 
+ * If not specified, date/time values will be presented as-is
+ *
+ * Parameters:
+ * formatter - {Function} The date/time formatter function
+ *
+ */
+Fusion.Widget.SelectionPanel.setDateTimeFormatter = function(formatter) {
+    _formatter = formatter;
+};
 
 /* Class: Fusion.Widget.SelectionPanel.SelectionRenderer
  * This is a class designed to help users to create their own renderer
@@ -240,11 +257,16 @@ Fusion.Widget.SelectionPanel.SelectionRenderer = OpenLayers.Class(
             startIndex = startIndex ? startIndex : 0;
             endIndex = endIndex ? endIndex : selectionLayer.getNumElements();
             var propNames = selectionLayer.getPropertyNames();
+            var propTypes = selectionLayer.getPropertyTypes();
             var index =0;
             for (var i=startIndex; i<endIndex; i++, index++) {
                 page[index] = new Array();
                 for (var j=0; j<propNames.length; j++) {
-                    page[index][j] = selectionLayer.getElementValue(i, j);
+                    var fVal = selectionLayer.getElementValue(i, j);
+                    if (propTypes[j] == PROP_TYPE_DATETIME) {
+                        fVal = _formatter(fVal);
+                    }
+                    page[index][j] = fVal;
                 }
             }
         }
@@ -389,6 +411,7 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
         var layerObj = this.oSelection.getLayer(layerIdx);
         var nProperties = layerObj.getNumProperties();
         var aNames = layerObj.getPropertyNames();
+        var aTypes = layerObj.getPropertyTypes();
 
         var table = document.createElement('table');
 
@@ -413,7 +436,11 @@ Fusion.Widget.SelectionPanel.SelectionRendererDefault = OpenLayers.Class(Fusion.
             var th = document.createElement('th');
             th.innerHTML = aNames[i];
             var td = document.createElement('td');
-            td.innerHTML = layerObj.getElementValue(featureIdx, i);
+            var fVal = layerObj.getElementValue(featureIdx, i);
+            if (aTypes[i] == PROP_TYPE_DATETIME) {
+                fVal = _formatter(fVal);
+            }
+            td.innerHTML = fVal;
             tr.appendChild(th);
             tr.appendChild(td);
             tbody.appendChild(tr);
