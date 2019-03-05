@@ -23,6 +23,29 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+
+function arrayFind(array, searchStr) {
+    var returnArray = null;
+    for (i=0; i<array.length; i++) {
+      if (typeof(searchStr) == 'function' && typeof(searchStr.test) == 'function') {
+        if (searchStr.test(array[i])) {
+          if (!returnArray) { returnArray = [] }
+          returnArray.push(i);
+        }
+      } else {
+        if (array[i]===searchStr) {
+          if (!returnArray) { returnArray = [] }
+          returnArray.push(i);
+        }
+      }
+    }
+    return returnArray;
+}
+
+function arrayRemove(array, indexToRemove) {
+    array.splice(indexToRemove, 1);
+}
+
 /***************************************************************************
 * Class: Fusion.Layers.MapGuide
 *
@@ -2541,7 +2564,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
                     // add the previously selected features for this layer
                     for (var j = 0; j < prevSelLayer.getNumFeatures(); j++)
                     {
-                        var prevSelFeatureIndexes = currentLayer.featIds.find(prevSelLayer.featIds[j]);
+                        var prevSelFeatureIndexes = arrayFind(currentLayer.featIds, prevSelLayer.featIds[j]);
                         if (prevSelFeatureIndexes == null)
                         {
                             currentLayer.addFeature(prevSelLayer.featIds[j]);
@@ -2593,7 +2616,7 @@ Fusion.SimpleSelectionObject = OpenLayers.Class({
         var index = this.getLayerIndex(layer);
         if (index >=0 && index < this.nLayers)
         {
-            this.aLayers.remove(index);
+            arrayRemove(this.aLayers, index);
             this.nLayers--;
         } 
     },
@@ -2645,30 +2668,8 @@ Fusion.SimpleSelectionObject.Layer = OpenLayers.Class({
         var numIndexes = featureIndexes.length;
         for (var featIndex = 0; featIndex < numIndexes; featIndex++)
         {
-            this.featIds.remove(featureIndexes[featIndex]);
+            arrayRemove(this.featIds, featureIndexes[featIndex]);
             this.nFeatures--;
         }
     }
 });
-
-Array.prototype.find = function(searchStr) {
-  var returnArray = null;
-  for (i=0; i<this.length; i++) {
-    if (typeof(searchStr) == 'function' && typeof(searchStr.test) == 'function') {
-      if (searchStr.test(this[i])) {
-        if (!returnArray) { returnArray = [] }
-        returnArray.push(i);
-      }
-    } else {
-      if (this[i]===searchStr) {
-        if (!returnArray) { returnArray = [] }
-        returnArray.push(i);
-      }
-    }
-  }
-  return returnArray;
-};
-
-Array.prototype.remove = function(indexToRemove) {
-    this.splice(indexToRemove, 1);
-};
