@@ -72,8 +72,6 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, {
     mouseUp: function(e) {
         //this.getMap().setCursor(this.cursorNormal);
         var handler = this.control.handler;
-        
-        var p = {x:Event.pointerX(e), y:Event.pointerY(e)};    
 
         var dx = handler.start.x - handler.last.x;
         var dy = handler.start.y - handler.last.y;
@@ -106,7 +104,8 @@ Fusion.Widget.PanQuery = OpenLayers.Class(Fusion.Widget, {
 
             this.getMap().query(options);
         }
-        Event.stop(e);
+        e.preventDefault();
+        e.stopPropagation();
     },    
     activate : function() {
         this.control.activate();
